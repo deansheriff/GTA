@@ -60,6 +60,9 @@ func setup(p: Control, story_host: Node) -> void:
 	phone.add_app("Gigs", func() -> void: _gigs_board(""))
 	phone.add_app("Profile", func() -> void: _profile())
 	phone.add_app("Vote", func() -> void: _vote())
+	phone.add_app("Win", func() -> void: _challenges())
+	if int(Settings.get_pref("age_ok", -1)) == -1 and not "--demo" in OS.get_cmdline_user_args() and not "--story-auto" in OS.get_cmdline_user_args():
+		_age_gate.call_deferred()
 	Net.chat.connect(func(m: Dictionary) -> void:
 		street.append(m)
 		if street.size() > 40:
@@ -216,10 +219,97 @@ func _tabs(current: String, tabs: Dictionary) -> void:
 
 
 func _offline_note() -> bool:
+	if int(Settings.get_pref("age_ok", -1)) == 0:
+		phone._label("Online features are for players aged 18 and over. The story and the whole city are yours to play offline.", 15, DANFO)
+		return true
 	if Net.server == "":
 		phone._label("Online features need your server: Settings → Online.", 15, DANFO)
 		return true
 	return false
+
+
+# ---------- first run: age gate and consent (M7) ----------
+
+func _age_gate() -> void:
+	var root: Control = host.main.hud._root
+	var card: VBoxContainer = host.main.hud._card(root, "Before you play", "Online features (chat, gigs, voting, challenges) are for players aged 18 and over. The story works for everyone.")
+	var dlg: Control = host.main.hud._dialog_root(card)
+	var stats := CheckBox.new()
+	stats.text = "Share anonymous stats and crash reports to help fix the game (optional)"
+	stats.add_theme_color_override("font_color", Color("#1d1611"))
+	card.add_child(stats)
+	var links := Label.new()
+	links.text = "Privacy policy and terms: Settings → Online, once you connect to a server."
+	links.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	card.add_child(links)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	card.add_child(row)
+	row.add_child(host.main.hud._button("I'm 18 or older", func() -> void:
+		Settings.set_pref("telemetry", stats.button_pressed)
+		Settings.set_pref("age_ok", 1)
+		dlg.queue_free()))
+	row.add_child(host.main.hud._button("I'm under 18", func() -> void:
+		Settings.set_pref("telemetry", false)
+		Settings.set_pref("age_ok", 0)
+		Net.disconnect_now()
+		dlg.queue_free()
+		host.main.hud.toast("Story mode is all yours. Online features stay off.")))
+
+
+# ---------- Win: skill challenges (F5) ----------
+
+const CHALLENGE_GAME := { "spray": "spray", "interview": "interview", "dodge": "dodge" }
+const CHALLENGE_NAME := { "spray": "Money Spraying", "interview": "Visa Interview", "dodge": "Jerrycan Dodge" }
+
+
+func _challenges() -> void:
+	phone._clear("Win · Daily challenges")
+	if _offline_note():
+		return
+	var res: Dictionary = await Net.api("GET", "/api/challenges")
+	if not res["ok"]:
+		phone._label(_err(res), 14, BAD)
+		return
+	var d: Dictionary = res["data"]
+	phone._label(String(d.get("rules", "")), 12, DIM)
+	phone._label("Prizes are %s." % ("ON: hit the target to win a ticket" if d.get("prizes") == "on" else "not running right now. Play for points and the leaderboard"), 13, DANFO)
+	for g in d.get("games", []):
+		var id: String = g["id"]
+		phone._label("%s · target %d" % [CHALLENGE_NAME.get(id, id), int(g["target"])], 17)
+		var board: Array = d.get("leaderboards", {}).get(id, [])
+		if not board.is_empty():
+			phone._label("This week: " + ", ".join(board.slice(0, 3).map(func(x: Dictionary) -> String: return "%s %d" % [x["name"], int(x["best"])])), 12, DIM)
+		_btn("Play " + CHALLENGE_NAME.get(id, id), func() -> void: _play_challenge(id))
+	_btn("Prize rules and my age", _age_screen)
+
+
+func _play_challenge(id: String) -> void:
+	var start: Dictionary = await Net.api("POST", "/api/challenges/%s/start" % id)
+	if not start["ok"]:
+		host.main.hud.toast(_err(start))
+		return
+	phone.visible = false
+	var res: Dictionary = await host._games[CHALLENGE_GAME[id]].play(start["data"])
+	var fin: Dictionary = await Net.api("POST", "/api/challenges/runs/%d/finish" % int(start["data"]["run"]), { "log": res.get("log", []) })
+	if not fin["ok"]:
+		host.main.hud.toast(_err(fin))
+		return
+	var f: Dictionary = fin["data"]
+	Telemetry.event("challenge", { "game": id, "score": int(f.get("score", 0)) })
+	var msg := "Score %d (target %d) · +%d points" % [int(f.get("score", 0)), int(f.get("target", 0)), int(f.get("points", 0))]
+	if f.get("ticket") != null:
+		msg += " · PRIZE TICKET %s" % String(f["ticket"]).left(8)
+	host.main.hud.toast(msg, f.get("passed", false))
+
+
+func _age_screen() -> void:
+	phone._clear("Prize rules")
+	phone._label("Prizes (airtime or data) are only for phone-verified players aged 18+, one per phone per day, while the monthly pool lasts. No purchase is ever needed.", 14)
+	var year := _edit("Birth year (e.g. 1998)")
+	_btn("Save birth year", func() -> void:
+		var res: Dictionary = await Net.api("POST", "/api/me/age", { "birthYear": int(year.text) })
+		host.main.hud.toast(("Saved. %s" % ("Eligible for prizes once verified." if res["data"].get("adult", false) else "Prizes are 18+ only.")) if res["ok"] else _err(res)))
 
 
 # ---------- Chat ----------
@@ -506,8 +596,40 @@ func _profile() -> void:
 		}
 		var res: Dictionary = await Net.api("PUT", "/api/profile", body)
 		host.main.hud.toast(("Profile saved. Level %d." % int(res["data"].get("level", 1))) if res["ok"] else _err(res)))
+	phone._label("YOUR DATA", 13, DANFO)
+	_btn("Download my data", func() -> void:
+		var ex: Dictionary = await Net.api("GET", "/api/me/export")
+		if not ex["ok"]:
+			host.main.hud.toast(_err(ex))
+			return
+		var path := OS.get_user_data_dir().path_join("my-naija-street-life-data.json")
+		var f := FileAccess.open(path, FileAccess.WRITE)
+		if f:
+			f.store_string(JSON.stringify(ex["data"], "  "))
+			f.close()
+		host.main.hud.toast("Saved to %s" % path))
+	_btn("Delete my account", _delete_account)
 	if d.has("gigBadges") and not (d["gigBadges"] as Dictionary).is_empty():
 		phone._label("Verified by gigs: " + ", ".join((d["gigBadges"] as Dictionary).keys().map(func(k: String) -> String: return "%s ×%d" % [k.capitalize(), int(d["gigBadges"][k])])), 13, GOOD)
+
+
+func _delete_account() -> void:
+	phone._clear("Delete account")
+	phone._label("This permanently deletes your online account, profile, messages, gigs and market wallet. Your offline save on this phone stays. Type DELETE to confirm.", 14, BAD)
+	var e := _edit("DELETE")
+	_btn("Delete forever", func() -> void:
+		if e.text != "DELETE":
+			host.main.hud.toast("Type DELETE to confirm.")
+			return
+		var res: Dictionary = await Net.api("DELETE", "/api/me", { "confirm": "DELETE" })
+		if res["ok"]:
+			Net.token = ""
+			Net.disconnect_now()
+			Net.set_server(Net.server, Net.player_name)
+			host.main.hud.toast("Account deleted.", true)
+			phone.visible = false
+		else:
+			host.main.hud.toast(_err(res)))
 
 
 func _profile_view(pid: String) -> void:

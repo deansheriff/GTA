@@ -9,7 +9,7 @@ var current: Dictionary = DeviceProfile.from_preset("medium")
 var suggestion: Dictionary = {}
 var first_run := true
 ## Non-graphics preferences, e.g. "news_chatter" (proposal F8: a player toggle for news banter).
-var prefs := { "news_chatter": true }
+var prefs := { "news_chatter": true, "age_ok": -1, "telemetry": false } # age_ok: -1 unknown, 0 under 18, 1 adult
 
 
 func _ready() -> void:

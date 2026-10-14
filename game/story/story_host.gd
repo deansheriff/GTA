@@ -67,7 +67,12 @@ func setup(m: Node2D) -> void:
 	add_child(abilities)
 	runner.setup(self, main.map)
 	runner.objective.connect(_set_objective)
-	runner.finished.connect(func(_id: String, _ok: bool) -> void: _set_objective(""))
+	runner.finished.connect(func(id: String, ok: bool) -> void:
+		_set_objective("")
+		Telemetry.event("mission_complete" if ok else "mission_fail", { "id": id })
+		if id == "3.5" and ok:
+			Telemetry.event("ending", { "ending": String(Story.flag("ending")) }))
+	runner.started.connect(func(id: String) -> void: Telemetry.event("mission_start", { "id": id }))
 	chase.setup(main.map, main.nav, main.streamer, main.painted_mat)
 	add_child(interior)
 	var root: Control = main.hud._root
@@ -504,6 +509,7 @@ func switch_hero(to: String) -> void:
 
 
 func _do_switch(to: String, at: Vector2) -> void:
+	Telemetry.event("switch_hero", { "to": to })
 	_force_walk()
 	var res: Dictionary = Story.swap_hero(to, main.player.position)
 	_apply_hero_look()
@@ -849,6 +855,7 @@ func story_minigame(game: String, params: Dictionary) -> Dictionary:
 		res = await g.play(params)
 	_busy -= 1
 	print("story: minigame %s -> %s" % [game, res])
+	Telemetry.event("minigame", { "game": game, "score": int(res.get("score", 0)) })
 	return res
 
 

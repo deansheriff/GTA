@@ -12,6 +12,8 @@ import { Flags } from './flags.ts';
 import { AiService, geminiTransport, type Transport } from './ai.ts';
 import { NewsService, feedsFromEnv, registerNews } from './news.ts';
 import { registerBrains } from './brains.ts';
+import { registerChallenges } from './challenges.ts';
+import { enforceRetention, registerCompliance } from './compliance.ts';
 
 /**
  * Naija Street Life API + realtime server. Deployed on the owner's Coolify behind Cloudflare
@@ -106,6 +108,15 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
   registerBrains(app, store.db, ai, flags);
   registerAdmin(app, store.db, (id) => rt.hub.forget(id), { flags, ai, news, feeds });
   app.decorate('news', news);
+  // M7: skill challenges (prizes behind flags), compliance pages, data rights, telemetry.
+  registerChallenges(app, store.db, flags);
+  registerCompliance(app, store.db, flags);
+  let retention: NodeJS.Timeout | null = null;
+  if (process.env.NODE_ENV !== 'test') {
+    const run = () => enforceRetention(store.db).catch((e) => app.log.warn({ err: e }, 'retention failed'));
+    setTimeout(run, 60_000);
+    retention = setInterval(run, 6 * 3600_000);
+  }
   let newsTimer: NodeJS.Timeout | null = null;
   if (process.env.NODE_ENV !== 'test' && feeds().length > 0) {
     const every = Math.max(10, Number(process.env.NEWS_POLL_MINUTES ?? 20)) * 60_000;
@@ -115,6 +126,7 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
   }
   app.addHook('onClose', async () => {
     if (newsTimer) clearInterval(newsTimer);
+    if (retention) clearInterval(retention);
   });
   app.addHook('onClose', async () => {
     rt.stop();

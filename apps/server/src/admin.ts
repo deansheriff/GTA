@@ -266,6 +266,16 @@ export function registerAdmin(app: FastifyInstance, db: Db, onPlayerChanged: (id
     return { ok: true, n };
   });
 
+  // M7: telemetry summary, crash list, challenge stats and prize tickets.
+  app.get('/api/admin/telemetry', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const events = await db.query(`SELECT name, count(*) AS n, count(DISTINCT session) AS sessions FROM telemetry_events WHERE created_at > now() - interval '7 days' GROUP BY name ORDER BY n DESC`);
+    const crashes = await db.query(`SELECT message, version, count(*) AS n, max(created_at) AS last FROM crash_reports WHERE created_at > now() - interval '14 days' GROUP BY message, version ORDER BY n DESC LIMIT 30`);
+    const challenges = await db.query(`SELECT game, count(*) AS runs, round(avg(score)) AS avg, max(score) AS best FROM challenge_runs WHERE status = 'scored' AND created_at > now() - interval '7 days' GROUP BY game`);
+    const tickets = await db.query(`SELECT status, count(*) AS n, coalesce(sum(value), 0) AS naira FROM prize_tickets GROUP BY status`);
+    return { events: events.rows, crashes: crashes.rows, challenges: challenges.rows, tickets: tickets.rows };
+  });
+
   app.get('/api/admin/npc-chats', async (req, reply) => {
     if (!guard(req, reply)) return;
     const r = await db.query(`SELECT c.id, p.name AS player, c.npc, c.player_text, c.reply, c.fallback, c.reported, c.created_at FROM npc_chat_log c LEFT JOIN players p ON p.id = c.player_id ORDER BY c.reported DESC, c.id DESC LIMIT 100`);

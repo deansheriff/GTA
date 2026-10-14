@@ -64,6 +64,20 @@ func _initialize() -> void:
 	check(banter["ok"] and banter["data"].has("lines"), "news banter endpoint")
 	var moods: Dictionary = await net.api("GET", "/api/brains/moods")
 	check(moods["ok"] and (moods["data"].get("moods", {}) as Dictionary).has("drivers"), "archetype moods")
+	var ch: Dictionary = await net.api("POST", "/api/challenges/dodge/start")
+	check(ch["ok"] and (ch["data"].get("seq", []) as Array).size() == 10, "challenge run issued by the server")
+	if ch["ok"]:
+		var log: Array = (ch["data"]["seq"] as Array).map(func(d: String) -> Dictionary: return { "dodge": d, "t": 0.5 })
+		var fin2: Dictionary = await net.api("POST", "/api/challenges/runs/%d/finish" % int(ch["data"]["run"]), { "log": log })
+		check(fin2["ok"] and int(fin2["data"].get("score", 0)) == 100, "server replays the input log")
+	var settings: Node = root.get_node("Settings")
+	var tele: Node = root.get_node("Telemetry")
+	var was: Variant = settings.get_pref("telemetry", false)
+	settings.prefs["telemetry"] = true
+	tele.event("mission_complete", { "id": "P1" })
+	await tele.flush()
+	settings.prefs["telemetry"] = was
+	check(true, "telemetry flush completes")
 	var got_err := [""]
 	net.server_error.connect(func(c: String) -> void: got_err[0] = c)
 	net.send_chat("my number is 08031234567")

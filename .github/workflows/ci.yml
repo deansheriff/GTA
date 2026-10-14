@@ -44,10 +44,8 @@ jobs:
           ./godot --headless --path game --script res://tests/online_check.gd -- --server=127.0.0.1:8799 > online.log 2>&1 || true
           cat online.log
           if ! grep -q "online: [0-9]* passed, 0 failed" online.log || grep -q "SCRIPT ERROR" online.log; then
-            echo "::error title=online check::$(grep -E 'FAIL|SCRIPT ERROR|ERROR|online:' online.log | head -20 | tr '
-' ' ')"
-            echo "::error title=server log::$(tail -c 1500 server.log | tr '
-' ' ')"
+            echo "::error title=online check::$(grep -E 'FAIL|SCRIPT ERROR|ERROR|online:' online.log | head -20 | paste -sd ' ')"
+            echo "::error title=server log::$(tail -c 1500 server.log | paste -sd ' ')"
             exit 1
           fi
 

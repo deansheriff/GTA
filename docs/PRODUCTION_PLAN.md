@@ -164,11 +164,31 @@ milestones, make no APK until the game is done, then do one release build.
 - 🔒 Owner: the Gemini project's **prepaid credits are depleted** (HTTP 402 on 2026-10-14).
   Top up in AI Studio before turning AI on in production. Choose news outlets for `NEWS_FEEDS` ⚖️.
 
-## M7 — Money, prizes, compliance (behind feature flags) ⬜
-- ⬜ F5 data/airtime skill games (points now; real prizes 🔒 legal + provider)
-- ⬜ Real-naira gigs and escrow (🔒 company + licensed provider)
-- ⬜ Privacy policy, terms, data-safety answers, age gate, content rating answers
-- ⬜ Crash reporting and privacy-respecting analytics
+## M7 — Money, prizes, compliance (behind feature flags) ✅ (2026-10-14)
+- ✅ **F5 skill challenges** (`challenges.ts`, phone app **Win**): Money Spraying, Visa
+  Interview and Jerrycan Dodge. Anti-cheat is by server replay: the server makes the run (beats,
+  question and answer order, jerrycan sequence) and keeps the scoring key; the client plays it and
+  sends only its input log; the server re-scores it. Button-mashing and faster-than-reading
+  answers score nothing.
+- ✅ **Points and weekly leaderboards.** Prize tickets are switched **off** (`prizes_enabled`,
+  pool ₦0). When switched on, a ticket needs a verified phone, a declared age of 18+, one per
+  phone per day, a weekly cap, and room in the monthly pool. Delayed, idempotent fulfilment
+  waits on a provider 🔒.
+- ⛔ **Real-naira gigs and escrow:** deliberately not built. `/api/real/*` answers 403 behind
+  `real_money_enabled` until there is a company, a licensed partner and legal sign-off 🔒.
+- ✅ **Compliance:**
+  - Privacy policy and terms drafts served at `/privacy` and `/terms` ⚖️.
+  - Play **data-safety** and **content-rating** answers (`docs/legal/`).
+  - A lawyer checklist.
+  - A first-run **18+ age gate**: under-18s get offline safe mode.
+  - **Download my data** and **Delete my account** (NDPA). Election votes stay in the chain,
+    anonymised.
+  - Retention periods enforced by a job.
+- ✅ **Crash reporting and analytics:** opt-in (first-run question and a Settings toggle),
+  anonymous per-install id, whitelisted events, crash capture via a Godot `Logger` with home
+  paths scrubbed, rate-limited. Admin telemetry summary (events, crashes, challenge stats,
+  prize tickets).
+- ✅ Tests: 26 server tests (4 new M7 groups); Godot↔server check at 17; 144 game tests
 
 ## M8 — Polish and release ⬜
 - ⬜ Remaining art: 8-direction vehicles, three heroes, villains, portraits, UI art

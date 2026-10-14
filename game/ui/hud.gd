@@ -289,6 +289,7 @@ func _show_settings(root: Control) -> void:
 	card.add_child(_toggle("Reduce motion (no screen shake)", s.get("reduced_motion", false), func(v: bool) -> void: Settings.set_value("reduced_motion", v)))
 	card.add_child(_toggle("Weather", s.get("weather", true), func(v: bool) -> void: Settings.set_value("weather", v)))
 	card.add_child(_toggle("News chatter (NPCs react to real headlines, with sources)", Settings.get_pref("news_chatter", true), func(v: bool) -> void: Settings.set_pref("news_chatter", v)))
+	card.add_child(_toggle("Share anonymous stats and crash reports", Settings.get_pref("telemetry", false), func(v: bool) -> void: Settings.set_pref("telemetry", v)))
 	# Online: your Coolify server address (docs/COOLIFY.md) and display name.
 	var online_h := Label.new()
 	online_h.text = "Online"
@@ -307,6 +308,11 @@ func _show_settings(root: Control) -> void:
 		Net.set_server(server_edit.text, name_edit.text)
 		Net.start(Net._pending_hello)
 		_settings_panel.queue_free()))
+	if Net.server != "":
+		var legal := HBoxContainer.new()
+		legal.add_child(_button("Privacy policy", func() -> void: OS.shell_open(Net.http_base() + "/privacy")))
+		legal.add_child(_button("Terms", func() -> void: OS.shell_open(Net.http_base() + "/terms")))
+		card.add_child(legal)
 	card.add_child(_button("Close", func() -> void: _settings_panel.queue_free()))
 
 

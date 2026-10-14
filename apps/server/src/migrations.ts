@@ -280,6 +280,58 @@ const MIGRATIONS: { v: number; sql: string[] }[] = [
        )`,
     ],
   },
+  {
+    // M7: skill challenges and prize tickets (behind flags), age, telemetry, erasure-safe votes.
+    v: 4,
+    sql: [
+      `ALTER TABLE players ADD COLUMN IF NOT EXISTS birth_year integer`,
+      `CREATE TABLE IF NOT EXISTS challenge_runs (
+         id bigserial PRIMARY KEY,
+         player_id uuid NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+         game text NOT NULL,
+         seed text NOT NULL,
+         key jsonb NOT NULL,
+         status text NOT NULL DEFAULT 'open',
+         score integer,
+         points integer NOT NULL DEFAULT 0,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE INDEX IF NOT EXISTS challenge_board_idx ON challenge_runs (game, status, created_at)`,
+      `CREATE TABLE IF NOT EXISTS prize_tickets (
+         id bigserial PRIMARY KEY,
+         code text NOT NULL UNIQUE,
+         player_id uuid REFERENCES players(id) ON DELETE SET NULL,
+         phone_hash text NOT NULL,
+         value integer NOT NULL,
+         status text NOT NULL DEFAULT 'pending',
+         provider_ref text,
+         fulfil_after timestamptz NOT NULL,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS telemetry_events (
+         id bigserial PRIMARY KEY,
+         session text NOT NULL,
+         name text NOT NULL,
+         props jsonb NOT NULL DEFAULT '{}'::jsonb,
+         version text,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE INDEX IF NOT EXISTS telemetry_name_idx ON telemetry_events (name, created_at)`,
+      `CREATE TABLE IF NOT EXISTS crash_reports (
+         id bigserial PRIMARY KEY,
+         session text NOT NULL,
+         version text,
+         platform text,
+         message text NOT NULL,
+         stack text,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      // Erasing an account must not break the election hash chain: the vote stays, anonymised.
+      `ALTER TABLE votes ALTER COLUMN voter DROP NOT NULL`,
+      `ALTER TABLE votes DROP CONSTRAINT IF EXISTS votes_voter_fkey`,
+      `ALTER TABLE votes ADD CONSTRAINT votes_voter_fkey FOREIGN KEY (voter) REFERENCES players(id) ON DELETE SET NULL`,
+    ],
+  },
 ];
 
 export async function migrate(db: Db): Promise<number> {

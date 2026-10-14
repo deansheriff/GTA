@@ -13,6 +13,8 @@ var _window := 1.6
 var _prompt: Label
 var _clock: ProgressBar
 var _rng := RandomNumberGenerator.new()
+var _log: Array = []
+var _rounds := ROUNDS
 
 
 func _build() -> void:
@@ -28,11 +30,16 @@ func _build() -> void:
 	big_button("Lean left", func() -> void: _dodge("right"), row)
 
 
-func _begin(_p: Dictionary) -> void:
+func _begin(p: Dictionary) -> void:
 	_rng.randomize()
 	_seq.clear()
-	for i in ROUNDS:
-		_seq.append(DIRS.keys()[_rng.randi() % 3])
+	_log.clear()
+	if p.has("seq"):
+		_seq = (p["seq"] as Array).duplicate()
+	else:
+		for i in ROUNDS:
+			_seq.append(DIRS.keys()[_rng.randi() % 3])
+	_rounds = _seq.size()
 	_i = -1
 	_hits = 0
 	_next()
@@ -40,10 +47,10 @@ func _begin(_p: Dictionary) -> void:
 
 func _next() -> void:
 	_i += 1
-	if _i >= ROUNDS:
-		var score := int(round(float(ROUNDS - _hits) / ROUNDS * 100.0))
+	if _i >= _rounds:
+		var score := int(round(float(_rounds - _hits) / _rounds * 100.0))
 		_prompt.text = "Brawl over. Queue restored. Diesel acquired." if score >= 50 else "You got bonked. Many times. Comedically."
-		finish({ "score": score })
+		finish({ "score": score, "log": _log.duplicate() })
 		return
 	_prompt.text = "Jerrycan " + DIRS[_seq[_i]]
 	_window = maxf(0.9, 1.6 - _i * 0.08)
@@ -54,19 +61,21 @@ func _next() -> void:
 
 
 func _dodge(d: String) -> void:
-	if not _running or _i >= ROUNDS:
+	if not _running or _i >= _rounds:
 		return
 	if d != _seq[_i]:
 		_hits += 1
+	_log.append({ "dodge": d, "t": snappedf(_window - _left, 0.01) })
 	_next()
 
 
 func _process(delta: float) -> void:
-	if not _running or _i >= ROUNDS:
+	if not _running or _i >= _rounds:
 		return
 	_left -= delta
 	_clock.max_value = _window
 	_clock.value = _left
 	if _left <= 0.0:
 		_hits += 1
+		_log.append({ "dodge": "none", "t": 99 })
 		_next()

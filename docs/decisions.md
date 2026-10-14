@@ -286,3 +286,14 @@ ask only when input is needed, and make no APK builds until the game is done.
   headline-and-link use, is the owner's decision (⚖️).
 - The batch API (50% cheaper) can replace per-story calls later; at a few dozen stories a day,
   the standard API costs cents.
+
+## D-013 · Prizes, real money and telemetry for M7 · 2026-10-14
+**Decision (engineering, within the approved proposal; owner can override):**
+- **No real-money code paths ship.** Prize tickets exist, but the prize pool is ₦0 and prizes are
+  off. Real-naira gigs are a hard 403. Both need legal sign-off and a provider (🔒 owner), which
+  can't be done from code.
+- **Anti-cheat by replay:** the server keeps the challenge's scoring key and scores the
+  client's input log. This beats trusting a client score, and needs no shared RNG between
+  Godot and Node.
+- **Telemetry is opt-in** (default off), anonymous and whitelisted. The age gate is
+  self-declared, with phone verification for prizes; a lawyer must confirm that's enough.

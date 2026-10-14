@@ -14,6 +14,7 @@ var _points := 0.0
 var _combo := 0
 var _feedback: Label
 var _rng := RandomNumberGenerator.new()
+var _log: Array = [] # tap times, for server replay in challenges
 
 
 func _build() -> void:
@@ -34,10 +35,16 @@ func _begin(p: Dictionary) -> void:
 	_beats = int(p.get("beats", 20))
 	_interval = 60.0 / float(p.get("bpm", 96))
 	_notes.clear()
-	for i in _beats:
-		# Mostly on the beat, sometimes a double for flavour.
-		var t := 1.2 + i * _interval
-		_notes.append({ "t_hit": t, "judged": false, "grade": 0.0 })
+	_log.clear()
+	if p.has("beats"):
+		# Challenge: the server chose the beats; we play exactly those.
+		for b in p["beats"]:
+			_notes.append({ "t_hit": float(b), "judged": false, "grade": 0.0 })
+		_beats = _notes.size()
+	else:
+		for i in _beats:
+			var t := 1.2 + i * _interval
+			_notes.append({ "t_hit": t, "judged": false, "grade": 0.0 })
 	_t = 0.0
 	_points = 0.0
 	_combo = 0
@@ -53,6 +60,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _tap() -> void:
 	if not _running:
 		return
+	_log.append(snappedf(_t, 0.001))
 	var best := -1
 	var bd := 9.0
 	for i in _notes.size():
@@ -91,7 +99,7 @@ func _process(delta: float) -> void:
 	if _t > float(_notes[-1]["t_hit"]) + 0.6:
 		var score := int(round(_points / float(_beats)))
 		_feedback.text = "The dancers are %s!" % ("screaming your name" if score >= 75 else ("dancing" if score >= 55 else "confused"))
-		finish({ "score": score })
+		finish({ "score": score, "log": _log.duplicate() })
 
 
 func _draw_lane() -> void:

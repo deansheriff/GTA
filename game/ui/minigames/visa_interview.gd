@@ -23,6 +23,8 @@ var _meter: ProgressBar
 var _clock: ProgressBar
 var _btns: Array[Button] = []
 var _rng := RandomNumberGenerator.new()
+var _challenge := false
+var _log: Array = []
 
 
 func _build() -> void:
@@ -41,11 +43,19 @@ func _build() -> void:
 		_btns.append(b)
 
 
-func _begin(_p: Dictionary) -> void:
+func _begin(p: Dictionary) -> void:
 	_rng.randomize()
-	_order = QUESTIONS.duplicate()
-	_order.shuffle()
-	_order = _order.slice(0, 5)
+	_log.clear()
+	_challenge = p.has("rounds")
+	_meter.visible = not _challenge # in challenges the server keeps the scoring key
+	if _challenge:
+		_order = []
+		for r in p["rounds"]:
+			_order.append({ "q": r["q"], "a": (r["answers"] as Array).map(func(x: String) -> Array: return [x, 0]), "fixed": true })
+	else:
+		_order = QUESTIONS.duplicate()
+		_order.shuffle()
+		_order = _order.slice(0, 5)
 	_i = -1
 	_composure = 60.0
 	_next()
@@ -56,12 +66,13 @@ func _next() -> void:
 	if _i >= _order.size():
 		var passed := _composure >= 60.0
 		_q.text = "APPROVED. (The officer still did not blink.)" if passed else "REFUSED. \"Reason: Insufficient ties to grandmother's goat.\""
-		finish({ "score": int(_composure), "passed": passed })
+		finish({ "score": int(_composure), "passed": passed, "log": _log.duplicate() })
 		return
 	var q: Dictionary = _order[_i]
 	_q.text = "Officer: \"%s\"" % q["q"]
 	var answers: Array = q["a"].duplicate()
-	answers.shuffle()
+	if not q.get("fixed", false):
+		answers.shuffle()
 	for k in 3:
 		_btns[k].text = answers[k][0]
 		_btns[k].set_meta("delta", answers[k][1])
@@ -79,6 +90,7 @@ func _answer(k: int) -> void:
 	if not _running or _i >= _order.size():
 		return
 	_composure = clampf(_composure + float(_btns[k].get_meta("delta")), 0.0, 100.0)
+	_log.append({ "pick": k, "t": snappedf(ROUND_TIME - _left, 0.01) })
 	_next()
 
 
@@ -92,4 +104,5 @@ func _process(delta: float) -> void:
 	_clock.value = _left
 	if _left <= 0.0:
 		_composure = clampf(_composure - 12.0, 0.0, 100.0) # silence is suspicious
+		_log.append({ "pick": -1, "t": 99 })
 		_next()

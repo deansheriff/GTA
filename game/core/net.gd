@@ -64,6 +64,9 @@ func set_server(address: String, name_: String) -> void:
 ## Begin connecting; `hello` carries look/position for the first message.
 func start(hello: Dictionary) -> void:
 	_pending_hello = hello
+	if int(Settings.get_pref("age_ok", -1)) == 0:
+		_set_state("offline") # safe mode for under-18s: no online play at all
+		return
 	if server == "":
 		_set_state("offline")
 		return
