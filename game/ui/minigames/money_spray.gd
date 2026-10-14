@@ -30,6 +30,7 @@ func _build() -> void:
 
 func _begin(p: Dictionary) -> void:
 	_rng.randomize()
+	set_title(String(p.get("title", "Spray the money!")))
 	_beats = int(p.get("beats", 20))
 	_interval = 60.0 / float(p.get("bpm", 96))
 	_notes.clear()

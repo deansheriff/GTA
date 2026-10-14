@@ -16,6 +16,7 @@ var order: Array = [] # mission ids in story order
 var dialogue := {} # id -> Array of lines
 var cast := {} # id -> {name, portrait, sprite?, ped?}
 var chats := {} # Family Meeting banks and off-screen events
+var collectibles: Array = [] # hidden diary pages in the world
 
 var done := {} # mission id -> true
 var current := "" # mission in progress ("" when free roaming)
@@ -26,6 +27,12 @@ var switching := false # unlocked by P4
 var heroes := {} # hero -> {pos: [x, y], needs: {}, away_since: minutes}
 var diary_pages := 0
 var evidence := 0
+## Act 3 election: support for Teacher (0-100) in each NPC voting bloc of Agbado-Ketu Central.
+const BLOCS := ["traders", "drivers", "students", "church", "okada", "youth"]
+const BLOC_NAME := { "traders": "Market traders", "drivers": "Danfo drivers", "students": "Students", "church": "Church women", "okada": "Okada union", "youth": "Street youth" }
+var blocs := { "traders": 35, "drivers": 30, "students": 45, "church": 40, "okada": 25, "youth": 35 }
+var trust := 5 # KC's hidden gist credibility (0-5)
+const PAGES_FOR_D := 10
 
 
 func _ready() -> void:
@@ -39,6 +46,7 @@ func load_data() -> void:
 	for mission in m.get("missions", []):
 		missions[mission["id"]] = mission
 		order.append(mission["id"])
+	collectibles = m.get("collectibles", [])
 	dialogue = _json("res://data/story/dialogue.json").get("lines", {})
 	cast = _json("res://data/story/cast.json").get("cast", {})
 	chats = _json("res://data/story/chat.json")
@@ -60,6 +68,15 @@ func is_done(id: String) -> bool:
 func requirements_met(id: String) -> bool:
 	for r in missions[id].get("requires", []):
 		if not done.has(r):
+			return false
+	# "requires_count": [n, [ids]] — any n of these (Act 2 blocks open in any order).
+	var rc: Array = missions[id].get("requires_count", [])
+	if rc.size() == 2:
+		var n := 0
+		for r in rc[1]:
+			if done.has(r):
+				n += 1
+		if n < int(rc[0]):
 			return false
 	return true
 
@@ -214,8 +231,48 @@ func apply_effects(fx: Dictionary) -> void:
 		diary_pages += int(fx["diary_pages"])
 	if fx.has("evidence"):
 		evidence += int(fx["evidence"])
+	for b in fx.get("blocs", {}):
+		if b == "all":
+			for k in BLOCS:
+				blocs[k] = clampi(int(blocs[k]) + int(fx["blocs"][b]), 0, 100)
+		elif blocs.has(b):
+			blocs[b] = clampi(int(blocs[b]) + int(fx["blocs"][b]), 0, 100)
+	if fx.get("cashout", false) and story_money > 0:
+		# The credits: story money finally joins the wallet (Bible §9.7).
+		Life.earn(story_money, "Story money (Up NEPA!)")
+		story_money = 0
+	if fx.has("trust"):
+		trust = clampi(trust + int(fx["trust"]), 0, 5)
 	Life.changed.emit()
 	progress_changed.emit()
+
+
+# ---------- election and endings ----------
+
+## Teacher's share of the vote: blocs weighted equally (the WIEC count in 3.4).
+func teacher_support() -> int:
+	var t := 0
+	for b in BLOCS:
+		t += int(blocs[b])
+	return t / BLOCS.size()
+
+
+## Which ending the choices add up to (mission list, Act 3 table). Checked in this order:
+## B (kept the old notes) → C (KC chose to japa) → D (all ten diary pages + the stitch key)
+## → A (honest). A is also the fallback, with a quieter epilogue if trust is low.
+func compute_ending() -> String:
+	if flag("old_notes") == "kept":
+		return "B"
+	if flag("japa_chosen"):
+		return "C"
+	if diary_pages >= PAGES_FOR_D and flag("stitch_key"):
+		return "D"
+	return "A"
+
+
+## Ending A needs: tried honest OR 5+ evidence, old notes handed over, family trust ≥ 60.
+func honest_ending_full() -> bool:
+	return (flag("tried_honest") == true or evidence >= 5) and flag("old_notes") == "handed" and family_rel() >= 60
 
 
 # ---------- save ----------
@@ -224,6 +281,7 @@ func to_dict() -> Dictionary:
 	return {
 		"done": done, "current": current, "checkpoint": checkpoint, "story_money": story_money,
 		"tiers": tiers, "switching": switching, "heroes": heroes, "diary_pages": diary_pages, "evidence": evidence,
+		"blocs": blocs, "trust": trust,
 	}
 
 
@@ -237,6 +295,10 @@ func from_dict(d: Dictionary) -> void:
 	heroes = d.get("heroes", {})
 	diary_pages = int(d.get("diary_pages", 0))
 	evidence = int(d.get("evidence", 0))
+	blocs = { "traders": 35, "drivers": 30, "students": 45, "church": 40, "okada": 25, "youth": 35 }
+	for b in d.get("blocs", {}):
+		blocs[b] = int(d["blocs"][b])
+	trust = int(d.get("trust", 5))
 	progress_changed.emit()
 
 

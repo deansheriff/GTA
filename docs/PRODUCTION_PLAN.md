@@ -71,10 +71,31 @@ milestones, make no APK until the game is done, then do one release build.
   (85 screenshots; 52–61 fps); 111 game tests incl. a full fake-host run of all 9 missions,
   retry from checkpoint, switching, abilities and save round-trip
 
-## M4 — Acts 2 and 3, endings ⬜
-- ⬜ Act 2 (2.1–2.8) including Generator Wars, Japa Interview, Danfo Chase, Aso-Ebi
-  Infiltration, Following the Money, Fuel Queue, Viral, Midpoint
-- ⬜ Act 3 (3.1–3.5): campaign blocs, debate, Light Man, finale, four endings
+## M4 — Acts 2 and 3, endings ✅ (2026-10-14)
+- ✅ **Act 2 "Spread" (2.1–2.8):** Generator Wars (stealth push past rival lookouts; group Stare),
+  Japa Interview (Northvale visa mini-game; confess-or-get-caught beat), Danfo Chase (passenger
+  votes, wedding-convoy escape), Aso-Ebi Infiltration (gate dress-code check, the aunties, Mama
+  Chief, KC's forced dance, Ledger's study in the compound-party interior), Following the Money
+  (POS agents + investigation board; evidence only, no laundering), Fuel Queue Standoff (Stare +
+  jerrycan-dodge brawl), Viral (rumour graph; false gists cost Hype and Trust), Midpoint: Old
+  Money (the old-notes twist, the stitch-key pocket, Tunde's confession, keep-or-hand-over choice)
+- ✅ Act 2 blocks open in any order (Block B after any two of Block A; Block C after 2.4 + 2.5)
+- ✅ **Act 3 "Election Day" (3.1–3.5):** Campaign Season (drive Teacher to six voting blocs;
+  honest pitches move them, bribes always backfire), The Debate (rebuttal-card battle, KC's live
+  chat), Light Man (suya time trial for Engineer Bayo), Up NEPA! (stadium interior, timed hero
+  switching, the "UP NEPA!" light-cue finale, the diary reveal, the WIEC result), Epilogue
+- ✅ **Four endings** with painted epilogue panels: A Honest (full version when trust ≥ 60 etc.),
+  B Hustle, C Japa, D Secret (all ten diary pages + the stitch key); rules in `Story.compute_ending()`
+- ✅ **Election blocs** (traders, drivers, students, church women, okada union, youth) shown as a
+  WIEC poll in the Story app; Teacher wins on the bloc average
+- ✅ **Four hidden diary pages** glowing on the street after Act 1
+- ✅ Ability tiers from the spec: Stare 2 (groups), Ajo 2, Conductor 2 (faster calls), Whisperer 3
+  (8 s), Gist (KC, 3 a day, Hype scaled by Trust)
+- ✅ Story money joins the wallet at the credits; "Start the story again" keeps money, skills and found pages
+- ✅ Seven new mini-games: visa interview, dress code, evidence board, jerrycan dodge, rumour
+  graph, debate, light cue; two new interiors (compound party, ward stadium); 15 new story panels
+- ✅ 144 game tests: the full 22-mission story on the fake host, Act 2 block gating, all four ending rules
+- 🔒 Native-speaker review of all Pidgin/Yoruba/Igbo lines (owner to arrange)
 
 ## M5 — Online features ⬜
 - ⬜ Accounts: guest, then phone OTP (provider interface; SMS vendor 🔒 owner account)

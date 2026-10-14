@@ -76,7 +76,7 @@ func _test_map() -> void:
 	check(ms < 8000, "map builds in under 8 s on desktop (%d ms)" % ms)
 	check(m.buildings.size() > 250, "a full city of buildings (%d)" % m.buildings.size())
 	check(m.props.size() > 400, "streets are furnished (%d props)" % m.props.size())
-	check(m.landmarks.size() == 15, "all story landmarks placed (%d)" % m.landmarks.size())
+	check(m.landmarks.size() == 19, "all story landmarks placed (%d)" % m.landmarks.size())
 	var placed := {}
 	for b in m.buildings:
 		if b.landmark != "":
@@ -194,15 +194,27 @@ func _test_story() -> void:
 	var story: Node = root.get_node("Story")
 	var life: Node = root.get_node("Life")
 	var m := MapData.shared()
-	check(story.missions.size() >= 9, "Prologue and Act 1 are scripted (%d missions)" % story.missions.size())
+	check(story.missions.size() >= 22, "the whole story is scripted: Prologue, Acts 1-3, epilogue (%d missions)" % story.missions.size())
 	# Data integrity: every reference resolves.
 	var bad: Array = []
-	var games := ["jollof", "spray", "quick", "counting", "standoff", "pos"]
+	var games := ["jollof", "spray", "quick", "counting", "standoff", "pos", "interview", "dresscode", "board", "dodge", "gist", "debate", "cue", "spray_dance"]
 	for id in story.order:
 		var mission: Dictionary = story.missions[id]
 		var refs: Array = []
 		if mission.has("start"):
 			refs.append(mission["start"])
+		for s in mission["steps"]:
+			for w in s.get("watchers", []):
+				refs.append(w["at"])
+				if not story.cast.has(w["who"]):
+					bad.append("%s: unknown watcher %s" % [id, w["who"]])
+			if s.get("do") in ["interior"] and not ["owambe", "compound", "stadium"].has(s["room"]):
+				bad.append("%s: unknown room %s" % [id, s["room"]])
+			if s.get("do") == "npc" and not story.cast.has(s.get("who", s["id"])):
+				bad.append("%s: unknown npc %s" % [id, s.get("who", s["id"])])
+			for pt in s.get("points", []):
+				if pt.has("who") and not story.cast.has(pt["who"]):
+					bad.append("%s: unknown stop npc %s" % [id, pt["who"]])
 		for s in mission["steps"]:
 			for k in ["at", "to"]:
 				if s.has(k) and s[k] is String:
@@ -276,6 +288,53 @@ func _test_story() -> void:
 	check(story.tier("whisperer") >= 1 and story.tier("ajo") >= 1 and story.tier("golive") >= 1, "Act 1 unlocks Whisperer, Ajo Network and Go Live")
 	check(story.story_money > 0 and life.has_item("the-bag"), "story money and the bag are awarded")
 	check(story.family_rel() > 50, "Family Meeting raises trust (%d)" % story.family_rel())
+	# Act 2 opens in any order: Block B needs two of Block A.
+	check(story.available().has("2.1") and story.available().has("2.2") and story.available().has("2.3"), "Act 2 Block A is open after Act 1")
+	check(not story.available().has("2.4"), "Block B waits for two Block A missions")
+	host.pick = 0
+	for id in ["2.1", "2.3"]:
+		runner.start(id)
+		frames = 0
+		while not story.is_done(id) and frames < 3000:
+			await process_frame
+			frames += 1
+		check(story.is_done(id), "mission %s completes" % id)
+	check(story.available().has("2.4") and story.available().has("2.5") and story.available().has("2.6"), "two of Block A open Block B")
+	check(story.tier("stare") >= 2 and story.flag("canteen_socket"), "Generator Wars: group Stare and the canteen socket")
+	for id in ["2.2", "2.4", "2.5", "2.6", "2.7", "2.8", "3.1", "3.2", "3.3", "3.4"]:
+		runner.start(id)
+		frames = 0
+		while not story.is_done(id) and frames < 4000:
+			await process_frame
+			frames += 1
+		check(story.is_done(id), "mission %s completes" % id)
+	frames = 0
+	while not story.is_done("3.5") and frames < 3000:
+		await process_frame
+		frames += 1
+	check(story.is_done("3.5") and story.flag("story_complete"), "the epilogue follows the finale and the story completes")
+	check(story.flag("ending") in ["A", "B", "C", "D"], "an ending was chosen (%s)" % str(story.flag("ending")))
+	check(story.flag("japa_possible") and story.flag("japa_chosen") and story.flag("ending") == "C", "passing the interview and choosing to go gives the Japa ending")
+	check(story.diary_pages >= 5 and story.evidence >= 1, "diary pages and evidence were collected (%d, %d)" % [story.diary_pages, story.evidence])
+	check(story.story_money == 0 and life.money > 0, "story money joins the wallet at the end")
+	check(host.minigames.has("interview") and host.minigames.has("board") and host.minigames.has("cue") and host.minigames.has("debate"), "Act 2/3 mini-games run")
+	# Ending rules.
+	life.flags = { "old_notes": "kept", "japa_chosen": true }
+	check(story.compute_ending() == "B", "keeping the old notes is the Hustle ending, whatever else happened")
+	life.flags = { "old_notes": "handed", "japa_chosen": true }
+	check(story.compute_ending() == "C", "choosing to go is the Japa ending")
+	life.flags = { "old_notes": "handed", "stitch_key": true }
+	story.diary_pages = 10
+	check(story.compute_ending() == "D", "ten diary pages and the stitch key give the Secret ending")
+	story.diary_pages = 9
+	check(story.compute_ending() == "A", "otherwise the Honest ending")
+	life.flags = { "old_notes": "handed", "tried_honest": true }
+	life.relationships = { "tunde-ngozi": 70, "tunde-kc": 65, "ngozi-kc": 80 }
+	check(story.honest_ending_full(), "honest from the start + handed over + trust 60+ = the full Honest ending")
+	story.blocs = { "traders": 60, "drivers": 60, "students": 60, "church": 60, "okada": 60, "youth": 60 }
+	check(story.teacher_support() == 60, "Teacher's support is the bloc average")
+	story.apply_effects({ "blocs": { "all": -100 } })
+	check(story.teacher_support() == 0, "blocs clamp at 0")
 	# A failed mini-game offers a retry from the last checkpoint, then the mission completes.
 	host.fails = 0
 	host.fail_games = 1

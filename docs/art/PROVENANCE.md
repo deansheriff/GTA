@@ -11,7 +11,7 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 - The only reference image is our own generated `style-anchor-yaba`.
 - Every person depicted is a fictional character; no real people, brands or logos.
 
-**Spend:** $1.45 of the owner-approved $10 cap (60 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
+**Spend:** $1.92 of the owner-approved $10 cap (79 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
 
 | Asset | Provider / model | Size, quality | Cost (USD) | Generated |
 |---|---|---|---|---|
@@ -75,6 +75,25 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 | `pt-guest-b` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:17 |
 | `pt-guest-c` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:18 |
 | `pt-gele-queen` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.026 | 2026-10-14 16:18 |
+| `pt-teacher` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:22 |
+| `pt-pastor` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:23 |
+| `pt-visa-officer` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:23 |
+| `pt-receipts` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:23 |
+| `pt-rival` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.027 | 2026-10-14 16:23 |
+| `pt-attendant` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.026 | 2026-10-14 16:24 |
+| `panel-generator-wars` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:24 |
+| `panel-japa` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:24 |
+| `panel-aso-ebi` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:25 |
+| `panel-fuel-queue` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:25 |
+| `panel-old-notes` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:25 |
+| `panel-rally` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:26 |
+| `panel-up-nepa` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:26 |
+| `panel-ending-a` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:26 |
+| `panel-ending-b` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:27 |
+| `panel-ending-c` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:27 |
+| `panel-ending-d` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:27 |
+| `int-compound-party` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:28 |
+| `int-stadium` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:28 |
 
 ## Prompts
 

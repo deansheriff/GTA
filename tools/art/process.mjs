@@ -41,9 +41,11 @@ const JOBS = [
   { src: 'chr-ngozi-walk', kind: 'frames', cols: 4, rows: 3, out: 'characters/ngozi-walk.png', frameH: 96, cut: 110 },
   { src: 'chr-kc-walk', kind: 'frames', cols: 4, rows: 3, out: 'characters/kc-walk.png', frameH: 96, cut: 70 },
   { src: 'chr-story-cast', kind: 'frames', cols: 4, rows: 2, out: 'characters/story-cast.png', frameH: 100, cut: 70 },
-  ...['tunde', 'ngozi', 'kc', 'chief', 'pepper', 'salt', 'sule', 'mc', 'ledger', 'bayo', 'mama-chief', 'passenger', 'warden', 'debtor', 'cousin', 'mama-nkem', 'market-woman', 'barber', 'usher', 'kiosk', 'mechanic', 'guest-b', 'guest-c', 'gele-queen'].map((k) => ({ src: 'pt-' + k, kind: 'single', out: `portraits/${k}.png`, width: 384, cut: 40 })),
-  ...['panel-owambe', 'panel-blackout', 'panel-bag', 'panel-family-meeting', 'panel-title'].map((k) => ({ src: k, kind: 'panel', out: `story/${k}.jpg`, width: 1280 })),
+  ...['tunde', 'ngozi', 'kc', 'chief', 'pepper', 'salt', 'sule', 'mc', 'ledger', 'bayo', 'mama-chief', 'passenger', 'warden', 'debtor', 'cousin', 'mama-nkem', 'market-woman', 'barber', 'usher', 'kiosk', 'mechanic', 'guest-b', 'guest-c', 'gele-queen', 'teacher', 'pastor', 'visa-officer', 'receipts', 'rival', 'attendant'].map((k) => ({ src: 'pt-' + k, kind: 'single', out: `portraits/${k}.png`, width: 384, cut: 40 })),
+  ...['panel-owambe', 'panel-blackout', 'panel-bag', 'panel-family-meeting', 'panel-title', 'panel-generator-wars', 'panel-japa', 'panel-aso-ebi', 'panel-fuel-queue', 'panel-old-notes', 'panel-rally', 'panel-up-nepa', 'panel-ending-a', 'panel-ending-b', 'panel-ending-c', 'panel-ending-d'].map((k) => ({ src: k, kind: 'panel', out: `story/${k}.jpg`, width: 1280 })),
   { src: 'int-owambe-hall', kind: 'panel', out: 'interiors/owambe-hall.jpg', width: 1536 },
+  { src: 'int-compound-party', kind: 'panel', out: 'interiors/compound-party.jpg', width: 1536 },
+  { src: 'int-stadium', kind: 'panel', out: 'interiors/stadium.jpg', width: 1536 },
   { src: 'chr-pedestrians-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-a.png', frameH: 96 },
   { src: 'chr-pedestrians-b', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-b.png', frameH: 96 },
 ];

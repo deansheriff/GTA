@@ -327,6 +327,73 @@
     "tip": {
       "name": "How to play",
       "colour": "#e0a91c"
+    },
+    "teacher": {
+      "name": "Teacher (Mrs. Okon)",
+      "portrait": "portraits/teacher.png",
+      "ped": 5,
+      "colour": "#2f8a52",
+      "routine": [
+        {
+          "from": 8,
+          "to": 18,
+          "at": "landmark:agbado-ketu-council",
+          "offset": [
+            -140,
+            60
+          ]
+        }
+      ],
+      "chatter": [
+        "Sit up straight. Democracy is watching.",
+        "I taught half this ward to read. The other half I'm still working on.",
+        "A megaphone and the truth. That's my whole budget."
+      ]
+    },
+    "pastor": {
+      "name": "Pastor Prosperity",
+      "portrait": "portraits/pastor.png",
+      "ped": 2,
+      "colour": "#84509a"
+    },
+    "visa-officer": {
+      "name": "Visa Officer (Northvale)",
+      "portrait": "portraits/visa-officer.png",
+      "ped": 7,
+      "colour": "#9fc4cf"
+    },
+    "receipts": {
+      "name": "Mrs. Bisi \"Receipts\"",
+      "portrait": "portraits/receipts.png",
+      "ped": 5,
+      "colour": "#2f8a52",
+      "routine": [
+        {
+          "from": 8,
+          "to": 20,
+          "at": "landmark:aunty-boss-kitchen",
+          "offset": [
+            220,
+            60
+          ]
+        }
+      ],
+      "chatter": [
+        "Receipt? I have it. Whatever it is, I have it.",
+        "My mother said: write it down. Aunty Boss says the same. We are sisters in paperwork."
+      ]
+    },
+    "rival": {
+      "name": "Oga Slippers",
+      "portrait": "portraits/rival.png",
+      "ped": 3,
+      "colour": "#a8382c"
+    },
+    "attendant": {
+      "name": "Pump attendant",
+      "portrait": "portraits/attendant.png",
+      "ped": 6,
+      "colour": "#a8382c"
     }
   }
 }

@@ -1,6 +1,8 @@
 class_name Chase
 extends RefCounted
 ## Story chases (1.3 on foot, 1.4 in the danfo): the Chief's men follow the hero along nav paths.
+## "watch" mode (2.1 Generator Wars) is the stealth variant: lookouts stand still and anyone who
+## gets close without being frozen by The Stare fills the heat meter (slippers incoming).
 ## Staying close fills "heat"; full heat = caught. In the danfo, passengers vote on turns: a lucky
 ## vote stalls the chasers (Pepper and Salt start arguing about jollof), an unlucky one adds heat.
 
@@ -18,6 +20,7 @@ var caught := false
 var active := false
 var vote_t := 0.0
 var votes := false
+var carry := 1.0 # walking speed factor (pushing a 60 kVA generator is slow)
 var _rng := RandomNumberGenerator.new()
 
 
@@ -34,6 +37,7 @@ func start(s: Dictionary, focus: Vector2, heading: float, existing: Dictionary) 
 	active = true
 	on = s.get("on", "danfo")
 	votes = s.get("votes", false)
+	carry = float(s.get("carry", 1.0))
 	vote_t = 12.0
 	heat = 0.0
 	caught = false
@@ -41,7 +45,7 @@ func start(s: Dictionary, focus: Vector2, heading: float, existing: Dictionary) 
 	for i in ids.size():
 		var id: String = ids[i]
 		var node: Node2D
-		if on == "foot":
+		if on == "foot" or on == "watch":
 			node = existing.get(id, null)
 			if node == null:
 				node = NpcScript.new()
@@ -58,7 +62,7 @@ func start(s: Dictionary, focus: Vector2, heading: float, existing: Dictionary) 
 			var back := focus - Vector2.from_angle(heading) * (520.0 + i * 180.0)
 			node.position = back if not map.is_blocked(back) else focus + Vector2(0, 600 + i * 180)
 			node.heading = heading
-		chasers.append({ "node": node, "path": PackedVector2Array(), "repath_t": 0.0, "stall_t": 0.0, "id": id, "spawned": on != "foot" or not existing.has(id) })
+		chasers.append({ "node": node, "path": PackedVector2Array(), "repath_t": 0.0, "stall_t": 0.0, "id": id, "spawned": (on == "danfo") or not existing.has(id), "shout_t": 0.0 })
 
 
 func stop() -> void:
@@ -74,6 +78,20 @@ func tick(dt: float, focus: Vector2) -> Dictionary:
 	if not active:
 		return {}
 	var near := false
+	if on == "watch":
+		for c in chasers:
+			var w: Node2D = c["node"]
+			if not is_instance_valid(w) or w.frozen_t > 0.0:
+				continue
+			c["shout_t"] = maxf(0.0, float(c["shout_t"]) - dt)
+			if w.position.distance_to(focus) < 240.0:
+				near = true
+				if float(c["shout_t"]) <= 0.0:
+					c["shout_t"] = 3.0
+					w.say(["Who dey there?!", "Na our generator be that?!", "SLIPPERS! Throw am!", "Hold am! Hold am!"][_rng.randi() % 4], 2.5)
+		heat = clampf(heat + (dt / 2.8 if near else -dt / 9.0), 0.0, 1.0)
+		caught = heat >= 1.0
+		return {}
 	for c in chasers:
 		var node: Node2D = c["node"]
 		if not is_instance_valid(node):

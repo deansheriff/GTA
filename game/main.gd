@@ -412,7 +412,10 @@ func _process(delta: float) -> void:
 
 	_tick_day_night(focus)
 	story.tick(dt)
-	player.speed = 150.0 * Life.pace_factor() * (1.25 if story.chase.active else 1.0)
+	var chase_k := 1.0
+	if story.chase.active:
+		chase_k = story.chase.carry if story.chase.on == "watch" else 1.25
+	player.speed = 150.0 * Life.pace_factor() * chase_k
 	var stuck: bool = mode == "driving" and absf(danfo.speed) < 40.0
 	jobs.tick(dt, focus, mode, stuck)
 	_action_t -= dt
@@ -731,7 +734,7 @@ func _run_story_demo() -> void:
 	while not Story.is_done("P4") and Time.get_ticks_msec() - t0 < 240000:
 		await _wait(0.5)
 	print("story: prologue done=%s switching=%s hero=%s" % [Story.is_done("P4"), Story.switching, Life.hero])
-	for id in ["1.1", "1.2", "1.3", "1.4", "1.5"]:
+	for id in ["1.1", "1.2", "1.3", "1.4", "1.5", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "3.1", "3.2", "3.3", "3.4"]:
 		var m: Dictionary = Story.missions[id]
 		var hero: String = m["hero"] if m["hero"] in Story.HEROES else Life.hero
 		if hero != Life.hero:
@@ -742,7 +745,11 @@ func _run_story_demo() -> void:
 		var t1 := Time.get_ticks_msec()
 		while not Story.is_done(id) and Time.get_ticks_msec() - t1 < 180000:
 			await _wait(0.5)
-		print("story: %s done=%s money_s=%d flags=%s" % [id, Story.is_done(id), Story.story_money, Life.flags])
+		print("story: %s done=%s money_s=%d pages=%d evidence=%d teacher=%d%%" % [id, Story.is_done(id), Story.story_money, Story.diary_pages, Story.evidence, Story.teacher_support()])
+	var t2 := Time.get_ticks_msec()
+	while not Story.is_done("3.5") and Time.get_ticks_msec() - t2 < 120000:
+		await _wait(0.5)
+	print("story: ending=%s full=%s teacher_won=%s wallet=%d" % [Story.flag("ending"), Story.flag("ending_full"), Story.flag("teacher_won"), Life.money])
 	await _wait(1.0)
 	await _shot("story-zz-free-roam")
 	# Phone story apps and a named character on their daily routine.

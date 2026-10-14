@@ -80,7 +80,11 @@
     { "id": "yaba-barbershop", "name": "Sharp Cut Barbing Saloon", "district": "yaba", "cell": [97,55], "kind": "pos-shop" },
     { "id": "yaba-church", "name": "Overflowing Grace Assembly", "district": "yaba", "cell": [107,54], "kind": "two-storey" },
     { "id": "yaba-charging-kiosk", "name": "Charge Am Here", "district": "yaba", "cell": [96,63], "kind": "provision-store" },
-    { "id": "mushin-mechanic", "name": "Alhaji Mechanic Workshop", "district": "mushin", "cell": [40,63], "kind": "park" }
+    { "id": "mushin-mechanic", "name": "Alhaji Mechanic Workshop", "district": "mushin", "cell": [40,63], "kind": "park" },
+    { "id": "northvale-embassy", "name": "Embassy of the Republic of Northvale", "district": "victoria-island", "cell": [116,120], "kind": "two-storey" },
+    { "id": "mallam-suya", "name": "Mallam Garba Suya Spot", "district": "victoria-island", "cell": [128,116], "kind": "provision-store" },
+    { "id": "ward-stadium", "name": "Agbado-Ketu Central Mini Stadium", "district": "agbado-ketu", "cell": [162,36], "kind": "park" },
+    { "id": "elddc-substation", "name": "Light & Darkness substation", "district": "agbado-ketu", "cell": [172,42], "kind": "park" }
   ],
   "start": { "player": [44,90], "danfo": [46,86] }
 }

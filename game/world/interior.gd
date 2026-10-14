@@ -14,6 +14,22 @@ const ROOMS := {
 		"hotspots": { "door": Vector2(768, 950), "buffet": Vector2(768, 735), "dance": Vector2(768, 520), "stage": Vector2(768, 320), "high-table": Vector2(700, 205), "tables-left": Vector2(420, 520), "tables-right": Vector2(1110, 520) },
 		"guests": 14,
 	},
+	"compound": {
+		"art": "interiors/compound-party.jpg", "size": Vector2(1536, 1024),
+		"walk": Rect2(60, 120, 1420, 860),
+		"blocked": [Rect2(360, 730, 630, 200), Rect2(500, 0, 390, 280), Rect2(0, 150, 500, 280), Rect2(1000, 250, 500, 260), Rect2(1000, 0, 536, 190)],
+		"round": [[Vector2(110, 700), 90.0], [Vector2(1120, 850), 100.0], [Vector2(140, 460), 70.0], [Vector2(330, 520), 70.0], [Vector2(1120, 575), 70.0], [Vector2(1300, 660), 70.0]],
+		"hotspots": { "door": Vector2(300, 860), "gate": Vector2(300, 860), "tents-left": Vector2(450, 640), "tents-right": Vector2(1060, 720), "dance": Vector2(730, 500), "high-table": Vector2(690, 310), "study": Vector2(1160, 240), "buffet": Vector2(680, 690) },
+		"guests": 16,
+	},
+	"stadium": {
+		"art": "interiors/stadium.jpg", "size": Vector2(1536, 1024),
+		"walk": Rect2(300, 200, 900, 690),
+		"blocked": [Rect2(560, 0, 400, 205)],
+		"round": [],
+		"hotspots": { "door": Vector2(480, 790), "gate": Vector2(480, 790), "convoy-exit": Vector2(330, 840), "stage": Vector2(770, 230), "mic": Vector2(620, 260), "stand": Vector2(430, 520), "crowd": Vector2(770, 520) },
+		"guests": 22,
+	},
 }
 const HERO_SCALE := 1.55 # people are a touch larger than the street scale inside
 

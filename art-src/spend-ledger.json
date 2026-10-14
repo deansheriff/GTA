@@ -1828,6 +1828,576 @@
       "refs": [
         "art-src/raw/style-anchor-yaba.png"
       ]
+    },
+    {
+      "at": "2026-10-14T16:22:49.934Z",
+      "provider": "openai",
+      "asset": "pt-teacher",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1765,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 229
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2204
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mrs. Folake Okon 'Teacher', a dignified retired Nigerian schoolteacher in her sixties, simple blouse and wrapper, reading glasses, holding a battered megaphone, determined kind smile. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:23:04.696Z",
+      "provider": "openai",
+      "asset": "pt-pastor",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 15,
+      "usage": {
+        "input_tokens": 1770,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 234
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2209
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Pastor Prosperity, a flashy fictional radio preacher-salesman in a shiny purple suit with a radio microphone, holding up a small bottle labelled only with a star, theatrical grin (satire of a salesman, not of faith). Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:23:22.247Z",
+      "provider": "openai",
+      "asset": "pt-visa-officer",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1763,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 227
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2202
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: the Visa Officer of the fictional Republic of Northvale, a pale stern man in a grey uniform with a plain round badge, staring straight ahead with wide eyes that never blink, behind glass. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:23:37.900Z",
+      "provider": "openai",
+      "asset": "pt-receipts",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1761,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 225
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2200
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mrs. Bisi 'Receipts', a meticulous young Nigerian POS agent in a neat green polo shirt, holding a thick stack of paper receipts tied with rubber bands, proud smile. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:23:58.094Z",
+      "provider": "openai",
+      "asset": "pt-rival",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1758,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 222
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2197
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Oga Slippers, the loud leader of a rival street in Lagos, bald, sleeveless vest, holding a rubber slipper ready to throw, comedic war face. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:24:14.102Z",
+      "provider": "openai",
+      "asset": "pt-attendant",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1750,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 214
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2189
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a tired Nigerian fuel pump attendant in a red cap and overalls, holding a fuel nozzle, eyebrows saying 'no fuel'. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:24:35.086Z",
+      "provider": "openai",
+      "asset": "panel-generator-wars",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1788,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 252
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2131
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: night on a Lagos street during a blackout: three people (a wiry danfo driver with a towel, a commanding woman in ankara and gele, a young man with an afro) pushing a huge diesel generator on a trolley, while people from a rival street throw rubber slippers and sachets at them from behind a wall; one window lit by candle. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:24:51.939Z",
+      "provider": "openai",
+      "asset": "panel-japa",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1761,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 225
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2104
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a cramped visa interview booth of the fictional Republic of Northvale: a stern officer behind thick glass staring without blinking, a nervous young Nigerian man with an afro clutching a folder of documents, sweating, a ticking wall clock. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:25:13.736Z",
+      "provider": "openai",
+      "asset": "panel-aso-ebi",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 22,
+      "usage": {
+        "input_tokens": 1777,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 241
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2120
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a grand 90th birthday party in a Lagos compound courtyard: a sea of guests in matching purple aso-ebi and gele, a regal old woman with a walking stick on a throne-like chair, a young man with an afro being forced to dance in the middle of a circle of laughing aunties. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:25:34.037Z",
+      "provider": "openai",
+      "asset": "panel-fuel-queue",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1772,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 236
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2115
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: chaos at a Lagos filling station with a very long queue of cars and people holding yellow jerrycans, a slapstick brawl with jerrycans flying through the air, a woman in ankara and gele staring down the pump attendant, cartoonish, nobody hurt. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:25:54.534Z",
+      "provider": "openai",
+      "asset": "panel-old-notes",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1770,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 234
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2113
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a canteen table at night completely covered in stacks of faded, outdated, worthless-looking banknotes, a woman in ankara holding one up to the light with disbelief, a young man with an afro laughing, a wiry driver lying flat on the floor in despair. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:26:15.381Z",
+      "provider": "openai",
+      "asset": "panel-rally",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1763,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 227
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2106
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a packed small-town stadium rally at night during a blackout, a plump politician in a gold agbada frozen on stage with a microphone, the crowd lit only by phone screens, a campaign banner with only a lightbulb symbol. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:26:32.683Z",
+      "provider": "openai",
+      "asset": "panel-up-nepa",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1766,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 230
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2109
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: the same stadium the instant the power comes back: every floodlight, speaker and phone blazing on, the crowd cheering with arms raised, confetti, a woman in ankara holding a microphone and reading from a diary, a young man livestreaming. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:26:51.645Z",
+      "provider": "openai",
+      "asset": "panel-ending-a",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1759,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 223
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2102
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a sunny community celebration: a new electricity transformer and a borehole water tap with a ribbon being cut by a retired schoolteacher, a yellow danfo bus decorated as the free ward shuttle, three friends laughing together. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:27:19.405Z",
+      "provider": "openai",
+      "asset": "panel-ending-b",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 28,
+      "usage": {
+        "input_tokens": 1770,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 234
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2113
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a melancholy comic scene: three people (a danfo driver, a woman in ankara, a young man with an afro) each eating alone at separate tables in a quiet canteen, a plaid bag on the floor between them, an official letter on the table. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:27:36.723Z",
+      "provider": "openai",
+      "asset": "panel-ending-c",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1778,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 242
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2121
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a split-screen video call: on one side a young Nigerian man with an afro in a cold snowy foreign city wearing a puffy jacket, on the other side a woman in ankara and a danfo driver crowded into a phone screen in a warm Lagos canteen, all smiling and a bit teary. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:27:54.542Z",
+      "provider": "openai",
+      "asset": "panel-ending-d",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1767,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 231
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2110
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a dramatic close-up of an open handwritten diary on a table lit by a single bulb, the last page showing a mysterious hand-drawn silhouette of a person above a drawing of a politician in gold agbada, three shocked faces leaning in from the edges. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:28:15.126Z",
+      "provider": "openai",
+      "asset": "int-compound-party",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1778,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 242
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2121
+      },
+      "prompt": "A top-down three-quarter view FLOOR PLAN illustration of a wealthy Lagos family compound COURTYARD set up for a grand 90th birthday party, seen from above, axis-aligned (not isometric): interlocking paving, white canopy tents with purple drapes on the left and right with round tables and chairs, a central dance area, a decorated high-table and throne-like chair at the top, a buffet along the bottom, palm trees in planters, the house front with a door at the top right (to the study). NO people. Same painted style as the reference.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:28:46.231Z",
+      "provider": "openai",
+      "asset": "int-stadium",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 31,
+      "usage": {
+        "input_tokens": 1751,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 215
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2094
+      },
+      "prompt": "A top-down three-quarter view FLOOR PLAN illustration of a small community football stadium set up for a political rally, seen from above, axis-aligned (not isometric): a worn grass pitch, a big stage with speakers and floodlight towers at the top, crowd barriers, a convoy exit gate at the bottom left, a transformer and electricity pole at the right edge, concrete stands along the sides. NO people. Same painted style as the reference.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
     }
   ]
 }

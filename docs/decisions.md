@@ -240,3 +240,16 @@ ask only when input is needed, and make no APK builds until the game is done.
 - **The whole map stays open after the Prologue** (the mission list's "free roam opens: Yaba,
   Lekki, Oshodi" is not used as a lock).
 - **Story money (₦s) is separate** from the wallet until the credits (Bible §9.7).
+
+## D-010 · Act 2–3 and ending choices for M4 · 2026-10-14
+**Decision (engineering, within the approved proposal; owner can override):**
+- **Ending priority:** B (old notes kept) → C (KC chose to go) → D (ten diary pages and the stitch
+  key) → A (honest). A is the fallback; its "full" version needs tried-honest-or-5-evidence, notes
+  handed over and family trust ≥ 60. Keeping the notes always means B, so the Hustle path never pays.
+- **Diary pages:** 1 from counting in 1.5, 2 in 2.4, 3 in 2.8, and 4 hidden in the world after
+  Act 1 = 10. The Secret ending therefore needs "count it first" in 1.5 and all four hidden pages.
+- **2.3 Danfo Chase** ends in Surulere (the shortest route that still crosses busy roads).
+- **3.1 Campaign Season** is played as Tunde driving Teacher's campaign bus to six bloc stops.
+- **Bribes** are offered as choices in 3.1 and always lower the bloc (Bible §8.2).
+- **Replay:** after the credits the story can be restarted while keeping wallet, skills and found
+  pages, so all four endings are reachable without a new save.

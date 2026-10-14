@@ -87,7 +87,7 @@ func story_minigame(game: String, _params: Dictionary) -> Dictionary:
 	if fail_games > 0:
 		fail_games -= 1
 		return { "score": 0 }
-	return { "score": 100 }
+	return { "score": 100, "passed": true, "fx": { "evidence": 3 } if game == "board" else {} }
 
 
 func story_switch(hero: String, _chat: String, _at: Vector2) -> void:

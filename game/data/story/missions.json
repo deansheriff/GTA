@@ -2,218 +2,2375 @@
   "_comment": "Up NEPA! story missions (docs/story/02-mission-list.md). Run by story/mission_runner.gd. Positions: landmark:<id>, node:<id> (data/map/lagos.json), room:<hotspot> (interiors), npc:<id>. All dialogue lives in dialogue.json and is pending native-speaker review.",
   "missions": [
     {
-      "id": "P1", "act": "Prologue", "title": "Arrive in Style", "hero": "tunde",
+      "id": "P1",
+      "act": "Prologue",
+      "title": "Arrive in Style",
+      "hero": "tunde",
       "summary": "Drive four owambe guests from Ojota to the Royal Pavilion Event Centre in Lekki before the couple's entrance.",
-      "auto": true, "next": "P2",
+      "auto": true,
+      "next": "P2",
       "fail_line": "Na the road wey cause am. Road no get sense.",
       "steps": [
-        { "do": "panels", "panels": [
-          { "img": "story/panel-title.jpg", "text": "Lagos. Saturday. Somewhere in Lekki, an owambe is loading…" }
-        ] },
-        { "do": "set", "day": 6, "time": "15:30", "nepa": "on", "stats": { "bp": 20 } },
-        { "do": "switch", "hero": "tunde", "at": "landmark:ojota-bus-stop" },
-        { "do": "place", "at": "landmark:ojota-bus-stop", "offset": [0, -150], "heading": 180, "danfo": true, "driving": true },
-        { "do": "say", "lines": "p1_intro" },
-        { "do": "tip", "text": "Drive with the joystick (or WASD). Tunde's Blood Pressure (BP) rises in go-slow and when people annoy him. At 100 he stops the bus to argue. Keep it cool." },
-        { "do": "goto", "at": "node:yaba_c", "radius": 260, "need": "driving", "banter": "owambe_guests", "text": "Drive the guests toward the Third Mainland Bridge", "checkpoint": true },
-        { "do": "say", "lines": "p1_chinchin" },
-        { "do": "goto", "at": "node:island_n", "radius": 300, "need": "driving", "banter": "owambe_guests", "text": "Cross the Third Mainland Bridge" },
-        { "do": "npc", "id": "warden", "who": "warden", "at": "node:ikoyi_c", "offset": [0, -40] },
-        { "do": "goto", "at": "node:ikoyi_c", "radius": 300, "need": "driving", "text": "LARDO checkpoint ahead. Slow down…" },
-        { "do": "say", "lines": "p1_warden" },
-        { "do": "tip", "text": "Conductor Combo: tap SULE, then pick the call that fits. Wardens love VIPs." },
-        { "do": "ability", "ability": "conductor", "detail": "vip", "at": "node:ikoyi_c", "radius": 420, "text": "Use the Conductor Combo: the right call gets you waved through", "wrong_text": "Officer Gbenga: \"Particulars!\" (Wrong call. BP +15)", "wrong_fx": { "stats": { "bp": 15 } }, "checkpoint": true },
-        { "do": "say", "lines": "p1_warden_pass" },
-        { "do": "npc_clear", "id": "warden" },
-        { "do": "goto", "at": "landmark:lekki-event-centre", "radius": 260, "need": "driving", "time": 150, "banter": "owambe_guests", "text": "Reach the Royal Pavilion before the couple's entrance", "fail_text": "The couple don enter without your guests. Madam is calling her lawyer." },
-        { "do": "say", "lines": "p1_arrive" }
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-title.jpg",
+              "text": "Lagos. Saturday. Somewhere in Lekki, an owambe is loading…"
+            }
+          ]
+        },
+        {
+          "do": "set",
+          "day": 6,
+          "time": "15:30",
+          "nepa": "on",
+          "stats": {
+            "bp": 20
+          }
+        },
+        {
+          "do": "switch",
+          "hero": "tunde",
+          "at": "landmark:ojota-bus-stop"
+        },
+        {
+          "do": "place",
+          "at": "landmark:ojota-bus-stop",
+          "offset": [
+            0,
+            -150
+          ],
+          "heading": 180,
+          "danfo": true,
+          "driving": true
+        },
+        {
+          "do": "say",
+          "lines": "p1_intro"
+        },
+        {
+          "do": "tip",
+          "text": "Drive with the joystick (or WASD). Tunde's Blood Pressure (BP) rises in go-slow and when people annoy him. At 100 he stops the bus to argue. Keep it cool."
+        },
+        {
+          "do": "goto",
+          "at": "node:yaba_c",
+          "radius": 260,
+          "need": "driving",
+          "banter": "owambe_guests",
+          "text": "Drive the guests toward the Third Mainland Bridge",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "p1_chinchin"
+        },
+        {
+          "do": "goto",
+          "at": "node:island_n",
+          "radius": 300,
+          "need": "driving",
+          "banter": "owambe_guests",
+          "text": "Cross the Third Mainland Bridge"
+        },
+        {
+          "do": "npc",
+          "id": "warden",
+          "who": "warden",
+          "at": "node:ikoyi_c",
+          "offset": [
+            0,
+            -40
+          ]
+        },
+        {
+          "do": "goto",
+          "at": "node:ikoyi_c",
+          "radius": 300,
+          "need": "driving",
+          "text": "LARDO checkpoint ahead. Slow down…"
+        },
+        {
+          "do": "say",
+          "lines": "p1_warden"
+        },
+        {
+          "do": "tip",
+          "text": "Conductor Combo: tap SULE, then pick the call that fits. Wardens love VIPs."
+        },
+        {
+          "do": "ability",
+          "ability": "conductor",
+          "detail": "vip",
+          "at": "node:ikoyi_c",
+          "radius": 420,
+          "text": "Use the Conductor Combo: the right call gets you waved through",
+          "wrong_text": "Officer Gbenga: \"Particulars!\" (Wrong call. BP +15)",
+          "wrong_fx": {
+            "stats": {
+              "bp": 15
+            }
+          },
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "p1_warden_pass"
+        },
+        {
+          "do": "npc_clear",
+          "id": "warden"
+        },
+        {
+          "do": "goto",
+          "at": "landmark:lekki-event-centre",
+          "radius": 260,
+          "need": "driving",
+          "time": 150,
+          "banter": "owambe_guests",
+          "text": "Reach the Royal Pavilion before the couple's entrance",
+          "fail_text": "The couple don enter without your guests. Madam is calling her lawyer."
+        },
+        {
+          "do": "say",
+          "lines": "p1_arrive"
+        }
       ],
-      "rewards": { "story_money": 3000, "xp": { "driving": 40 } }
+      "rewards": {
+        "story_money": 3000,
+        "xp": {
+          "driving": 40
+        }
+      }
     },
     {
-      "id": "P2", "act": "Prologue", "title": "Jollof Diplomacy", "hero": "ngozi",
+      "id": "P2",
+      "act": "Prologue",
+      "title": "Jollof Diplomacy",
+      "hero": "ngozi",
       "summary": "Serve the jollof rush without running out, and stop the double-dippers.",
-      "auto": true, "next": "P3",
+      "auto": true,
+      "next": "P3",
       "fail_line": "Write it down. I don't forget.",
       "steps": [
-        { "do": "interior", "room": "owambe", "spawn": "buffet" },
-        { "do": "switch", "hero": "ngozi", "at": "room:buffet" },
-        { "do": "panels", "panels": [ { "img": "story/panel-owambe.jpg", "text": "Meanwhile, at the buffet, Ngozi \"Aunty Boss\" Eze is catering. The jollof queue is politics." } ] },
-        { "do": "say", "lines": "p2_intro" },
-        { "do": "npc", "id": "cousin", "who": "cousin", "at": "room:buffet", "offset": [120, -40] },
-        { "do": "tip", "text": "The Stare: walk close to someone and tap STARE. They freeze and start confessing. Aura (her reputation) makes it last longer." },
-        { "do": "ability", "ability": "stare", "detail": "cousin", "at": "npc:cousin", "radius": 200, "text": "Use The Stare on the \"groom's cousin from abroad\"" },
-        { "do": "say", "lines": "p2_cousin" },
-        { "do": "npc_clear", "id": "cousin" },
-        { "do": "minigame", "game": "jollof", "params": { "plates": 30, "pot": 34, "dippers": 2 }, "pass": 60, "text": "Serve 30 plates. Elders first. No double-dipping.", "fail_text": "The jollof finished before the elders ate. Scandal!", "checkpoint": true },
-        { "do": "say", "lines": "p2_debtor" }
+        {
+          "do": "interior",
+          "room": "owambe",
+          "spawn": "buffet"
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "room:buffet"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-owambe.jpg",
+              "text": "Meanwhile, at the buffet, Ngozi \"Aunty Boss\" Eze is catering. The jollof queue is politics."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "p2_intro"
+        },
+        {
+          "do": "npc",
+          "id": "cousin",
+          "who": "cousin",
+          "at": "room:buffet",
+          "offset": [
+            120,
+            -40
+          ]
+        },
+        {
+          "do": "tip",
+          "text": "The Stare: walk close to someone and tap STARE. They freeze and start confessing. Aura (her reputation) makes it last longer."
+        },
+        {
+          "do": "ability",
+          "ability": "stare",
+          "detail": "cousin",
+          "at": "npc:cousin",
+          "radius": 200,
+          "text": "Use The Stare on the \"groom's cousin from abroad\""
+        },
+        {
+          "do": "say",
+          "lines": "p2_cousin"
+        },
+        {
+          "do": "npc_clear",
+          "id": "cousin"
+        },
+        {
+          "do": "minigame",
+          "game": "jollof",
+          "params": {
+            "plates": 30,
+            "pot": 34,
+            "dippers": 2
+          },
+          "pass": 60,
+          "text": "Serve 30 plates. Elders first. No double-dipping.",
+          "fail_text": "The jollof finished before the elders ate. Scandal!",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "p2_debtor"
+        }
       ],
-      "rewards": { "story_money": 5000, "xp": { "cooking": 40 }, "stats": { "aura": 5 }, "ability": { "stare": 1 } }
+      "rewards": {
+        "story_money": 5000,
+        "xp": {
+          "cooking": 40
+        },
+        "stats": {
+          "aura": 5
+        },
+        "ability": {
+          "stare": 1
+        }
+      }
     },
     {
-      "id": "P3", "act": "Prologue", "title": "Content Is Content", "hero": "kc",
+      "id": "P3",
+      "act": "Prologue",
+      "title": "Content Is Content",
+      "hero": "kc",
       "summary": "Film three viral moments: the MC, the money spraying and the gele competition.",
-      "auto": true, "next": "P4",
+      "auto": true,
+      "next": "P4",
       "fail_line": "Guys… guys? Is this thing on?",
       "steps": [
-        { "do": "switch", "hero": "kc", "at": "room:dance" },
-        { "do": "set", "stats": { "battery": 70, "hype": 100 } },
-        { "do": "say", "lines": "p3_intro" },
-        { "do": "tip", "text": "Hold FILM to record. Keep the subject close and in frame. Filming drains your Battery, so watch it." },
-        { "do": "npc", "id": "mc", "who": "mc", "at": "room:stage" },
-        { "do": "film", "at": "npc:mc", "radius": 260, "seconds": 3, "text": "Viral moment 1/3: film the MC" },
-        { "do": "say", "lines": "p3_mc" },
-        { "do": "minigame", "game": "spray", "params": { "beats": 20, "bpm": 96 }, "pass": 55, "text": "Viral moment 2/3: the money spraying. Tap on the beat!", "fail_text": "Off-beat spraying. The comments are brutal.", "checkpoint": true },
-        { "do": "npc", "id": "gele", "who": "gele-queen", "at": "room:dance", "offset": [-200, 60] },
-        { "do": "film", "at": "npc:gele", "radius": 240, "seconds": 3, "text": "Viral moment 3/3: film the gele competition" },
-        { "do": "say", "lines": "p3_trip" },
-        { "do": "npc_clear", "id": "gele" }
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "room:dance"
+        },
+        {
+          "do": "set",
+          "stats": {
+            "battery": 70,
+            "hype": 100
+          }
+        },
+        {
+          "do": "say",
+          "lines": "p3_intro"
+        },
+        {
+          "do": "tip",
+          "text": "Hold FILM to record. Keep the subject close and in frame. Filming drains your Battery, so watch it."
+        },
+        {
+          "do": "npc",
+          "id": "mc",
+          "who": "mc",
+          "at": "room:stage"
+        },
+        {
+          "do": "film",
+          "at": "npc:mc",
+          "radius": 260,
+          "seconds": 3,
+          "text": "Viral moment 1/3: film the MC"
+        },
+        {
+          "do": "say",
+          "lines": "p3_mc"
+        },
+        {
+          "do": "minigame",
+          "game": "spray",
+          "params": {
+            "beats": 20,
+            "bpm": 96
+          },
+          "pass": 55,
+          "text": "Viral moment 2/3: the money spraying. Tap on the beat!",
+          "fail_text": "Off-beat spraying. The comments are brutal.",
+          "checkpoint": true
+        },
+        {
+          "do": "npc",
+          "id": "gele",
+          "who": "gele-queen",
+          "at": "room:dance",
+          "offset": [
+            -200,
+            60
+          ]
+        },
+        {
+          "do": "film",
+          "at": "npc:gele",
+          "radius": 240,
+          "seconds": 3,
+          "text": "Viral moment 3/3: film the gele competition"
+        },
+        {
+          "do": "say",
+          "lines": "p3_trip"
+        },
+        {
+          "do": "npc_clear",
+          "id": "gele"
+        }
       ],
-      "rewards": { "stats": { "hype": 10 }, "xp": { "filming": 40 } }
+      "rewards": {
+        "stats": {
+          "hype": 10
+        },
+        "xp": {
+          "filming": 40
+        }
+      }
     },
     {
-      "id": "P4", "act": "Prologue", "title": "NEPA Take Light", "hero": "all",
+      "id": "P4",
+      "act": "Prologue",
+      "title": "NEPA Take Light",
+      "hero": "all",
       "summary": "Two seconds of blackout. Each hero does one thing. Then the light returns and the bag is gone.",
       "auto": true,
       "steps": [
-        { "do": "set", "time": "21:40" },
-        { "do": "npc", "id": "mc", "who": "mc", "at": "room:stage" },
-        { "do": "npc", "id": "chief", "who": "chief", "at": "room:high-table" },
-        { "do": "npc", "id": "ledger", "who": "ledger", "at": "room:high-table", "offset": [140, 30] },
-        { "do": "say", "lines": "p4_mc" },
-        { "do": "set", "nepa": "off" },
-        { "do": "panels", "panels": [ { "img": "story/panel-blackout.jpg", "text": "NEPA TAKE LIGHT." } ] },
-        { "do": "chat", "chat": "p4_dark", "title": "In the dark…" },
-        { "do": "switch", "hero": "tunde", "at": "room:tables-left", "chat": "" },
-        { "do": "minigame", "game": "quick", "params": { "prompt": "Tunde: someone is touching your pocket. Secure the danfo keys!", "button": "Grab keys", "time": 3.0 } },
-        { "do": "switch", "hero": "ngozi", "at": "room:buffet", "chat": "" },
-        { "do": "minigame", "game": "quick", "params": { "prompt": "Aunty Boss: forty hands are reaching for the jollof. Protect the pot!", "button": "Cover the pot", "time": 3.0 } },
-        { "do": "switch", "hero": "kc", "at": "room:dance", "chat": "" },
-        { "do": "minigame", "game": "quick", "params": { "prompt": "KC: total darkness. Content! Turn on the phone light and record!", "button": "Record", "time": 3.0 }, "store": { "score": "blackout_clip" } },
-        { "do": "set", "nepa": "on" },
-        { "do": "toast", "text": "UP NEPAAAA!", "big": true },
-        { "do": "say", "lines": "p4_light" },
-        { "do": "panels", "panels": [ { "img": "story/panel-title.jpg", "text": "NAIJA STREET LIFE\nUP NEPA!", "title": true } ] },
-        { "do": "npc_clear" },
-        { "do": "exit_interior" },
-        { "do": "set", "advance": 600 },
-        { "do": "set", "time": "07:30", "nepa": "auto", "stats": { "battery": 60 } },
-        { "do": "switch", "hero": "ngozi", "at": "landmark:aunty-boss-kitchen", "chat": "" },
-        { "do": "switch", "hero": "kc", "at": "landmark:kc-room", "chat": "" },
-        { "do": "switch", "hero": "tunde", "at": "landmark:tunde-depot", "chat": "" },
-        { "do": "place", "at": "landmark:tunde-depot", "offset": [120, 30], "danfo": true },
-        { "do": "chat", "chat": "p4_morning", "title": "Phone · Tunde" },
-        { "do": "tip", "text": "Free roam is open. Hustle for money, eat, sleep. Story missions are the gold stars on the map. Open the phone and tap SWITCH to play as Tunde, Aunty Boss or KC: each of them has their own Act 1 mission." }
+        {
+          "do": "set",
+          "time": "21:40"
+        },
+        {
+          "do": "npc",
+          "id": "mc",
+          "who": "mc",
+          "at": "room:stage"
+        },
+        {
+          "do": "npc",
+          "id": "chief",
+          "who": "chief",
+          "at": "room:high-table"
+        },
+        {
+          "do": "npc",
+          "id": "ledger",
+          "who": "ledger",
+          "at": "room:high-table",
+          "offset": [
+            140,
+            30
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "p4_mc"
+        },
+        {
+          "do": "set",
+          "nepa": "off"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-blackout.jpg",
+              "text": "NEPA TAKE LIGHT."
+            }
+          ]
+        },
+        {
+          "do": "chat",
+          "chat": "p4_dark",
+          "title": "In the dark…"
+        },
+        {
+          "do": "switch",
+          "hero": "tunde",
+          "at": "room:tables-left",
+          "chat": ""
+        },
+        {
+          "do": "minigame",
+          "game": "quick",
+          "params": {
+            "prompt": "Tunde: someone is touching your pocket. Secure the danfo keys!",
+            "button": "Grab keys",
+            "time": 3.0
+          }
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "room:buffet",
+          "chat": ""
+        },
+        {
+          "do": "minigame",
+          "game": "quick",
+          "params": {
+            "prompt": "Aunty Boss: forty hands are reaching for the jollof. Protect the pot!",
+            "button": "Cover the pot",
+            "time": 3.0
+          }
+        },
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "room:dance",
+          "chat": ""
+        },
+        {
+          "do": "minigame",
+          "game": "quick",
+          "params": {
+            "prompt": "KC: total darkness. Content! Turn on the phone light and record!",
+            "button": "Record",
+            "time": 3.0
+          },
+          "store": {
+            "score": "blackout_clip"
+          }
+        },
+        {
+          "do": "set",
+          "nepa": "on"
+        },
+        {
+          "do": "toast",
+          "text": "UP NEPAAAA!",
+          "big": true
+        },
+        {
+          "do": "say",
+          "lines": "p4_light"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-title.jpg",
+              "text": "NAIJA STREET LIFE\nUP NEPA!",
+              "title": true
+            }
+          ]
+        },
+        {
+          "do": "npc_clear"
+        },
+        {
+          "do": "exit_interior"
+        },
+        {
+          "do": "set",
+          "advance": 600
+        },
+        {
+          "do": "set",
+          "time": "07:30",
+          "nepa": "auto",
+          "stats": {
+            "battery": 60
+          }
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "landmark:aunty-boss-kitchen",
+          "chat": ""
+        },
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "landmark:kc-room",
+          "chat": ""
+        },
+        {
+          "do": "switch",
+          "hero": "tunde",
+          "at": "landmark:tunde-depot",
+          "chat": ""
+        },
+        {
+          "do": "place",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "danfo": true
+        },
+        {
+          "do": "chat",
+          "chat": "p4_morning",
+          "title": "Phone · Tunde"
+        },
+        {
+          "do": "tip",
+          "text": "Free roam is open. Hustle for money, eat, sleep. Story missions are the gold stars on the map. Open the phone and tap SWITCH to play as Tunde, Aunty Boss or KC: each of them has their own Act 1 mission."
+        }
       ],
-      "rewards": { "flags": { "prologue_done": true }, "unlock_switching": true }
+      "rewards": {
+        "flags": {
+          "prologue_done": true
+        },
+        "unlock_switching": true
+      }
     },
     {
-      "id": "1.1", "act": "Act 1: Light Out", "title": "Baba God Dey", "hero": "tunde",
-      "requires": ["P4"], "start": "landmark:tunde-depot",
+      "id": "1.1",
+      "act": "Act 1: Light Out",
+      "title": "Baba God Dey",
+      "hero": "tunde",
+      "requires": [
+        "P4"
+      ],
+      "start": "landmark:tunde-depot",
       "summary": "A day of passengers with strong opinions. One pays \"next time\" and leaves a bag under seat 4.",
       "fail_line": "Na the road wey cause am. Road no get sense.",
       "steps": [
-        { "do": "say", "lines": "m11_intro" },
-        { "do": "place", "at": "landmark:tunde-depot", "offset": [120, 30], "danfo": true },
-        { "do": "goto", "at": "landmark:tunde-depot", "offset": [120, 30], "radius": 120, "need": "driving", "text": "Enter Baba God Dey" },
-        { "do": "goto", "at": "landmark:obalende-motor-park", "radius": 260, "need": "driving", "banter": "debates", "text": "Loop 1: Oshodi → Obalende with 12 passengers", "checkpoint": true },
-        { "do": "say", "lines": "m11_fares" },
-        { "do": "goto", "at": "node:island_n", "radius": 300, "need": "driving", "banter": "debates", "text": "Loop 2: back to Oshodi over the bridge" },
-        { "do": "jam", "at": "node:tmb_mid" },
-        { "do": "goto", "at": "node:tmb_mid", "offset": [0, 260], "radius": 340, "need": "driving", "banter": "debates", "text": "Go-slow on the bridge…" },
-        { "do": "say", "lines": "m11_goslow" },
-        { "do": "set", "fx": { "ability": { "whisperer": 1 } } },
-        { "do": "tip", "text": "Go-Slow Whisperer: tap WHISPER. Time slows, and for a few seconds Baba God Dey finds the gaps in traffic that nobody else can see." },
-        { "do": "ability", "ability": "whisperer", "text": "Use Go-Slow Whisperer", "checkpoint": true },
-        { "do": "goto", "at": "landmark:tunde-depot", "radius": 260, "need": "driving", "banter": "debates", "text": "Bring the passengers home to Oshodi" },
-        { "do": "say", "lines": "m11_nextime" },
-        { "do": "panels", "panels": [ { "img": "story/panel-bag.jpg", "text": "Under seat 4: a Ghana-must-go bag. Heavy. The music cuts." } ] },
-        { "do": "say", "lines": "m11_bag" }
+        {
+          "do": "say",
+          "lines": "m11_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "danfo": true
+        },
+        {
+          "do": "goto",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "radius": 120,
+          "need": "driving",
+          "text": "Enter Baba God Dey"
+        },
+        {
+          "do": "goto",
+          "at": "landmark:obalende-motor-park",
+          "radius": 260,
+          "need": "driving",
+          "banter": "debates",
+          "text": "Loop 1: Oshodi → Obalende with 12 passengers",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "m11_fares"
+        },
+        {
+          "do": "goto",
+          "at": "node:island_n",
+          "radius": 300,
+          "need": "driving",
+          "banter": "debates",
+          "text": "Loop 2: back to Oshodi over the bridge"
+        },
+        {
+          "do": "jam",
+          "at": "node:tmb_mid"
+        },
+        {
+          "do": "goto",
+          "at": "node:tmb_mid",
+          "offset": [
+            0,
+            260
+          ],
+          "radius": 340,
+          "need": "driving",
+          "banter": "debates",
+          "text": "Go-slow on the bridge…"
+        },
+        {
+          "do": "say",
+          "lines": "m11_goslow"
+        },
+        {
+          "do": "set",
+          "fx": {
+            "ability": {
+              "whisperer": 1
+            }
+          }
+        },
+        {
+          "do": "tip",
+          "text": "Go-Slow Whisperer: tap WHISPER. Time slows, and for a few seconds Baba God Dey finds the gaps in traffic that nobody else can see."
+        },
+        {
+          "do": "ability",
+          "ability": "whisperer",
+          "text": "Use Go-Slow Whisperer",
+          "checkpoint": true
+        },
+        {
+          "do": "goto",
+          "at": "landmark:tunde-depot",
+          "radius": 260,
+          "need": "driving",
+          "banter": "debates",
+          "text": "Bring the passengers home to Oshodi"
+        },
+        {
+          "do": "say",
+          "lines": "m11_nextime"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-bag.jpg",
+              "text": "Under seat 4: a Ghana-must-go bag. Heavy. The music cuts."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m11_bag"
+        }
       ],
-      "rewards": { "story_money": 8000, "xp": { "driving": 60 }, "items": { "the-bag": 1 }, "flags": { "has_bag": true } }
+      "rewards": {
+        "story_money": 8000,
+        "xp": {
+          "driving": 60
+        },
+        "items": {
+          "the-bag": 1
+        },
+        "flags": {
+          "has_bag": true
+        }
+      }
     },
     {
-      "id": "1.2", "act": "Act 1: Light Out", "title": "Ajo Day", "hero": "ngozi",
-      "requires": ["P4"], "start": "landmark:oshodi-market",
+      "id": "1.2",
+      "act": "Act 1: Light Out",
+      "title": "Ajo Day",
+      "hero": "ngozi",
+      "requires": [
+        "P4"
+      ],
+      "start": "landmark:oshodi-market",
       "summary": "Collect ajo from six market women while the POS network keeps failing.",
       "fail_line": "Write it down. I don't forget.",
       "steps": [
-        { "do": "say", "lines": "m12_intro" },
-        { "do": "collect", "text": "Collect ajo contributions", "time": 240, "radius": 120, "checkpoint": true, "points": [
-          { "at": "landmark:oshodi-market", "offset": [-260, 60], "say": "m12_w1", "who": "market-woman", "fx": { "stats": { "aura": 2 } } },
-          { "at": "landmark:oshodi-market", "offset": [260, 60], "say": "m12_w2", "who": "market-woman", "fx": { "stats": { "aura": 2 } } },
-          { "at": "landmark:oshodi-market", "offset": [-200, 300], "say": "m12_w3", "who": "market-woman", "fx": { "stats": { "aura": 2 } } },
-          { "at": "landmark:oshodi-market", "offset": [220, 320], "say": "m12_w4", "who": "debtor", "fx": { "stats": { "aura": 2 } } },
-          { "at": "landmark:oshodi-market", "offset": [0, 480], "say": "m12_w5", "who": "market-woman", "fx": { "stats": { "aura": 2 } } },
-          { "at": "landmark:oshodi-market", "offset": [420, 220], "say": "m12_w6", "who": "mama-nkem" }
-        ] },
-        { "do": "say", "lines": "m12_pos" },
-        { "do": "minigame", "game": "pos", "params": { "customers": 5, "network_fail": 0.6, "forced_failures": 3, "switch_network": true }, "pass": 3, "text": "Run the POS through the network failures", "fail_text": "The queue rioted. Comedically, but still.", "checkpoint": true },
-        { "do": "say", "lines": "m12_dispute" },
-        { "do": "say", "lines": "m12_whisper" }
+        {
+          "do": "say",
+          "lines": "m12_intro"
+        },
+        {
+          "do": "collect",
+          "text": "Collect ajo contributions",
+          "time": 240,
+          "radius": 120,
+          "checkpoint": true,
+          "points": [
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                -260,
+                60
+              ],
+              "say": "m12_w1",
+              "who": "market-woman",
+              "fx": {
+                "stats": {
+                  "aura": 2
+                }
+              }
+            },
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                260,
+                60
+              ],
+              "say": "m12_w2",
+              "who": "market-woman",
+              "fx": {
+                "stats": {
+                  "aura": 2
+                }
+              }
+            },
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                -200,
+                300
+              ],
+              "say": "m12_w3",
+              "who": "market-woman",
+              "fx": {
+                "stats": {
+                  "aura": 2
+                }
+              }
+            },
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                220,
+                320
+              ],
+              "say": "m12_w4",
+              "who": "debtor",
+              "fx": {
+                "stats": {
+                  "aura": 2
+                }
+              }
+            },
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                0,
+                480
+              ],
+              "say": "m12_w5",
+              "who": "market-woman",
+              "fx": {
+                "stats": {
+                  "aura": 2
+                }
+              }
+            },
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                420,
+                220
+              ],
+              "say": "m12_w6",
+              "who": "mama-nkem"
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m12_pos"
+        },
+        {
+          "do": "minigame",
+          "game": "pos",
+          "params": {
+            "customers": 5,
+            "network_fail": 0.6,
+            "forced_failures": 3,
+            "switch_network": true
+          },
+          "pass": 3,
+          "text": "Run the POS through the network failures",
+          "fail_text": "The queue rioted. Comedically, but still.",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "m12_dispute"
+        },
+        {
+          "do": "say",
+          "lines": "m12_whisper"
+        }
       ],
-      "rewards": { "story_money": 12000, "xp": { "haggling": 60 }, "ability": { "ajo": 1 }, "stats": { "aura": 5 } }
+      "rewards": {
+        "story_money": 12000,
+        "xp": {
+          "haggling": 60
+        },
+        "ability": {
+          "ajo": 1
+        },
+        "stats": {
+          "aura": 5
+        }
+      }
     },
     {
-      "id": "1.3", "act": "Act 1: Light Out", "title": "Four Percent", "hero": "kc",
-      "requires": ["P4"], "start": "landmark:kc-room",
+      "id": "1.3",
+      "act": "Act 1: Light Out",
+      "title": "Four Percent",
+      "hero": "kc",
+      "requires": [
+        "P4"
+      ],
+      "start": "landmark:kc-room",
       "summary": "The blackout clip is at 40,000 viewers. KC's phone is at 4%. Find power before it dies.",
       "fail_line": "Guys… guys? [black screen]",
       "steps": [
-        { "do": "say", "lines": "m13_intro" },
-        { "do": "set", "stats": { "battery": 5 }, "flags": { "live_mission": true } },
-        { "do": "tip", "text": "The stream is live and your battery is dying. Find power: the barbershop generator, the church inverter, the charging kiosk." },
-        { "do": "collect", "text": "Find power before the phone dies", "radius": 120, "fail_on_battery": true, "checkpoint": true, "points": [
-          { "at": "landmark:yaba-barbershop", "say": "m13_barber", "who": "barber", "fx": { "stats": { "battery": 30 } }, "toast": "Battery +30%" },
-          { "at": "landmark:yaba-church", "say": "m13_church", "who": "usher", "fx": { "stats": { "battery": 30 } }, "toast": "Battery +30%" },
-          { "at": "landmark:yaba-charging-kiosk", "say": "m13_kiosk", "who": "kiosk", "fx": { "stats": { "battery": 15 } }, "toast": "Battery +15%" }
-        ] },
-        { "do": "set", "flags": { "live_mission": false } },
-        { "do": "say", "lines": "m13_reveal" },
-        { "do": "npc", "id": "pepper", "who": "pepper", "at": "hero", "offset": [-240, 0] },
-        { "do": "say", "lines": "m13_pepper" },
-        { "do": "chase", "on": "foot", "to": "landmark:aunty-boss-kitchen", "chasers": ["pepper"], "radius": 160, "text": "Run! Lose Pepper and hide somewhere safe", "caught_text": "Pepper caught KC. \"Like and subscribe!\" did not work.", "checkpoint": true },
-        { "do": "npc_clear" },
-        { "do": "say", "lines": "m13_canteen" }
+        {
+          "do": "say",
+          "lines": "m13_intro"
+        },
+        {
+          "do": "set",
+          "stats": {
+            "battery": 5
+          },
+          "flags": {
+            "live_mission": true
+          }
+        },
+        {
+          "do": "tip",
+          "text": "The stream is live and your battery is dying. Find power: the barbershop generator, the church inverter, the charging kiosk."
+        },
+        {
+          "do": "collect",
+          "text": "Find power before the phone dies",
+          "radius": 120,
+          "fail_on_battery": true,
+          "checkpoint": true,
+          "points": [
+            {
+              "at": "landmark:yaba-barbershop",
+              "say": "m13_barber",
+              "who": "barber",
+              "fx": {
+                "stats": {
+                  "battery": 30
+                }
+              },
+              "toast": "Battery +30%"
+            },
+            {
+              "at": "landmark:yaba-church",
+              "say": "m13_church",
+              "who": "usher",
+              "fx": {
+                "stats": {
+                  "battery": 30
+                }
+              },
+              "toast": "Battery +30%"
+            },
+            {
+              "at": "landmark:yaba-charging-kiosk",
+              "say": "m13_kiosk",
+              "who": "kiosk",
+              "fx": {
+                "stats": {
+                  "battery": 15
+                }
+              },
+              "toast": "Battery +15%"
+            }
+          ]
+        },
+        {
+          "do": "set",
+          "flags": {
+            "live_mission": false
+          }
+        },
+        {
+          "do": "say",
+          "lines": "m13_reveal"
+        },
+        {
+          "do": "npc",
+          "id": "pepper",
+          "who": "pepper",
+          "at": "hero",
+          "offset": [
+            -240,
+            0
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m13_pepper"
+        },
+        {
+          "do": "chase",
+          "on": "foot",
+          "to": "landmark:aunty-boss-kitchen",
+          "chasers": [
+            "pepper"
+          ],
+          "radius": 160,
+          "text": "Run! Lose Pepper and hide somewhere safe",
+          "caught_text": "Pepper caught KC. \"Like and subscribe!\" did not work.",
+          "checkpoint": true
+        },
+        {
+          "do": "npc_clear"
+        },
+        {
+          "do": "say",
+          "lines": "m13_canteen"
+        }
       ],
-      "rewards": { "stats": { "hype": 20 }, "xp": { "filming": 50 }, "ability": { "golive": 1 }, "items": { "power-bank": 1 }, "rel": { "ngozi-kc": 5 } }
+      "rewards": {
+        "stats": {
+          "hype": 20
+        },
+        "xp": {
+          "filming": 50
+        },
+        "ability": {
+          "golive": 1
+        },
+        "items": {
+          "power-bank": 1
+        },
+        "rel": {
+          "ngozi-kc": 5
+        }
+      }
     },
     {
-      "id": "1.4", "act": "Act 1: Light Out", "title": "Who Get This Bag?", "hero": "tunde",
-      "requires": ["1.1"], "start": "landmark:tunde-depot",
+      "id": "1.4",
+      "act": "Act 1: Light Out",
+      "title": "Who Get This Bag?",
+      "hero": "tunde",
+      "requires": [
+        "1.1"
+      ],
+      "start": "landmark:tunde-depot",
       "summary": "Get the bag somewhere safe before the Chief's people spot the yellow danfo.",
       "fail_line": "Shortcut dey! (There was no shortcut.)",
       "steps": [
-        { "do": "say", "lines": "m14_intro" },
-        { "do": "place", "at": "landmark:tunde-depot", "offset": [120, 30], "danfo": true, "driving": true },
-        { "do": "say", "lines": "m14_passenger" },
-        { "do": "chase", "on": "danfo", "to": "landmark:mushin-mechanic", "chasers": ["pepper", "salt"], "time": 170, "votes": true, "radius": 220, "text": "Escape Pepper and Salt. Hide the bus at the Mushin mechanic", "caught_text": "Pepper and Salt blocked the danfo. They argued about jollof long enough for you to retry.", "checkpoint": true },
-        { "do": "say", "lines": "m14_hide" }
+        {
+          "do": "say",
+          "lines": "m14_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "danfo": true,
+          "driving": true
+        },
+        {
+          "do": "say",
+          "lines": "m14_passenger"
+        },
+        {
+          "do": "chase",
+          "on": "danfo",
+          "to": "landmark:mushin-mechanic",
+          "chasers": [
+            "pepper",
+            "salt"
+          ],
+          "time": 170,
+          "votes": true,
+          "radius": 220,
+          "text": "Escape Pepper and Salt. Hide the bus at the Mushin mechanic",
+          "caught_text": "Pepper and Salt blocked the danfo. They argued about jollof long enough for you to retry.",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "m14_hide"
+        }
       ],
-      "rewards": { "story_money": 4000, "xp": { "driving": 50 }, "flags": { "bp_control": 1 } }
+      "rewards": {
+        "story_money": 4000,
+        "xp": {
+          "driving": 50
+        },
+        "flags": {
+          "bp_control": 1
+        }
+      }
     },
     {
-      "id": "1.5", "act": "Act 1: Light Out", "title": "Family Meeting", "hero": "any",
-      "requires": ["1.2", "1.3", "1.4"], "start": "landmark:aunty-boss-kitchen",
+      "id": "1.5",
+      "act": "Act 1: Light Out",
+      "title": "Family Meeting",
+      "hero": "any",
+      "requires": [
+        "1.2",
+        "1.3",
+        "1.4"
+      ],
+      "start": "landmark:aunty-boss-kitchen",
       "summary": "All three in Aunty Boss's canteen at night, the bag on the table, the generator roaring.",
       "steps": [
-        { "do": "set", "time": "21:00", "nepa": "off" },
-        { "do": "panels", "panels": [ { "img": "story/panel-family-meeting.jpg", "text": "Aunty Boss Kitchen. 9 p.m. No light. One generator. One bag. Three people who do not trust each other." } ] },
-        { "do": "say", "lines": "m15_open" },
-        { "do": "tip", "text": "The generator is LOUD. When the noise peaks, hold SHOUT to be heard or you lose the line." },
-        { "do": "minigame", "game": "standoff", "params": { "lines": "m15_standoff" }, "pass": 50, "text": "Get your points across over the generator", "fail_text": "Nobody heard anybody. Food is ready, though. Try again.", "checkpoint": true },
-        { "do": "say", "lines": "m15_bag" },
-        { "do": "say", "lines": "m15_return", "if_eq": ["bag_choice", "return"] },
-        { "do": "say", "lines": "m15_count", "if_eq": ["bag_choice", "count"] },
-        { "do": "minigame", "game": "counting", "params": { "stacks": 16 }, "if_eq": ["bag_choice", "count"], "text": "Count it first. Fast, before someone \"helps\"." },
-        { "do": "say", "lines": "m15_diary", "if_eq": ["bag_choice", "count"] },
-        { "do": "say", "lines": "m15_hide", "if_eq": ["bag_choice", "hide"] },
-        { "do": "say", "lines": "m15_close" },
-        { "do": "chat", "chat": "m15_group", "title": "Family Meeting 🔥" },
-        { "do": "set", "nepa": "auto" },
-        { "do": "tip", "text": "Family Meeting 🔥 is now in your phone. Use it to switch between Tunde, Aunty Boss and KC at any time in free roam. Act 2, \"Spread\", is coming next." }
+        {
+          "do": "set",
+          "time": "21:00",
+          "nepa": "off"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-family-meeting.jpg",
+              "text": "Aunty Boss Kitchen. 9 p.m. No light. One generator. One bag. Three people who do not trust each other."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m15_open"
+        },
+        {
+          "do": "tip",
+          "text": "The generator is LOUD. When the noise peaks, hold SHOUT to be heard or you lose the line."
+        },
+        {
+          "do": "minigame",
+          "game": "standoff",
+          "params": {
+            "lines": "m15_standoff"
+          },
+          "pass": 50,
+          "text": "Get your points across over the generator",
+          "fail_text": "Nobody heard anybody. Food is ready, though. Try again.",
+          "checkpoint": true
+        },
+        {
+          "do": "say",
+          "lines": "m15_bag"
+        },
+        {
+          "do": "say",
+          "lines": "m15_return",
+          "if_eq": [
+            "bag_choice",
+            "return"
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m15_count",
+          "if_eq": [
+            "bag_choice",
+            "count"
+          ]
+        },
+        {
+          "do": "minigame",
+          "game": "counting",
+          "params": {
+            "stacks": 16
+          },
+          "if_eq": [
+            "bag_choice",
+            "count"
+          ],
+          "text": "Count it first. Fast, before someone \"helps\"."
+        },
+        {
+          "do": "say",
+          "lines": "m15_diary",
+          "if_eq": [
+            "bag_choice",
+            "count"
+          ]
+        },
+        {
+          "do": "set",
+          "if_eq": [
+            "bag_choice",
+            "count"
+          ],
+          "fx": {
+            "diary_pages": 1
+          }
+        },
+        {
+          "do": "say",
+          "lines": "m15_hide",
+          "if_eq": [
+            "bag_choice",
+            "hide"
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m15_close"
+        },
+        {
+          "do": "chat",
+          "chat": "m15_group",
+          "title": "Family Meeting 🔥"
+        },
+        {
+          "do": "set",
+          "nepa": "auto"
+        },
+        {
+          "do": "tip",
+          "text": "Family Meeting 🔥 is now in your phone: switch between Tunde, Aunty Boss and KC any time in free roam. Act 2, \"Spread\", is open: three missions, any order. Hidden diary pages are now scattered around Lagos, too."
+        }
       ],
-      "rewards": { "rel": { "all": 10 }, "flags": { "act1_done": true, "group_chat": true } }
+      "rewards": {
+        "rel": {
+          "all": 10
+        },
+        "flags": {
+          "act1_done": true,
+          "group_chat": true
+        },
+        "ability": {
+          "gist": 1
+        }
+      }
+    },
+    {
+      "id": "2.1",
+      "act": "Act 2: Spread",
+      "title": "Generator Wars",
+      "hero": "tunde",
+      "requires": [
+        "1.5"
+      ],
+      "start": "landmark:mushin-mechanic",
+      "summary": "Move a 60 kVA generator from Mushin to the canteen at night, past rival streets defending their own.",
+      "fail_line": "SLIPPERS! (You have been slippered. Try again.)",
+      "steps": [
+        {
+          "do": "set",
+          "time": "22:00",
+          "nepa": "off"
+        },
+        {
+          "do": "say",
+          "lines": "m21_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:mushin-mechanic",
+          "offset": [
+            0,
+            70
+          ]
+        },
+        {
+          "do": "tip",
+          "text": "Pushing a generator is SLOW. Rival lookouts throw slippers if you get close while they're watching: keep your distance, and use Aunty's Stare to freeze them."
+        },
+        {
+          "do": "chase",
+          "on": "watch",
+          "carry": 0.6,
+          "to": "node:mus_b",
+          "radius": 200,
+          "checkpoint": true,
+          "watchers": [
+            {
+              "who": "rival",
+              "at": "node:mus_b",
+              "offset": [
+                -260,
+                -380
+              ]
+            },
+            {
+              "who": "market-woman",
+              "at": "node:mus_b",
+              "offset": [
+                240,
+                -620
+              ]
+            }
+          ],
+          "text": "Push the generator past the rival street without being seen",
+          "caught_text": "Slippered! The rivals are guarding the generator now. Try again."
+        },
+        {
+          "do": "npc",
+          "id": "rival",
+          "who": "rival",
+          "at": "node:mus_b",
+          "offset": [
+            0,
+            160
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m21_rivals"
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "node:mus_b",
+          "offset": [
+            60,
+            40
+          ]
+        },
+        {
+          "do": "ability",
+          "ability": "stare",
+          "detail": "rival",
+          "at": "npc:rival",
+          "radius": 240,
+          "text": "The Stare: freeze Oga Slippers"
+        },
+        {
+          "do": "say",
+          "lines": "m21_stare"
+        },
+        {
+          "do": "npc_clear",
+          "id": "rival"
+        },
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "node:mus_b",
+          "offset": [
+            -40,
+            60
+          ]
+        },
+        {
+          "do": "chase",
+          "on": "watch",
+          "carry": 0.65,
+          "to": "landmark:aunty-boss-kitchen",
+          "radius": 220,
+          "checkpoint": true,
+          "watchers": [
+            {
+              "who": "rival",
+              "at": "landmark:aunty-boss-kitchen",
+              "offset": [
+                -420,
+                -560
+              ]
+            },
+            {
+              "who": "market-woman",
+              "at": "landmark:aunty-boss-kitchen",
+              "offset": [
+                380,
+                -900
+              ]
+            },
+            {
+              "who": "guest-d",
+              "at": "landmark:aunty-boss-kitchen",
+              "offset": [
+                -200,
+                -1200
+              ]
+            }
+          ],
+          "text": "Last stretch: get the generator to the canteen",
+          "caught_text": "A whole street of slippers. KC's ring light did not survive. Try again."
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-generator-wars.jpg",
+              "text": "The generator coughs. Roars. And every street within a kilometre gets light."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m21_light"
+        },
+        {
+          "do": "set",
+          "nepa": "auto"
+        }
+      ],
+      "rewards": {
+        "story_money": 15000,
+        "ability": {
+          "stare": 2
+        },
+        "flags": {
+          "canteen_socket": true
+        },
+        "rel": {
+          "all": 5
+        },
+        "items": {
+          "diesel": 1
+        }
+      }
+    },
+    {
+      "id": "2.2",
+      "act": "Act 2: Spread",
+      "title": "Japa Interview",
+      "hero": "kc",
+      "requires": [
+        "1.5"
+      ],
+      "start": "landmark:northvale-embassy",
+      "summary": "KC's visa interview at the fictional Republic of Northvale. The officer never blinks.",
+      "fail_line": "Guys… guys? The officer is still staring.",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m22_intro"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-japa.jpg",
+              "text": "Embassy of the Republic of Northvale. Window 4. The officer has not blinked since 2019."
+            }
+          ]
+        },
+        {
+          "do": "minigame",
+          "game": "interview",
+          "store": {
+            "passed": "japa_possible"
+          },
+          "text": "Stay composed. Answer quickly. Do not mention the goat unless asked."
+        },
+        {
+          "do": "say",
+          "lines": "m22_pass",
+          "if": "japa_possible"
+        },
+        {
+          "do": "say",
+          "lines": "m22_fail",
+          "if_not": "japa_possible"
+        },
+        {
+          "do": "say",
+          "lines": "m22_caught",
+          "if_not": "japa_confessed"
+        },
+        {
+          "do": "set",
+          "if_not": "japa_confessed",
+          "fx": {
+            "stats": {
+              "aura": -20
+            },
+            "rel": {
+              "ngozi-kc": -20
+            }
+          }
+        },
+        {
+          "do": "say",
+          "lines": "m22_confessed",
+          "if": "japa_confessed"
+        }
+      ],
+      "rewards": {
+        "stats": {
+          "hype": 15
+        },
+        "xp": {
+          "composure": 40
+        }
+      }
+    },
+    {
+      "id": "2.3",
+      "act": "Act 2: Spread",
+      "title": "Danfo Chase",
+      "hero": "tunde",
+      "requires": [
+        "1.5"
+      ],
+      "start": "landmark:tunde-depot",
+      "summary": "Pepper and Salt chase Tunde through go-slow with 14 passengers who vote on every turn.",
+      "fail_line": "Shortcut dey! (There was no shortcut.)",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m23_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "danfo": true,
+          "driving": true
+        },
+        {
+          "do": "chase",
+          "on": "danfo",
+          "to": "node:surulere_c",
+          "chasers": [
+            "pepper",
+            "salt"
+          ],
+          "time": 150,
+          "votes": true,
+          "radius": 260,
+          "checkpoint": true,
+          "text": "Lose Pepper and Salt: get to Surulere",
+          "caught_text": "Boxed in! Pepper and Salt argued about jollof long enough for a retry."
+        },
+        {
+          "do": "say",
+          "lines": "m23_convoy"
+        }
+      ],
+      "rewards": {
+        "story_money": 10000,
+        "ability": {
+          "conductor": 2,
+          "whisperer": 3
+        },
+        "xp": {
+          "driving": 60
+        }
+      }
+    },
+    {
+      "id": "2.4",
+      "act": "Act 2: Spread",
+      "title": "Aso-Ebi Infiltration",
+      "hero": "ngozi",
+      "requires_count": [
+        2,
+        [
+          "2.1",
+          "2.2",
+          "2.3"
+        ]
+      ],
+      "start": "landmark:mama-chief-house",
+      "summary": "Get into Mama Chief's 90th birthday in the right aso-ebi, survive the aunties and find Barrister Ledger's study.",
+      "fail_line": "\"When are you marrying?\" (You fled. Try again.)",
+      "steps": [
+        {
+          "do": "set",
+          "time": "16:00",
+          "nepa": "on"
+        },
+        {
+          "do": "say",
+          "lines": "m24_intro"
+        },
+        {
+          "do": "minigame",
+          "game": "dresscode",
+          "pass": 30,
+          "text": "Match the invitation card at the gate",
+          "fail_text": "\"Madam, you are NOT on the list.\" Try again."
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-aso-ebi.jpg",
+              "text": "Mama Chief's 90th. Purple everywhere. Aunties everywhere. Questions everywhere."
+            }
+          ]
+        },
+        {
+          "do": "interior",
+          "room": "compound",
+          "spawn": "gate"
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "room:tents-left"
+        },
+        {
+          "do": "say",
+          "lines": "m24_aunties",
+          "checkpoint": true
+        },
+        {
+          "do": "npc",
+          "id": "mama-chief",
+          "who": "mama-chief",
+          "at": "room:high-table"
+        },
+        {
+          "do": "goto",
+          "at": "room:high-table",
+          "radius": 170,
+          "text": "Greet the celebrant (it would be rude not to)"
+        },
+        {
+          "do": "say",
+          "lines": "m24_mama"
+        },
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "room:dance"
+        },
+        {
+          "do": "minigame",
+          "game": "spray_dance",
+          "params": {
+            "title": "Dance, KC! (The aunties insist.)",
+            "beats": 16,
+            "bpm": 104
+          },
+          "pass": 40,
+          "text": "Distract everybody: DANCE",
+          "fail_text": "KC danced off-beat. The aunties are now teaching him. Try again."
+        },
+        {
+          "do": "switch",
+          "hero": "tunde",
+          "at": "room:tents-right"
+        },
+        {
+          "do": "goto",
+          "at": "room:study",
+          "radius": 120,
+          "text": "While KC dances, slip into the house: Barrister Ledger's study",
+          "time": 45,
+          "fail_text": "An aunty caught Tunde: \"Who are you to the family?\" Try again."
+        },
+        {
+          "do": "say",
+          "lines": "m24_study"
+        },
+        {
+          "do": "npc_clear"
+        },
+        {
+          "do": "exit_interior"
+        }
+      ],
+      "rewards": {
+        "story_money": 20000,
+        "rel": {
+          "all": 5
+        },
+        "diary_pages": 2
+      }
+    },
+    {
+      "id": "2.5",
+      "act": "Act 2: Spread",
+      "title": "Following the Money",
+      "hero": "ngozi",
+      "requires_count": [
+        2,
+        [
+          "2.1",
+          "2.2",
+          "2.3"
+        ]
+      ],
+      "start": "landmark:oshodi-market",
+      "summary": "Trace how Barrister Ledger split the Chief's cash across POS agents. Collect evidence; launder nothing.",
+      "fail_line": "Write it down. I don't forget. (Try again.)",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m25_intro"
+        },
+        {
+          "do": "collect",
+          "text": "Talk to the POS agents",
+          "radius": 120,
+          "checkpoint": true,
+          "points": [
+            {
+              "at": "landmark:oshodi-market",
+              "offset": [
+                320,
+                -60
+              ],
+              "who": "market-woman",
+              "say": "m25_tosin"
+            },
+            {
+              "at": "landmark:yaba-charging-kiosk",
+              "offset": [
+                120,
+                40
+              ],
+              "who": "kiosk",
+              "say": "m25_kunle"
+            },
+            {
+              "at": "landmark:aunty-boss-kitchen",
+              "offset": [
+                200,
+                60
+              ],
+              "who": "receipts",
+              "say": "m25_bisi"
+            }
+          ]
+        },
+        {
+          "do": "minigame",
+          "game": "board",
+          "pass": 40,
+          "text": "Build the investigation board",
+          "fail_text": "The red string is a mess. Mama Nkem is laughing. Try again."
+        },
+        {
+          "do": "say",
+          "lines": "m25_done"
+        }
+      ],
+      "rewards": {
+        "ability": {
+          "ajo": 2
+        },
+        "stats": {
+          "aura": 10
+        },
+        "xp": {
+          "haggling": 60
+        }
+      }
+    },
+    {
+      "id": "2.6",
+      "act": "Act 2: Spread",
+      "title": "Fuel Queue Standoff",
+      "hero": "tunde",
+      "requires_count": [
+        2,
+        [
+          "2.1",
+          "2.2",
+          "2.3"
+        ]
+      ],
+      "start": "landmark:petronaija-station",
+      "summary": "Diesel for the canteen generator at the only open PetroNaija station. The queue is a war.",
+      "fail_line": "Bonked by a jerrycan. Comedically. Try again.",
+      "steps": [
+        {
+          "do": "set",
+          "time": "07:00"
+        },
+        {
+          "do": "say",
+          "lines": "m26_intro"
+        },
+        {
+          "do": "npc",
+          "id": "attendant",
+          "who": "attendant",
+          "at": "landmark:petronaija-station",
+          "offset": [
+            80,
+            -40
+          ]
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "landmark:petronaija-station",
+          "offset": [
+            -60,
+            40
+          ]
+        },
+        {
+          "do": "ability",
+          "ability": "stare",
+          "detail": "attendant",
+          "at": "npc:attendant",
+          "radius": 220,
+          "text": "The Stare: the pump attendant says there's \"no fuel\""
+        },
+        {
+          "do": "say",
+          "lines": "m26_stare"
+        },
+        {
+          "do": "minigame",
+          "game": "dodge",
+          "pass": 50,
+          "checkpoint": true,
+          "text": "A convoy skipped the queue. Brawl! Dodge the jerrycans",
+          "fail_text": "You got bonked. Many times. Try again."
+        },
+        {
+          "do": "npc_clear"
+        },
+        {
+          "do": "say",
+          "lines": "m26_done"
+        }
+      ],
+      "rewards": {
+        "story_money": 6000,
+        "items": {
+          "diesel": 2
+        },
+        "flags": {
+          "bp_control": 2
+        }
+      }
+    },
+    {
+      "id": "2.7",
+      "act": "Act 2: Spread",
+      "title": "Viral",
+      "hero": "kc",
+      "requires": [
+        "2.4",
+        "2.5"
+      ],
+      "start": "landmark:kc-room",
+      "summary": "Use Gist and Go Live to turn the ward's opinion about the Chief. True gists stick; lies come back to bite.",
+      "fail_line": "Guys… guys?",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m27_intro"
+        },
+        {
+          "do": "set",
+          "fx": {
+            "ability": {
+              "gist": 2
+            }
+          }
+        },
+        {
+          "do": "minigame",
+          "game": "gist",
+          "text": "Seed the gists. Only the ones with receipts."
+        },
+        {
+          "do": "say",
+          "lines": "m27_radio"
+        },
+        {
+          "do": "say",
+          "lines": "m27_done"
+        }
+      ],
+      "rewards": {
+        "stats": {
+          "hype": 30
+        },
+        "xp": {
+          "filming": 60
+        }
+      }
+    },
+    {
+      "id": "2.8",
+      "act": "Act 2: Spread",
+      "title": "Midpoint: Old Money",
+      "hero": "any",
+      "requires": [
+        "2.4",
+        "2.5",
+        "2.7"
+      ],
+      "start": "landmark:aunty-boss-kitchen",
+      "summary": "A full count of the bag. The twist: it's mostly old notes. The real prize is the diary.",
+      "steps": [
+        {
+          "do": "set",
+          "time": "23:00",
+          "nepa": "off"
+        },
+        {
+          "do": "say",
+          "lines": "m28_open"
+        },
+        {
+          "do": "minigame",
+          "game": "counting",
+          "params": {
+            "stacks": 20
+          },
+          "text": "The full count. Every note."
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-old-notes.jpg",
+              "text": "Old notes. Withdrawn years ago. The Chief has been hoarding worthless paper."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m28_twist"
+        },
+        {
+          "do": "say",
+          "lines": "m28_confess"
+        },
+        {
+          "do": "say",
+          "lines": "m28_choice"
+        },
+        {
+          "do": "set",
+          "nepa": "auto"
+        },
+        {
+          "do": "tip",
+          "text": "Act 3, \"Election Day\", is open. The ward votes soon: every bloc you win over counts."
+        }
+      ],
+      "rewards": {
+        "diary_pages": 3,
+        "flags": {
+          "stitch_key": true,
+          "act2_done": true
+        }
+      }
+    },
+    {
+      "id": "3.1",
+      "act": "Act 3: Election Day",
+      "title": "Campaign Season",
+      "hero": "tunde",
+      "requires": [
+        "2.8"
+      ],
+      "start": "landmark:agbado-ketu-council",
+      "summary": "Drive Teacher's campaign around the ward. Win the blocs honestly; bribes always backfire.",
+      "fail_line": "Teacher: \"We go again. Democracy is a marathon.\"",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m31_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:agbado-ketu-council",
+          "offset": [
+            0,
+            120
+          ],
+          "danfo": true,
+          "driving": true
+        },
+        {
+          "do": "collect",
+          "text": "Campaign stops (any order)",
+          "radius": 200,
+          "checkpoint": true,
+          "points": [
+            {
+              "at": "landmark:oshodi-market",
+              "who": "mama-nkem",
+              "say": "m31_traders"
+            },
+            {
+              "at": "landmark:tunde-depot",
+              "who": "sule",
+              "say": "m31_drivers"
+            },
+            {
+              "at": "landmark:kc-room",
+              "who": "guest-d",
+              "say": "m31_students"
+            },
+            {
+              "at": "landmark:yaba-church",
+              "who": "usher",
+              "say": "m31_church"
+            },
+            {
+              "at": "landmark:mushin-mechanic",
+              "who": "mechanic",
+              "say": "m31_okada"
+            },
+            {
+              "at": "landmark:ward-stadium",
+              "who": "rival",
+              "say": "m31_youth"
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m31_poll"
+        }
+      ],
+      "rewards": {
+        "xp": {
+          "charisma": 80
+        }
+      }
+    },
+    {
+      "id": "3.2",
+      "act": "Act 3: Election Day",
+      "title": "The Debate",
+      "hero": "kc",
+      "requires": [
+        "3.1"
+      ],
+      "start": "landmark:miracle-fm",
+      "summary": "Get Teacher into the radio debate, make sure the Chief can't skip it, and win the room.",
+      "fail_line": "Dead air. Try again.",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m32_intro"
+        },
+        {
+          "do": "minigame",
+          "game": "debate",
+          "pass": 45,
+          "text": "Win the debate: receipts beat slogans",
+          "fail_text": "The Chief's slogans won the room. Try again."
+        },
+        {
+          "do": "say",
+          "lines": "m32_done"
+        }
+      ],
+      "rewards": {
+        "xp": {
+          "composure": 60
+        }
+      }
+    },
+    {
+      "id": "3.3",
+      "act": "Act 3: Election Day",
+      "title": "Light Man",
+      "hero": "tunde",
+      "requires": [
+        "3.1"
+      ],
+      "start": "landmark:tunde-depot",
+      "summary": "Find Engineer Bayo and pay him in suya to bring the light back at exactly the right second.",
+      "fail_line": "The suya went cold. Bayo is a professional. Try again.",
+      "steps": [
+        {
+          "do": "say",
+          "lines": "m33_intro"
+        },
+        {
+          "do": "place",
+          "at": "landmark:tunde-depot",
+          "offset": [
+            120,
+            30
+          ],
+          "danfo": true,
+          "driving": true
+        },
+        {
+          "do": "npc",
+          "id": "bayo",
+          "who": "bayo",
+          "at": "landmark:elddc-substation",
+          "offset": [
+            60,
+            -30
+          ]
+        },
+        {
+          "do": "goto",
+          "at": "landmark:elddc-substation",
+          "radius": 260,
+          "need": "driving",
+          "text": "Find Engineer Bayo at the Light & Darkness substation"
+        },
+        {
+          "do": "say",
+          "lines": "m33_bayo"
+        },
+        {
+          "do": "goto",
+          "at": "landmark:mallam-suya",
+          "radius": 220,
+          "need": "driving",
+          "time": 150,
+          "checkpoint": true,
+          "text": "Get THE suya from Mallam Garba in Victoria Island",
+          "fail_text": "Mallam Garba sold out. To Officer Gbenga, of all people. Try again."
+        },
+        {
+          "do": "say",
+          "lines": "m33_suya"
+        },
+        {
+          "do": "goto",
+          "at": "landmark:elddc-substation",
+          "radius": 260,
+          "need": "driving",
+          "time": 140,
+          "checkpoint": true,
+          "text": "Back to Bayo before the shift change. The suya must be HOT",
+          "fail_text": "Shift change. The new lineman only accepts bank transfer. Try again."
+        },
+        {
+          "do": "say",
+          "lines": "m33_deal"
+        },
+        {
+          "do": "npc_clear"
+        }
+      ],
+      "rewards": {
+        "flags": {
+          "bayo_deal": true
+        },
+        "xp": {
+          "driving": 80
+        }
+      }
+    },
+    {
+      "id": "3.4",
+      "act": "Act 3: Election Day",
+      "title": "Up NEPA!",
+      "hero": "any",
+      "requires": [
+        "3.2",
+        "3.3"
+      ],
+      "start": "landmark:ward-stadium",
+      "next": "3.5",
+      "summary": "The rally. Blackout as the Chief begins. On cue, the light returns: every light, speaker and phone.",
+      "fail_line": "The light came back too early. Bayo is upset. Try again.",
+      "steps": [
+        {
+          "do": "set",
+          "time": "20:00",
+          "nepa": "off"
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-rally.jpg",
+              "text": "Agbado-Ketu Central Mini Stadium. The Chief's final rally. The light goes off as he begins. As planned."
+            }
+          ]
+        },
+        {
+          "do": "interior",
+          "room": "stadium",
+          "spawn": "gate"
+        },
+        {
+          "do": "npc",
+          "id": "chief",
+          "who": "chief",
+          "at": "room:stage"
+        },
+        {
+          "do": "npc",
+          "id": "teacher",
+          "who": "teacher",
+          "at": "room:stand"
+        },
+        {
+          "do": "say",
+          "lines": "m34_intro"
+        },
+        {
+          "do": "switch",
+          "hero": "tunde",
+          "at": "room:gate"
+        },
+        {
+          "do": "goto",
+          "at": "room:convoy-exit",
+          "radius": 140,
+          "time": 25,
+          "checkpoint": true,
+          "text": "Tunde: block the convoy exit with Baba God Dey",
+          "fail_text": "The convoy got out. Try again."
+        },
+        {
+          "do": "switch",
+          "hero": "ngozi",
+          "at": "room:crowd"
+        },
+        {
+          "do": "goto",
+          "at": "room:mic",
+          "radius": 140,
+          "time": 25,
+          "text": "Aunty Boss: take the spare mic",
+          "fail_text": "Someone else grabbed the mic. It was the MC. Try again."
+        },
+        {
+          "do": "switch",
+          "hero": "kc",
+          "at": "room:stand"
+        },
+        {
+          "do": "ability",
+          "ability": "golive",
+          "text": "KC: GO LIVE"
+        },
+        {
+          "do": "minigame",
+          "game": "cue",
+          "pass": 30,
+          "text": "On the second the Chief takes the stage: UP NEPA!",
+          "fail_text": "The cues were off. Bayo signals: again."
+        },
+        {
+          "do": "set",
+          "nepa": "on"
+        },
+        {
+          "do": "toast",
+          "text": "UP NEPAAAA!",
+          "big": true
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-up-nepa.jpg",
+              "text": "Every floodlight. Every speaker. Every phone. And on every screen: the diary."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m34_reveal"
+        },
+        {
+          "do": "set",
+          "compute_ending": true
+        },
+        {
+          "do": "say",
+          "lines": "m34_win",
+          "if": "teacher_won"
+        },
+        {
+          "do": "say",
+          "lines": "m34_lose",
+          "if_not": "teacher_won"
+        },
+        {
+          "do": "npc_clear"
+        },
+        {
+          "do": "exit_interior"
+        }
+      ],
+      "rewards": {
+        "rel": {
+          "all": 10
+        }
+      }
+    },
+    {
+      "id": "3.5",
+      "act": "Act 3: Election Day",
+      "title": "Epilogue",
+      "hero": "any",
+      "requires": [
+        "3.4"
+      ],
+      "auto": true,
+      "summary": "How it ends depends on everything you chose.",
+      "steps": [
+        {
+          "do": "set",
+          "time": "10:00",
+          "advance": 4320
+        },
+        {
+          "do": "say",
+          "lines": "m35_airport",
+          "if": "japa_possible"
+        },
+        {
+          "do": "set",
+          "compute_ending": true
+        },
+        {
+          "do": "panels",
+          "if_eq": [
+            "ending",
+            "A"
+          ],
+          "panels": [
+            {
+              "img": "story/panel-ending-a.jpg",
+              "text": "Ending A · Honest. The money becomes a transformer and a borehole. Baba God Dey becomes the ward shuttle."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m35_a",
+          "if_eq": [
+            "ending",
+            "A"
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m35_a_full",
+          "if": "ending_full"
+        },
+        {
+          "do": "panels",
+          "if_eq": [
+            "ending",
+            "B"
+          ],
+          "panels": [
+            {
+              "img": "story/panel-ending-b.jpg",
+              "text": "Ending B · Hustle. The old notes went to \"a guy\". The guy was the FCIB."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m35_b",
+          "if_eq": [
+            "ending",
+            "B"
+          ]
+        },
+        {
+          "do": "panels",
+          "if_eq": [
+            "ending",
+            "C"
+          ],
+          "panels": [
+            {
+              "img": "story/panel-ending-c.jpg",
+              "text": "Ending C · Japa. Northvale is cold. The video calls are warm."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m35_c",
+          "if_eq": [
+            "ending",
+            "C"
+          ]
+        },
+        {
+          "do": "panels",
+          "if_eq": [
+            "ending",
+            "D"
+          ],
+          "panels": [
+            {
+              "img": "story/panel-ending-d.jpg",
+              "text": "Ending D · Secret. The last page of the diary names someone above the Chief."
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "lines": "m35_d",
+          "if_eq": [
+            "ending",
+            "D"
+          ]
+        },
+        {
+          "do": "panels",
+          "panels": [
+            {
+              "img": "story/panel-title.jpg",
+              "text": "NAIJA STREET LIFE\nUP NEPA!\n· THE END ·",
+              "title": true
+            }
+          ]
+        },
+        {
+          "do": "set",
+          "fx": {
+            "cashout": true
+          }
+        },
+        {
+          "do": "tip",
+          "text": "Story complete! Your story money (₦s) has joined your wallet. Lagos keeps living: hustle, switch heroes, find what you missed. Replay the story from the phone to try another ending."
+        }
+      ],
+      "rewards": {
+        "flags": {
+          "story_complete": true
+        }
+      }
+    }
+  ],
+  "collectibles": [
+    {
+      "id": "page-1",
+      "at": "landmark:miracle-fm",
+      "offset": [
+        -120,
+        60
+      ],
+      "needs": "act1_done",
+      "fx": {
+        "diary_pages": 1
+      },
+      "text": "Diary page! \"Miracle FM: ₦2m for 'prayers'. Prayers not delivered.\""
+    },
+    {
+      "id": "page-2",
+      "at": "landmark:obalende-motor-park",
+      "offset": [
+        160,
+        120
+      ],
+      "needs": "act1_done",
+      "fx": {
+        "diary_pages": 1
+      },
+      "text": "Diary page! \"Paid the agberos to 'love' the Chief. They loved the money.\""
+    },
+    {
+      "id": "page-3",
+      "at": "landmark:lekki-event-centre",
+      "offset": [
+        -200,
+        80
+      ],
+      "needs": "act1_done",
+      "fx": {
+        "diary_pages": 1
+      },
+      "text": "Diary page! \"Owambe budget: ₦9m. Jollof: ₦0 (Aunty never got paid).\""
+    },
+    {
+      "id": "page-4",
+      "at": "landmark:petronaija-station",
+      "offset": [
+        120,
+        120
+      ],
+      "needs": "act1_done",
+      "fx": {
+        "diary_pages": 1
+      },
+      "text": "Diary page! \"Diesel for the Chief's house: 400 litres. For the ward: 0.\""
     }
   ]
 }

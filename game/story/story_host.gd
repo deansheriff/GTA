@@ -14,6 +14,14 @@ const GAMES := {
 	"quick": preload("res://ui/minigames/quick_time.gd"),
 	"counting": preload("res://ui/minigames/counting.gd"),
 	"standoff": preload("res://ui/minigames/standoff.gd"),
+	"interview": preload("res://ui/minigames/visa_interview.gd"),
+	"dresscode": preload("res://ui/minigames/dress_code.gd"),
+	"board": preload("res://ui/minigames/evidence_board.gd"),
+	"dodge": preload("res://ui/minigames/jerrycan_dodge.gd"),
+	"gist": preload("res://ui/minigames/rumour_graph.gd"),
+	"debate": preload("res://ui/minigames/debate.gd"),
+	"cue": preload("res://ui/minigames/light_cue.gd"),
+	"spray_dance": preload("res://ui/minigames/money_spray.gd"),
 }
 const INK := Color("#1d1611")
 const PAPER := Color("#f1e6c8")
@@ -190,6 +198,7 @@ func tick(dt: float) -> void:
 		if _subtitle_t <= 0.0:
 			_subtitle.text = ""
 	_tick_ambient(dt, focus)
+	_tick_pages(focus)
 	bar.refresh(abilities)
 	_markers.queue_redraw()
 	if auto:
@@ -250,6 +259,32 @@ func _tick_ambient(dt: float, focus: Vector2) -> void:
 		elif not near and ambient.has(who):
 			(ambient[who] as Node).queue_free()
 			ambient.erase(who)
+
+
+## Hidden diary pages (missions.json "collectibles"): four in the world after Act 1, needed for
+## the Secret ending together with the pages from missions.
+func _page_list() -> Array:
+	var out: Array = []
+	for c in Story.collectibles:
+		if Story.flag("got_" + String(c["id"])) or not Story.flag(String(c.get("needs", ""))):
+			continue
+		out.append({ "c": c, "pos": runner.resolve(c["at"], c.get("offset")) })
+	return out
+
+
+func _tick_pages(focus: Vector2) -> void:
+	if runner.running() or interior.active or _busy > 0 or Engine.get_process_frames() % 10 != 0:
+		return
+	for p in _page_list():
+		if focus.distance_to(p["pos"]) < 90.0:
+			var c: Dictionary = p["c"]
+			Story.set_flag("got_" + String(c["id"]), true)
+			Story.apply_effects(c.get("fx", {}))
+			_busy += 1
+			await dialogue.play([{ "who": "tip", "text": "%s  (Diary pages: %d/%d)" % [c.get("text", "Diary page!"), Story.diary_pages, Story.PAGES_FOR_D] }])
+			_busy -= 1
+			SaveGame.save_now()
+			return
 
 
 func ambient_prompt(focus: Vector2) -> String:
@@ -330,6 +365,15 @@ func _draw_markers() -> void:
 		_markers.draw_arc(p, r, 0, TAU, 40, DANFO, 7.0, true)
 		_markers.draw_arc(p, r, 0, TAU, 40, INK, 2.0, true)
 		_star(p + Vector2(0, -r - 34 + sin(t * 4.0) * 5.0), 20.0)
+	for p in _page_list():
+		var pp: Vector2 = p["pos"]
+		if view.has_point(pp):
+			_markers.draw_circle(pp, 26.0 + sin(t * 5.0) * 4.0, Color(1.0, 0.85, 0.4, 0.25))
+			var r := Rect2(pp - Vector2(11, 14), Vector2(22, 28))
+			_markers.draw_rect(r, Color("#f6efd9"))
+			_markers.draw_rect(r, INK, false, 2.0)
+			for k in 3:
+				_markers.draw_line(pp + Vector2(-7, -7 + k * 7), pp + Vector2(7, -7 + k * 7), Color(0.3, 0.25, 0.2), 1.5)
 	if _story_wp != Vector2.INF and not interior.active and view.has_point(_story_wp):
 		var r2 := 70.0 + sin(t * 4.0) * 8.0
 		_markers.draw_arc(_story_wp, r2, 0, TAU, 48, DANFO, 8.0, true)
@@ -362,12 +406,22 @@ func on_ability(a: String) -> void:
 				main.hud.toast("Nobody close enough to Stare at.")
 				return
 			if abilities.use("stare", target["id"]):
-				var node: Node2D = target["node"]
-				if node.has_method("freeze"):
-					node.freeze(abilities.stare_seconds())
-				else:
-					node.target = Vector2.INF
-					node.idle_t = abilities.stare_seconds()
+				var victims: Array = [target["node"]]
+				if abilities.tier("stare") >= 2:
+					# Tier 2 (after Generator Wars): the Stare works on groups of up to 4.
+					var pool: Array = interior._npcs.values() if interior.active else npcs.values() + ambient.values() + main.crowd.people
+					for n in pool:
+						if victims.size() >= 4:
+							break
+						if n != target["node"] and (n as Node2D).position.distance_to(story_focus()) < 280.0:
+							victims.append(n)
+				for v in victims:
+					var node: Node2D = v
+					if node.has_method("freeze"):
+						node.freeze(abilities.stare_seconds())
+					else:
+						node.target = Vector2.INF
+						node.idle_t = abilities.stare_seconds()
 				subtitle(["\"…I'll pay. I'll pay! Just stop looking at me like that!\"", "\"Aunty, I confess! It was me that finished the meat!\"", "\"Ma, I'm sorry for whatever I did, and whatever I'm about to do.\""].pick_random())
 		"ajo":
 			if not abilities.available("ajo"):
@@ -481,7 +535,18 @@ func _add_phone_apps() -> void:
 
 func _build_story_app(phone: Control) -> void:
 	phone._clear("Up NEPA!")
-	phone._label("Story money ₦s %s · Family trust %d%%" % [Life.fmt_naira(Story.story_money), Story.family_rel()], 14, DANFO)
+	phone._label("Story money ₦s %s · Family trust %d%% · Diary pages %d/%d · Evidence %d" % [Life.fmt_naira(Story.story_money), Story.family_rel(), Story.diary_pages, Story.PAGES_FOR_D, Story.evidence], 14, DANFO)
+	if Story.is_done("2.8"):
+		var bits: Array = []
+		for b in Story.BLOCS:
+			bits.append("%s %d" % [Story.BLOC_NAME[b], int(Story.blocs[b])])
+		phone._label("WIEC poll · Teacher %d%%: %s" % [Story.teacher_support(), ", ".join(bits)], 13, PAPER)
+	if Story.flag("story_complete"):
+		phone._label("THE END · Ending %s. Replay to find the others." % String(Story.flag("ending")), 15, DANFO)
+		var rb := Button.new()
+		rb.text = "Start the story again (keep your money and skills)"
+		rb.pressed.connect(func() -> void: _replay_story(phone))
+		phone._screen.add_child(rb)
 	if runner.running():
 		var m: Dictionary = runner.mission
 		phone._label("NOW: %s · %s" % [m["id"], m["title"]], 18)
@@ -505,7 +570,20 @@ func _build_story_app(phone: Control) -> void:
 				phone.visible = false
 				main._set_waypoint(pos))
 			phone._screen.add_child(b)
-	phone._label("Act 2 \"Spread\" and Act 3 \"Election Day\" arrive in the next update.", 12, Color(1, 1, 1, 0.5))
+	phone._label("Act 2 opens in any order; Act 3 follows the Midpoint. Hidden diary pages glow on the street.", 12, Color(1, 1, 1, 0.5))
+
+
+## New story run: progress and story flags reset; wallet, skills and found diary pages stay.
+func _replay_story(phone: Control) -> void:
+	phone.visible = false
+	var keep := {}
+	for f in Life.flags:
+		if String(f).begins_with("got_page"):
+			keep[f] = Life.flags[f]
+	Story.reset()
+	Life.flags = keep
+	Story.diary_pages = keep.size()
+	runner.start("P1")
 
 
 func _build_switch_app(phone: Control) -> void:
@@ -664,6 +742,7 @@ func story_fail(text: String) -> bool:
 
 func story_cleanup_soft() -> void:
 	chase.stop()
+	_attach_load(false)
 	_banter = ""
 
 
@@ -862,6 +941,19 @@ func story_jam(pos: Vector2) -> void:
 
 func story_chase_start(s: Dictionary) -> void:
 	var focus := story_focus()
+	if s.get("on", "") == "watch":
+		var ids: Array = []
+		var ws: Array = s.get("watchers", [])
+		for i in ws.size():
+			var wid := "watch-%d" % i
+			story_npc(wid, ws[i]["who"], runner.resolve(ws[i]["at"], ws[i].get("offset")), {})
+			ids.append(wid)
+		var s2 := s.duplicate()
+		s2["chasers"] = ids
+		chase.start(s2, focus, 0.0, npcs)
+		_attach_load(true)
+		_auto_shot("sneak")
+		return
 	var heading: float = main.danfo.heading if main.mode == "driving" else (focus - main.map.landmarks[Story.HERO_HOME["kc"]]["pos"]).angle()
 	chase.start(s, focus, heading, npcs)
 	if s.get("on", "danfo") == "danfo":
@@ -874,9 +966,32 @@ func story_chase_state() -> Dictionary:
 	return chase.state()
 
 
+## The 60 kVA generator the hero pushes during Generator Wars.
+var _load: Sprite2D
+
+
+func _attach_load(on: bool) -> void:
+	if is_instance_valid(_load):
+		_load.queue_free()
+	if not on:
+		return
+	_load = Sprite2D.new()
+	_load.texture = Art.tex("props/generator.png")
+	_load.scale = Vector2(1.3, 1.3)
+	_load.position = Vector2(30, -18)
+	_load.material = main.painted_mat
+	main.player.add_child(_load)
+
+
 func story_chase_end() -> void:
+	var watch := chase.on == "watch"
+	_attach_load(false)
 	chase.stop()
 	_banter = ""
+	if watch:
+		for k in npcs.keys():
+			if String(k).begins_with("watch-"):
+				story_npc_clear(k)
 
 
 func story_nepa(v: String) -> void:

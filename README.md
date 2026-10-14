@@ -19,8 +19,10 @@ above at an angle.
   - **M3 · story:** "Up NEPA!" Prologue and Act 1 (9 missions) with dialogue and portraits,
     painted cutscenes, the owambe hall, chases, six mini-games, three switchable heroes and
     their abilities, named characters on daily routines
+  - **M4 · story complete:** Acts 2 and 3 (22 missions in all), the ward election, four endings,
+    hidden diary pages, replay
   - **Server:** realtime multiplayer rooms per district and cloud saves, deployable to Coolify
-- **Next:** M4, Acts 2 and 3 and the four endings.
+- **Next:** M5, online features (accounts/OTP, chat with moderation, gig board, profiles, polls and elections).
 
 ## Run and test
 ```powershell

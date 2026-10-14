@@ -213,6 +213,7 @@ func _step(s: Dictionary, token: int) -> bool:
 			var res: Dictionary = await host.story_minigame(s["game"], s.get("params", {}))
 			for k in s.get("store", {}):
 				Story.set_flag(s["store"][k], res.get(k, 0))
+			Story.apply_effects(res.get("fx", {}))
 			if s.has("pass") and float(res.get("score", 0)) < float(s["pass"]):
 				_fail_reason = s.get("fail_text", "")
 				return false
@@ -256,6 +257,10 @@ func _apply_set(s: Dictionary) -> void:
 		Story.set_flag(f, s["flags"][f])
 	if s.has("banter"):
 		host.story_banter(String(s["banter"]))
+	if s.get("compute_ending", false):
+		Story.set_flag("ending", Story.compute_ending())
+		Story.set_flag("ending_full", Story.honest_ending_full())
+		Story.set_flag("teacher_won", Story.teacher_support() >= 50)
 
 
 ## Common per-frame fail checks for timed and battery steps. Returns "" while fine.

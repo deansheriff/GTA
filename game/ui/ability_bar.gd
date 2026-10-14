@@ -134,4 +134,6 @@ func refresh(ab: Abilities) -> void:
 			b.text = ("● " if on else "") + label + (" %ds" % int(ceil(cd)) if cd > 0.5 else "")
 			if a == "ajo":
 				b.text = "%s %d/%d" % [label, maxi(0, ab.tier(a) - ab.ajo_used), ab.tier(a)]
+			elif a == "gist":
+				b.text = "%s %d/3" % [label, maxi(0, 3 - ab.gist_used)]
 	visible = true

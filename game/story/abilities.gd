@@ -20,12 +20,13 @@ const CALLS := {
 const HERO_ABILITIES := {
 	"tunde": ["whisperer", "conductor"],
 	"ngozi": ["stare", "ajo"],
-	"kc": ["film", "golive"],
+	"kc": ["film", "golive", "gist"],
 }
 const LABELS := { "whisperer": "Whisper", "conductor": "Sule", "stare": "Stare", "ajo": "Ajo keke", "film": "Film", "golive": "Go Live", "gist": "Gist" }
 ## Abilities taught in the Prologue are available from the start.
 const BASE_TIER := { "conductor": 1, "stare": 1, "film": 1 }
-const COOLDOWN := { "whisperer": 45.0, "conductor": 6.0, "stare": 20.0, "film": 0.3, "golive": 2.0, "ajo": 1.0 }
+const COOLDOWN := { "whisperer": 45.0, "conductor": 6.0, "stare": 20.0, "film": 0.3, "golive": 2.0, "ajo": 1.0, "gist": 5.0 }
+const GISTS := ["KC: \"Gist: Barrister Ledger was seen buying a BIGGER briefcase.\"", "KC: \"Gist: Pepper and Salt had a jollof cook-off. Nobody won. Everybody ate.\"", "KC: \"Gist: the Chief's 'Light for All' billboard is lit by… a generator.\"", "KC: \"Gist: Teacher marked the Chief's manifesto. He got an F.\""]
 const WAHALA := ["\"Oga, who taught you how to drive?! Come down! Come down let's settle it!\"", "\"You don't know who I am? I'M THE ROAD!\"", "\"My BP don reach heaven! Everybody hold body!\""]
 const PROVERBS := ["Tunde: \"Go-slow is temporary. Lagos is permanent.\"", "Tunde: \"The road that has no potholes has no stories.\"", "Tunde: \"If you rush, you will reach the go-slow first.\""]
 
@@ -39,6 +40,7 @@ var _drive_t := 0.0
 var _rally_t := 0.0
 var _ajo_day := -1
 var ajo_used := 0
+var gist_used := 0
 
 
 func tier(a: String) -> int:
@@ -86,6 +88,7 @@ func tick(dt: float, ctx: Dictionary) -> void:
 	if _ajo_day != Clock.day():
 		_ajo_day = Clock.day()
 		ajo_used = 0
+		gist_used = 0
 
 
 func _tick_bp(dt: float, ctx: Dictionary) -> void:
@@ -175,7 +178,15 @@ func use(a: String, detail := "") -> bool:
 			if ajo_used >= charges:
 				message.emit("Ajo Network: no more free rides today.")
 				return false
-	cooldowns[a] = COOLDOWN.get(a, 1.0)
+		"gist":
+			if gist_used >= 3:
+				message.emit("KC has gisted enough for today. Even WhatsApp needs rest.")
+				return false
+			gist_used += 1
+			Life.stats["hype"] = minf(1000.0, float(Life.stats.get("hype", 0.0)) + 5.0 * float(Story.trust) / 5.0)
+			Life.restore("social", 5.0)
+			message.emit(GISTS[randi() % GISTS.size()])
+	cooldowns[a] = float(COOLDOWN.get(a, 1.0)) * (0.5 if a == "conductor" and tier(a) >= 2 else 1.0)
 	used.emit(a, detail)
 	changed.emit()
 	return true
