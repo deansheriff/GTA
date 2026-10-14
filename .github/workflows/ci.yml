@@ -33,6 +33,8 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-only-password
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,8 +43,6 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build and start the Coolify stack (app + Postgres)
-        env:
-          POSTGRES_PASSWORD: ci-only-password
         run: |
           docker compose -f compose.yaml -f .github/compose.ci.yaml up -d --build
           for i in $(seq 1 40); do curl -fs http://127.0.0.1:8787/api/health && break; sleep 3; done
