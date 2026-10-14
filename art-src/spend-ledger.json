@@ -2398,6 +2398,156 @@
       "refs": [
         "art-src/raw/style-anchor-yaba.png"
       ]
+    },
+    {
+      "at": "2026-10-14T21:41:13.360Z",
+      "provider": "openai",
+      "asset": "ui-app-icons",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0243,
+      "seconds": 23,
+      "usage": {
+        "input_tokens": 1887,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 351
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2230
+      },
+      "prompt": "A sprite sheet of 12 simple bold app ICONS for a phone UI in a game, on a fully transparent background, a strict grid of 4 columns by 3 rows, each icon centered in its own cell with empty gaps, same size, chunky hand-painted gouache with thick ink outlines, warm Lagos palette (danfo yellow, ink brown, cream, red, green). Row 1: (1) a folded city map with a pin, (2) a yellow danfo bus front, (3) a stack of naira banknotes with a bank building, (4) a smiling face badge (me/profile card). Row 2: (5) a gear cog, (6) an open story book with a star, (7) two arrows swapping between three small heads, (8) a green tricycle keke. Row 3: (9) two speech bubbles, (10) a clipboard with a checkmark (gigs), (11) a ballot box with a hand dropping a paper, (12) a gold trophy with a star. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T21:41:38.445Z",
+      "provider": "openai",
+      "asset": "ui-ability-icons",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0242,
+      "seconds": 25,
+      "usage": {
+        "input_tokens": 1853,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 317
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2196
+      },
+      "prompt": "A sprite sheet of 9 round ability ICONS for a mobile game HUD, on a fully transparent background, a strict grid of 3 columns by 3 rows, each icon a circular badge centered in its own cell with empty gaps, hand-painted gouache with thick ink outlines. (1) a swirling road with glowing gaps between cars (Go-Slow Whisperer), (2) a young conductor shouting through cupped hands (calls), (3) a pair of fierce eyes over reading glasses (The Stare), (4) a green keke tricycle with a coin (free ride), (5) a phone with a red recording dot (Film), (6) a phone broadcasting signal waves (Go Live), (7) a whispering mouth with a speech bubble (Gist), (8) a red heart with a pressure gauge (Blood Pressure), (9) a lightning bolt over a bulb (Up NEPA). No text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T21:41:59.840Z",
+      "provider": "openai",
+      "asset": "ui-app-icon",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0264,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1728,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 192
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2167
+      },
+      "prompt": "A bold mobile APP LAUNCHER ICON, square, full bleed: a cheerful yellow Lagos danfo minibus seen from the front three-quarter angle, a single glowing light bulb above it, warm orange-to-deep-blue dusk background, thick ink outlines, hand-painted gouache, very readable at small size, centered, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T21:42:21.068Z",
+      "provider": "openai",
+      "asset": "panel-splash",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1771,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 235
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2114
+      },
+      "prompt": "A wide painted title SPLASH illustration for a comedy game set in Lagos: a busy street at golden hour seen from slightly above, a yellow danfo bus in the foreground with a wiry driver leaning out, a woman in an orange gele and ankara with arms folded on the left, a young man with an afro filming on his phone on the right, tangled electricity poles and wires overhead with one bulb lighting up, market umbrellas, the lagoon and bridge in the distance, empty sky at the top for a logo. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T21:52:25.258Z",
+      "provider": "openai",
+      "asset": "panel-ending-c",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0239,
+      "seconds": 22,
+      "usage": {
+        "input_tokens": 1801,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 265
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2144
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a split-screen video call: on one side a young Nigerian man with an afro in a cold snowy FICTIONAL city with plain generic buildings and pine trees (no famous landmarks, no recognisable bridges, buses or flags) wearing a puffy jacket, on the other side a woman in ankara and a danfo driver crowded into a phone screen in a warm Lagos canteen, all smiling and a bit teary. No text, no letters, no real people.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
     }
   ]
 }

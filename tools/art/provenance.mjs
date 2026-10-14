@@ -33,6 +33,10 @@ ${rows.join('\n')}
 
 Every asset prompt is wrapped with the shared style prefix and suffix in the spec files
 (\`tools/art/spec-*.json\`). Per-asset prompts are in those files and in the ledger.
+
+## Edits after generation
+- \`panel-splash\` and \`ui-app-icon\`: the generator painted a real car maker's badge on the danfo's
+  grille. It was painted out (grille cloned over it) so the game shows no real brands.
 `;
 writeFileSync('docs/art/PROVENANCE.md', md);
 console.log(`PROVENANCE.md: ${ok.length} images, $${spent.toFixed(2)}`);

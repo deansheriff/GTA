@@ -1,0 +1,43 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "ui-app-icons",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet of 12 simple bold app ICONS for a phone UI in a game, on a fully transparent background, a strict grid of 4 columns by 3 rows, each icon centered in its own cell with empty gaps, same size, chunky hand-painted gouache with thick ink outlines, warm Lagos palette (danfo yellow, ink brown, cream, red, green). Row 1: (1) a folded city map with a pin, (2) a yellow danfo bus front, (3) a stack of naira banknotes with a bank building, (4) a smiling face badge (me/profile card). Row 2: (5) a gear cog, (6) an open story book with a star, (7) two arrows swapping between three small heads, (8) a green tricycle keke. Row 3: (9) two speech bubbles, (10) a clipboard with a checkmark (gigs), (11) a ballot box with a hand dropping a paper, (12) a gold trophy with a star. No text, no letters."
+    },
+    {
+      "name": "ui-ability-icons",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet of 9 round ability ICONS for a mobile game HUD, on a fully transparent background, a strict grid of 3 columns by 3 rows, each icon a circular badge centered in its own cell with empty gaps, hand-painted gouache with thick ink outlines. (1) a swirling road with glowing gaps between cars (Go-Slow Whisperer), (2) a young conductor shouting through cupped hands (calls), (3) a pair of fierce eyes over reading glasses (The Stare), (4) a green keke tricycle with a coin (free ride), (5) a phone with a red recording dot (Film), (6) a phone broadcasting signal waves (Go Live), (7) a whispering mouth with a speech bubble (Gist), (8) a red heart with a pressure gauge (Blood Pressure), (9) a lightning bolt over a bulb (Up NEPA). No text."
+    },
+    {
+      "name": "ui-app-icon",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "background": "opaque",
+      "prompt": "A bold mobile APP LAUNCHER ICON, square, full bleed: a cheerful yellow Lagos danfo minibus seen from the front three-quarter angle, a single glowing light bulb above it, warm orange-to-deep-blue dusk background, thick ink outlines, hand-painted gouache, very readable at small size, centered, no text."
+    },
+    {
+      "name": "panel-splash",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted title SPLASH illustration for a comedy game set in Lagos: a busy street at golden hour seen from slightly above, a yellow danfo bus in the foreground with a wiry driver leaning out, a woman in an orange gele and ankara with arms folded on the left, a young man with an afro filming on his phone on the right, tangled electricity poles and wires overhead with one bulb lighting up, market umbrellas, the lagoon and bridge in the distance, empty sky at the top for a logo. No text, no letters."
+    }
+  ]
+}

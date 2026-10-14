@@ -115,16 +115,20 @@ func _ready() -> void:
 	jobs.job_changed.connect(_on_job_changed)
 	hud.pos_game.finished.connect(func(s: int, f: int) -> void: jobs.finish_pos(s, f))
 	Life.toast.connect(func(m: String) -> void: hud.toast(m))
+	Life.money_changed.connect(func(_amount: int, delta: int, _reason: String) -> void:
+		if delta != 0:
+			Sound.sfx("cash", 1.0 if delta > 0 else 0.85))
 	SaveGame.world_provider = _world_state
 	SaveGame.world_restorer = _restore_world
 	SaveGame.extra_providers["jobs"] = jobs.to_dict
 	SaveGame.extra_restorers["jobs"] = jobs.from_dict
 	SaveGame.extra_providers["story"] = Story.to_dict
 	SaveGame.extra_restorers["story"] = Story.from_dict
+	hud.setup_maps(map, baker.land_tex, baker.road_tex) # before loading: a saved job restores its GPS route
+	var had_save := false
 	if not demo:
-		SaveGame.load_local()
+		had_save = SaveGame.load_local()
 	Net.welcomed.connect(func(_id: int, _room: String) -> void: SaveGame.pull_cloud())
-	hud.setup_maps(map, baker.land_tex, baker.road_tex)
 	hud.waypoint_set.connect(_set_waypoint)
 	hud.waypoint_cleared.connect(func() -> void: _set_waypoint(Vector2.INF))
 	Settings.changed.connect(_apply_settings)
@@ -145,8 +149,28 @@ func _ready() -> void:
 		_run_story_demo()
 	elif demo:
 		_run_demo()
-	else:
+	elif Engine.has_meta("skip_title"):
+		Engine.remove_meta("skip_title") # "New game" reloads the scene straight into the story
 		story.begin()
+	else:
+		_show_title(had_save)
+
+
+## Title screen (M8): Continue / New game / Settings / Credits. The world idles behind it.
+func _show_title(had_save: bool) -> void:
+	var title: CanvasLayer = preload("res://ui/title_screen.gd").new()
+	title.has_save = had_save
+	hud.visible = false
+	add_child(title)
+	title.open_settings.connect(func() -> void: hud._show_settings(title._root))
+	title.play.connect(func(new_game: bool) -> void:
+		hud.visible = true
+		if new_game and had_save:
+			SaveGame.wipe()
+			Engine.set_meta("skip_title", true)
+			get_tree().reload_current_scene()
+			return
+		story.begin())
 
 
 # ---------- build ----------
@@ -274,6 +298,7 @@ func _apply_nepa(on: bool) -> void:
 		return
 	nepa_on = on
 	hud.toast("UP NEPA!" if on else "NEPA don take light", on)
+	Sound.sfx("power_on" if on else "power_off")
 	_update_lighting()
 	_push_state()
 
@@ -377,6 +402,8 @@ func _input_vector() -> Vector2:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_E:
 		_enter_exit()
+	elif event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_H:
+		story.on_ability("horn")
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			camera.zoom = (camera.zoom * 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
@@ -413,6 +440,7 @@ func _process(delta: float) -> void:
 		player.position = danfo.position
 		if ev == "crash":
 			hud.toast("Ehn! Who put wall there?")
+			Sound.sfx("crash")
 			if Life.hero == "tunde":
 				Life.stats["bp"] = minf(100.0, float(Life.stats.get("bp", 20.0)) + 4.0)
 			if not Settings.get_value("reduced_motion", false):
@@ -430,6 +458,8 @@ func _process(delta: float) -> void:
 
 	_tick_day_night(focus)
 	story.tick(dt)
+	Sound.world(night, nepa_on, mode == "driving" and not story.interior.active, danfo.speed)
+	Sound.music("" if story.paused_by_story() and story.panels.visible else ("night" if night else "day"))
 	var chase_k := 1.0
 	if story.chase.active:
 		chase_k = story.chase.carry if story.chase.on == "watch" else 1.25
@@ -737,7 +767,9 @@ func _measure(label: String) -> void:
 	var f0 := Engine.get_frames_drawn()
 	var t0 := Time.get_ticks_msec()
 	await _wait(2.5)
-	print("perf %s: %.1f fps (max_fps %d, preset %s, people %d, vehicles %d)" % [label, (Engine.get_frames_drawn() - f0) * 1000.0 / (Time.get_ticks_msec() - t0), Engine.max_fps, Settings.get_value("preset"), crowd.people.size(), traffic.vehicles.size()])
+	print("perf %s: %.1f fps (max_fps %d, preset %s, people %d, vehicles %d) · RAM %.0f MB · VRAM %.0f MB (textures %.0f MB) · draw calls %d · nodes %d" % [label, (Engine.get_frames_drawn() - f0) * 1000.0 / (Time.get_ticks_msec() - t0), Engine.max_fps, Settings.get_value("preset"), crowd.people.size(), traffic.vehicles.size(),
+		Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0, Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0,
+		int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)), int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))])
 
 
 func _teleport(p: Vector2) -> void:
@@ -792,6 +824,12 @@ func _run_story_demo() -> void:
 
 func _run_demo() -> void:
 	await _wait(1.0)
+	var title: CanvasLayer = preload("res://ui/title_screen.gd").new()
+	title.has_save = true
+	add_child(title)
+	await _wait(0.8)
+	await _shot("00a-title")
+	title.queue_free()
 	# Whole-map overview from a temporary camera.
 	var over := Camera2D.new()
 	over.position = map.world_px * 0.5

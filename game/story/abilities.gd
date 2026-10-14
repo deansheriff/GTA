@@ -18,14 +18,14 @@ const CALLS := {
 	"last": "Last bus!",
 }
 const HERO_ABILITIES := {
-	"tunde": ["whisperer", "conductor"],
+	"tunde": ["whisperer", "conductor", "horn"],
 	"ngozi": ["stare", "ajo"],
 	"kc": ["film", "golive", "gist"],
 }
-const LABELS := { "whisperer": "Whisper", "conductor": "Sule", "stare": "Stare", "ajo": "Ajo keke", "film": "Film", "golive": "Go Live", "gist": "Gist" }
+const LABELS := { "horn": "Horn", "whisperer": "Whisper", "conductor": "Sule", "stare": "Stare", "ajo": "Ajo keke", "film": "Film", "golive": "Go Live", "gist": "Gist" }
 ## Abilities taught in the Prologue are available from the start.
-const BASE_TIER := { "conductor": 1, "stare": 1, "film": 1 }
-const COOLDOWN := { "whisperer": 45.0, "conductor": 6.0, "stare": 20.0, "film": 0.3, "golive": 2.0, "ajo": 1.0, "gist": 5.0 }
+const BASE_TIER := { "conductor": 1, "stare": 1, "film": 1, "horn": 1 }
+const COOLDOWN := { "horn": 0.8, "whisperer": 45.0, "conductor": 6.0, "stare": 20.0, "film": 0.3, "golive": 2.0, "ajo": 1.0, "gist": 5.0 }
 const GISTS := ["KC: \"Gist: Barrister Ledger was seen buying a BIGGER briefcase.\"", "KC: \"Gist: Pepper and Salt had a jollof cook-off. Nobody won. Everybody ate.\"", "KC: \"Gist: the Chief's 'Light for All' billboard is lit by… a generator.\"", "KC: \"Gist: Teacher marked the Chief's manifesto. He got an F.\""]
 const WAHALA := ["\"Oga, who taught you how to drive?! Come down! Come down let's settle it!\"", "\"You don't know who I am? I'M THE ROAD!\"", "\"My BP don reach heaven! Everybody hold body!\""]
 const PROVERBS := ["Tunde: \"Go-slow is temporary. Lagos is permanent.\"", "Tunde: \"The road that has no potholes has no stories.\"", "Tunde: \"If you rush, you will reach the go-slow first.\""]

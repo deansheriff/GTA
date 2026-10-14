@@ -139,7 +139,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not _typing:
 		return
-	_shown += delta * CPS
+	_shown += delta * CPS * float(Settings.get_pref("dialogue_speed", 1.0))
 	_text.visible_characters = int(_shown)
 	if _text.visible_characters >= _text.get_total_character_count():
 		_typing = false

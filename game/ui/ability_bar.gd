@@ -100,6 +100,11 @@ func _rebuild(ab: Abilities) -> void:
 	for a in Abilities.HERO_ABILITIES.get(_hero, []):
 		var b := Button.new()
 		b.custom_minimum_size = Vector2(118, 56)
+		var icon: Texture2D = Art.tex("ui/ab-%s.png" % a)
+		if icon:
+			b.icon = icon
+			b.expand_icon = true
+			b.add_theme_constant_override("icon_max_width", 36)
 		var key: String = a
 		b.pressed.connect(func() -> void:
 			if key == "conductor":

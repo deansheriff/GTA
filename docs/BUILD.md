@@ -32,7 +32,38 @@ The demo:
    adb install -r build\naija-street-life-debug.apk
    ```
 
+## Release build (Google Play) 🔒
+Play needs an **Android App Bundle (AAB)** signed with your **upload key**. Only you should
+hold that key. Lose it and you can't update the app, so keep a backup somewhere safe.
+1. Create the key once, on your PC. Choose your own strong passwords; never commit or share them:
+   ```powershell
+   & "C:\Program Files\Java\jdk-17\bin\keytool.exe" -genkeypair -v -keystore $HOME\naija-upload.jks -alias naija -keyalg RSA -keysize 4096 -validity 10000
+   ```
+2. Install the Gradle build template once:
+   ```powershell
+   .tools\godot\Godot_v4.6.3-stable_win64_console.exe --headless --path game --install-android-build-template
+   ```
+3. Export, with the key passed through environment variables (Godot reads these; nothing goes
+   into the repo):
+   ```powershell
+   $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = "$HOME\naija-upload.jks"
+   $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = "naija"
+   $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = "<your password>"
+   .tools\godot\Godot_v4.6.3-stable_win64_console.exe --headless --path game --export-release "Android Release (AAB)" build\naija-street-life-release.aab
+   ```
+4. In Play Console:
+   - Use **Play App Signing**.
+   - Upload the AAB.
+   - Fill in the Data safety and content rating answers from `docs/legal/`.
+   - Use the listing kit in `docs/store/`.
+
+The release preset targets SDK 35 (min 24), arm64 + armv7, version 1.0.0 (code 100).
+Bump `version/code` in `game/export_presets.cfg` for every upload.
+
 ## Size notes
 - The debug APK is about 56 MB because it carries both ARM architectures and the debug engine.
-- A Play Store release uses an Android App Bundle, so each phone downloads one
-  architecture and the release engine. Expect roughly 25–30 MB before art.
+- A Play Store release uses an Android App Bundle, so each phone downloads one architecture
+  and the release engine.
+- The painted panels, interiors and portraits are imported as lossy WebP (quality 0.82). That
+  cut the imported assets from 44 MB to 16 MB.
+- Audio is 2.4 MB of synthesised WAVs.

@@ -27,8 +27,13 @@ func _build() -> void:
 	_text = label("", 22)
 	_result = label("", 16, Color(1, 1, 1, 0.7))
 	_btn = big_button("HOLD TO SHOUT", func() -> void: pass)
-	_btn.button_down.connect(func() -> void: _shouting = true)
-	_btn.button_up.connect(func() -> void: _shouting = false)
+	_btn.button_down.connect(func() -> void:
+		_shouting = (not _shouting) if Settings.get_pref("hold_as_toggle", false) else true
+		_btn.text = "SHOUTING!" if _shouting else "HOLD TO SHOUT")
+	_btn.button_up.connect(func() -> void:
+		if not Settings.get_pref("hold_as_toggle", false):
+			_shouting = false
+			_btn.text = "HOLD TO SHOUT")
 
 
 func _begin(p: Dictionary) -> void:

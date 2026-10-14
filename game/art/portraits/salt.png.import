@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/salt.png-7fb67f08ca7d4032004c4f845bca5a47.cte
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.82
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

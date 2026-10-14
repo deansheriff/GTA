@@ -11,7 +11,7 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 - The only reference image is our own generated `style-anchor-yaba`.
 - Every person depicted is a fictional character; no real people, brands or logos.
 
-**Spend:** $1.92 of the owner-approved $10 cap (79 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
+**Spend:** $2.04 of the owner-approved $10 cap (84 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
 
 | Asset | Provider / model | Size, quality | Cost (USD) | Generated |
 |---|---|---|---|---|
@@ -94,8 +94,17 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 | `panel-ending-d` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:27 |
 | `int-compound-party` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:28 |
 | `int-stadium` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 16:28 |
+| `ui-app-icons` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:41 |
+| `ui-ability-icons` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:41 |
+| `ui-app-icon` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.026 | 2026-10-14 21:41 |
+| `panel-splash` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:42 |
+| `panel-ending-c` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:52 |
 
 ## Prompts
 
 Every asset prompt is wrapped with the shared style prefix and suffix in the spec files
 (`tools/art/spec-*.json`). Per-asset prompts are in those files and in the ledger.
+
+## Edits after generation
+- `panel-splash` and `ui-app-icon`: the generator painted a real car maker's badge on the danfo's
+  grille. It was painted out (grille cloned over it) so the game shows no real brands.

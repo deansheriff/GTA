@@ -290,6 +290,33 @@ func _show_settings(root: Control) -> void:
 	card.add_child(_toggle("Weather", s.get("weather", true), func(v: bool) -> void: Settings.set_value("weather", v)))
 	card.add_child(_toggle("News chatter (NPCs react to real headlines, with sources)", Settings.get_pref("news_chatter", true), func(v: bool) -> void: Settings.set_pref("news_chatter", v)))
 	card.add_child(_toggle("Share anonymous stats and crash reports", Settings.get_pref("telemetry", false), func(v: bool) -> void: Settings.set_pref("telemetry", v)))
+	var snd := Label.new()
+	snd.text = "Sound"
+	snd.add_theme_font_size_override("font_size", 20)
+	card.add_child(snd)
+	for k in [["vol_music", "Music"], ["vol_sfx", "Effects"], ["vol_ambience", "Street sounds"]]:
+		var row := HBoxContainer.new()
+		var l := Label.new()
+		l.text = k[1]
+		l.custom_minimum_size = Vector2(140, 0)
+		row.add_child(l)
+		var sl := HSlider.new()
+		sl.min_value = 0.0
+		sl.max_value = 1.0
+		sl.step = 0.05
+		sl.value = float(Settings.get_pref(k[0], 0.8))
+		sl.custom_minimum_size = Vector2(220, 40)
+		sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var key: String = k[0]
+		sl.value_changed.connect(func(v: float) -> void: Settings.set_pref(key, v))
+		row.add_child(sl)
+		card.add_child(row)
+	var acc := Label.new()
+	acc.text = "Accessibility"
+	acc.add_theme_font_size_override("font_size", 20)
+	card.add_child(acc)
+	card.add_child(_choice_pref("Dialogue text speed", "dialogue_speed", [[0.6, "Slow"], [1.0, "Normal"], [2.0, "Fast"], [99.0, "Instant"]]))
+	card.add_child(_toggle("Hold buttons work as tap-to-toggle (e.g. SHOUT)", Settings.get_pref("hold_as_toggle", false), func(v: bool) -> void: Settings.set_pref("hold_as_toggle", v)))
 	# Online: your Coolify server address (docs/COOLIFY.md) and display name.
 	var online_h := Label.new()
 	online_h.text = "Online"
@@ -442,6 +469,22 @@ func _choice(text: String, key: String, options: Array) -> HBoxContainer:
 		if options[i][0] == Settings.get_value(key):
 			ob.select(i)
 	ob.item_selected.connect(func(i: int) -> void: Settings.set_value(key, options[i][0]))
+	row.add_child(ob)
+	return row
+
+
+func _choice_pref(text: String, key: String, options: Array) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var l := Label.new()
+	l.text = text
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(l)
+	var ob := OptionButton.new()
+	for i in options.size():
+		ob.add_item(String(options[i][1]), i)
+		if is_equal_approx(float(options[i][0]), float(Settings.get_pref(key, 1.0))):
+			ob.select(i)
+	ob.item_selected.connect(func(i: int) -> void: Settings.set_pref(key, options[i][0]))
 	row.add_child(ob)
 	return row
 

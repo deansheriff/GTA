@@ -68,10 +68,12 @@ func setup(p: Control, story_host: Node) -> void:
 		if street.size() > 40:
 			street.pop_front()
 		host.main.hud.toast("💬 %s: %s" % [m.get("name", ""), String(m.get("text", "")).left(60)])
+		Sound.sfx("notify")
 		if phone.visible and phone._title.text == "Street chat":
 			_chat_home())
 	Net.dm.connect(func(m: Dictionary) -> void:
 		if not m.get("sent", false):
+			Sound.sfx("notify")
 			host.main.hud.toast("✉ %s: %s" % [m.get("name", ""), String(m.get("text", "")).left(60)]))
 	Net.server_error.connect(func(code: String) -> void:
 		if ERRORS.has(code):

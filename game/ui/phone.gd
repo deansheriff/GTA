@@ -12,6 +12,7 @@ const PAPER := Color("#f1e6c8")
 const DANFO := Color("#e0a91c")
 
 var jobs: JobRunner
+const APP_ICON := { "Map": "map", "Hustle": "hustle", "Bank": "bank", "Me": "me", "Settings": "settings", "Story": "story", "Switch": "switch", "Keke": "keke", "Chat": "chat", "Gigs": "gigs", "Profile": "me", "Vote": "vote", "Win": "win" }
 var _screen: VBoxContainer
 var _title: Label
 var _apps := [] # [{name, builder: Callable}]
@@ -90,20 +91,28 @@ func add_app(app_name: String, builder: Callable) -> void:
 
 func open() -> void:
 	visible = true
+	Sound.sfx("tap")
 	show_home()
 
 
 func show_home() -> void:
 	_clear("Naija Street Life · %s" % Clock.label())
 	var grid := GridContainer.new()
-	grid.columns = 3
+	grid.columns = 4
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
 	_screen.add_child(grid)
 	for a in _apps:
 		var b := Button.new()
 		b.text = a["name"]
-		b.custom_minimum_size = Vector2(104, 84)
+		b.custom_minimum_size = Vector2(84, 92)
+		var icon: Texture2D = Art.tex("ui/app-%s.png" % APP_ICON.get(a["name"], "story"))
+		if icon:
+			b.icon = icon
+			b.expand_icon = true
+			b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+			b.add_theme_constant_override("icon_max_width", 52)
 		var cb: Callable = a["builder"]
 		var nm: String = a["name"]
 		b.pressed.connect(func() -> void:

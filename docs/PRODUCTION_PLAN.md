@@ -190,9 +190,43 @@ milestones, make no APK until the game is done, then do one release build.
   prize tickets).
 - ✅ Tests: 26 server tests (4 new M7 groups); Godot↔server check at 17; 144 game tests
 
-## M8 — Polish and release ⬜
-- ⬜ Remaining art: 8-direction vehicles, three heroes, villains, portraits, UI art
-- ⬜ Audio: sound effects, music slots (licensing 🔒 owner), voice
-- ⬜ Accessibility, localisation pass, native-speaker slang review (🔒 reviewers)
-- ⬜ Performance on low-end profiles, memory budget, load times
-- ⬜ Android release: AAB, signing, Play Asset Delivery, store listing — **final build**
+## M8 — Polish and release ✅ (2026-10-14; the final store build waits on the owner's keys 🔒)
+- ✅ **Art:** painted phone-app and ability icons, launcher icon (plus Android adaptive icon),
+  title splash, boot splash, feature graphic. Vehicles are true top-down paintings that rotate
+  freely, so separate 8-direction art isn't needed. Two generated images had a real car
+  maker's badge, which was painted out. The Japa ending panel was redone without real
+  landmarks. Art spend: $2.04 of $10.
+- ✅ **Title screen:** Continue / New game (with confirmation) / Settings / Credits, including
+  the Godot MIT licence notice.
+- ✅ **Audio** (`tools/audio/synth.mjs`, `core/sound.gd`): every sound is synthesised from code,
+  so there's nothing to license:
+  - Effects: horn, cash, UP NEPA power-up/down, crash, success/fail, Stare, Whisper, notify.
+  - Ambience: generator hum in blackouts, street murmur by day, danfo engine pitched by speed.
+  - Two original music loops (day highlife-afrobeat, softer night).
+  - Music/Effects/Ambience buses with volume sliders. Licensed music can drop in under the same names 🔒.
+  - Tunde gets a goat-horn that scatters pedestrians (H key).
+- ✅ **Accessibility:**
+  - Text size, reduced motion, dialogue text speed (slow → instant).
+  - "Hold buttons work as tap-to-toggle".
+  - All speech is subtitled.
+  - Large touch targets.
+- ✅ **Localisation review:** `tools/export_review.mjs` exports 594 lines to
+  `docs/review/lines-for-review.csv`, and `tools/import_review.mjs` applies reviewers'
+  corrections (round-trip tested) 🔒 reviewers.
+- ✅ **Performance:**
+  - Low holds its 30 fps cap; Medium holds 60 fps day and night on the dev PC.
+  - RAM about 70 MB, VRAM about 65 MB, 98–270 draw calls.
+  - The demo now reports memory.
+  - Panels, interiors and portraits are imported as lossy WebP: assets went from 44 MB to 16 MB.
+- ✅ **Android release config:** a second preset, "Android Release (AAB)" (Gradle, SDK 35/min 24,
+  1.0.0 code 100), signed from environment variables. Docs in `docs/BUILD.md`. Store listing kit
+  in `docs/store/`.
+- ✅ **Bug fixed:** loading a save with an active job crashed before the minimap existed.
+- 🔒 **Owner:**
+  - Create the upload keystore and run the AAB export.
+  - Play Console listing and policies.
+  - Native-speaker review.
+  - Gemini credits.
+  - SMS gateway.
+  - Lawyer review of `docs/legal/`.
+- ⏭ **Next:** a debug APK for device testing (`build/naija-street-life-debug.apk`).

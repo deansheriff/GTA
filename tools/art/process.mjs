@@ -46,6 +46,9 @@ const JOBS = [
   { src: 'int-owambe-hall', kind: 'panel', out: 'interiors/owambe-hall.jpg', width: 1536 },
   { src: 'int-compound-party', kind: 'panel', out: 'interiors/compound-party.jpg', width: 1536 },
   { src: 'int-stadium', kind: 'panel', out: 'interiors/stadium.jpg', width: 1536 },
+  { src: 'ui-app-icons', kind: 'sheet', cols: 4, rows: 3, cut: 90, outs: ['ui/app-map.png', 'ui/app-hustle.png', 'ui/app-bank.png', 'ui/app-me.png', 'ui/app-settings.png', 'ui/app-story.png', 'ui/app-switch.png', 'ui/app-keke.png', 'ui/app-chat.png', 'ui/app-gigs.png', 'ui/app-vote.png', 'ui/app-win.png'], widths: Array(12).fill(128) },
+  { src: 'ui-ability-icons', kind: 'sheet', cols: 3, rows: 3, cut: 90, outs: ['ui/ab-whisperer.png', 'ui/ab-conductor.png', 'ui/ab-stare.png', 'ui/ab-ajo.png', 'ui/ab-film.png', 'ui/ab-golive.png', 'ui/ab-gist.png', 'ui/ab-bp.png', 'ui/ab-nepa.png'], widths: Array(9).fill(96) },
+  { src: 'panel-splash', kind: 'panel', out: 'story/panel-splash.jpg', width: 1280 },
   { src: 'chr-pedestrians-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-a.png', frameH: 96 },
   { src: 'chr-pedestrians-b', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-b.png', frameH: 96 },
 ];

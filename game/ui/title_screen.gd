@@ -1,0 +1,115 @@
+extends CanvasLayer
+## Title screen: painted splash, logo, Continue / New game, Settings and Credits (with the Godot
+## licence notice the engine's MIT licence requires).
+
+signal play(new_game: bool)
+signal open_settings
+
+const INK := Color("#1d1611")
+const PAPER := Color("#f1e6c8")
+const DANFO := Color("#e0a91c")
+
+var has_save := false
+var _root: Control
+
+
+func _ready() -> void:
+	layer = 20
+	_root = Control.new()
+	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_root)
+	var bg := ColorRect.new()
+	bg.color = Color("#0d0a07")
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.add_child(bg)
+	var img := TextureRect.new()
+	img.texture = Art.tex("story/panel-splash.jpg")
+	img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	img.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.add_child(img)
+	var v := VBoxContainer.new()
+	v.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	v.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	v.offset_top = 30
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	_root.add_child(v)
+	for t in [["NAIJA STREET LIFE", 64, DANFO], ["UP NEPA!", 40, PAPER]]:
+		var l := Label.new()
+		l.text = t[0]
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.add_theme_font_size_override("font_size", t[1])
+		l.add_theme_color_override("font_color", t[2])
+		l.add_theme_color_override("font_outline_color", INK)
+		l.add_theme_constant_override("outline_size", 18)
+		v.add_child(l)
+	var menu := VBoxContainer.new()
+	menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	menu.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	menu.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	menu.offset_bottom = -40
+	menu.add_theme_constant_override("separation", 10)
+	_root.add_child(menu)
+	_build_menu.call_deferred(menu)
+
+
+func _build_menu(menu: VBoxContainer) -> void:
+	if has_save:
+		menu.add_child(_btn("Continue", func() -> void: _go(false)))
+	menu.add_child(_btn("New game" if has_save else "Play", func() -> void:
+		if has_save:
+			_confirm_new()
+		else:
+			_go(true)))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.add_child(_btn("Settings", func() -> void: open_settings.emit(), 180))
+	row.add_child(_btn("Credits", _credits, 180))
+	menu.add_child(row)
+
+
+func _btn(text: String, cb: Callable, w := 370) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = Vector2(w, 60)
+	b.add_theme_font_size_override("font_size", 24)
+	b.pressed.connect(func() -> void:
+		Sound.sfx("tap")
+		cb.call())
+	return b
+
+
+func _go(new_game: bool) -> void:
+	play.emit(new_game)
+	var tw := create_tween()
+	tw.tween_property(_root, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(queue_free)
+
+
+func _confirm_new() -> void:
+	var d := ConfirmationDialog.new()
+	d.title = "Start a new game?"
+	d.dialog_text = "This replaces your saved progress on this phone (your online account is not affected)."
+	d.ok_button_text = "Start over"
+	d.confirmed.connect(func() -> void: _go(true))
+	_root.add_child(d)
+	d.popup_centered()
+
+
+func _credits() -> void:
+	var d := AcceptDialog.new()
+	d.title = "Credits"
+	d.dialog_text = """Naija Street Life: Up NEPA!
+
+Story, design and code made for this project.
+Painted art generated for this project with GPT Image, from our own style reference (see docs/art/PROVENANCE.md).
+Music and sound effects synthesised from code for this project.
+All characters, businesses, agencies and parties are fictional. Real places are used as settings only.
+
+Made with Godot Engine (godotengine.org/license):
+Copyright (c) 2014-present Godot Engine contributors. Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software, to deal in the Software without restriction, subject to the MIT License conditions. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND."""
+	d.dialog_autowrap = true
+	d.size = Vector2i(720, 520)
+	_root.add_child(d)
+	d.popup_centered()

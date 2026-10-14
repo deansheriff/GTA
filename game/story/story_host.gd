@@ -420,11 +420,21 @@ func _star(c: Vector2, r: float) -> void:
 
 func on_ability(a: String) -> void:
 	match a:
+		"horn":
+			# The goat-horn: everybody on foot nearby jumps out of the way (wardens included).
+			if abilities.use("horn"):
+				Sound.sfx("horn")
+				var at: Vector2 = main.danfo.position if main.mode == "driving" else story_focus()
+				for p in main.crowd.people:
+					var n: Node2D = p
+					if n.position.distance_to(at) < 320.0:
+						n.target = n.position + (n.position - at).normalized() * 160.0
 		"whisperer":
 			if main.mode != "driving":
 				main.hud.toast("Go-Slow Whisperer works in the danfo.")
 				return
 			if abilities.use(a):
+				Sound.sfx("whoosh")
 				main.traffic.release_jam() # the hidden gaps open up
 		"stare":
 			var target := _nearest_npc(220.0)
@@ -432,6 +442,7 @@ func on_ability(a: String) -> void:
 				main.hud.toast("Nobody close enough to Stare at.")
 				return
 			if abilities.use("stare", target["id"]):
+				Sound.sfx("stare")
 				var victims: Array = [target["node"]]
 				if abilities.tier("stare") >= 2:
 					# Tier 2 (after Generator Wars): the Stare works on groups of up to 4.
@@ -731,6 +742,7 @@ func story_complete(m: Dictionary, rewards: Dictionary) -> void:
 	_banner.text = "MISSION COMPLETE\n%s\n%s" % [m.get("title", ""), "  ·  ".join(bits)]
 	_banner.visible = true
 	main.hud.toast("Baba God dey!" if Life.hero == "tunde" else ("Write it down." if Life.hero == "ngozi" else "Like and subscribe!"))
+	Sound.sfx("success")
 	_auto_shot("done-" + String(m["id"]))
 	SaveGame.save_now()
 	await get_tree().create_timer(0.6 if auto else 3.0).timeout
@@ -743,6 +755,7 @@ func story_checkpoint() -> void:
 
 
 func story_fail(text: String) -> bool:
+	Sound.sfx("fail")
 	_busy += 1
 	story_cleanup_soft()
 	if auto:

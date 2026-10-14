@@ -39,7 +39,7 @@ jobs:
       - name: Online features end to end (game client ↔ dev server)
         run: |
           npm ci
-          OTP_DEV_ECHO=1 CHAT_MIN_AGE_HOURS=0 GIG_MIN_SECONDS=0 PORT=8799 npm run dev -w @nsl/server > server.log 2>&1 &
+          OTP_DEV_ECHO=1 CHAT_MIN_AGE_HOURS=0 GIG_MIN_SECONDS=0 PORT=8799 npm run serve -w @nsl/server > server.log 2>&1 &
           for i in $(seq 1 30); do curl -fs http://127.0.0.1:8799/api/health && break; sleep 1; done
           ./godot --headless --path game --script res://tests/online_check.gd -- --server=127.0.0.1:8799 > online.log 2>&1 || true
           cat online.log

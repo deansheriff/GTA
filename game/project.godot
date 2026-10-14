@@ -8,8 +8,9 @@ config/name="Naija Street Life"
 config/description="A Nigerian life-sim and comedy-crime game. Story mode: Up NEPA!"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://icon.png"
 boot_splash/bg_color=Color(0.11, 0.09, 0.07, 1)
+boot_splash/image="res://art/boot.png"
 
 [autoload]
 
@@ -20,6 +21,7 @@ Life="*res://core/life.gd"
 SaveGame="*res://core/save_game.gd"
 Story="*res://core/story.gd"
 Telemetry="*res://core/telemetry.gd"
+Sound="*res://core/sound.gd"
 
 [display]
 
