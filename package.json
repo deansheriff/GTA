@@ -1,0 +1,24 @@
+{
+  "name": "naija-street-life",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Naija Street Life — Nigerian life-sim and comedy-crime web game (story mode: Up NEPA!)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @nsl/client",
+    "dev:server": "npm run dev -w @nsl/server",
+    "build": "npm run build -w @nsl/client && npm run build -w @nsl/server",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "budget": "node tools/check-budget.mjs apps/client/dist"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
