@@ -36,3 +36,14 @@ Nigerian networks.
 **Advantage over the reference game:** the reference is a 3D stock-kit city
 (Three.js plus generic low-poly kits). Custom painted Lagos art is lighter and
 more distinctive, and that difference is a selling point.
+
+## D-002 · Phase 2 approved · 2026-10-14
+**Decision:** The owner replied "proceed" to the Phase 2 report and Story Bible v0.1.
+
+**What this approves:**
+- Story Bible v0.1, including the §8 safety reworks.
+  - The main rework turns "Small Small Money" into "Following the Money".
+- Moving on to Phase 3, the proposal.
+
+**What this does not cover:** the open questions in report §8 are still unanswered.
+The Phase 3 proposal uses the defaults in its §14 until the owner answers them.
