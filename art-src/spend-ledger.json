@@ -1,0 +1,33 @@
+{
+  "budgetUsd": 10,
+  "calls": [
+    {
+      "at": "2026-10-14T11:44:57.418Z",
+      "asset": "style-anchor-yaba",
+      "model": "gemini-nano-banana-2.1",
+      "size": "2K",
+      "aspect": "16:9",
+      "ok": false,
+      "http": 400,
+      "estUsd": 0,
+      "seconds": 1,
+      "usage": null,
+      "prompt": "Original in-game environment painting for a 2D Nigerian street-life game called Naija Street Life. CAMERA: high top-down three-quarter view looking down at about 60 degrees; the ground is seen almost from above, and every building shows its full corrugated metal roof plus a short strip of its front wall with door and windows; trees are seen from above as round canopies. SCENE: a busy everyday junction in Yaba, Lagos: cracked grey asphalt roads crossing, with potholes, faded lane paint and open concrete drains along the kerbs; interlocking paving walkways; red laterite dirt and patchy grass verges; one-storey shops and houses with rusty zinc roofs, faded painted plaster walls in ochre, teal and terracotta, burglar-proof window bars, hand-painted shop signboards with no readable text; kerbside POS umbrellas with small tables; a yellow danfo minibus with two black stripes on the road, seen from above; an orange keke tricycle; wooden electric poles with sagging wires and one transformer; a small red petrol generator beside a shop; mango and palm trees; scattered plastic chairs, tyres, water sachets; many tiny people with big heads and simple clothes, some in colourful ankara, walking, sitting, trading. STYLE: hand-painted gouache and watercolour texture with thick dark brown-black ink outlines around every object and character; muted, earthy, slightly desaturated palette with warm accents; grimy, weathered, lived-in surfaces; soft painted shadows falling to the bottom-right from a top-left sun; slightly darker vignetted edges; readable at small scale; cosy but gritty. No text, no letters, no numbers, no UI, no logos, no watermark, no border.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T11:45:06.822Z",
+      "asset": "style-anchor-yaba",
+      "model": "gemini-nano-banana-2.1",
+      "size": "2K",
+      "aspect": "16:9",
+      "ok": false,
+      "http": 429,
+      "estUsd": 0,
+      "seconds": 1,
+      "usage": null,
+      "prompt": "Original in-game environment painting for a 2D Nigerian street-life game called Naija Street Life. CAMERA: high top-down three-quarter view looking down at about 60 degrees; the ground is seen almost from above, and every building shows its full corrugated metal roof plus a short strip of its front wall with door and windows; trees are seen from above as round canopies. SCENE: a busy everyday junction in Yaba, Lagos: cracked grey asphalt roads crossing, with potholes, faded lane paint and open concrete drains along the kerbs; interlocking paving walkways; red laterite dirt and patchy grass verges; one-storey shops and houses with rusty zinc roofs, faded painted plaster walls in ochre, teal and terracotta, burglar-proof window bars, hand-painted shop signboards with no readable text; kerbside POS umbrellas with small tables; a yellow danfo minibus with two black stripes on the road, seen from above; an orange keke tricycle; wooden electric poles with sagging wires and one transformer; a small red petrol generator beside a shop; mango and palm trees; scattered plastic chairs, tyres, water sachets; many tiny people with big heads and simple clothes, some in colourful ankara, walking, sitting, trading. STYLE: hand-painted gouache and watercolour texture with thick dark brown-black ink outlines around every object and character; muted, earthy, slightly desaturated palette with warm accents; grimy, weathered, lived-in surfaces; soft painted shadows falling to the bottom-right from a top-left sun; slightly darker vignetted edges; readable at small scale; cosy but gritty. No text, no letters, no numbers, no UI, no logos, no watermark, no border.",
+      "refs": []
+    }
+  ]
+}

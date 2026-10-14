@@ -6,3 +6,10 @@ Thumbs.db
 dist/
 research-private/
 !.env.example
+art-src/raw/
+.tools/
+game/.godot/
+build/
+*.apk
+*.aab
+*.keystore

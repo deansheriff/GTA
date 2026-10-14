@@ -1,0 +1,103 @@
+extends Node2D
+## "Baba God Dey": the yellow danfo, drawn as a 3D box in top-down 3/4 so its sides show correctly
+## at any heading (smooth free driving, decision D-004). Node origin = centre of the ground footprint.
+
+const LENGTH := 104.0
+const WIDTH := 48.0
+const HEIGHT := 44.0
+const K := Layout.HEIGHT_K
+const BODY := Color("#e0a91c")
+const GLASS := Color("#9fc4cf")
+
+var heading := 0.0 # radians, 0 = east, y points south
+var speed := 0.0 # px / s
+var max_road := 380.0
+var max_off := 150.0
+
+
+func drive(delta: float, input: Vector2, world: Layout.WorldData) -> String:
+	var on_road := Layout.surface_at(position) == "road"
+	var top_speed := max_road if on_road else max_off
+	if input.length() > 0.15:
+		var want := input.angle()
+		var diff := wrapf(want - heading, -PI, PI)
+		var turn := 2.6 * clampf(0.3 + absf(speed) / 160.0, 0.0, 1.0)
+		heading += clampf(diff, -turn * delta, turn * delta)
+		var goal := -120.0 if absf(diff) > 2.4 else top_speed * minf(input.length(), 1.0)
+		speed += clampf(goal - speed, -520.0 * delta, 260.0 * delta)
+	else:
+		speed *= pow(0.18, delta)
+		if absf(speed) < 3.0:
+			speed = 0.0
+	if speed > top_speed:
+		speed = lerpf(speed, top_speed, minf(1.0, 3.0 * delta))
+	var fwd := Vector2.from_angle(heading)
+	var next := position + fwd * speed * delta
+	var nose := next + fwd * (LENGTH * 0.45) * signf(speed if speed != 0.0 else 1.0)
+	var event := ""
+	if not world.is_blocked(next) and not world.is_blocked(nose):
+		position = next
+	elif absf(speed) > 90.0:
+		speed = -speed * 0.3
+		event = "crash"
+	else:
+		speed = 0.0
+	queue_redraw()
+	return event
+
+
+func _project(local: Vector3) -> Vector2:
+	var p := Vector2(local.x, local.y).rotated(heading)
+	return Vector2(p.x, p.y - local.z * K)
+
+
+func _draw() -> void:
+	var l := LENGTH * 0.5
+	var w := WIDTH * 0.5
+	var h := HEIGHT
+	Ink.shadow(self, Vector2(10, 6), Vector2(66, 34), 0.36)
+	# Wheels peek out under the body.
+	for c in [Vector3(l * 0.62, w, 7), Vector3(-l * 0.62, w, 7), Vector3(l * 0.62, -w, 7), Vector3(-l * 0.62, -w, 7)]:
+		Ink.ellipse(self, _project(c), Vector2(9, 6), Color("#1c1a19"), 1.6, heading)
+	# Side faces: [a, b] along the base, outward normal n.
+	var faces := [
+		{ "a": Vector3(-l, w, 0), "b": Vector3(l, w, 0), "n": Vector2(0, 1), "kind": "side" },
+		{ "a": Vector3(l, -w, 0), "b": Vector3(-l, -w, 0), "n": Vector2(0, -1), "kind": "side" },
+		{ "a": Vector3(l, w, 0), "b": Vector3(l, -w, 0), "n": Vector2(1, 0), "kind": "front" },
+		{ "a": Vector3(-l, -w, 0), "b": Vector3(-l, w, 0), "n": Vector2(-1, 0), "kind": "back" },
+	]
+	for f in faces:
+		var n: Vector2 = (f["n"] as Vector2).rotated(heading)
+		if n.y <= 0.02:
+			continue # faces away from the camera
+		var a: Vector3 = f["a"]
+		var b: Vector3 = f["b"]
+		var at := func(u: float, v: float) -> Vector2:
+			return _project(Vector3(lerpf(a.x, b.x, u), lerpf(a.y, b.y, u), v * h))
+		var quad := func(u0: float, u1: float, v0: float, v1: float) -> PackedVector2Array:
+			return PackedVector2Array([at.call(u0, v0), at.call(u1, v0), at.call(u1, v1), at.call(u0, v1)])
+		var shade := 0.0 if f["kind"] == "side" else 0.08
+		Ink.poly(self, quad.call(0.0, 1.0, 0.0, 1.0), BODY.darkened(0.12 + shade), 0.0)
+		draw_colored_polygon(quad.call(0.0, 1.0, 0.36, 0.47), Color("#1a1a1a")) # the black danfo band
+		if f["kind"] == "side":
+			for k in 4:
+				var u0 := 0.08 + k * 0.22
+				Ink.poly(self, quad.call(u0, u0 + 0.18, 0.56, 0.88), GLASS.darkened(0.15), 1.2)
+		elif f["kind"] == "front":
+			Ink.poly(self, quad.call(0.1, 0.9, 0.55, 0.92), GLASS, 1.2)
+			draw_colored_polygon(quad.call(0.06, 0.2, 0.18, 0.3), Color("#fff3b0"))
+			draw_colored_polygon(quad.call(0.8, 0.94, 0.18, 0.3), Color("#fff3b0"))
+		else:
+			Ink.poly(self, quad.call(0.15, 0.85, 0.58, 0.88), GLASS.darkened(0.1), 1.2)
+		var outline: PackedVector2Array = quad.call(0.0, 1.0, 0.0, 1.0)
+		outline.append(outline[0])
+		draw_polyline(outline, Ink.COLOR, Ink.W, true)
+	# Roof seen from above, with two black stripes and a luggage rack.
+	var roof := PackedVector2Array([_project(Vector3(l, w, h)), _project(Vector3(l, -w, h)), _project(Vector3(-l, -w, h)), _project(Vector3(-l, w, h))])
+	Ink.poly(self, roof, BODY, Ink.W + 0.4)
+	for t in [-0.18, 0.18]:
+		draw_line(_project(Vector3(-l * 0.92, w * t * 2.0, h)), _project(Vector3(l * 0.92, w * t * 2.0, h)), Color("#1a1a1a"), 3.0)
+	for t in [-0.45, 0.0, 0.45]:
+		draw_line(_project(Vector3(l * t, w * 0.75, h + 3)), _project(Vector3(l * t, -w * 0.75, h + 3)), Color(0.15, 0.15, 0.15, 0.7), 2.0)
+	# Windscreen hint at the front edge of the roof.
+	Ink.poly(self, PackedVector2Array([_project(Vector3(l, w * 0.85, h)), _project(Vector3(l, -w * 0.85, h)), _project(Vector3(l - 14, -w * 0.8, h)), _project(Vector3(l - 14, w * 0.8, h))]), GLASS, 1.4)

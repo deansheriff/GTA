@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  check:
+  server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,11 +15,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
+      - run: npm run typecheck
+      - run: npm test
+
+  game:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch Godot 4.6.3 (official release)
+        run: |
+          curl -fsSL -o godot.zip https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip && mv Godot_v4.6.3-stable_linux.x86_64 godot && chmod +x godot
+      - name: Import project
+        run: ./godot --headless --path game --import
       - name: Unit tests
-        run: npm test
-      - name: Build client
-        run: npm run build -w @nsl/client
-      - name: Data budget
-        run: npm run budget
+        run: ./godot --headless --path game --script res://tests/run_tests.gd

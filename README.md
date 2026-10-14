@@ -1,26 +1,38 @@
 # Naija Street Life
 
-A Nigerian open-world life-sim and comedy-crime game for web and mobile web.
-Story mode: **"Naija Street Life: Up NEPA!"** The art is 2D and hand-painted, seen
-from above at an angle.
+A Nigerian open-world life-sim and comedy-crime game for Android.
+Story mode: **"Naija Street Life: Up NEPA!"** Android game, 2D, hand-painted, seen from
+above at an angle.
 
 ## Status
-- **Milestone 0 (foundations and art test) is in progress.** The Phase 3 proposal was approved on 2026-10-14.
-- What's playable: one painted Yaba junction (placeholder art drawn in code). You can:
+- **Platform:** Android only, built with **Godot 4.6.3** (decision D-005).
+- **Look:** top-down 3/4 camera with painted, ink-outlined art in The Omins' style (decision D-004).
+- **Milestone 0 is in progress.** Playable now, with **placeholder art drawn in code**, in one
+  Yaba junction:
+  - painted ground, zinc-roofed shops, POS umbrellas, poles and wires, generators, trees
   - walk Tunde
-  - drive the danfo "Baba God Dey"
-  - switch to night and back
-  - trigger NEPA cuts ("UP NEPA!")
-  - change graphics settings (auto-suggested per device)
-  - watch the data meter
+  - drive the danfo "Baba God Dey" in any direction
+  - a small crowd of pedestrians
+  - night, and NEPA cuts ("UP NEPA!")
+  - graphics presets suggested per device
+  - runs at 60 fps
+- **Next:** painted art generated with Gemini (needs billing enabled on the Gemini API
+  project), then Milestone 1, the Prologue.
 
-## Run it
-```bash
-npm install
-npm run dev          # client on http://localhost:5173 (also on your LAN for phone testing)
-npm run dev:server   # API on http://localhost:8787 (reads GEMINI_API_KEY from .env; never commit .env)
-npm test             # unit tests
-npm run build && npm run budget   # production build + data-budget check
+## Layout
+| Path | What |
+|---|---|
+| `game/` | Godot project (GDScript): `core/` settings and helpers, `world/` layout, `actors/`, `shaders/`, `ui/`, `tests/` |
+| `apps/server/` | TypeScript (Fastify) API: saves, marketplace, polls and news come here |
+| `tools/art/` | Gemini art generator with a spend ledger and budget stop |
+| `scripts/build.ps1` | Tests and debug APK |
+| `docs/` | Research, proposal, decisions, story |
+
+## Build
+See [docs/BUILD.md](docs/BUILD.md).
+```powershell
+.\scripts\build.ps1         # tests + debug APK in the build folder
+npm run dev:server          # API on http://localhost:8787 (reads GEMINI_API_KEY from .env; never commit .env)
 ```
 
 ## Docs
@@ -31,3 +43,4 @@ npm run build && npm run budget   # production build + data-budget check
 - [Story Bible: Up NEPA!](docs/story/story-bible.md)
 - [Reference game research notes](docs/research/01-reference-game-notes.md)
 - [Decision log](docs/decisions.md)
+- [Build notes](docs/BUILD.md)

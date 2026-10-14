@@ -75,3 +75,77 @@ decisions, so ambient behaviour stays cheap. Every AI path has a rules or canned
 fallback.
 
 **This replaces** the brief's requirement 6 ("Jev AI for NPC decisions").
+
+## D-004 · Match The Omins' look: top-down 3/4 camera and painted art · 2026-10-14
+**Decision:** The owner rejected the M0 diamond-isometric, code-drawn look. They asked for
+The Omins' style to be matched, and to take inspiration from their earlier prototype
+(github.com/deansheriff/Naija-GTA).
+
+**What changes:**
+- **Camera:** diamond isometric becomes **top-down 3/4**. The ground is seen from
+  above; buildings and people show their roof or top plus their front. Movement
+  and driving map straight to screen directions.
+- **Ground:** visible tiles become **one continuous painted terrain**, streamed in
+  chunks with soft blended grass, laterite, dust and roads.
+- **Art treatment:**
+  - Painted gouache-style fills with **thick dark ink outlines**.
+  - A muted, earthy, grimy palette and darker vignetted edges.
+  - Small big-headed characters, and more of them on screen.
+- **Art source:** AI-generated painted assets, the same approach the earlier
+  prototype used, delivered as compressed WebP atlases. Code-drawn art stays
+  only as a fallback.
+  - **We never copy The Omins' assets** and never feed its screenshots to a generator.
+  - Every prompt is recorded in `docs/art/PROVENANCE.md`.
+- **Vehicles:** top-down painted sprites that rotate smoothly, so free driving
+  works in any direction.
+
+**What doesn't change:** the story, every feature (F1–F8), the backend, the
+settings, the UI and the data budgets. The 3 MB first-install budget now has to
+cover real art, so all art ships as WebP atlases at three quality tiers.
+
+**Lessons from the earlier prototype:**
+- Keep: AI-painted modular parts (separate building shells and roofs, so roofs
+  fade to show interiors; separate tree trunks and canopies, so canopies can sway
+  in the wind); recorded prompts; pedestrians who walk past instead of milling
+  around.
+- Avoid:
+  - A side-on camera, which rules out free driving.
+  - Flat code-drawn ground.
+  - A ~21 MB first load (Godot engine plus game pack). We stay under 3 MB.
+
+## D-005 · Android-only, built with Godot 4 · 2026-10-14
+**Decision:** The owner chose to make Naija Street Life an **Android app only**, built
+with **Godot 4.6.3** (GDScript) using the **Compatibility renderer** (OpenGL ES 3.0).
+That renderer runs on low-end phones.
+
+**Why Godot:**
+- Strong 2D tools, and free with no royalties.
+- Small APK.
+- It runs well on 2 GB-RAM Android phones.
+- The owner's earlier Godot prototype (deansheriff/Naija-GTA) and its local toolchain
+  can be reused.
+
+**What changes:**
+- The Phaser/Preact web client (`apps/client`) and `packages/shared` are removed. Git
+  history keeps them.
+- The game lives in `game/`, a Godot project.
+- **Kept:** the TypeScript server (`apps/server`), the docs, the Story Bible, the
+  feature designs and the Gemini art pipeline (`tools/art`).
+- Art ships as Godot-imported textures instead of web files. The terrain becomes a
+  shader that blends painted textures through layout masks.
+- **Data budget becomes an app-size budget:**
+  - base APK ≤ 60 MB
+  - extra districts delivered on demand (Play Asset Delivery)
+  - idle network use stays ≤ 1 MB/hour
+- **Google Play rules to plan for:**
+  - Digital goods and game currency must use Play Billing (15–30% fee).
+  - Real-world gig services can use Paystack or Flutterwave.
+  - Data and airtime prize games must also comply with Play's real-money and
+    contest policies ⚖️.
+- **Build toolchain:**
+  - Portable Godot in `.tools/godot` (git-ignored, copied from the owner's machine).
+  - Android SDK at `%LOCALAPPDATA%\Android\Sdk`.
+  - JDK 17 at `C:\Program Files\Java\jdk-17`.
+
+**Supersedes:** the client options in the Phase 3 proposal §3.1 (Phaser + Preact),
+and the web/PWA-specific parts of §4.3 and §8.
