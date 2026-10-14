@@ -1,13 +1,15 @@
 # Naija Street Life
 
 A Nigerian open-world life-sim and comedy-crime game for web and mobile web.
-Story mode: **"Naija Street Life: Up NEPA!"** It is drawn in 2D with
-hand-painted art, viewed from above at an angle.
+Story mode: **"Naija Street Life: Up NEPA!"** The art is 2D and hand-painted, seen
+from above at an angle.
 
 ## Status
-Phase 1 (research) is in progress. No game code has been written yet. Building
-starts only after the owner approves the Phase 2 report and the Phase 3 proposal.
+- Phase 2 (findings report and Story Bible) is delivered and awaiting owner approval.
+- No game code has been written yet.
 
 ## Docs
-- [Decision log](docs/decisions.md)
+- [Phase 2 findings report](docs/phase2-findings-report.md)
+- [Story Bible: Up NEPA!](docs/story/story-bible.md)
 - [Reference game research notes](docs/research/01-reference-game-notes.md)
+- [Decision log](docs/decisions.md)
