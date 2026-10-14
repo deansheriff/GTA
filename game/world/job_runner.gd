@@ -13,6 +13,7 @@ var offers: Array = [] # today's gigs: {type, id, name, from, to, pay, ...}
 var active := {} # current job state; empty when idle
 var _rng := RandomNumberGenerator.new()
 var _offer_day := -1
+var patience_k := 1.0 # Danfo Fare Cap ward policy: passengers lose patience slower (0.7)
 
 
 func setup(m: MapData) -> void:
@@ -113,7 +114,7 @@ func _tick_danfo(delta: float, focus: Vector2, mode: String, stuck: bool) -> voi
 				message.emit("You need the danfo for this one.")
 		"driving":
 			if stuck:
-				active["patience"] = float(active["patience"]) - delta * 6.0
+				active["patience"] = float(active["patience"]) - delta * 6.0 * patience_k
 				Life.stats["bp"] = minf(100.0, float(Life.stats["bp"]) + delta * 2.0)
 				if float(active["patience"]) < 40.0 and int(active["passengers"]) > 3 and _rng.randf() < delta * 0.15:
 					active["passengers"] = int(active["passengers"]) - 1

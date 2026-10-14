@@ -19,13 +19,14 @@ export interface PublicInfo {
   id: number;
   name: string;
   look: Record<string, unknown>;
+  pid?: string;
 }
 
 /** Compact state row sent to clients: [id, x, y, facing, mode, heading°]. */
 export type Row = [number, number, number, number, Mode, number];
 
 interface Member extends PublicInfo {
-  playerId: string; // stable account id (not sent to other players)
+  playerId: string; // stable account id; shared as `pid` so players can DM, block and report
   x: number;
   y: number;
   f: number;
@@ -122,7 +123,7 @@ export class Room {
         continue;
       }
       if (sentVersion === undefined) {
-        out.meet.push({ id: other.id, name: other.name, look: other.look });
+        out.meet.push({ id: other.id, name: other.name, look: other.look, pid: other.playerId });
       }
       if (sentVersion !== other.version) {
         out.rows.push([other.id, other.x, other.y, other.f, other.m, other.h]);

@@ -95,8 +95,7 @@ func wipe() -> void:
 # ---------- cloud ----------
 
 func _base_url() -> String:
-	var ws := Net.url_for(Net.server) if Net.server != "" else ""
-	return ws.replace("wss://", "https://").replace("ws://", "http://").trim_suffix("/ws")
+	return Net.http_base()
 
 
 func _push_cloud(data: Dictionary) -> void:

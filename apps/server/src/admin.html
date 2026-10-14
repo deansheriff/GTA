@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naija Street Life · Moderation</title>
+<style>
+  :root { --ink: #1d1611; --paper: #f1e6c8; --danfo: #e0a91c; --bad: #a8382c; --good: #2f8a52; --mut: #6b6e66; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: var(--paper); color: var(--ink); }
+  header { background: var(--ink); color: var(--paper); padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  header b { color: var(--danfo); }
+  nav button, button { font: inherit; border: 2px solid var(--ink); background: #fff8e6; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  nav button.on { background: var(--danfo); }
+  main { padding: 16px; max-width: 1100px; margin: auto; }
+  table { width: 100%; border-collapse: collapse; background: #fffaf0; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d8cba8; vertical-align: top; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .stat { background: #fffaf0; border: 2px solid var(--ink); border-radius: 10px; padding: 10px; }
+  .stat b { font-size: 26px; display: block; }
+  input, select { font: inherit; padding: 6px; border: 2px solid var(--ink); border-radius: 8px; }
+  .bad { color: var(--bad); } .muted { color: var(--mut); font-size: 13px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+</style>
+</head>
+<body>
+<header>
+  <span><b>Naija Street Life</b> · moderation</span>
+  <input id="token" type="password" placeholder="Admin token" size="28">
+  <input id="mod" placeholder="Your moderator name" size="16">
+  <nav id="nav"></nav>
+</header>
+<main id="main"><p>Enter the admin token to start. Every action is recorded in the audit trail.</p></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+try { $('#token').value = sessionStorage.getItem('tok') || ''; $('#mod').value = localStorage.getItem('mod') || ''; } catch (e) {}
+async function api(path, body, method) {
+  try { sessionStorage.setItem('tok', $('#token').value); localStorage.setItem('mod', $('#mod').value); } catch (e) {}
+  const res = await fetch(path, { method: method || (body ? 'POST' : 'GET'), headers: { authorization: 'Bearer ' + $('#token').value, 'x-moderator': $('#mod').value || 'admin', ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) { alert('Error: ' + (j.error || res.status)); throw new Error(j.error); }
+  return j;
+}
+const views = {
+  async Stats() {
+    const s = await api('/api/admin/stats');
+    return '<h2>Transparency</h2><div class="stats">' + Object.entries(s).map(([k, v]) => `<div class="stat"><b>${v}</b>${esc(k)}</div>`).join('') + '</div>';
+  },
+  async Reports() {
+    const r = await api('/api/admin/reports?status=open');
+    window.resolve = async (id, action) => { const note = prompt('Note for the record (optional)') || ''; await api(`/api/admin/reports/${id}/resolve`, { action, note }); show('Reports'); };
+    return '<h2>Open reports</h2><table><tr><th>#</th><th>Reported</th><th>Reason / context</th><th>Actions</th></tr>' + r.reports.map((x) =>
+      `<tr><td>${x.id}</td><td>${esc(x.target)}<div class="muted">${x.target_strikes ?? 0} strikes · by ${esc(x.reporter)}</div></td><td>${esc(x.reason)}${x.context ? `<div class="muted">"${esc(x.context)}"</div>` : ''}${x.gig_id ? `<div class="muted">gig #${x.gig_id}</div>` : ''}</td>
+       <td><button onclick="resolve(${x.id},'dismiss')">Dismiss</button> <button onclick="resolve(${x.id},'hide')">Hide content</button> <button class="bad" onclick="resolve(${x.id},'strike')">Hide + strike</button></td></tr>`).join('') + '</table>';
+  },
+  async Players() {
+    window.findP = async () => { $('#plist').innerHTML = (await api('/api/admin/players?q=' + encodeURIComponent($('#pq').value))).players.map((p) =>
+      `<tr><td>${esc(p.name)}<div class="muted">${p.id}</div></td><td>${p.verified ? '✓' : ''}</td><td>${p.strikes}</td><td class="muted">${p.banned_until ? 'banned ' + esc(p.banned_until) : p.muted_until ? 'muted ' + esc(p.muted_until) : ''}</td>
+       <td><button onclick="hist('${p.id}')">History</button> <button onclick="act('${p.id}','mute')">Mute 24h</button> <button class="bad" onclick="act('${p.id}','strike')">Strike</button> <button onclick="act('${p.id}','unban')">Unban</button></td></tr>`).join(''); };
+    window.act = async (id, a) => { const reason = a === 'strike' ? prompt('Reason') : ''; if (a === 'strike' && !reason) return; await api(`/api/admin/players/${id}/${a}`, { reason, hours: 24 }); findP(); };
+    window.hist = async (id) => { const h = await api('/api/admin/players/' + id); $('#phist').innerHTML = '<h3>Strikes</h3>' + h.strikes.map((s) => `<div>${esc(s.created_at)} · ${esc(s.action)} · ${esc(s.reason)} <span class="muted">(${esc(s.by_actor)})</span></div>`).join('') + '<h3>Recent messages</h3>' + h.messages.map((m) => `<div class="${m.hidden ? 'muted' : ''}">[${esc(m.channel)}] ${esc(m.text)}</div>`).join(''); };
+    return '<h2>Players</h2><div class="row"><input id="pq" placeholder="Name or id"><button onclick="findP()">Search</button></div><table id="plist"></table><div id="phist"></div>';
+  },
+  async Polls() {
+    const r = await api('/api/admin/polls');
+    window.pollAct = async (id, a) => { await api(`/api/admin/polls/${id}/${a}`, {}); show('Polls'); };
+    window.newPoll = async () => { await api('/api/admin/polls', { question: $('#pqn').value, options: $('#popt').value.split('|'), hours: Number($('#phr').value), showResults: $('#plive').checked ? 'live' : 'after' }); show('Polls'); };
+    return '<h2>Polls</h2><div class="row"><input id="pqn" placeholder="Question" size="40"><input id="popt" placeholder="Option A|Option B|Option C" size="30"><input id="phr" value="48" size="4"> hours <label><input type="checkbox" id="plive"> live results</label><button onclick="newPoll()">Create</button></div>' +
+      '<table><tr><th>#</th><th>Question</th><th>Status</th><th></th></tr>' + r.polls.map((p) => `<tr><td>${p.id}</td><td>${esc(p.question)}<div class="muted">${p.options.map(esc).join(' · ')} ${p.by ? '· by ' + esc(p.by) : ''}</div></td><td>${esc(p.status)}</td><td>${p.status === 'pending' ? `<button onclick="pollAct(${p.id},'approve')">Approve</button> <button onclick="pollAct(${p.id},'reject')">Reject</button>` : p.status === 'open' ? `<button onclick="pollAct(${p.id},'close')">Close</button>` : ''}</td></tr>`).join('') + '</table>';
+  },
+  async Elections() {
+    const r = await api('/api/admin/elections');
+    window.elAct = async (id, a) => { if (a === 'rerun' && !confirm('Wipe all votes and re-run?')) return; await api(`/api/admin/elections/${id}/${a}`, {}); show('Elections'); };
+    return '<h2>Ward elections</h2><table><tr><th>Ward</th><th>Week</th><th>Status</th><th>Votes</th><th>Policy</th><th></th></tr>' + r.elections.map((e) =>
+      `<tr><td>${esc(e.ward)}</td><td>${esc(String(e.week_start).slice(0, 10))}</td><td>${esc(e.status)} ${e.flagged ? '<b class="bad">FROZEN</b>' : ''}</td><td>${e.votes}</td><td>${esc(e.policy || '')}</td>
+       <td>${e.flagged ? `<button onclick="elAct(${e.id},'unfreeze')">Unfreeze</button>` : `<button onclick="elAct(${e.id},'freeze')">Freeze</button>`} <button class="bad" onclick="elAct(${e.id},'rerun')">Re-run</button> <button onclick="elAct(${e.id},'count')">Count now</button></td></tr>`).join('') + '</table>';
+  },
+  async Audit() {
+    const r = await api('/api/admin/actions');
+    return '<h2>Audit trail</h2><table>' + r.actions.map((a) => `<tr><td class="muted">${esc(a.created_at)}</td><td>${esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.target)}</td></tr>`).join('') + '</table>';
+  },
+};
+async function show(name) {
+  document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('on', b.textContent === name));
+  try { $('#main').innerHTML = await views[name](); } catch (e) { $('#main').innerHTML = '<p class="bad">' + esc(e.message) + '</p>'; }
+}
+$('#nav').innerHTML = Object.keys(views).map((v) => `<button onclick="show('${v}')">${v}</button>`).join(' ');
+</script>
+</body>
+</html>

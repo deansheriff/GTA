@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from 'ws';
 import { RoomManager, TICK_HZ, sanitizeLook, sanitizeName, type Room } from './rooms.ts';
 import type { Store } from './store.ts';
+import { ChatHub, type ChatTarget } from './social.ts';
+import { accountById, isBanned } from './account.ts';
 
 /**
  * WebSocket protocol at /ws (JSON, compact). The first client message must be "hello".
@@ -9,15 +11,18 @@ import type { Store } from './store.ts';
  * client → server
  *   {"t":"hello","token"?,"name","look","district","x","y"}
  *   {"t":"move","x","y","f","m","h"}        at most ~10/s, only when something changed
+ *   {"t":"chat","text"}                      street chat (moderated, see social.ts)
+ *   {"t":"dm","to":pid,"text"}               direct message
  * server → client
  *   {"t":"welcome","id","room","token"?}    token only for a newly created guest
- *   {"t":"snap","meet"?:[{id,name,look}],"p"?:[[id,x,y,f,m,h]],"gone"?:[id]}   ~10/s, only if non-empty
+ *   {"t":"snap","meet"?:[{id,name,look,pid}],"p"?:[[id,x,y,f,m,h]],"gone"?:[id]}   ~10/s, only if non-empty
+ *   {"t":"chat","id","pid","name","text","v"}  {"t":"dm","id","pid","to","name","text","sent"?}
  *   {"t":"err","code"}
  */
 const MAX_MSG_BYTES = 2048;
 const MAX_MSGS_PER_SEC = 30;
 const MAX_STRIKES = 40;
-const DISTRICTS = new Set(['yaba']);
+const DISTRICTS = new Set(['yaba', 'ikeja', 'agbado-ketu', 'oshodi', 'mushin', 'surulere', 'lagos-island', 'ikoyi', 'victoria-island', 'lekki']);
 
 interface Session {
   socket: WebSocket;
@@ -28,9 +33,14 @@ interface Session {
   msgCount: number;
 }
 
-export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; stop: () => void } {
+export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; hub: ChatHub; stop: () => void } {
   const rooms = new RoomManager();
   const sessions = new Set<Session>();
+  const hub = new ChatHub(store.db, function* (): Iterable<ChatTarget> {
+    for (const s of sessions) {
+      if (s.playerId && s.room) yield { playerId: s.playerId, room: s.room.name, send: (m) => send(s, m) };
+    }
+  });
 
   const send = (s: Session, msg: unknown) => {
     if (s.socket.readyState === s.socket.OPEN) s.socket.send(JSON.stringify(msg));
@@ -66,6 +76,12 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
           player = created.player;
           token = created.token;
         } else {
+          const acct = await accountById(store.db, player.id);
+          if (acct && isBanned(acct)) {
+            send(s, { t: 'err', code: 'banned' });
+            socket.close(4003, 'banned');
+            return;
+          }
           await store.touch(player.id, name, look);
         }
         const district = typeof msg.district === 'string' && DISTRICTS.has(msg.district) ? msg.district : 'yaba';
@@ -83,6 +99,13 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
           send(s, { t: 'err', code: 'kicked_speed' });
           socket.close(4001, 'speed');
         }
+        return;
+      }
+
+      if ((msg.t === 'chat' || msg.t === 'dm') && s.room && s.playerId) {
+        const me: ChatTarget = { playerId: s.playerId, room: s.room.name, send: (m) => send(s, m) };
+        if (msg.t === 'chat') await hub.chat(me, msg.text);
+        else await hub.dm(me, msg.to, msg.text);
         return;
       }
 
@@ -118,6 +141,7 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
 
   return {
     rooms,
+    hub,
     stop: () => {
       clearInterval(timer);
       clearInterval(ping);

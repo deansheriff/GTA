@@ -23,6 +23,9 @@ var relationships := { "tunde-ngozi": 50, "tunde-kc": 45, "ngozi-kc": 60 }
 var home := "tunde-depot" # landmark id where this hero sleeps
 var stats := { "bp": 20.0, "aura": 40.0, "hype": 100.0, "battery": 60.0 } # hero stats (M3 uses them)
 var items_db := {}
+## Ward policies chosen by elected players (F4), set by the game as you move between districts.
+var price_factor := 1.0 # Market Day Discount: 0.85
+var hygiene_decay_k := 1.0 # Clean Gutters: 0.7
 
 
 func _ready() -> void:
@@ -32,7 +35,8 @@ func _ready() -> void:
 
 func _on_minute(_m: int) -> void:
 	for n in NEEDS:
-		needs[n] = clampf(needs[n] - DECAY[n] / 60.0, 0.0, 100.0)
+		var k := hygiene_decay_k if n == "hygiene" else 1.0
+		needs[n] = clampf(needs[n] - DECAY[n] * k / 60.0, 0.0, 100.0)
 	changed.emit()
 
 
@@ -133,7 +137,7 @@ func buy(id: String, keep := false) -> bool:
 		return false
 	var price := int(it["price"])
 	# Haggling skill shaves a little off (market banter is a skill).
-	price = int(round(price * (1.0 - 0.02 * level("haggling"))))
+	price = int(round(price * (1.0 - 0.02 * level("haggling")) * price_factor))
 	if not spend(price, "Bought %s" % it["name"]):
 		return false
 	add_xp("haggling", 2)

@@ -253,3 +253,21 @@ ask only when input is needed, and make no APK builds until the game is done.
 - **Bribes** are offered as choices in 3.1 and always lower the bloc (Bible §8.2).
 - **Replay:** after the credits the story can be restarted while keeping wallet, skills and found
   pages, so all four endings are reachable without a new save.
+
+## D-011 · Online-feature choices for M5 · 2026-10-14
+**Decision (engineering, within the approved proposal; owner can override):**
+- **One SQL codebase:** production uses PostgreSQL; development and tests use PGlite (Postgres
+  compiled to WebAssembly). The in-memory store is gone, so tests exercise the real SQL.
+- **Market wallet:** the save file is client-side and can't hold escrow, so gigs, nomination fees
+  and payouts use a server-side "market ₦" balance. Players move game money in and out, capped at
+  ₦50,000 a day, with 5% tax on the way out. That limits farming and trading.
+- **Chat gate:** guests can chat 24 hours after their account is created, or immediately once
+  phone-verified. Links need verification. This follows the proposal's identity tiers without
+  requiring an SMS provider for basic play.
+- **SMS:** a generic webhook (`SMS_WEBHOOK_URL`). The owner connects any Nigerian SMS gateway
+  without code changes. Without a provider and `PHONE_PEPPER`, OTP is switched off rather than faked.
+- **Elections at launch:** one office (ward councillor) per district, weekly, with two fictional
+  NPC candidates rotating per week. Market Chairperson and LG Chairman come later.
+- **Gig proof of work:** the server accepts a mini-game score no sooner than `GIG_MIN_SECONDS`
+  (default 60) after taking the gig. This is a light anti-farming check; a server-side replay
+  check would be a later upgrade.

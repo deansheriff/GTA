@@ -30,6 +30,20 @@ This matches how you deployed your earlier prototype.
      and news run on the server. Stored only in Coolify, never in the APK.
    - `TRUSTED_PROXY_CIDRS` *(optional)*: your Coolify proxy or Cloudflare IP ranges,
      for correct client IPs in rate limits.
+   - **Online features (M5).** Without these, the game still runs; phone verification
+     and the moderation console stay switched off.
+     - `PHONE_PEPPER`: a long random value (`openssl rand -hex 32`). Phone numbers are
+       stored only as a keyed hash, and this is the key. **Never change it** after
+       launch, or verified players lose their phone link.
+     - `SMS_PROVIDER=webhook`, `SMS_WEBHOOK_URL` and `SMS_WEBHOOK_TOKEN` 🔒: the server
+       POSTs `{"to": "+234…", "message": "…"}` with `Authorization: Bearer <token>`.
+       Point it at your SMS gateway, or at a small relay that calls your provider's
+       API. Choosing and paying for an SMS provider is your decision.
+     - `ADMIN_TOKEN`: at least 24 random characters. It turns on the moderation
+       console at `https://game.YOUR-DOMAIN/admin`. Give it only to moderators, and
+       have each one type their name so the audit trail shows who did what.
+     - `MOD_EXTRA_WORDS` *(optional)*: extra blocked words, comma-separated, from your
+       Pidgin/Yoruba/Igbo/Hausa moderators.
 4. **Domains:** select service **app** and enter `https://game.YOUR-DOMAIN:8787`.
    - The `:8787` tells Coolify the container port.
    - Players still use plain `https://game.YOUR-DOMAIN`.

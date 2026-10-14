@@ -32,6 +32,18 @@ jobs:
         run: |
           ./godot --headless --path game --script res://tests/run_tests.gd 2>&1 | tee test.log
           ! grep -q "SCRIPT ERROR" test.log
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Online features end to end (game client ↔ dev server)
+        run: |
+          npm ci
+          OTP_DEV_ECHO=1 CHAT_MIN_AGE_HOURS=0 GIG_MIN_SECONDS=0 PORT=8799 npm run dev -w @nsl/server > server.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8799/api/health && break; sleep 1; done
+          ./godot --headless --path game --script res://tests/online_check.gd -- --server=127.0.0.1:8799 2>&1 | tee online.log
+          grep -q "online: [0-9]* passed, 0 failed" online.log
+          ! grep -q "SCRIPT ERROR" online.log
 
   docker:
     runs-on: ubuntu-latest
@@ -50,6 +62,11 @@ jobs:
           for i in $(seq 1 40); do curl -fs http://127.0.0.1:8787/api/health && break; sleep 3; done
       - name: Smoke test (health + two players over WebSocket)
         run: node scripts/smoke-ws.mjs http://127.0.0.1:8787
+      - name: Online features on real Postgres (migrations, gig board, elections)
+        run: |
+          curl -fs http://127.0.0.1:8787/api/gigs | grep -q '"npc":true'
+          curl -fs http://127.0.0.1:8787/api/elections/yaba | grep -q '"candidates"'
+          curl -fs http://127.0.0.1:8787/api/policies | grep -q '"menu"'
       - name: Logs on failure
         if: failure()
         run: docker compose -f compose.yaml -f .github/compose.ci.yaml logs --no-color

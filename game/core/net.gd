@@ -7,6 +7,9 @@ signal welcomed(id: int, room: String)
 signal met(id: int, name: String, look: Dictionary)
 signal moved(id: int, pos: Vector2, facing: int, mode: int, heading: float)
 signal gone(id: int)
+signal chat(msg: Dictionary) # street chat {id, pid, name, text, v}
+signal dm(msg: Dictionary) # direct message {id, pid, to, name, text, sent?}
+signal server_error(code: String)
 
 const CFG := "user://net.cfg"
 const SEND_HZ := 10.0
@@ -26,6 +29,9 @@ var _backoff := 2.0
 var _send_t := 0.0
 var _last_sent := ""
 var _pending_hello := {}
+var district := "yaba"
+## Player ids (pid) of people met on the street, by member id: DMs, blocks and reports use them.
+var pids := {}
 
 
 func _ready() -> void:
@@ -77,6 +83,8 @@ func url_for(address: String) -> String:
 	if a.begins_with("ws://") or a.begins_with("wss://"):
 		return a if a.ends_with("/ws") else a + "/ws"
 	a = a.trim_prefix("https://").trim_prefix("http://")
+	if a.begins_with("localhost"):
+		a = "127.0.0.1" + a.trim_prefix("localhost") # Godot tries IPv6 first; dev servers listen on IPv4
 	var local := a.begins_with("localhost") or a.begins_with("127.") or a.begins_with("10.") or a.begins_with("192.168.")
 	return ("ws://" if local else "wss://") + a + "/ws"
 
@@ -106,7 +114,7 @@ func _process(delta: float) -> void:
 				var hello := _pending_hello.duplicate()
 				hello["t"] = "hello"
 				hello["name"] = player_name
-				hello["district"] = "yaba"
+				hello["district"] = district
 				if token != "":
 					hello["token"] = token
 				_send(hello)
@@ -156,13 +164,68 @@ func _handle(m: Variant) -> void:
 			_set_state("online")
 		"snap":
 			for p in m.get("meet", []):
+				pids[int(p["id"])] = String(p.get("pid", ""))
 				met.emit(int(p["id"]), String(p.get("name", "")), p.get("look", {}))
 			for r in m.get("p", []):
 				moved.emit(int(r[0]), Vector2(r[1], r[2]), int(r[3]), int(r[4]), float(r[5]))
 			for id in m.get("gone", []):
 				gone.emit(int(id))
+		"chat":
+			chat.emit(m)
+		"dm":
+			dm.emit(m)
 		"err":
+			server_error.emit(String(m.get("code", "?")))
 			push_warning("server: %s" % m.get("code", "?"))
+
+
+func send_chat(text: String) -> void:
+	if _state == "online" and my_id >= 0:
+		_send({ "t": "chat", "text": text.left(280) })
+
+
+func send_dm(to_pid: String, text: String) -> void:
+	if _state == "online" and my_id >= 0:
+		_send({ "t": "dm", "to": to_pid, "text": text.left(280) })
+
+
+func http_base() -> String:
+	var ws := url_for(server) if server != "" else ""
+	return ws.replace("wss://", "https://").replace("ws://", "http://").trim_suffix("/ws")
+
+
+## REST call to the server: `await Net.api("GET", "/api/gigs")` →
+## { ok: bool, code: int, data: Variant }. Works offline too (ok = false, code = 0).
+func api(method: String, path: String, body: Variant = null) -> Dictionary:
+	if server == "":
+		return { "ok": false, "code": 0, "data": { "error": "offline" } }
+	var http := HTTPRequest.new()
+	http.timeout = 12.0
+	add_child(http)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	if token != "":
+		headers.append("Authorization: Bearer " + token)
+	var m: int = { "GET": HTTPClient.METHOD_GET, "POST": HTTPClient.METHOD_POST, "PUT": HTTPClient.METHOD_PUT, "DELETE": HTTPClient.METHOD_DELETE }.get(method, HTTPClient.METHOD_GET)
+	var payload := JSON.stringify(body) if body != null else ("{}" if method in ["POST", "PUT"] else "")
+	var err := http.request(http_base() + path, headers, m, payload)
+	if err != OK:
+		http.queue_free()
+		return { "ok": false, "code": 0, "data": { "error": "offline" } }
+	var res: Array = await http.request_completed
+	http.queue_free()
+	var code := int(res[1])
+	var text := (res[3] as PackedByteArray).get_string_from_utf8()
+	var json := JSON.new()
+	var parsed: Variant = json.data if text != "" and json.parse(text) == OK else null
+	return { "ok": code >= 200 and code < 300, "code": code, "data": parsed if parsed is Dictionary else {} }
+
+
+## After phone verification on a new device the server hands back the original account's token.
+func adopt_token(t: String) -> void:
+	token = t
+	_save()
+	disconnect_now()
+	start(_pending_hello)
 
 
 func _schedule_retry() -> void:

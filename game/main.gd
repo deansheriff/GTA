@@ -55,6 +55,7 @@ var _outage_day := -1
 const RICH := ["ikoyi", "victoria-island", "lekki"]
 var story: StoryHost
 var story_auto := false
+var online: OnlineApps
 
 
 func _ready() -> void:
@@ -137,6 +138,9 @@ func _ready() -> void:
 	story.auto = story_auto
 	add_child(story)
 	story.setup(self)
+	online = OnlineApps.new()
+	add_child(online)
+	online.setup(hud.phone, story)
 	if story_auto:
 		_run_story_demo()
 	elif demo:
@@ -302,11 +306,22 @@ func _in_outage(focus: Vector2) -> bool:
 			_outages.append({ "start": start, "end": start + r.randi_range(25, 150), "rich": r.randf() < 0.3 })
 	var t := Clock.minutes % 1440
 	var d: Dictionary = map.district_at(focus)
-	var rich: bool = d.get("id", "") in RICH
+	# A ward that elected the Transformer Fund suffers outages like the rich districts do.
+	var rich: bool = d.get("id", "") in RICH or (online != null and online.policy_in(String(d.get("id", ""))) == "transformer-fund")
 	for o in _outages:
 		if t >= int(o["start"]) and t < int(o["end"]) and (not rich or o["rich"]):
 			return true
 	return false
+
+
+## Effects of the policy the ward's elected councillor chose (F4, bounded effects).
+func _apply_ward_policy() -> void:
+	var p := online.policy_in(Net.district) if online else ""
+	Life.price_factor = 0.85 if p == "market-day" else 1.0
+	Life.hygiene_decay_k = 0.7 if p == "clean-gutters" else 1.0
+	jobs.patience_k = 0.7 if p == "fare-cap" else 1.0
+	if p != "" and online.policies.has(Net.district):
+		hud.toast("Ward policy: %s" % online.policies[Net.district].get("name", ""))
 
 
 func _update_lighting() -> void:
@@ -437,6 +452,8 @@ func _process(delta: float) -> void:
 		if dn != _district:
 			_district = dn
 			hud.toast(dn)
+			Net.district = String(d.get("id", Net.district))
+			_apply_ward_policy()
 		_push_state()
 
 
@@ -802,6 +819,15 @@ func _run_demo() -> void:
 	await _wait(0.4)
 	await _shot("05a-phone")
 	hud.phone.visible = false
+	if Net.server != "":
+		# Online apps against a live server (M5).
+		await _wait(1.5)
+		for app in [["05c-gigs", func() -> void: online._gigs_board("")], ["05d-vote", func() -> void: online._vote()], ["05e-profile", func() -> void: online._profile()], ["05f-chat", func() -> void: online._chat_home()]]:
+			hud.phone.open()
+			(app[1] as Callable).call()
+			await _wait(1.2)
+			await _shot(app[0])
+		hud.phone.visible = false
 	_set_waypoint(map.landmarks["lekki-event-centre"]["pos"])
 	hud.map_screen.visible = true
 	await _wait(0.6)

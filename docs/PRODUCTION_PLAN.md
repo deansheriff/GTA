@@ -97,13 +97,42 @@ milestones, make no APK until the game is done, then do one release build.
 - ✅ 144 game tests: the full 22-mission story on the fake host, Act 2 block gating, all four ending rules
 - 🔒 Native-speaker review of all Pidgin/Yoruba/Igbo lines (owner to arrange)
 
-## M5 — Online features ⬜
-- ⬜ Accounts: guest, then phone OTP (provider interface; SMS vendor 🔒 owner account)
-- ⬜ Venue chat and DMs with moderation (filters that check before showing, report/block, strikes)
-- ⬜ F1 gig marketplace (game money): post, apply, escrow in game money, ratings, filters, anti-spam
-- ⬜ F2 profiles and skills: CV, portfolio, verified badges, links into gameplay
-- ⬜ F4 polls and ward elections: candidates, voting rules, anti-fraud, policies that affect the world
-- ⬜ Admin console: moderation queues, election audit, kill switches
+## M5 — Online features ✅ (2026-10-14)
+- ✅ **Data layer:** one SQL implementation (`apps/server/src/db.ts`): PostgreSQL in production,
+  embedded Postgres (PGlite) for development and tests; versioned migrations in one locked transaction
+- ✅ **Accounts:** guest token → phone OTP (`auth.ts`): codes hashed, 10-minute expiry, 5 attempts,
+  rate limits per phone/account/IP; the phone is stored only as an HMAC with `PHONE_PEPPER` plus its
+  last two digits; verifying the same phone on a new device signs in to the old account. SMS goes
+  through a webhook 🔒 (the owner picks the gateway); no provider = OTP switched off, never faked
+- ✅ **Chat and moderation** (`social.ts`, `moderation.ts`): street chat over the WebSocket, DMs
+  with history, blocks enforced on the server, reports with message context; every message is
+  checked before anyone sees it (personal data, payment/scam patterns, links for unverified,
+  abuse and hate lists, extendable by moderators); strike ladder warning → 24 h mute → 7-day ban →
+  permanent; new accounts wait 24 h (or verify); repeated violations strike automatically
+- ✅ **F1 gig board, game money** (`market.ts`): server-side market wallet (escrow can't be faked),
+  ₦50,000/day transfer cap, 5% withdrawal tax; post (verified, 3 open max, duplicate and scam
+  checks, 2% posting fee), take, **finish by playing the skill's mini-game** (score ≥ 50 pays,
+  otherwise refund), close with refunds, ratings only after a completed gig; NPC gigs from
+  fictional businesses keep every board alive
+- ✅ **F2 profiles** (`profiles.ts`): bio, district, languages, real skills, experience, portfolio
+  links (verified only), availability, rate, in-game CV synced from the save, gig-verified skill
+  badges, star rating, per-section visibility, opt-in public search
+- ✅ **F4 polls and ward elections** (`civic.ts`): weekly WAT cycle (nominate Mon–Tue, campaign,
+  vote Sun 10–18, count 18:00); fictional NPC candidates in every ward; player candidates need a
+  verified phone, 14 days, level 8, no strikes and a ₦5,000 fee; one vote per verified player;
+  append-only hash-chain ledger with receipts and a public audit; burst-of-new-accounts detection
+  freezes an election; NPC blocs capped at half the vote; the winner's policy changes the ward in
+  the game (Market Day −15% food, Transformer Fund fewer cuts, Fare Cap calmer passengers, Clean
+  Gutters slower hygiene loss); community polls (admin-created or level-10 proposals, approved)
+- ✅ **Admin console** at `/admin` (`ADMIN_TOKEN`): transparency stats, report queue
+  (dismiss/hide/strike), player search and history, mute/strike/ban/unban, poll approval,
+  election freeze/unfreeze/re-run/count, audit trail of every moderator action
+- ✅ **Game client:** `Net.api()` REST helper; phone apps **Chat**, **Gigs**, **Profile** (with
+  phone verification) and **Vote**; ward policies applied as you move between districts
+- ✅ Tests: 16 server tests (8 new M5 groups) + a Godot ↔ server end-to-end check
+  (`tests/online_check.gd`, 12 checks) in CI; CI also checks the features on real Postgres 17
+- 🔒 Owner: choose/pay for an SMS gateway; set `PHONE_PEPPER`, `ADMIN_TOKEN` in Coolify;
+  recruit moderators (Pidgin, Yoruba, Igbo, Hausa) before the public beta
 
 ## M6 — AI and news ⬜
 - ⬜ F6 NPC brains: rules plus cached Gemini archetype decisions, with fallbacks

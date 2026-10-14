@@ -4,7 +4,7 @@ import { storeFromEnv } from './store.ts';
 const app = await buildApp({
   version: process.env.APP_VERSION ?? process.env.npm_package_version ?? '0.1.0',
   geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
-  store: storeFromEnv(process.env),
+  store: await storeFromEnv(process.env),
   trustProxy: process.env.TRUSTED_PROXY_CIDRS,
 });
 

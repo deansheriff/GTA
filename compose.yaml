@@ -13,6 +13,13 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
       APP_VERSION: ${APP_VERSION:-0.1.0}
+      # M5 online features (docs/COOLIFY.md §1): phone OTP, SMS gateway, moderation console.
+      PHONE_PEPPER: ${PHONE_PEPPER:-}
+      SMS_PROVIDER: ${SMS_PROVIDER:-}
+      SMS_WEBHOOK_URL: ${SMS_WEBHOOK_URL:-}
+      SMS_WEBHOOK_TOKEN: ${SMS_WEBHOOK_TOKEN:-}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      MOD_EXTRA_WORDS: ${MOD_EXTRA_WORDS:-}
     expose:
       - "8787"
     depends_on:

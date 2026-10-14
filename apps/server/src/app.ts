@@ -1,7 +1,13 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import websocket from '@fastify/websocket';
 import { registerRealtime } from './realtime.ts';
-import { MemoryStore, type Store } from './store.ts';
+import { memoryStore, type Store } from './store.ts';
+import { registerAuth, smsFromEnv, type SmsProvider } from './auth.ts';
+import { registerSocial } from './social.ts';
+import { registerMarket } from './market.ts';
+import { registerProfiles } from './profiles.ts';
+import { registerCivic } from './civic.ts';
+import { registerAdmin } from './admin.ts';
 
 /**
  * Naija Street Life API + realtime server. Deployed on the owner's Coolify behind Cloudflare
@@ -14,6 +20,8 @@ export interface AppConfig {
   store?: Store;
   /** Comma-separated proxy IPs/CIDRs to trust for client IPs (Coolify/Cloudflare). */
   trustProxy?: string;
+  /** SMS delivery for phone OTP; defaults to SMS_PROVIDER from the environment. */
+  sms?: SmsProvider | null;
 }
 
 export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
@@ -21,7 +29,7 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
     logger: process.env.NODE_ENV !== 'test',
     trustProxy: cfg.trustProxy ? cfg.trustProxy.split(',').map((s) => s.trim()) : false,
   });
-  const store = cfg.store ?? new MemoryStore();
+  const store = cfg.store ?? (await memoryStore());
   await store.init();
   await app.register(websocket, { options: { maxPayload: 4096 } });
 
@@ -76,6 +84,13 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
   });
 
   const rt = registerRealtime(app, store);
+  // M5 online features (accounts/OTP, chat + moderation, gig board, profiles, polls/elections, admin).
+  registerAuth(app, store.db, cfg.sms === undefined ? smsFromEnv(process.env) : cfg.sms);
+  registerSocial(app, store.db, () => rt.hub);
+  registerMarket(app, store.db);
+  registerProfiles(app, store.db);
+  registerCivic(app, store.db);
+  registerAdmin(app, store.db, (id) => rt.hub.forget(id));
   app.addHook('onClose', async () => {
     rt.stop();
     await store.close();

@@ -1,10 +1,10 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import pg from 'pg';
+import { LiteDb, PgDb, type Db } from './db.ts';
+import { migrate } from './migrations.ts';
 
 /**
- * Player accounts. M0 uses guest accounts: the server issues a random token once, the phone
- * keeps it, and only its SHA-256 hash is stored. Phone/OTP verification arrives with the
- * features that need it (gigs, voting, prizes; proposal §7).
+ * Player accounts and cloud saves. Guests get a random token once (only its SHA-256 hash is
+ * stored); a verified phone (OTP, see auth.ts) upgrades the same account (proposal §7 tiers).
  */
 export interface PlayerRecord {
   id: string;
@@ -13,6 +13,8 @@ export interface PlayerRecord {
 }
 
 export interface Store {
+  /** The SQL database behind the store; feature modules (chat, gigs, polls…) use it directly. */
+  db: Db;
   init(): Promise<void>;
   createGuest(name: string, look: Record<string, unknown>): Promise<{ player: PlayerRecord; token: string }>;
   findByToken(token: string): Promise<PlayerRecord | null>;
@@ -24,115 +26,59 @@ export interface Store {
   close(): Promise<void>;
 }
 
-const hash = (token: string) => createHash('sha256').update(token).digest('hex');
-const newToken = () => randomBytes(32).toString('base64url');
+export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
+export const newToken = () => randomBytes(32).toString('base64url');
 
-export class MemoryStore implements Store {
-  private byHash = new Map<string, PlayerRecord>();
-  private saves = new Map<string, { revision: number; data: unknown }>();
-  async getSave(playerId: string) {
-    return this.saves.get(playerId) ?? null;
-  }
-  async putSave(playerId: string, revision: number, data: unknown) {
-    const cur = this.saves.get(playerId);
-    if (cur && cur.revision >= revision) return { ok: false, revision: cur.revision };
-    this.saves.set(playerId, { revision, data });
-    return { ok: true, revision };
-  }
-  async init() {}
-  async createGuest(name: string, look: Record<string, unknown>) {
-    const token = newToken();
-    const player = { id: randomUUID(), name, look };
-    this.byHash.set(hash(token), player);
-    return { player, token };
-  }
-  async findByToken(token: string) {
-    return this.byHash.get(hash(token)) ?? null;
-  }
-  async touch(id: string, name: string, look: Record<string, unknown>) {
-    for (const p of this.byHash.values()) if (p.id === id) { p.name = name; p.look = look; }
-  }
-  async health() { return true; }
-  async close() {}
-}
+export class SqlStore implements Store {
+  db: Db;
 
-const MIGRATIONS = [
-  `CREATE TABLE IF NOT EXISTS schema_version (version int PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`,
-  `CREATE TABLE IF NOT EXISTS players (
-     id uuid PRIMARY KEY,
-     name text NOT NULL,
-     look jsonb NOT NULL DEFAULT '{}'::jsonb,
-     token_hash text NOT NULL UNIQUE,
-     created_at timestamptz NOT NULL DEFAULT now(),
-     last_seen timestamptz NOT NULL DEFAULT now()
-   )`,
-  `CREATE TABLE IF NOT EXISTS saves (
-     player_id uuid PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
-     revision integer NOT NULL,
-     data jsonb NOT NULL,
-     updated_at timestamptz NOT NULL DEFAULT now()
-   )`,
-];
-
-export class PgStore implements Store {
-  private pool: pg.Pool;
-
-  constructor(config: pg.PoolConfig) {
-    this.pool = new pg.Pool({ max: 10, ...config });
+  constructor(db: Db) {
+    this.db = db;
   }
 
   async init() {
-    const client = await this.pool.connect();
-    try {
-      // One app instance migrates at a time.
-      await client.query('SELECT pg_advisory_lock(424242)');
-      for (const sql of MIGRATIONS) await client.query(sql);
-      await client.query('INSERT INTO schema_version (version) VALUES (1) ON CONFLICT DO NOTHING');
-    } finally {
-      await client.query('SELECT pg_advisory_unlock(424242)').catch(() => {});
-      client.release();
-    }
+    await migrate(this.db);
   }
 
   async createGuest(name: string, look: Record<string, unknown>) {
     const token = newToken();
     const id = randomUUID();
-    await this.pool.query('INSERT INTO players (id, name, look, token_hash) VALUES ($1, $2, $3, $4)', [id, name, JSON.stringify(look), hash(token)]);
+    await this.db.query('INSERT INTO players (id, name, look, token_hash) VALUES ($1, $2, $3, $4)', [id, name, JSON.stringify(look), hashToken(token)]);
     return { player: { id, name, look }, token };
   }
 
   async findByToken(token: string) {
-    const r = await this.pool.query('SELECT id, name, look FROM players WHERE token_hash = $1', [hash(token)]);
+    const r = await this.db.query<{ id: string; name: string; look: Record<string, unknown> }>('SELECT id, name, look FROM players WHERE token_hash = $1', [hashToken(token)]);
     const row = r.rows[0];
-    return row ? { id: row.id as string, name: row.name as string, look: row.look as Record<string, unknown> } : null;
+    return row ? { id: row.id, name: row.name, look: row.look } : null;
   }
 
   async touch(id: string, name: string, look: Record<string, unknown>) {
-    await this.pool.query('UPDATE players SET name = $2, look = $3, last_seen = now() WHERE id = $1', [id, name, JSON.stringify(look)]);
+    await this.db.query('UPDATE players SET name = $2, look = $3, last_seen = now() WHERE id = $1', [id, name, JSON.stringify(look)]);
   }
 
   async getSave(playerId: string) {
-    const r = await this.pool.query('SELECT revision, data FROM saves WHERE player_id = $1', [playerId]);
+    const r = await this.db.query<{ revision: number; data: unknown }>('SELECT revision, data FROM saves WHERE player_id = $1', [playerId]);
     return r.rows[0] ? { revision: Number(r.rows[0].revision), data: r.rows[0].data } : null;
   }
 
   async putSave(playerId: string, revision: number, data: unknown) {
     // Atomic "newer revision wins": the update only happens if the stored revision is older.
-    const r = await this.pool.query(
+    const r = await this.db.query(
       `INSERT INTO saves (player_id, revision, data) VALUES ($1, $2, $3)
        ON CONFLICT (player_id) DO UPDATE SET revision = EXCLUDED.revision, data = EXCLUDED.data, updated_at = now()
        WHERE saves.revision < EXCLUDED.revision
        RETURNING revision`,
       [playerId, revision, JSON.stringify(data)],
     );
-    if (r.rowCount === 1) return { ok: true, revision };
+    if (r.rows.length === 1) return { ok: true, revision };
     const cur = await this.getSave(playerId);
     return { ok: false, revision: cur?.revision ?? 0 };
   }
 
   async health() {
     try {
-      await this.pool.query('SELECT 1');
+      await this.db.query('SELECT 1');
       return true;
     } catch {
       return false;
@@ -140,19 +86,24 @@ export class PgStore implements Store {
   }
 
   async close() {
-    await this.pool.end();
+    await this.db.close();
   }
+}
+
+/** Development and tests: the same SQL on an in-memory embedded Postgres. */
+export async function memoryStore(): Promise<SqlStore> {
+  return new SqlStore(await LiteDb.create());
 }
 
 /**
  * Choose the store from the environment. Production refuses to run without PostgreSQL so a
  * misconfigured deploy can't silently lose everyone's progress.
  */
-export function storeFromEnv(env: NodeJS.ProcessEnv): Store {
+export async function storeFromEnv(env: NodeJS.ProcessEnv): Promise<Store> {
   if (env.PGHOST) {
-    return new PgStore({ host: env.PGHOST, port: Number(env.PGPORT ?? 5432), user: env.PGUSER, password: env.PGPASSWORD, database: env.PGDATABASE });
+    return new SqlStore(PgDb.fromConfig({ host: env.PGHOST, port: Number(env.PGPORT ?? 5432), user: env.PGUSER, password: env.PGPASSWORD, database: env.PGDATABASE }));
   }
-  if (env.DATABASE_URL) return new PgStore({ connectionString: env.DATABASE_URL });
+  if (env.DATABASE_URL) return new SqlStore(PgDb.fromConfig({ connectionString: env.DATABASE_URL }));
   if (env.NODE_ENV === 'production') throw new Error('PostgreSQL is required in production (set PGHOST/PGUSER/PGPASSWORD/PGDATABASE).');
-  return new MemoryStore();
+  return memoryStore();
 }
