@@ -20,6 +20,11 @@ services:
       SMS_WEBHOOK_TOKEN: ${SMS_WEBHOOK_TOKEN:-}
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
       MOD_EXTRA_WORDS: ${MOD_EXTRA_WORDS:-}
+      # M6 AI and news (docs/COOLIFY.md §1).
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.1-flash-lite}
+      AI_DAILY_BUDGET_USD: ${AI_DAILY_BUDGET_USD:-2}
+      NEWS_FEEDS: ${NEWS_FEEDS:-}
+      NEWS_POLL_MINUTES: ${NEWS_POLL_MINUTES:-20}
     expose:
       - "8787"
     depends_on:

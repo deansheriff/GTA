@@ -317,9 +317,12 @@ func _in_outage(focus: Vector2) -> bool:
 ## Effects of the policy the ward's elected councillor chose (F4, bounded effects).
 func _apply_ward_policy() -> void:
 	var p := online.policy_in(Net.district) if online else ""
-	Life.price_factor = 0.85 if p == "market-day" else 1.0
+	# Traders worried about prices charge a little more; angry drivers' passengers snap faster (F6 moods).
+	var trader_k := 1.05 if online and online.mood("traders") in ["worried", "angry"] else 1.0
+	var driver_k := 1.15 if online and online.mood("drivers") == "angry" else 1.0
+	Life.price_factor = (0.85 if p == "market-day" else 1.0) * trader_k
 	Life.hygiene_decay_k = 0.7 if p == "clean-gutters" else 1.0
-	jobs.patience_k = 0.7 if p == "fare-cap" else 1.0
+	jobs.patience_k = (0.7 if p == "fare-cap" else 1.0) * driver_k
 	if p != "" and online.policies.has(Net.district):
 		hud.toast("Ward policy: %s" % online.policies[Net.district].get("name", ""))
 

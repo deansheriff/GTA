@@ -44,6 +44,13 @@ var street: Array = [] # last street chat messages
 var policies := {} # ward -> {id, name, effect}
 var _policy_t := 0.0
 var _phone_otp := ""
+## M6: published news banter by archetype ({text, outlet, url}) and today's archetype moods.
+var news_lines := {} # archetype -> Array of line dictionaries
+var moods := {} # archetype -> {stance, topic}
+var live_chat := false
+var _news_t := 3.0
+## Which archetype each named NPC speaks for.
+const NPC_ARCHETYPE := { "mama-nkem": "traders", "market-woman": "traders", "sule": "drivers", "mechanic": "okada", "barber": "youth", "kiosk": "students", "teacher": "church", "bayo": "drivers", "receipts": "traders", "warden": "drivers" }
 
 
 func setup(p: Control, story_host: Node) -> void:
@@ -73,6 +80,85 @@ func _process(delta: float) -> void:
 	if _policy_t <= 0.0:
 		_policy_t = 600.0
 		_refresh_policies()
+	_news_t -= delta
+	if _news_t <= 0.0:
+		_news_t = 900.0
+		_refresh_news()
+
+
+# ---------- news banter and moods (M6) ----------
+
+func _refresh_news() -> void:
+	if Net.server == "":
+		return
+	var b: Dictionary = await Net.api("GET", "/api/banter")
+	if b["ok"]:
+		news_lines.clear()
+		for l in b["data"].get("lines", []):
+			var a := String(l.get("archetype", ""))
+			if not news_lines.has(a):
+				news_lines[a] = []
+			news_lines[a].append(l)
+	var m: Dictionary = await Net.api("GET", "/api/brains/moods")
+	if m["ok"]:
+		moods = m["data"].get("moods", {})
+	var p: Dictionary = await Net.api("GET", "/api/npc/personas")
+	if p["ok"]:
+		live_chat = bool(p["data"].get("live", false))
+
+
+## A news line for an archetype (or any), with its source credit; {} when off or none.
+func news_line(archetype: String = "") -> Dictionary:
+	if not Settings.get_pref("news_chatter", true) or news_lines.is_empty():
+		return {}
+	var pool: Array = news_lines.get(archetype, []) if archetype != "" else []
+	if pool.is_empty():
+		for k in news_lines:
+			pool += news_lines[k]
+	return pool.pick_random() if not pool.is_empty() else {}
+
+
+static func credit(line: Dictionary) -> String:
+	return "%s  📰 via %s" % [line.get("text", ""), line.get("outlet", "?")]
+
+
+func mood(archetype: String) -> String:
+	return String(moods.get(archetype, {}).get("stance", "chill"))
+
+
+## Ask a named NPC something (F8 live chat; verified players, capped, logged, reportable).
+func ask_npc(who: String) -> void:
+	var root: Control = host.main.hud._root
+	var card: VBoxContainer = host.main.hud._card(root, "Talk to %s" % Story.who(who).get("name", who), "Say something. Keep it friendly. They know today's gist.")
+	var dlg: Control = host.main.hud._dialog_root(card)
+	var e := LineEdit.new()
+	e.placeholder_text = "Your message"
+	e.custom_minimum_size = Vector2(0, 44)
+	card.add_child(e)
+	var out := Label.new()
+	out.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	card.add_child(out)
+	var last_id := [0]
+	var row := HBoxContainer.new()
+	card.add_child(row)
+	row.add_child(host.main.hud._button("Send", func() -> void:
+		if e.text.strip_edges() == "":
+			return
+		out.text = "…"
+		var res: Dictionary = await Net.api("POST", "/api/npc/talk", { "npc": who, "text": e.text.strip_edges() })
+		e.text = ""
+		if res["ok"]:
+			out.text = String(res["data"].get("reply", ""))
+			last_id[0] = int(res["data"].get("id", 0))
+			if host.ambient.has(who):
+				host.ambient[who].say(out.text.left(60), 5.0)
+		else:
+			out.text = { "daily_cap": "That's enough gist for today. Come back tomorrow.", "live_chat_off": "They're busy right now.", "verify_phone": "Verify your phone to chat with NPCs." }.get(res["data"].get("error", ""), _err(res))))
+	row.add_child(host.main.hud._button("Report reply", func() -> void:
+		if last_id[0] > 0:
+			await Net.api("POST", "/api/npc/talk/%d/report" % last_id[0])
+			host.main.hud.toast("Reported. Thank you.")))
+	row.add_child(host.main.hud._button("Bye", func() -> void: dlg.queue_free()))
 
 
 # ---------- helpers ----------
@@ -144,6 +230,13 @@ func _chat_home() -> void:
 	if _offline_note():
 		return
 	phone._label("%s · be nice: messages are checked before anyone sees them." % Net.status_text(), 12, DIM)
+	if not moods.is_empty():
+		var bits: Array = []
+		for a in moods:
+			if mood(a) != "chill":
+				bits.append("%s %s" % [String(a).capitalize(), mood(a)])
+		if not bits.is_empty():
+			phone._label("Street mood: " + ", ".join(bits), 12, DANFO)
 	for m in street.slice(maxi(0, street.size() - 25)):
 		var r := _row()
 		var l := Label.new()

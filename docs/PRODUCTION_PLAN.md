@@ -134,11 +134,35 @@ milestones, make no APK until the game is done, then do one release build.
 - 🔒 Owner: choose/pay for an SMS gateway; set `PHONE_PEPPER`, `ADMIN_TOKEN` in Coolify;
   recruit moderators (Pidgin, Yoruba, Igbo, Hausa) before the public beta
 
-## M6 — AI and news ⬜
-- ⬜ F6 NPC brains: rules plus cached Gemini archetype decisions, with fallbacks
-- ⬜ F7 news service: RSS/API ingest, dedupe, classify, summarise, attribution, review dashboard
-- ⬜ F8 NPC news banter: batch-generated line banks, guardrails, kill switches, player toggle;
-  optional live NPC chat
+## M6 — AI and news ✅ (2026-10-14)
+- ✅ **Gemini service** (`ai.ts`): Interactions API with structured JSON output; every call is
+  metered (tokens and USD per day and purpose), held under a hard daily budget, and behind a
+  circuit breaker (an hour's back-off on billing or quota errors) and an admin "AI off" switch.
+  Rules fallbacks keep the game fully playable with AI off.
+- ✅ **F6 NPC brains** (`brains.ts`): reflex layer in the game; decision layer = archetype moods
+  (traders, drivers, students, church women, okada union, youth) from today's approved topics,
+  by rules and refined by one cached Gemini judgement per topic (6 h, shared, never per NPC).
+  The game applies moods: worried traders charge ~5% more, angry drivers' passengers snap
+  faster, and the "Street mood" shows in the Chat app.
+- ✅ **F7 news service** (`news.ts`): owner-chosen RSS/Atom feeds ⚖️; headline + link + short
+  lede only; conditional GET; dedupe by canonical URL and title shingles; rules + Gemini
+  classification (11 categories, 6 sensitivity flags; either signal marks a story sensitive);
+  neutral summaries in our own words with no person names; 72 h expiry, plus a week of audit.
+  The parser was checked on two real Nigerian feeds.
+- ✅ **F8 news banter:** hearsay-framed lines per archetype, with code guardrails (moderation,
+  real-person detector, length, banned categories: politics, security, tragedy, health).
+  Lines wait for **human review** in the console unless auto-publish is on. Templates are used
+  when AI is off. Every line carries "📰 via Outlet" and the link. In game: passenger debates,
+  radio chatter while driving, and named NPCs. There's a **player toggle** in Settings.
+- ✅ **Live "Talk to NPC"** (off by default): 7 fictional personas; verified players only;
+  20 replies a day; player text passed as quoted data; replies checked and replaced by canned
+  lines on failure; every exchange logged and reportable.
+- ✅ **Kill switches:** AI, news, banter, live chat, auto-publish, per category and per outlet.
+  They act immediately, also at read time. Console tabs **News** (stories, block/allow,
+  banter review, fetch now) and **AI** (switches, spend, chat log).
+- ✅ Tests: 22 server tests (5 new M6 groups with a fake Gemini and fake feeds); 144 game tests
+- 🔒 Owner: the Gemini project's **prepaid credits are depleted** (HTTP 402 on 2026-10-14).
+  Top up in AI Studio before turning AI on in production. Choose news outlets for `NEWS_FEEDS` ⚖️.
 
 ## M7 — Money, prizes, compliance (behind feature flags) ⬜
 - ⬜ F5 data/airtime skill games (points now; real prizes 🔒 legal + provider)

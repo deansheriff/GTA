@@ -217,6 +217,69 @@ const MIGRATIONS: { v: number; sql: string[] }[] = [
        )`,
     ],
   },
+  {
+    // M6: kill switches, AI usage and cache, news items, banter line bank, live NPC chat log.
+    v: 3,
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flags (
+         key text PRIMARY KEY,
+         value jsonb NOT NULL,
+         updated_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS ai_usage (
+         day date NOT NULL,
+         purpose text NOT NULL,
+         calls integer NOT NULL DEFAULT 0,
+         failures integer NOT NULL DEFAULT 0,
+         input_tokens bigint NOT NULL DEFAULT 0,
+         output_tokens bigint NOT NULL DEFAULT 0,
+         usd numeric(12, 6) NOT NULL DEFAULT 0,
+         PRIMARY KEY (day, purpose)
+       )`,
+      `CREATE TABLE IF NOT EXISTS ai_cache (
+         key text PRIMARY KEY,
+         value jsonb NOT NULL,
+         expires_at timestamptz NOT NULL
+       )`,
+      `CREATE TABLE IF NOT EXISTS news_items (
+         id bigserial PRIMARY KEY,
+         outlet text NOT NULL,
+         url text NOT NULL UNIQUE,
+         title text NOT NULL,
+         lede text NOT NULL DEFAULT '',
+         published_at timestamptz,
+         category text,
+         sensitivity jsonb NOT NULL DEFAULT '{}'::jsonb,
+         summary text,
+         eligible boolean NOT NULL DEFAULT false,
+         status text NOT NULL DEFAULT 'new',
+         duplicate_of bigint,
+         created_at timestamptz NOT NULL DEFAULT now(),
+         expires_at timestamptz NOT NULL
+       )`,
+      `CREATE INDEX IF NOT EXISTS news_status_idx ON news_items (status, expires_at)`,
+      `CREATE TABLE IF NOT EXISTS banter_lines (
+         id bigserial PRIMARY KEY,
+         news_id bigint REFERENCES news_items(id) ON DELETE CASCADE,
+         archetype text NOT NULL,
+         text text NOT NULL,
+         source text NOT NULL DEFAULT 'ai',
+         status text NOT NULL DEFAULT 'pending',
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE INDEX IF NOT EXISTS banter_status_idx ON banter_lines (status)`,
+      `CREATE TABLE IF NOT EXISTS npc_chat_log (
+         id bigserial PRIMARY KEY,
+         player_id uuid REFERENCES players(id) ON DELETE CASCADE,
+         npc text NOT NULL,
+         player_text text NOT NULL,
+         reply text NOT NULL,
+         fallback boolean NOT NULL DEFAULT false,
+         reported boolean NOT NULL DEFAULT false,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+    ],
+  },
 ];
 
 export async function migrate(db: Db): Promise<number> {

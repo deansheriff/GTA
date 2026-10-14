@@ -60,6 +60,10 @@ func _initialize() -> void:
 	check(el["ok"] and (el["data"].get("candidates", []) as Array).size() >= 2, "ward election with candidates")
 	var pol: Dictionary = await net.api("GET", "/api/policies")
 	check(pol["ok"] and pol["data"].has("menu"), "policy menu")
+	var banter: Dictionary = await net.api("GET", "/api/banter")
+	check(banter["ok"] and banter["data"].has("lines"), "news banter endpoint")
+	var moods: Dictionary = await net.api("GET", "/api/brains/moods")
+	check(moods["ok"] and (moods["data"].get("moods", {}) as Dictionary).has("drivers"), "archetype moods")
 	var got_err := [""]
 	net.server_error.connect(func(c: String) -> void: got_err[0] = c)
 	net.send_chat("my number is 08031234567")

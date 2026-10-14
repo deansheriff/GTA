@@ -271,3 +271,18 @@ ask only when input is needed, and make no APK builds until the game is done.
 - **Gig proof of work:** the server accepts a mini-game score no sooner than `GIG_MIN_SECONDS`
   (default 60) after taking the gig. This is a light anti-farming check; a server-side replay
   check would be a later upgrade.
+
+## D-012 · AI and news choices for M6 · 2026-10-14
+**Decision (engineering, within the approved proposal; owner can override):**
+- **Gemini via the Interactions API** (`/v1beta/interactions`, structured JSON output), model
+  `gemini-3.1-flash-lite` by default, with a $2/day hard cap until the owner sets another.
+- **Banter is reviewed by a person** before publishing (proposal F8). Owners with a moderation
+  team can turn on auto-publish; lines still pass every code guardrail first.
+- **Politics, security, tragedy and health are excluded from banter by default** (proposal:
+  tragedies excluded and no opinions on elections). Any story with a sensitivity flag from
+  rules or the model is excluded too.
+- **Live NPC chat ships switched off.** It's capped, verified-only and logged when enabled.
+- **No news outlets are pre-configured.** Which outlets to use, and whether their terms allow
+  headline-and-link use, is the owner's decision (⚖️).
+- The batch API (50% cheaper) can replace per-story calls later; at a few dozen stories a day,
+  the standard API costs cents.

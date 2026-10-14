@@ -4,13 +4,23 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { Db } from './db.ts';
 import { addStrike } from './moderation.ts';
 import { count } from './civic.ts';
+import type { Flags } from './flags.ts';
+import type { AiService } from './ai.ts';
+import type { NewsService } from './news.ts';
+
+export interface AdminExtras {
+  flags: Flags;
+  ai: AiService;
+  news: NewsService;
+  feeds: () => { outlet: string; url: string }[];
+}
 
 /**
  * Moderator/admin console (proposal §7 tooling): report queue, player history, strikes and bans,
  * poll approval, election freeze/re-run, transparency stats and an audit trail of every action.
  * Enabled only when ADMIN_TOKEN (≥ 24 chars) is set. UI: GET /admin (static page).
  */
-export function registerAdmin(app: FastifyInstance, db: Db, onPlayerChanged: (id: string) => void): void {
+export function registerAdmin(app: FastifyInstance, db: Db, onPlayerChanged: (id: string) => void, ext?: AdminExtras): void {
   const token = process.env.ADMIN_TOKEN ?? '';
   const enabled = token.length >= 24;
 
@@ -178,6 +188,88 @@ export function registerAdmin(app: FastifyInstance, db: Db, onPlayerChanged: (id
     else return reply.code(400).send({ error: 'bad_action' });
     await audit(actor, `election.${action}`, id);
     return { ok: true };
+  });
+
+  // ---------- M6: kill switches, AI usage, news review, banter queue, NPC chat log ----------
+  app.get('/api/admin/flags', async (req, reply) => {
+    if (!guard(req, reply) || !ext) return;
+    return { flags: await ext.flags.all(), ai: { configured: ext.ai.configured, spentToday: await ext.ai.spentToday(), budget: Number(process.env.AI_DAILY_BUDGET_USD ?? 2) }, feeds: ext.feeds().map((f) => f.outlet) };
+  });
+
+  app.post('/api/admin/flags', async (req, reply) => {
+    const actor = guard(req, reply);
+    if (!actor || !ext) return;
+    const b = (req.body ?? {}) as { key?: string; value?: unknown };
+    try {
+      await ext.flags.set(String(b.key), b.value);
+    } catch {
+      return reply.code(400).send({ error: 'unknown_flag' });
+    }
+    await audit(actor, 'flag.set', String(b.key), { value: b.value });
+    return { ok: true };
+  });
+
+  app.get('/api/admin/ai', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const r = await db.query('SELECT day, purpose, calls, failures, input_tokens, output_tokens, usd FROM ai_usage ORDER BY day DESC, purpose LIMIT 60');
+    return { usage: r.rows };
+  });
+
+  app.get('/api/admin/news', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const r = await db.query(`SELECT id, outlet, url, title, category, sensitivity, summary, eligible, status, created_at FROM news_items WHERE duplicate_of IS NULL ORDER BY id DESC LIMIT 80`);
+    return { items: r.rows };
+  });
+
+  app.post('/api/admin/news/run', async (req, reply) => {
+    const actor = guard(req, reply);
+    if (!actor || !ext) return;
+    const res = await ext.news.runOnce(ext.feeds());
+    await audit(actor, 'news.run', null, res);
+    return res;
+  });
+
+  app.post('/api/admin/news/:id/:action', async (req, reply) => {
+    const actor = guard(req, reply);
+    if (!actor) return;
+    const { id, action } = req.params as { id: string; action: string };
+    if (action === 'block') await db.query(`UPDATE news_items SET eligible = false, status = 'blocked' WHERE id = $1`, [id]);
+    else if (action === 'allow') await db.query(`UPDATE news_items SET eligible = true, status = 'classified' WHERE id = $1`, [id]);
+    else return reply.code(400).send({ error: 'bad_action' });
+    await audit(actor, `news.${action}`, id);
+    return { ok: true };
+  });
+
+  app.get('/api/admin/banter', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const status = String((req.query as { status?: string }).status ?? 'pending');
+    const r = await db.query(
+      `SELECT b.id, b.archetype, b.text, b.source, b.status, n.id AS news_id, n.outlet, n.title, n.url FROM banter_lines b JOIN news_items n ON n.id = b.news_id
+        WHERE b.status = $1 ORDER BY b.id DESC LIMIT 200`,
+      [status],
+    );
+    return { lines: r.rows };
+  });
+
+  // Review: approve or reject single lines, or everything pending for one story.
+  app.post('/api/admin/banter/:action', async (req, reply) => {
+    const actor = guard(req, reply);
+    if (!actor) return;
+    const action = (req.params as { action: string }).action;
+    const b = (req.body ?? {}) as { ids?: number[]; news?: number };
+    const status = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : null;
+    if (!status) return reply.code(400).send({ error: 'bad_action' });
+    let n = 0;
+    if (Array.isArray(b.ids)) n = (await db.query(`UPDATE banter_lines SET status = $2 WHERE id = ANY($1::bigint[]) RETURNING id`, [b.ids.map(Number), status])).rows.length;
+    else if (Number.isInteger(b.news)) n = (await db.query(`UPDATE banter_lines SET status = $2 WHERE news_id = $1 AND status = 'pending' RETURNING id`, [b.news, status])).rows.length;
+    await audit(actor, `banter.${action}`, null, { n, ids: b.ids, news: b.news });
+    return { ok: true, n };
+  });
+
+  app.get('/api/admin/npc-chats', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const r = await db.query(`SELECT c.id, p.name AS player, c.npc, c.player_text, c.reply, c.fallback, c.reported, c.created_at FROM npc_chat_log c LEFT JOIN players p ON p.id = c.player_id ORDER BY c.reported DESC, c.id DESC LIMIT 100`);
+    return { chats: r.rows };
   });
 
   app.get('/api/admin/actions', async (req, reply) => {

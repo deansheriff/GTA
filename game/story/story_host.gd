@@ -58,6 +58,7 @@ var prompt_id := "" # mission offered at the marker the hero stands on
 var ambient := {} # who -> StoryNPC living their daily routine in free roam
 var _amb_t := 0.0
 var _talk_who := ""
+var _radio_t := 40.0
 
 
 func setup(m: Node2D) -> void:
@@ -191,8 +192,18 @@ func tick(dt: float) -> void:
 		if _banter_t <= 0.0:
 			_banter_t = 8.0
 			var bank: Array = Story.chats.get("banter", {}).get(_banter, [])
-			if not bank.is_empty():
+			var news: Dictionary = main.online.news_line("drivers") if _banter == "debates" and main.online and randf() < 0.4 else {}
+			if not news.is_empty():
+				subtitle("Passenger: \"%s\"" % OnlineApps.credit(news), 7.0)
+			elif not bank.is_empty():
 				subtitle(bank.pick_random(), 6.0)
+	_radio_t -= dt
+	if _radio_t <= 0.0:
+		_radio_t = 95.0
+		if main.mode == "driving" and not runner.running() and main.online:
+			var r: Dictionary = main.online.news_line("")
+			if not r.is_empty():
+				subtitle("📻 Gidi Gist FM: %s" % OnlineApps.credit(r), 8.0)
 	if _subtitle_t > 0.0:
 		_subtitle_t -= dt
 		if _subtitle_t <= 0.0:
@@ -299,9 +310,19 @@ func ambient_prompt(focus: Vector2) -> String:
 func talk() -> void:
 	if not ambient.has(_talk_who):
 		return
+	Life.restore("social", 4.0)
+	var online: OnlineApps = main.online
+	# Live chat (when the owner has switched it on) for the characters with a server persona.
+	if online and online.live_chat and Net.server != "" and _talk_who in ["mama-nkem", "sule", "barber", "mechanic", "teacher", "bayo", "kiosk"]:
+		online.ask_npc(_talk_who)
+		return
+	var news: Dictionary = online.news_line(OnlineApps.NPC_ARCHETYPE.get(_talk_who, "")) if online else {}
+	if not news.is_empty() and randf() < 0.5:
+		ambient[_talk_who].say(String(news.get("text", "")).left(70), 6.0)
+		subtitle(OnlineApps.credit(news), 6.0)
+		return
 	var lines: Array = Story.cast[_talk_who].get("chatter", ["…"])
 	ambient[_talk_who].say(lines.pick_random(), 4.5)
-	Life.restore("social", 4.0)
 
 
 # ---------- markers and mission prompts ----------

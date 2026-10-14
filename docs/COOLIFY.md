@@ -44,6 +44,19 @@ This matches how you deployed your earlier prototype.
        have each one type their name so the audit trail shows who did what.
      - `MOD_EXTRA_WORDS` *(optional)*: extra blocked words, comma-separated, from your
        Pidgin/Yoruba/Igbo/Hausa moderators.
+   - **AI and news (M6).** Without these, NPCs use rules and template lines only.
+     - `GEMINI_API_KEY`: a paid-tier key. Free tiers may train on prompts, and player
+       chat must not go there. The project's prepaid credits must be topped up in
+       AI Studio.
+     - `AI_DAILY_BUDGET_USD` *(default 2)*: a hard daily cap. When it's reached, NPCs
+       fall back to rules until midnight. Spend is shown in the console (AI tab).
+     - `GEMINI_MODEL` *(default `gemini-3.1-flash-lite`)*.
+     - `NEWS_FEEDS` ⚖️: comma-separated `Outlet|https://…/rss` pairs, for example
+       `Punch|https://punchng.com/feed/`. **You choose the outlets.** Check each one's
+       terms for headline-and-link use. The game stores only the headline, link and a
+       short lede, writes its own neutral summary, and always credits the outlet.
+     - Banter lines wait in the console's **News** tab until a moderator approves them.
+       *News auto-publish*, *live NPC chat* and every kill switch live in the **AI** tab.
 4. **Domains:** select service **app** and enter `https://game.YOUR-DOMAIN:8787`.
    - The `:8787` tells Coolify the container port.
    - Players still use plain `https://game.YOUR-DOMAIN`.

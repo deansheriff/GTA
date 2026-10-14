@@ -8,6 +8,10 @@ import { registerMarket } from './market.ts';
 import { registerProfiles } from './profiles.ts';
 import { registerCivic } from './civic.ts';
 import { registerAdmin } from './admin.ts';
+import { Flags } from './flags.ts';
+import { AiService, geminiTransport, type Transport } from './ai.ts';
+import { NewsService, feedsFromEnv, registerNews } from './news.ts';
+import { registerBrains } from './brains.ts';
 
 /**
  * Naija Street Life API + realtime server. Deployed on the owner's Coolify behind Cloudflare
@@ -22,6 +26,8 @@ export interface AppConfig {
   trustProxy?: string;
   /** SMS delivery for phone OTP; defaults to SMS_PROVIDER from the environment. */
   sms?: SmsProvider | null;
+  /** Gemini transport (tests pass a fake). Defaults to the real API when GEMINI_API_KEY is set. */
+  ai?: Transport | null;
 }
 
 export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
@@ -90,7 +96,26 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
   registerMarket(app, store.db);
   registerProfiles(app, store.db);
   registerCivic(app, store.db);
-  registerAdmin(app, store.db, (id) => rt.hub.forget(id));
+  // M6 AI and news: kill switches, metered Gemini, news ingest and banter, NPC brains.
+  const flags = new Flags(store.db);
+  const transport = cfg.ai !== undefined ? cfg.ai : process.env.GEMINI_API_KEY ? geminiTransport(process.env.GEMINI_API_KEY) : null;
+  const ai = new AiService(store.db, flags, transport);
+  const news = new NewsService(store.db, ai, flags);
+  const feeds = () => feedsFromEnv(process.env);
+  registerNews(app, store.db, flags);
+  registerBrains(app, store.db, ai, flags);
+  registerAdmin(app, store.db, (id) => rt.hub.forget(id), { flags, ai, news, feeds });
+  app.decorate('news', news);
+  let newsTimer: NodeJS.Timeout | null = null;
+  if (process.env.NODE_ENV !== 'test' && feeds().length > 0) {
+    const every = Math.max(10, Number(process.env.NEWS_POLL_MINUTES ?? 20)) * 60_000;
+    const run = () => news.runOnce(feeds()).then((r) => app.log.info(r, 'news run')).catch((e) => app.log.warn({ err: e }, 'news run failed'));
+    setTimeout(run, 15_000);
+    newsTimer = setInterval(run, every);
+  }
+  app.addHook('onClose', async () => {
+    if (newsTimer) clearInterval(newsTimer);
+  });
   app.addHook('onClose', async () => {
     rt.stop();
     await store.close();

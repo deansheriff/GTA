@@ -8,12 +8,18 @@ const PATH := "user://settings.cfg"
 var current: Dictionary = DeviceProfile.from_preset("medium")
 var suggestion: Dictionary = {}
 var first_run := true
+## Non-graphics preferences, e.g. "news_chatter" (proposal F8: a player toggle for news banter).
+var prefs := { "news_chatter": true }
 
 
 func _ready() -> void:
 	suggestion = DeviceProfile.suggest(DeviceProfile.read_signals())
 	var cfg := ConfigFile.new()
-	if cfg.load(PATH) == OK and cfg.has_section("graphics"):
+	var loaded := cfg.load(PATH) == OK
+	if loaded and cfg.has_section("prefs"):
+		for key in prefs.keys():
+			prefs[key] = cfg.get_value("prefs", key, prefs[key])
+	if loaded and cfg.has_section("graphics"):
 		first_run = false
 		var base := DeviceProfile.from_preset(String(cfg.get_value("graphics", "preset", "medium")))
 		for key in base.keys():
@@ -50,8 +56,20 @@ func _apply_engine() -> void:
 	Engine.max_fps = int(current.get("fps_cap", 60))
 
 
+func get_pref(key: String, fallback: Variant = null) -> Variant:
+	return prefs.get(key, fallback)
+
+
+func set_pref(key: String, value: Variant) -> void:
+	prefs[key] = value
+	_save()
+	changed.emit(current)
+
+
 func _save() -> void:
 	var cfg := ConfigFile.new()
 	for key in current.keys():
 		cfg.set_value("graphics", key, current[key])
+	for key in prefs.keys():
+		cfg.set_value("prefs", key, prefs[key])
 	cfg.save(PATH)

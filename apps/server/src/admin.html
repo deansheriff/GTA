@@ -76,6 +76,35 @@ const views = {
       `<tr><td>${esc(e.ward)}</td><td>${esc(String(e.week_start).slice(0, 10))}</td><td>${esc(e.status)} ${e.flagged ? '<b class="bad">FROZEN</b>' : ''}</td><td>${e.votes}</td><td>${esc(e.policy || '')}</td>
        <td>${e.flagged ? `<button onclick="elAct(${e.id},'unfreeze')">Unfreeze</button>` : `<button onclick="elAct(${e.id},'freeze')">Freeze</button>`} <button class="bad" onclick="elAct(${e.id},'rerun')">Re-run</button> <button onclick="elAct(${e.id},'count')">Count now</button></td></tr>`).join('') + '</table>';
   },
+  async News() {
+    const n = await api('/api/admin/news');
+    const b = await api('/api/admin/banter?status=pending');
+    window.newsAct = async (id, a) => { await api(`/api/admin/news/${id}/${a}`, {}); show('News'); };
+    window.banter = async (a, body) => { await api(`/api/admin/banter/${a}`, body); show('News'); };
+    window.runNews = async () => { const r = await api('/api/admin/news/run', {}); alert(`Added ${r.added}, classified ${r.classified}, ${r.lines} new lines`); show('News'); };
+    const byStory = {};
+    for (const l of b.lines) (byStory[l.news_id] = byStory[l.news_id] || { title: l.title, outlet: l.outlet, url: l.url, lines: [] }).lines.push(l);
+    return '<h2>Banter waiting for review</h2><p class="muted">Sample each story\'s lines, then approve or reject them. Only approved lines reach players, always with the source link.</p>' +
+      Object.entries(byStory).map(([id, s]) => `<div class="stat"><b style="font-size:16px">${esc(s.title)}</b><div class="muted">via ${esc(s.outlet)} · <a href="${esc(s.url)}" target="_blank" rel="noopener">source</a></div>` +
+        s.lines.map((l) => `<div>[${esc(l.archetype)}] ${esc(l.text)} <button onclick="banter('reject',{ids:[${l.id}]})">✕</button></div>`).join('') +
+        `<div class="row"><button onclick="banter('approve',{news:${id}})">Approve all</button><button class="bad" onclick="banter('reject',{news:${id}})">Reject all</button></div></div>`).join('') +
+      '<h2>Stories</h2><div class="row"><button onclick="runNews()">Fetch feeds now</button></div><table><tr><th>Story</th><th>Category</th><th>Flags</th><th>Banter</th><th></th></tr>' + n.items.map((i) =>
+        `<tr><td>${esc(i.title)}<div class="muted">${esc(i.outlet)} · ${esc(i.summary || '')}</div></td><td>${esc(i.category || '')}</td><td class="muted">${Object.entries(i.sensitivity || {}).filter(([, v]) => v).map(([k]) => esc(k)).join(', ')}</td><td>${i.eligible ? '✓' : '—'}</td>
+         <td>${i.eligible ? `<button class="bad" onclick="newsAct(${i.id},'block')">Block</button>` : `<button onclick="newsAct(${i.id},'allow')">Allow</button>`}</td></tr>`).join('') + '</table>';
+  },
+  async AI() {
+    const f = await api('/api/admin/flags');
+    const u = await api('/api/admin/ai');
+    const c = await api('/api/admin/npc-chats');
+    window.setFlag = async (key, value) => { await api('/api/admin/flags', { key, value }); show('AI'); };
+    const toggles = ['ai_enabled', 'news_enabled', 'banter_enabled', 'live_chat_enabled', 'news_auto_publish'].map((k) =>
+      `<label class="stat"><input type="checkbox" ${f.flags[k] ? 'checked' : ''} onchange="setFlag('${k}', this.checked)"> ${k.replace(/_/g, ' ')}</label>`).join('');
+    return `<h2>Kill switches</h2><p class="muted">Gemini ${f.ai.configured ? 'configured' : '<b class="bad">not configured</b>'} · spent today $${Number(f.ai.spentToday).toFixed(4)} of $${f.ai.budget} · feeds: ${esc(f.feeds.join(', ') || 'none (set NEWS_FEEDS)')}</p><div class="stats">${toggles}</div>
+      <div class="row">Blocked categories <input id="bc" value="${esc((f.flags.blocked_categories || []).join(','))}" size="40"><button onclick="setFlag('blocked_categories', document.getElementById('bc').value.split(',').map(s=>s.trim()).filter(Boolean))">Save</button></div>
+      <div class="row">Blocked outlets <input id="bo" value="${esc((f.flags.blocked_outlets || []).join(','))}" size="40"><button onclick="setFlag('blocked_outlets', document.getElementById('bo').value.split(',').map(s=>s.trim()).filter(Boolean))">Save</button></div>
+      <h2>AI usage</h2><table><tr><th>Day</th><th>Purpose</th><th>Calls</th><th>Failures</th><th>Tokens in/out</th><th>USD</th></tr>${u.usage.map((r) => `<tr><td>${esc(String(r.day).slice(0, 10))}</td><td>${esc(r.purpose)}</td><td>${r.calls}</td><td>${r.failures}</td><td>${r.input_tokens}/${r.output_tokens}</td><td>${Number(r.usd).toFixed(4)}</td></tr>`).join('')}</table>
+      <h2>Talk-to-NPC log</h2><table>${c.chats.map((x) => `<tr><td>${x.reported ? '<b class="bad">REPORTED</b> ' : ''}${esc(x.player)} → ${esc(x.npc)}</td><td>"${esc(x.player_text)}"</td><td>${esc(x.reply)}${x.fallback ? ' <span class="muted">(fallback)</span>' : ''}</td></tr>`).join('')}</table>`;
+  },
   async Audit() {
     const r = await api('/api/admin/actions');
     return '<h2>Audit trail</h2><table>' + r.actions.map((a) => `<tr><td class="muted">${esc(a.created_at)}</td><td>${esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.target)}</td></tr>`).join('') + '</table>';
