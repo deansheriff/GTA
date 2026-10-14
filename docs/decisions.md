@@ -149,3 +149,27 @@ That renderer runs on low-end phones.
 
 **Supersedes:** the client options in the Phase 3 proposal §3.1 (Phaser + Preact),
 and the web/PWA-specific parts of §4.3 and §8.
+
+## D-006 · Self-hosted server on Coolify behind Cloudflare · 2026-10-14
+**Decision:** The multiplayer server runs on the owner's self-hosted **Coolify**,
+exposed through **Cloudflare**, the same setup used for the earlier prototype.
+
+**The stack** (`compose.yaml`):
+- `app`: Node 22, Fastify, a WebSocket endpoint at `/ws`, the API at `/api/*`.
+- `postgres`: PostgreSQL 17 on a private volume.
+
+**Secrets:** `POSTGRES_PASSWORD` and later `GEMINI_API_KEY` live only in Coolify. The
+APK holds no secrets; each phone gets a guest token from the server.
+
+**Realtime design:**
+- Rooms per district, 80 players each, overflowing to `yaba-2` and onwards.
+- Movement is validated against speed limits (anti-teleport).
+- Each player receives only nearby players who changed (interest radius
+  1,600 px, 10 Hz), so standing still costs about 0 bytes.
+- The server pings every 30 s to stay inside Cloudflare's idle timeout.
+
+**Verified:**
+- Locally: unit and WebSocket integration tests, a smoke test, and the Godot game
+  showing three bot players with name tags.
+- CI builds the Docker image and smoke-tests it against Postgres.
+- The real Coolify deploy is done by the owner (docs/COOLIFY.md).

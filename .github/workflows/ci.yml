@@ -30,3 +30,24 @@ jobs:
         run: ./godot --headless --path game --import
       - name: Unit tests
         run: ./godot --headless --path game --script res://tests/run_tests.gd
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build and start the Coolify stack (app + Postgres)
+        env:
+          POSTGRES_PASSWORD: ci-only-password
+        run: |
+          docker compose -f compose.yaml -f .github/compose.ci.yaml up -d --build
+          for i in $(seq 1 40); do curl -fs http://127.0.0.1:8787/api/health && break; sleep 3; done
+      - name: Smoke test (health + two players over WebSocket)
+        run: node scripts/smoke-ws.mjs http://127.0.0.1:8787
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f compose.yaml -f .github/compose.ci.yaml logs --no-color

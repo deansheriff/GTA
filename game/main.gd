@@ -24,6 +24,8 @@ var modulate_node: CanvasModulate
 var lights_on: Array[PointLight2D] = [] # street and window lights (need NEPA)
 var lights_gen: Array[PointLight2D] = [] # generator-powered lights
 var painted_mat: ShaderMaterial
+## Other players on this street: id -> { walker, danfo, target, code, mode, heading }
+var remotes := {}
 
 var mode := "walking"
 var night := false
@@ -45,6 +47,8 @@ func _ready() -> void:
 			shots_dir = a.trim_prefix("--shots=")
 		elif a.begins_with("--preset="):
 			Settings.use_preset(a.trim_prefix("--preset="))
+		elif a.begins_with("--server="):
+			Net.server = a.trim_prefix("--server=")
 		elif a == "--perf-no-terrain":
 			_perf_flags["no_terrain"] = true
 		elif a == "--perf-no-vignette":
@@ -62,6 +66,11 @@ func _ready() -> void:
 	hud.enter_exit.connect(_enter_exit)
 	Settings.changed.connect(_apply_settings)
 	_apply_settings(Settings.current)
+	Net.met.connect(_on_met)
+	Net.moved.connect(_on_moved)
+	Net.gone.connect(_on_gone)
+	Net.status_changed.connect(func(_t: String) -> void: _push_state())
+	Net.start({ "look": _look_to_wire(player.look), "x": int(player.position.x), "y": int(player.position.y) })
 	if _perf_flags.get("no_terrain", false):
 		terrain.material = null
 		terrain.color = Color("#8a7656")
@@ -377,6 +386,8 @@ func _process(delta: float) -> void:
 				n.idle_t = randf_range(0.5, 3.0)
 		n.step(dt, Vector2.ZERO, world)
 
+	_net_tick(dt)
+
 	if night:
 		outage_t -= dt
 		if outage_t <= 0.0:
@@ -406,6 +417,89 @@ func _shake(t: float) -> void:
 
 func _push_state() -> void:
 	hud.set_state(mode, mode == "walking" and _near_danfo(), night, nepa_on, fps)
+	hud.set_online("%s · %d nearby" % [Net.status_text(), remotes.size()] if Net.is_online() else Net.status_text())
+
+
+# ---------- multiplayer ----------
+
+func _look_to_wire(look: Dictionary) -> Dictionary:
+	var out := {}
+	for k in look.keys():
+		var v: Variant = look[k]
+		out[k] = "#" + (v as Color).to_html(false) if v is Color else String(v)
+	return out
+
+
+func _look_from_wire(look: Dictionary) -> Dictionary:
+	var out := WalkerScript.random_look(look.hash())
+	for k in look.keys():
+		var v := String(look[k])
+		out[k] = Color(v) if v.begins_with("#") else v
+	return out
+
+
+func _on_met(id: int, name_: String, look: Dictionary) -> void:
+	if remotes.has(id):
+		return
+	var w: Node2D = WalkerScript.new()
+	w.look = _look_from_wire(look)
+	w.display_name = name_
+	w.material = painted_mat
+	w.visible = false # shown on first position
+	entities.add_child(w)
+	var d: Node2D = DanfoScript.new()
+	d.material = painted_mat
+	d.visible = false
+	entities.add_child(d)
+	remotes[id] = { "walker": w, "danfo": d, "target": Vector2.INF, "code": 0, "mode": 0, "heading": 0.0 }
+	_push_state()
+
+
+func _on_moved(id: int, pos: Vector2, code: int, mode_: int, heading_deg: float) -> void:
+	var r: Dictionary = remotes.get(id, {})
+	if r.is_empty():
+		return
+	var w: Node2D = r["walker"]
+	if r["target"] == Vector2.INF:
+		w.position = pos
+		(r["danfo"] as Node2D).position = pos
+	r["target"] = pos
+	r["code"] = code
+	r["mode"] = mode_
+	r["heading"] = deg_to_rad(heading_deg)
+
+
+func _on_gone(id: int) -> void:
+	var r: Dictionary = remotes.get(id, {})
+	if r.is_empty():
+		return
+	(r["walker"] as Node).queue_free()
+	(r["danfo"] as Node).queue_free()
+	remotes.erase(id)
+	_push_state()
+
+
+func _net_tick(dt: float) -> void:
+	var pos: Vector2 = danfo.position if mode == "driving" else player.position
+	var heading_deg := rad_to_deg(danfo.heading) if mode == "driving" else 0.0
+	Net.send_move(pos, player.facing_code(), 1 if mode == "driving" else 0, heading_deg)
+	for id in remotes:
+		var r: Dictionary = remotes[id]
+		if r["target"] == Vector2.INF:
+			continue
+		var w: Node2D = r["walker"]
+		var d: Node2D = r["danfo"]
+		var driving: bool = r["mode"] == 1
+		w.visible = not driving
+		d.visible = driving
+		if driving:
+			d.position = d.position.lerp(r["target"], minf(1.0, dt * 10.0)) if d.position.distance_to(r["target"]) < 320.0 else r["target"]
+			d.heading = lerp_angle(d.heading, r["heading"], minf(1.0, dt * 10.0))
+			d.queue_redraw()
+			w.position = d.position
+		else:
+			w.follow(dt, r["target"], r["code"])
+			d.position = w.position
 
 
 # ---------- demo / screenshots ----------

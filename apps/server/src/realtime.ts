@@ -1,0 +1,126 @@
+import type { FastifyInstance } from 'fastify';
+import type { WebSocket } from 'ws';
+import { RoomManager, TICK_HZ, sanitizeLook, sanitizeName, type Room } from './rooms.ts';
+import type { Store } from './store.ts';
+
+/**
+ * WebSocket protocol at /ws (JSON, compact). The first client message must be "hello".
+ *
+ * client → server
+ *   {"t":"hello","token"?,"name","look","district","x","y"}
+ *   {"t":"move","x","y","f","m","h"}        at most ~10/s, only when something changed
+ * server → client
+ *   {"t":"welcome","id","room","token"?}    token only for a newly created guest
+ *   {"t":"snap","meet"?:[{id,name,look}],"p"?:[[id,x,y,f,m,h]],"gone"?:[id]}   ~10/s, only if non-empty
+ *   {"t":"err","code"}
+ */
+const MAX_MSG_BYTES = 2048;
+const MAX_MSGS_PER_SEC = 30;
+const MAX_STRIKES = 40;
+const DISTRICTS = new Set(['yaba']);
+
+interface Session {
+  socket: WebSocket;
+  room?: Room;
+  memberId?: number;
+  playerId?: string;
+  msgWindowStart: number;
+  msgCount: number;
+}
+
+export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; stop: () => void } {
+  const rooms = new RoomManager();
+  const sessions = new Set<Session>();
+
+  const send = (s: Session, msg: unknown) => {
+    if (s.socket.readyState === s.socket.OPEN) s.socket.send(JSON.stringify(msg));
+  };
+
+  app.get('/ws', { websocket: true }, (socket) => {
+    const s: Session = { socket, msgWindowStart: Date.now(), msgCount: 0 };
+    sessions.add(s);
+
+    socket.on('message', async (raw: Buffer) => {
+      // Basic flood protection: size and rate per connection.
+      const now = Date.now();
+      if (now - s.msgWindowStart > 1000) { s.msgWindowStart = now; s.msgCount = 0; }
+      if (++s.msgCount > MAX_MSGS_PER_SEC || raw.length > MAX_MSG_BYTES) {
+        send(s, { t: 'err', code: 'rate_limited' });
+        return;
+      }
+      let msg: Record<string, unknown>;
+      try {
+        msg = JSON.parse(raw.toString('utf8'));
+      } catch {
+        send(s, { t: 'err', code: 'bad_json' });
+        return;
+      }
+
+      if (msg.t === 'hello' && s.memberId === undefined) {
+        const name = sanitizeName(msg.name);
+        const look = sanitizeLook(msg.look);
+        let token: string | undefined;
+        let player = typeof msg.token === 'string' && msg.token.length < 200 ? await store.findByToken(msg.token) : null;
+        if (!player) {
+          const created = await store.createGuest(name, look);
+          player = created.player;
+          token = created.token;
+        } else {
+          await store.touch(player.id, name, look);
+        }
+        const district = typeof msg.district === 'string' && DISTRICTS.has(msg.district) ? msg.district : 'yaba';
+        const room = rooms.pick(district);
+        s.room = room;
+        s.playerId = player.id;
+        s.memberId = room.join(player.id, name, look, Number(msg.x) || 0, Number(msg.y) || 0, now);
+        send(s, { t: 'welcome', id: s.memberId, room: room.name, ...(token ? { token } : {}) });
+        return;
+      }
+
+      if (msg.t === 'move' && s.room && s.memberId !== undefined) {
+        s.room.move(s.memberId, Number(msg.x), Number(msg.y), Number(msg.f) || 0, msg.m === 1 ? 1 : 0, Number(msg.h) || 0, now);
+        if (s.room.strikes(s.memberId) > MAX_STRIKES) {
+          send(s, { t: 'err', code: 'kicked_speed' });
+          socket.close(4001, 'speed');
+        }
+        return;
+      }
+
+      send(s, { t: 'err', code: 'unexpected' });
+    });
+
+    socket.on('close', () => {
+      if (s.room && s.memberId !== undefined) s.room.leave(s.memberId);
+      sessions.delete(s);
+      rooms.prune();
+    });
+  });
+
+  // Broadcast loop: each player gets only nearby players that changed.
+  const timer = setInterval(() => {
+    for (const s of sessions) {
+      if (!s.room || s.memberId === undefined) continue;
+      const snap = s.room.snapshotFor(s.memberId);
+      if (snap.meet.length === 0 && snap.rows.length === 0 && snap.gone.length === 0) continue;
+      send(s, {
+        t: 'snap',
+        ...(snap.meet.length ? { meet: snap.meet } : {}),
+        ...(snap.rows.length ? { p: snap.rows } : {}),
+        ...(snap.gone.length ? { gone: snap.gone } : {}),
+      });
+    }
+  }, 1000 / TICK_HZ);
+
+  // Keep connections alive through Cloudflare's ~100 s idle timeout.
+  const ping = setInterval(() => {
+    for (const s of sessions) if (s.socket.readyState === s.socket.OPEN) s.socket.ping();
+  }, 30_000);
+
+  return {
+    rooms,
+    stop: () => {
+      clearInterval(timer);
+      clearInterval(ping);
+    },
+  };
+}

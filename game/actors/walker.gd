@@ -17,6 +17,7 @@ var anim_fps := 10.0
 var target := Vector2.INF
 var idle_t := 0.0
 var _drawn_key := ""
+var display_name := ""
 
 
 static func tunde() -> Dictionary:
@@ -65,6 +66,35 @@ func step(delta: float, dir: Vector2, world: Layout.WorldData) -> void:
 	else:
 		anim_t = 0.0
 	# Moving the node is free; only re-draw when the pose actually changes (~anim_fps, not every frame).
+	var key := "%s%s%d%s" % [facing, flip, int(anim_t) % 4, velocity.length() > 1.0]
+	if key != _drawn_key:
+		_drawn_key = key
+		queue_redraw()
+
+
+## Facing as a network code: 0 down, 1 up, 2 right, 3 left.
+func facing_code() -> int:
+	if facing == "side":
+		return 3 if flip else 2
+	return 1 if facing == "up" else 0
+
+
+## Remote players: glide toward the latest server position (snapshots arrive ~10/s).
+func follow(delta: float, tgt: Vector2, code: int) -> void:
+	var to := tgt - position
+	var d := to.length()
+	if d > 320.0:
+		position = tgt
+		velocity = Vector2.ZERO
+	elif d > 0.8:
+		position = position.move_toward(tgt, maxf(speed * 1.6, d * 8.0) * delta)
+		velocity = to.normalized() * speed
+		anim_t += delta * anim_fps
+	else:
+		velocity = Vector2.ZERO
+		anim_t = 0.0
+	facing = ["down", "up", "side", "side"][clampi(code, 0, 3)]
+	flip = code == 3
 	var key := "%s%s%d%s" % [facing, flip, int(anim_t) % 4, velocity.length() > 1.0]
 	if key != _drawn_key:
 		_drawn_key = key
@@ -132,3 +162,7 @@ func _draw() -> void:
 		draw_arc(hc + Vector2(0, 4.5), 2.6, 0.2, PI - 0.2, 8, Color(0.25, 0.1, 0.06), 1.2)
 	elif facing == "side":
 		draw_circle(hc + Vector2(5.0 * sx, 1.0), 1.6, Ink.COLOR)
+	if display_name != "":
+		var font := ThemeDB.fallback_font
+		draw_string_outline(font, Vector2(-60, -56), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, 4, Ink.COLOR)
+		draw_string(font, Vector2(-60, -56), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color("#f1e6c8"))

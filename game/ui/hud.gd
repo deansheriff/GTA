@@ -13,6 +13,7 @@ const PAPER := Color("#f1e6c8")
 var joystick: Control
 var _stats: PanelContainer
 var _stats_label: Label
+var _online_label: Label
 var _action: Button
 var _toast: Label
 var _toast_t := 0.0
@@ -34,11 +35,19 @@ func _ready() -> void:
 	root.add_child(title)
 
 	_stats = _panel_label("", 15)
-	_stats.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_stats.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_stats.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_stats.position = Vector2(-12, 12)
+	_stats.offset_right = -12
+	_stats.offset_top = 12
 	root.add_child(_stats)
 	_stats_label = _stats.get_meta("label")
+	var online := _panel_label("Offline", 14)
+	online.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	online.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	online.offset_right = -12
+	online.offset_top = 56
+	root.add_child(online)
+	_online_label = online.get_meta("label")
 
 	var col := VBoxContainer.new()
 	col.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
@@ -98,6 +107,10 @@ func set_state(mode: String, near_danfo: bool, night: bool, nepa_on: bool, fps: 
 	_stats_label.text = "%d fps   %s   %s" % [fps, "Night" if night else "Day", "Light dey" if nepa_on else "No light"]
 	_action.visible = near_danfo or mode == "driving"
 	_action.text = "Comot from danfo" if mode == "driving" else "Enter Baba God Dey"
+
+
+func set_online(text: String) -> void:
+	_online_label.text = text
 
 
 func toast(text: String, big := false) -> void:
@@ -163,6 +176,24 @@ func _show_settings(root: Control) -> void:
 	card.add_child(_choice("Text size", "ui_scale", [[1.0, "Normal"], [1.2, "Large"], [1.4, "Larger"]]))
 	card.add_child(_toggle("Reduce motion (no screen shake)", s.get("reduced_motion", false), func(v: bool) -> void: Settings.set_value("reduced_motion", v)))
 	card.add_child(_toggle("Weather", s.get("weather", true), func(v: bool) -> void: Settings.set_value("weather", v)))
+	# Online: your Coolify server address (docs/COOLIFY.md) and display name.
+	var online_h := Label.new()
+	online_h.text = "Online"
+	online_h.add_theme_font_size_override("font_size", 20)
+	card.add_child(online_h)
+	var server_edit := LineEdit.new()
+	server_edit.placeholder_text = "Server address, e.g. game.your-domain.com"
+	server_edit.text = Net.server
+	card.add_child(server_edit)
+	var name_edit := LineEdit.new()
+	name_edit.placeholder_text = "Your name on the street"
+	name_edit.text = Net.player_name
+	name_edit.max_length = 20
+	card.add_child(name_edit)
+	card.add_child(_button("Connect", func() -> void:
+		Net.set_server(server_edit.text, name_edit.text)
+		Net.start(Net._pending_hello)
+		_settings_panel.queue_free()))
 	card.add_child(_button("Close", func() -> void: _settings_panel.queue_free()))
 
 

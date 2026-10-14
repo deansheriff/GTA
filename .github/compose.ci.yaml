@@ -1,0 +1,5 @@
+# CI only: publish the app port so the smoke test can reach it. Coolify uses compose.yaml alone.
+services:
+  app:
+    ports:
+      - "8787:8787"

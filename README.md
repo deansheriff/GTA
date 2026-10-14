@@ -16,6 +16,7 @@ above at an angle.
   - night, and NEPA cuts ("UP NEPA!")
   - graphics presets suggested per device
   - runs at 60 fps
+  - **multiplayer:** connect to your server (Settings → Online) and see other players walk and drive
 - **Next:** painted art generated with Gemini (needs billing enabled on the Gemini API
   project), then Milestone 1, the Prologue.
 
@@ -23,7 +24,7 @@ above at an angle.
 | Path | What |
 |---|---|
 | `game/` | Godot project (GDScript): `core/` settings and helpers, `world/` layout, `actors/`, `shaders/`, `ui/`, `tests/` |
-| `apps/server/` | TypeScript (Fastify) API: saves, marketplace, polls and news come here |
+| `apps/server/` | TypeScript (Fastify) server: realtime multiplayer (`/ws`), API, PostgreSQL; deploys to Coolify via `compose.yaml` ([guide](docs/COOLIFY.md)) |
 | `tools/art/` | Gemini art generator with a spend ledger and budget stop |
 | `scripts/build.ps1` | Tests and debug APK |
 | `docs/` | Research, proposal, decisions, story |
@@ -44,3 +45,4 @@ npm run dev:server          # API on http://localhost:8787 (reads GEMINI_API_KEY
 - [Reference game research notes](docs/research/01-reference-game-notes.md)
 - [Decision log](docs/decisions.md)
 - [Build notes](docs/BUILD.md)
+- [Deploy the server on Coolify + Cloudflare](docs/COOLIFY.md)
