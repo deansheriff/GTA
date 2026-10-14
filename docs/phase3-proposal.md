@@ -1,6 +1,6 @@
 # Naija Street Life — Phase 3 Proposal
 
-*Draft v0.1, 2026-10-14. For owner approval. **No code is written until this is approved.***
+*Draft v0.2, 2026-10-14 (Jev removed; Gemini for NPC AI, D-003). For owner approval. **No code is written until this is approved.***
 
 **Inputs:**
 - [Phase 2 report](phase2-findings-report.md)
@@ -25,7 +25,7 @@ city, a gig board that pays real people, and mini-games that pay real data.
 |---|---|---|
 | Story | Three-choice pop-up vignettes | **"Up NEPA!"**: 3 switchable heroes, 4 acts, 4 endings |
 | Lagos | Stock-kit 3D diorama; travel is a fade | Painted districts; **danfo rides, go-slow, conductors are gameplay** |
-| NPCs | Labels and toasts | **Jev-driven decisions** plus pre-generated, guard-railed dialogue that reacts to real news |
+| NPCs | Labels and toasts | **Persona-driven NPCs** (rules + Gemini) with guard-railed dialogue that reacts to real news, plus optional live chat |
 | Safety | Feed and gig board flooded with scams and solicitation | Verified tiers, pre-moderation, escrow-only gigs, scam detection |
 | Economy | Hyper-inflated and black-market traded | Non-transferable game money, real sinks, stable prices |
 | Rewards | Game money only | **Real data and airtime** from free-entry skill games ⚖️ |
@@ -48,7 +48,7 @@ city, a gig board that pays real people, and mini-games that pay real data.
 | 2. Profiles and skills | **Full** in-game profile, skills, CV, portfolio text | External portfolio links and verification |
 | 1. Gig marketplace | **Game-money** gig board with ratings, filters and anti-spam | **Real-naira** gigs with licensed escrow ⚖️ |
 | 4. Polls and elections | **Community polls** and **fictional ward elections** (weekly) | Story Act 3 election; state-level offices |
-| 6. Jev NPC decisions | Ambient NPC choices in 2 districts, with rules fallback | All districts, side-mission improvisation |
+| 6. NPC brains (rules + Gemini) | Rules-based NPC decisions in 2 districts, plus cached Gemini archetype calls | All districts, side-mission improvisation, live "Talk to NPC" chat (F8-B) |
 | 7. News service | Ingest, classify and summarise pipeline **running internally**, with a review dashboard | Live in-game radio and gist after a review period |
 | 8. NPC news talk | Off in the MVP; internal review only | On, with guardrails and a player toggle |
 | 5. Data/airtime games | Mini-games playable **for points only** | Real prizes **after legal sign-off** and FCCPC registration ⚖️ |
@@ -100,8 +100,8 @@ city, a gig board that pays real people, and mini-games that pay real data.
 - `realtime`: Colyseus rooms per venue/district; presence and chat.
 - `workers`, on a BullMQ (Redis) queue:
   - news ingest
-  - Jev decision batches
-  - Claude batch dialogue generation
+  - Gemini archetype-decision batches
+  - Gemini batch dialogue generation
   - prize fulfilment
   - moderation
 - `admin`: a moderation queue, a news review dashboard, election audit, and kill switches.
@@ -121,8 +121,7 @@ city, a gig board that pays real people, and mini-games that pay real data.
 ### 3.3 Third-party services (each needs a key or account; I'll ask before signing up or spending)
 | Need | Proposed | Notes |
 |---|---|---|
-| NPC decisions | **TypeSafe Jev** (`jev-1.13`) | $0.042/M input tokens; output free; 80 rps / 100k tok/s [V docs] |
-| NPC dialogue and news summaries | **Claude** via Anthropic API (§9) | Batch API for pre-generation (50% off) |
+| NPC dialogue, live NPC chat, archetype decisions, news summaries, classification | **Google Gemini API, paid tier** (D-003): `gemini-3.1-flash-lite` default, `gemini-3.8-flash` optional | Batch API 50% off; context caching. The free tier isn't used because of its data-use terms [V] |
 | Payments (later) | **Paystack** or **Flutterwave** | Requires a CAC-registered company [V] |
 | Airtime/data | **VTpass** / **Reloadly** / Flutterwave Bills | Prices not public; get rate cards [V/I] |
 | OTP / phone verification | **Termii** or similar, with WhatsApp OTP fallback | ~$0.0055–0.008 per SMS on clean routes [V vendor blog] |
@@ -270,7 +269,7 @@ spine:   nsl_spine_{name}.skel + nsl_spine_{name}_{tier}.atlas
 - **Anti-spam and fraud:**
   - Verified phone required to post or apply.
   - New-account limits.
-  - Jev classifiers for solicitation, scams and off-platform payment requests
+  - Classifiers (keyword rules + Gemini) for solicitation, scams and off-platform payment requests
     (bank numbers, "send to my Opay").
   - Duplicate-post detection; price sanity checks.
   - Report → moderator queue.
@@ -351,7 +350,7 @@ for showing a profile in public search ⚖️.
 **Candidates are players and NPCs:**
 - **Players** must be phone-verified, account ≥ 14 days old, level ≥ 8 and clean
   of strikes, and pay a game-money nomination fee. Slogans are pre-moderated.
-- **NPCs** are fictional candidates with platforms; Jev decides their campaign
+- **NPCs** are fictional candidates with platforms; a rules-based campaign planner, with cached Gemini judgement calls, decides their campaign
   moves.
   - This keeps ballots meaningful even in quiet wards.
   - It satisfies "fictional candidates by default".
@@ -359,7 +358,7 @@ for showing a profile in public search ⚖️.
 
 **Who votes:**
 - Players: **one vote per verified phone number per election.**
-- NPC voters are simulated **in aggregate** (Jev-scored voting blocs:
+- NPC voters are simulated **in aggregate** (voting blocs scored by rules plus cached Gemini archetype opinions:
   traders, drivers, students) and shown as a separate "NPC turnout" bar.
   Their weight is capped at 50% of the total.
 
@@ -379,7 +378,7 @@ for showing a profile in public search ⚖️.
   - "Danfo Fare Cap"
   - "Clean Gutters" (less flooding)
 - Policies last one term and are shown on billboards.
-- NPCs comment on them, and Jev uses the policy as state when deciding behaviour.
+- NPCs comment on them, and the NPC decision layer uses the policy as an input.
 
 **Story Act 3:**
 - The Agbado-Ketu Central election is a **single-player simulation** using the
@@ -452,57 +451,55 @@ for showing a profile in public search ⚖️.
    - consent records
 7. NCC rules on SMS/OTP and DND [I].
 
-### F6. Jev for NPC decisions
+### F6. NPC brains: rules + Gemini (no Jev, per D-003)
 **Architecture: a three-layer "brain".**
 1. **Reflex layer (client, free, every frame):** utility AI and state machines for
    walking, queueing, reacting to the player, and bumping. No API.
-2. **Decision layer (server, Jev):** *meaningful* choices at low cadence:
+2. **Decision layer (server, rules first):** *meaningful* choices at low cadence:
    - what to buy, whether to haggle
    - which gig to accept, which candidate to back
    - how to react to a hero's Gist, Stare or Go Live
    - which side to take in an argument, which mood to adopt after news
-   Each call carries a **compact state** (persona sheet, needs, money, relationship
-   to the hero, the last 5 memories, local events and policies) and a **legal
-   action list**.
-3. **Voice layer (Claude, pre-generated):** lines that match the chosen action. See §9.
 
-**Cost per call [I]:**
-- About 1,500 input tokens × $0.042/M ≈ **$0.000063 per call**.
-- Several questions per call (Jev evaluates questions in parallel [V]).
+   These use **weighted utility scoring** from each NPC's persona sheet, needs,
+   money, relationship to the hero, recent memories, and local events and policies.
+   It's deterministic and costs nothing to run.
+   - **Gemini (structured output, enum answers)** only handles **archetype-level**
+     judgement calls that rules can't express well. Examples: "how do traders feel
+     about today's fuel-price topic?" or "which campaign promise lands with okada
+     riders?"
+   - The result is **cached** and shared by every NPC of that archetype for hours.
+     There are no per-NPC live calls.
+3. **Voice layer (Gemini):** lines matching the chosen action and mood. See F8.
 
-**Scale example [I]:**
-- 10k daily players × 60 decisions each = 600k calls/day ≈ **$38/day**.
-- About 7 requests/s on average, but evening peaks near **the 80 rps limit** [V].
-- So we:
-  - **batch** NPCs in a venue into one call
-  - **cache** decisions by (archetype, situation hash) for 10–30 in-game minutes;
-    crowds of similar NPCs share them
-  - negotiate higher limits (enterprise) before launch
+**Why not call Gemini for every NPC decision** [V prices, I volumes]:
+- At 600k decisions/day × ~1,500 input tokens on `gemini-3.1-flash-lite`
+  ($0.25/M in, $1.50/M out), that's about **$250–300/day**.
+- Latency would be several hundred ms or more.
+- Archetype caching cuts this to roughly **5–20k calls/day, about $2–10/day**.
+  Rules cover the rest.
 
-**Latency:**
-- Decisions are **asynchronous and anticipatory**: NPCs pick their next action
-  while doing the current one.
-- Timeout 400 ms, then **fall back to rules** (weighted utility).
-- The player never waits on Jev.
+**Latency:** Gemini calls are **asynchronous and anticipatory**: decisions are
+precomputed per archetype and situation. The player never waits on an AI call.
 
 **Fallbacks:**
-- Deterministic rules for every decision type.
-- A circuit breaker opens after X errors.
-- An admin "Jev off" switch.
+- Every decision type has a rules path, so the game is fully playable with AI off.
+- A circuit breaker and an admin "AI off" switch.
 
 **Consistency:**
-- A persona sheet per NPC: traits, values, catchphrases, political lean
-  (fictional parties only), a **memory log** of key events, and a seeded RNG.
-- Decisions are **validated** before execution: the action must be legal and
+- **Persona sheets:** traits, values, catchphrases, political lean (fictional
+  parties only), a **memory log** of key events, and a seeded RNG.
+- Every AI output is **schema-validated**, and the chosen action must be legal and
   affordable.
-- Options are shuffled to counter Jev's first-option bias [V docs].
-- No maths in prompts; compute in code [V docs].
+- Maths and dates are computed in code, never asked of the model.
 
-**Gaps to test in M3:**
-- Pidgin/Yoruba/Igbo/Hausa state text: English is Jev's strongest language [V].
-  We keep state fields in English and translate only the output lines.
-- Early-access limit changes [V].
-- Data-retention terms: ask TypeSafe.
+**What we lose by dropping Jev:**
+- Jev's per-call cost (~$0.00006) and speed made **per-NPC live decisions**
+  affordable. Gemini makes that roughly 10× more expensive, so the design moves to
+  rules plus cached archetype decisions.
+- Players won't notice much in ambient behaviour. If we ever want
+  "every NPC thinks independently", Jev, or a small self-hosted model, can be
+  reconsidered.
 
 ### F7. News service
 **Sources (in order of preference):**
@@ -519,10 +516,10 @@ for showing a profile in public search ⚖️.
 - Poll every 15–30 minutes; conditional GET (ETag).
 - **Dedupe:** canonical URL, then title shingles/simhash, then optional embedding
   clustering into "stories".
-- **Categorise (Jev choice):** economy, fuel/power, transport, weather, sports,
+- **Categorise (Gemini, structured output):** economy, fuel/power, transport, weather, sports,
   entertainment, tech, politics, security, health, tragedy.
 
-**Sensitivity scoring (Jev noul/score):**
+**Sensitivity scoring (Gemini, structured yes/no and 0–1 scores):**
 - Involves death or injury?
 - Elections or politicians?
 - Religion or ethnicity?
@@ -531,7 +528,7 @@ for showing a profile in public search ⚖️.
 - Names a private person?
 
 **Summaries:**
-- **Claude** writes a **1–2 sentence neutral summary in our own words** from the
+- **Gemini** writes a **1–2 sentence neutral summary in our own words** from the
   headline and lede only.
 - It always carries **source name, link and time**. No article text is stored or
   shown beyond the headline [brief rule].
@@ -567,40 +564,74 @@ every news-driven line or radio item.
    - **Elections and politicians: no opinions on real parties or candidates.**
      NPCs may mention *that* an event is happening (e.g. "voting is next week"),
      never who to support.
-4. **Generation flow:** lines are **pre-generated in batches** (Claude Batch API),
-   then automatically checked (Jev classifiers plus a banned-entity list), then
-   **human review sampling**, then published to the line bank.
-   - **Nothing reaches players straight from a live model call.**
+4. **Two conversation modes, both on Gemini (D-003):**
+   - **A. Ambient banter (MVP):**
+     - Passenger arguments, market gist, radio, and news reactions.
+     - **Pre-generated in batches** (Gemini Batch API, 50% off).
+     - Each batch is automatically checked (Gemini classifier pass, a
+       banned-entity list, and a real-person-name detector), then **sampled by a
+       person for review**, then published to the line bank.
+     - **Nothing in this mode comes from a live model call.**
+   - **B. "Talk to NPC" live chat (after M3, behind a flag):** the player types or
+     picks prompts, and selected NPCs answer live in character.
+     - **Who and how much:**
+       - Verified players only.
+       - A daily reply cap per player (e.g. 20).
+       - Replies of 1–2 sentences.
+     - **Prompt-injection guard:**
+       - The persona and rules live in the system instruction.
+       - Player text is passed as quoted data.
+       - Players can't change who the NPC is.
+     - **What the NPC can mention:** news **topic cards** from the approved list
+       only, and no named real people.
+     - **Every reply is checked:**
+       - schema and length check
+       - banned-entity and real-name filter
+       - safety classifier (Gemini's own configurable safety filters plus ours [I])
+       - A failed check falls back to a canned in-character line ("Abeg, make we
+         talk another thing").
+     - **Oversight:** all exchanges are logged for review, every NPC reply has a
+       report button, and live chat has its own kill switch.
 5. **Kill switches:** global, per topic, per category and per outlet.
    - A **player toggle** ("News chatter: on/off") lives in Settings.
    - A **review dashboard** shows every published line with its source.
 6. **Story isolation:** story scenes never depend on news.
 
-**Dialogue cost [V prices, I volumes]:**
-- Example: 40 topic cards/day × 40 personas × 5 variants = 8,000 lines/day.
-- Each line is ~700 input tokens (mostly cached persona and style guide) plus
-  ~60 output tokens.
+**Dialogue cost** (Gemini paid tier, prices from ai.google.dev, updated 2026-10-14 [V]; volumes [I]):
 
-| Model | Price per M tokens (in / out) | Per line | Per day |
+| Model | Standard price per M tokens (in / out) | Batch | Notes |
 |---|---|---|---|
-| **Claude Haiku 5.5** | $0.10 / $0.50 | ≈ $0.0001 | **< $1/day** (Batch is half price) |
-| **Claude Opus 5.5** (default, most capable) | $4 / $20 | ≈ $0.004 | ≈ $30/day before batch and cache discounts; **≈ $10–15/day** with them [I] |
+| **`gemini-3.1-flash-lite`** ✅ default | $0.25 / $1.50 | $0.125 / $0.75 | Cheapest current model; no announced price rise |
+| `gemini-3.8-flash` | $0.75 / $3.75 → **$1.50 / $7.50 from 1 Jan 2027** | $0.375 / $1.875 → doubles | Better writing; use if Flash-Lite's Pidgin isn't good enough |
 
-- Thinking tokens add cost on Opus; we'd run at **low effort**.
-- We'd **evaluate both on a Pidgin-reviewed sample** and pick on quality. The model
-  choice is yours.
-
+- **A. Ambient banter:**
+  - Volume: 40 topics × 40 personas × 5 variants = 8,000 lines/day, each ~700 in
+    + ~60 out tokens.
+  - Cost: **≈ $1/day** on Flash-Lite batch; ≈ $3/day on 3.8 Flash batch (≈ $6
+    after Jan 2027).
+- **B. Live chat:**
+  - Per reply: ~2,000 in (persona, memory and rules; mostly context-cached) + ~80 out.
+  - Volume: 10k daily players × 20 replies = 200k replies/day.
+  - Cost on Flash-Lite: ≈ **$40–125/day** depending on cache hits.
+  - Cost on 3.8 Flash: ≈ $360/day, rising to ≈ $720 in 2027.
+  - **This is why live chat is capped and flagged.**
+- **Thinking tokens are billed as output** [V]. We use minimal thinking for line
+  generation.
+- **Use the paid tier only.** Google's free tier may use data "to improve our
+  products" [V]. Player messages must not go there, and this matters under the
+  NDPA ⚖️.
+- **Model choice:** we'd evaluate Flash-Lite vs. 3.8 Flash on a
+  Pidgin-reviewed sample, and you pick.
 ---
 
 ## 6. Story mode integration (with features 1–8)
 See Story Bible §11. Engineering rules:
 - **Story state** is a server-side save with a **flags + variables** model.
 - **Hero state** is separate per hero: location, stats, inventory.
-- **Off-screen simulation** runs on hero switch: a weighted event table, with Jev
-  allowed to pick among legal options.
+- **Off-screen simulation** runs on hero switch: a weighted event table (rules; Gemini may only write the flavour text).
 - **Missions** are data-driven: JSON/YAML mission scripts plus a small visual
   scripting layer for designers.
-- **Story-critical NPCs** have no Jev hooks.
+- **Story-critical NPCs** have no AI hooks.
 
 **Story deliverables 2–6** (mission list, ability spec, Prologue and Act 1 scripts,
 dialogue banks, integration spec) will be written **during M0–M1**, before the
@@ -619,7 +650,7 @@ matching code.
 | Payout-verified | Real-naira payouts | KYC via the payment provider ⚖️ |
 
 **Chat and feed:**
-- **Pre-send** classification (Jev):
+- **Pre-send** classification (fast keyword and pattern rules on every message; Gemini for borderline cases):
   - sexual content or solicitation
   - scam patterns: "send real money", account numbers, crypto
   - hate (ethnic or religious slurs)
@@ -676,20 +707,28 @@ A 13+ safe mode can be added later with chat restricted to presets.
 
 ---
 
-## 9. Claude usage summary
-- **Dialogue line banks:** NPC chatter, news reactions, switching-chat variants.
-- **News summaries.**
-- Possibly writer tooling (first drafts of barks for human editing).
-- **Not** used for live, unreviewed in-game generation at MVP.
+## 9. AI usage summary (Gemini only, per D-003)
+**What Gemini is used for:**
+- Ambient line banks (batch).
+- Live "Talk to NPC" chat (flagged and capped).
+- Archetype-level NPC judgement calls (cached).
+- News categorisation, sensitivity scoring and summaries.
+- Second-pass moderation on borderline chat and posts.
 
-| Model | Strength | Price per M tokens (in / out) |
+**Pricing** (paid tier):
+
+| Model | Standard (in / out per M tokens) | Batch |
 |---|---|---|
-| **Claude Opus 5.5** | Most capable | $4 / $20 |
-| **Claude Haiku 5.5** | Cheap and fast | $0.10 / $0.50 |
+| `gemini-3.1-flash-lite` (default) | $0.25 / $1.50 | half price |
+| `gemini-3.8-flash` | $0.75 / $3.75 now, $1.50 / $7.50 from 1 Jan 2027 [V] | half price |
 
-- **Batch API:** 50% off.
-- **Prompt caching:** cuts repeated persona and style-guide input.
-- We A/B test both on reviewed samples.
+**Rules that apply everywhere:**
+- Output is always schema-validated.
+- Everything has a rules or canned fallback.
+- **Only the paid tier is used.** The free tier may use data to improve Google's
+  products [V].
+- **Data protection:** ⚖️ an NDPA review covers sending player chat to Google,
+  including the data-processing agreement and cross-border transfer.
 
 ---
 
@@ -724,7 +763,8 @@ part-time native-speaker writers and reviewers [A]. Art is the critical path.*
 
 ### M3 — Civic and brains (≈ 6 weeks)
 - **Community polls and ward elections (F4)** with anti-fraud.
-- **Jev NPC decisions (F6)** in two districts.
+- **NPC brains (F6)** in two districts.
+- A **live "Talk to NPC" chat (F8-B)** pilot behind a flag.
 - **News pipeline (F7)** live internally with a review dashboard.
 - Story deliverable **6** (integration spec).
 - **Check-in:** public beta decision.
@@ -751,8 +791,9 @@ decisions. Everything legally gated stays behind feature flags until cleared.
 | Item | ~ per month |
 |---|---|
 | Hosting (API, realtime, Postgres, Redis, CDN) | $300–800 |
-| Jev | $1,000–1,200 (at ~600k calls/day; less with caching) |
-| Claude (line banks and summaries) | $30 (Haiku) – $450 (Opus) |
+| Gemini: archetype decisions and classification | $60–300 |
+| Gemini: line banks and summaries | $30–180 |
+| Gemini: live NPC chat (if enabled, capped at 20 replies/player/day) | $1,200–3,750 on Flash-Lite |
 | News API | $0–200 |
 | OTP SMS (e.g. 3k verifications/day × ~$0.007) | ~$630 |
 | Prizes | **Your budget**: a fixed pool, e.g. ₦500k–₦2m/month |
@@ -765,7 +806,7 @@ decisions. Everything legally gated stays behind feature flags until cleared.
 | Risk | Mitigation |
 |---|---|
 | Painting throughput is the bottleneck | Paper-doll NPCs, tile reuse, Blender pre-renders for vehicles, contractors |
-| Jev early-access limits or pricing change | Rules fallback for everything; abstraction layer; caching |
+| Gemini price rises (3.8 Flash doubles on 1 Jan 2027 [V]) or model retirement | Model ID kept in config; Flash-Lite as default; provider abstraction layer; rules fallback for everything |
 | Legal blocks prizes or the real-money marketplace | Both are behind flags; the game stands without them |
 | Slang or cultural misfires | Native-speaker review gate (Story Bible §10); community feedback |
 | Scam and solicitation waves | Verified tiers, pre-moderation, human moderators from beta |
@@ -777,7 +818,7 @@ decisions. Everything legally gated stays behind feature flags until cleared.
 1. **Approval of this proposal** (or changes).
 2. **Answers to the open questions** below, or OK to proceed on my [A] defaults.
 3. Who paints (or approval to brief contractors), and a test phone or two.
-4. Later, not now: TypeSafe (Jev) account, Anthropic API key, and a CAC company
+4. Later, not now: a Gemini API paid account (Google AI Studio or Vertex AI), and a CAC company
    for payments. **I'll ask before any sign-up or spend.**
 
 ## 14. Defaults I'll use unless you say otherwise [A]
@@ -790,13 +831,13 @@ decisions. Everything legally gated stays behind feature flags until cleared.
 | Prize budget | Prizes off until you set a budget and legal clears |
 | Real places | Real neighbourhoods OK; all businesses, venues, agencies and people fictional |
 | Platform | Web/PWA first; Android wrapper later |
-| AI dialogue model | Evaluate Haiku 5.5 vs. Opus 5.5 on a reviewed sample; you choose |
+| AI model | Gemini (D-003). Default `gemini-3.1-flash-lite`; test `gemini-3.8-flash` for Pidgin writing quality; you choose |
 | Languages | English + Pidgin at launch; Yoruba/Igbo/Hausa UI later |
 
 ---
 
 ## Sources (checked 2026-10-14)
-- **TypeSafe Jev:** [docs intro](https://docs.typesafe.ai/introduction), [quick start](https://docs.typesafe.ai/introduction/quickstart), [models and limits](https://docs.typesafe.ai/models.md), [known weaknesses](https://docs.typesafe.ai/model-jaggedness/jev-1.13.md)
+- **Gemini pricing:** [official page](https://ai.google.dev/gemini-api/docs/pricing) (updated 2026-10-14)
 - **FCCPC:** [draft Sales Promotion (Amended) Regulations 2026](https://fccpc.gov.ng/draft-sales-promotion-amended-regulations-2026/), [law firm summary](https://manifieldsolicitors.com/fccpc-sales-promotion-regulation-2026/), [Nairametrics on the AI marketing rules](https://nairametrics.com/2026/10/03/fccpc-moves-to-regulate-ai-marketing-businesses-face-n100-million-penalty/)
 - **Lottery ruling:** [Aluko & Oyebode on the Supreme Court lottery ruling](https://www.aluko-oyebode.com/insights/nigeria-lottery-act-supreme-court-ruling-2024/), [BusinessDay analysis](https://businessday.ng/news/legal-business/article/regulation-of-lotteries-in-nigeria-review-of-the-supreme-courts-decision-and-its-implications/)
 - **Payments:** [Paystack compliance (Nigeria)](https://support.paystack.com/en/articles/2123970), [Paystack transaction splits](https://support.paystack.com/en/articles/2132802), [Flutterwave split payments](https://developer.flutterwave.com/docs/collecting-payments/split-payments)
@@ -805,4 +846,3 @@ decisions. Everything legally gated stays behind feature flags until cleared.
 - **OTP SMS:** [Nigeria OTP SMS pricing (vendor blog)](https://www.messagecentral.com/blog/otp-sms-pricing-nigeria)
 - **News APIs:** [news API comparison](https://www.socialcrawl.dev/blog/best-google-news-apis-2026)
 - **Engines and animation:** [PixiJS vs Phaser](https://cortance.com/answers/phaser-js/phaser-js-vs-pixijs-which-is-better-for-2d-web-games), [Spine runtimes licence](https://jp.esotericsoftware.com/spine-runtimes-license)
-- **Claude pricing:** Anthropic model table (cached 2026-10-06)

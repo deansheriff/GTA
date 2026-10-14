@@ -47,3 +47,31 @@ more distinctive, and that difference is a selling point.
 
 **What this does not cover:** the open questions in report §8 are still unanswered.
 The Phase 3 proposal uses the defaults in its §14 until the owner answers them.
+
+## D-003 · Drop Jev; use Gemini for NPC AI · 2026-10-14
+**Decision:** The owner chose Google Gemini for NPC conversations and asked to
+remove Jev (TypeSafe).
+
+**How NPC AI works now:**
+- **Decisions** run on rules and utility AI, plus cached Gemini calls at the
+  archetype level.
+- **Dialogue** comes from Gemini, in two modes:
+  - Ambient banter is batch-generated and reviewed.
+  - Optional live "Talk to NPC" chat is limited to Verified players, capped
+    daily, and runs behind a flag.
+- **News** categorisation, sensitivity scoring and summaries run on Gemini.
+- **Moderation** uses rules first, with Gemini as the second pass.
+
+**Default model:** `gemini-3.1-flash-lite`, $0.25 / $1.50 per M tokens, with
+batch at half price. We evaluate `gemini-3.8-flash` for writing quality; its
+price doubles on 1 Jan 2027.
+
+**Data handling:** paid tier only. The free tier may use data to improve
+Google's products. Sending player data to Google needs an NDPA review ⚖️.
+
+**Trade-off:** per-NPC live decisions become about 10× more expensive than with
+Jev. To keep costs down, the design moves to rules plus cached archetype
+decisions, so ambient behaviour stays cheap. Every AI path has a rules or canned
+fallback.
+
+**This replaces** the brief's requirement 6 ("Jev AI for NPC decisions").

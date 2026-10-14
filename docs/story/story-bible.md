@@ -397,7 +397,7 @@ Mission spine (full list in deliverable 2):
   - Switching is disabled mid-mission unless the mission is designed for it (co-op
     missions use hot-swap).
   - **Story-critical** beats are scripted. Ambient off-screen events come from a
-    weighted table (Jev may pick from legal options; see §9).
+    weighted table (rules-based; Gemini may only write the flavour text; see §9).
 
 ## 8. Content-safety rework notes
 These are **proposed changes to the seed, for your approval**:
@@ -432,7 +432,7 @@ These are **proposed changes to the seed, for your approval**:
    and Gist spreads along the social graph.
 4. **Scripted vs. AI:**
    - **Story-critical** NPCs and beats are 100% scripted.
-   - Jev handles only **ambient** decisions: what a passenger argues about, whether
+   - AI (rules plus Gemini, per D-003) handles only **ambient** behaviour and chatter: what a passenger argues about, whether
      a market woman haggles, which side an NPC votes for in side elections.
    - The plot can't break.
 5. **News is flavour, never plot.** Radio, WhatsApp gist and NPC banter can react
@@ -496,7 +496,7 @@ These are **proposed changes to the seed, for your approval**:
 | Gig marketplace | Each hero's side hustles: Tunde (ride and delivery gigs), Aunty (catering and POS gigs), KC (content and skit gigs). Story missions unlock gig categories. |
 | Profiles and skills | Hero skills (Driving, Cooking, Haggling, Filming, Charisma) reuse the player skill system; player-profile skills unlock side-mission dialogue options. |
 | Polls and elections | Act 3 runs on the election system; optional side elections (street union, ajo chairperson, estate association). |
-| Jev AI | Ambient NPC decisions and side-mission improvisation. Never story-critical. |
+| NPC AI (rules + Gemini) | Ambient NPC decisions, banter and optional live chat with non-story NPCs. Never story-critical. |
 | News API | Radio (Gidi Gist FM), WhatsApp gist and passenger banter react to real headlines, through guardrails. Never plot. |
 | Data/airtime mini-games | Reused story mini-games: Visa Interview, Ajo Collection, Danfo Conversation, Money Spraying. |
 | Graphics settings | A low-bandwidth cutscene mode: still painted panels with text and an optional voice line, instead of animated scenes. |
