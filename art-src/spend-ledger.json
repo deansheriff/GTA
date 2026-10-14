@@ -688,6 +688,126 @@
       "refs": [
         "art-src/raw/style-anchor-yaba.png"
       ]
+    },
+    {
+      "at": "2026-10-14T15:20:22.328Z",
+      "provider": "openai",
+      "asset": "veh-danfo-topdown",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1769,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 233
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2112
+      },
+      "prompt": "ONE isolated vehicle sprite: a yellow Lagos danfo minibus (Toyota HiAce style) with two black stripes along the roof edges and a loaded roof rack with bags and a bundle tied with rope, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:20:40.876Z",
+      "provider": "openai",
+      "asset": "veh-car-topdown",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1757,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 221
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2100
+      },
+      "prompt": "ONE isolated vehicle sprite: a slightly dented old blue saloon car (a 2000s family sedan) with a sunroof, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:20:58.987Z",
+      "provider": "openai",
+      "asset": "veh-keke-topdown",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1751,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 215
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2190
+      },
+      "prompt": "ONE isolated vehicle sprite: a Lagos keke napep tricycle taxi with a green and yellow canvas roof, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:21:13.716Z",
+      "provider": "openai",
+      "asset": "veh-okada-topdown",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 15,
+      "usage": {
+        "input_tokens": 1752,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 216
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2191
+      },
+      "prompt": "ONE isolated vehicle sprite: a red okada motorcycle with a rider wearing a yellow helmet and a passenger behind him, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
     }
   ]
 }

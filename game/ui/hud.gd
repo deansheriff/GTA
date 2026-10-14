@@ -5,12 +5,17 @@ extends CanvasLayer
 signal toggle_night
 signal toggle_nepa
 signal enter_exit
+signal waypoint_set(pos: Vector2)
+signal waypoint_cleared
 
 const INK := Color("#1d1611")
 const DANFO := Color("#e0a91c")
 const PAPER := Color("#f1e6c8")
 
 var joystick: Control
+var minimap: Control
+var map_screen: Control
+var _root: Control
 var _stats: PanelContainer
 var _stats_label: Label
 var _online_label: Label
@@ -25,12 +30,13 @@ func _ready() -> void:
 	layer = 10
 	_build_theme()
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.theme = _theme
 	add_child(root)
+	_root = root
 
-	var title := _panel_label("Naija Street Life\n[M0 style test · AI-painted art]", 15)
+	var title := _panel_label("Naija Street Life", 15)
 	title.position = Vector2(12, 12)
 	root.add_child(title)
 
@@ -107,6 +113,21 @@ func set_state(mode: String, near_danfo: bool, night: bool, nepa_on: bool, fps: 
 	_stats_label.text = "%d fps   %s   %s" % [fps, "Night" if night else "Day", "Light dey" if nepa_on else "No light"]
 	_action.visible = near_danfo or mode == "driving"
 	_action.text = "Comot from danfo" if mode == "driving" else "Enter Baba God Dey"
+
+
+## Minimap under the title, full map on tap (M1).
+func setup_maps(m: MapData, land: Texture2D, road: Texture2D) -> void:
+	minimap = preload("res://ui/minimap.gd").new()
+	minimap.setup(m, land, road)
+	minimap.position = Vector2(12, 52)
+	_root.add_child(minimap)
+	map_screen = preload("res://ui/map_screen.gd").new()
+	map_screen.visible = false
+	_root.add_child(map_screen)
+	map_screen.setup(m, land, road)
+	minimap.open_map.connect(func() -> void: map_screen.visible = true)
+	map_screen.waypoint_set.connect(func(p: Vector2) -> void: waypoint_set.emit(p))
+	map_screen.waypoint_cleared.connect(func() -> void: waypoint_cleared.emit())
 
 
 func set_online(text: String) -> void:
@@ -257,10 +278,10 @@ func _small(text: String) -> Label:
 func _card(root: Control, heading: String, body: String, scrollable := false) -> VBoxContainer:
 	var dim := ColorRect.new()
 	dim.color = Color(0.05, 0.03, 0.02, 0.55)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(dim)
 	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.add_child(center)
 	var panel := PanelContainer.new()
 	center.add_child(panel)

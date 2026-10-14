@@ -112,7 +112,7 @@ static func random_look(seed: int) -> Dictionary:
 	}
 
 
-func step(delta: float, dir: Vector2, world: Layout.WorldData) -> void:
+func step(delta: float, dir: Vector2, world: MapData) -> void:
 	var move := dir
 	if move == Vector2.ZERO and target != Vector2.INF:
 		var to := target - position

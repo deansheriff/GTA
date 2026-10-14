@@ -8,15 +8,9 @@
 document is **pending native-speaker review**. The terms are collected in the
 glossary (§10). Nothing ships until each one is ticked.
 
-> **Setting update (decision D-007, 2026-10-14):** the story now takes place on **Ayo Island**,
-> a fictional tropical Nigerian island. Lagos place names below are being renamed. Mapping:
-> - Yaba → **Ayo Town**
-> - Lekki owambe → **Paradise Gardens** beachfront event centre
-> - Ikoyi/Banana Island → **Hilltop Estate**
-> - Oshodi/Obalende/Mushin routes → the **ring road**, ferry jetty and fish market
-> - Agbado-Ketu Central LGA → **Ayo Island Local Council**
->
-> Characters, plot and jokes are unchanged.
+> **Setting (decisions D-007, D-008):** a tropical-island Lagos. Lagos is drawn as sunny islands,
+> lagoon and coast. All the original place names stay (Yaba, Lekki, Ikoyi, Victoria Island,
+> Obalende, Oshodi, Mushin, Surulere, Agbado-Ketu). Every business, venue and person is fictional.
 
 ---
 

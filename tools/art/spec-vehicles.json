@@ -1,0 +1,41 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "veh-danfo-topdown",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "ONE isolated vehicle sprite: a yellow Lagos danfo minibus (Toyota HiAce style) with two black stripes along the roof edges and a loaded roof rack with bags and a bundle tied with rope, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated."
+    },
+    {
+      "name": "veh-car-topdown",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "ONE isolated vehicle sprite: a slightly dented old blue saloon car (a 2000s family sedan) with a sunroof, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated."
+    },
+    {
+      "name": "veh-keke-topdown",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE isolated vehicle sprite: a Lagos keke napep tricycle taxi with a green and yellow canvas roof, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated."
+    },
+    {
+      "name": "veh-okada-topdown",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE isolated vehicle sprite: a red okada motorcycle with a rider wearing a yellow helmet and a passenger behind him, seen from DIRECTLY ABOVE in a true top-down view (only the roof/top is visible, no side panels, no perspective), the FRONT pointing to the RIGHT edge of the image, perfectly horizontal and centred, on a fully transparent background, with a thin dark ink outline. No ground, no shadow, no people visible except where stated."
+    }
+  ]
+}

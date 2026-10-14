@@ -2,12 +2,21 @@ extends Node2D
 ## "Baba God Dey": the yellow danfo, drawn as a 3D box in top-down 3/4 so its sides show correctly
 ## at any heading (smooth free driving, decision D-004). Node origin = centre of the ground footprint.
 
-const LENGTH := 132.0
-const WIDTH := 58.0
-const HEIGHT := 44.0
 const K := Layout.HEIGHT_K
-const BODY := Color("#e0a91c")
 const GLASS := Color("#9fc4cf")
+## Vehicle types: size (px), body colour, stripe. Painted art at art/vehicles/<kind>.png if present.
+const KINDS := {
+	"danfo": { "len": 132.0, "wid": 58.0, "h": 44.0, "body": Color("#e0a91c"), "stripe": true },
+	"car": { "len": 104.0, "wid": 50.0, "h": 30.0, "body": Color("#2f6f99"), "stripe": false },
+	"keke": { "len": 64.0, "wid": 40.0, "h": 34.0, "body": Color("#3f8a3a"), "stripe": false },
+	"okada": { "len": 46.0, "wid": 16.0, "h": 22.0, "body": Color("#a8382c"), "stripe": false },
+}
+
+var kind := "danfo"
+var LENGTH := 132.0
+var WIDTH := 58.0
+var HEIGHT := 44.0
+var BODY := Color("#e0a91c")
 
 var heading := 0.0 # radians, 0 = east, y points south
 var speed := 0.0 # px / s
@@ -16,15 +25,27 @@ var max_off := 150.0
 var _art: Sprite2D
 
 
+func set_kind(k: String, tint := Color(0, 0, 0, 0)) -> void:
+	kind = k
+	var d: Dictionary = KINDS.get(k, KINDS["danfo"])
+	LENGTH = d["len"]
+	WIDTH = d["wid"]
+	HEIGHT = d["h"]
+	BODY = tint if tint.a > 0.0 else d["body"]
+
+
 func _ready() -> void:
-	var t := Art.tex("vehicles/danfo.png")
+	var t := Art.tex("vehicles/%s.png" % kind)
 	if t:
 		# Painted top-down danfo (front to the right), rotated freely with the heading.
 		_art = Sprite2D.new()
 		_art.texture = t
-		var sc := (LENGTH + 18.0) / float(t.get_width())
+		# True top-down painting (front to the right): rotates cleanly at any heading.
+		var sc := (LENGTH + 8.0) / float(t.get_width())
 		_art.scale = Vector2(sc, sc)
-		_art.position = Vector2(0, -HEIGHT * K * 0.55)
+		_art.position = Vector2(0, -HEIGHT * K * 0.35) # lifted a little: the roof sits above the road
+		if kind == "car" and BODY != KINDS["car"]["body"]:
+			_art.self_modulate = BODY.lightened(0.45) # vary the paint a little
 		add_child(_art)
 
 
@@ -33,8 +54,9 @@ func _process(_delta: float) -> void:
 		_art.rotation = heading
 
 
-func drive(delta: float, input: Vector2, world: Layout.WorldData) -> String:
-	var on_road := Layout.surface_at(position) == "road"
+func drive(delta: float, input: Vector2, world: MapData) -> String:
+	var m := MapData.shared()
+	var on_road := m.is_roadlike(m.surface_at(position))
 	var top_speed := max_road if on_road else max_off
 	if input.length() > 0.15:
 		var want := input.angle()
@@ -98,7 +120,8 @@ func _draw() -> void:
 			return PackedVector2Array([at.call(u0, v0), at.call(u1, v0), at.call(u1, v1), at.call(u0, v1)])
 		var shade := 0.0 if f["kind"] == "side" else 0.08
 		Ink.poly(self, quad.call(0.0, 1.0, 0.0, 1.0), BODY.darkened(0.12 + shade), 0.0)
-		draw_colored_polygon(quad.call(0.0, 1.0, 0.36, 0.47), Color("#1a1a1a")) # the black danfo band
+		if KINDS.get(kind, {}).get("stripe", false):
+			draw_colored_polygon(quad.call(0.0, 1.0, 0.36, 0.47), Color("#1a1a1a")) # the black danfo band
 		if f["kind"] == "side":
 			for k in 4:
 				var u0 := 0.08 + k * 0.22
@@ -115,9 +138,9 @@ func _draw() -> void:
 	# Roof seen from above, with two black stripes and a luggage rack.
 	var roof := PackedVector2Array([_project(Vector3(l, w, h)), _project(Vector3(l, -w, h)), _project(Vector3(-l, -w, h)), _project(Vector3(-l, w, h))])
 	Ink.poly(self, roof, BODY, Ink.W + 0.4)
-	for t in [-0.18, 0.18]:
+	for t in ([-0.18, 0.18] if kind == "danfo" else []):
 		draw_line(_project(Vector3(-l * 0.92, w * t * 2.0, h)), _project(Vector3(l * 0.92, w * t * 2.0, h)), Color("#1a1a1a"), 3.0)
-	for t in [-0.45, 0.0, 0.45]:
+	for t in ([-0.45, 0.0, 0.45] if kind == "danfo" else []):
 		draw_line(_project(Vector3(l * t, w * 0.75, h + 3)), _project(Vector3(l * t, -w * 0.75, h + 3)), Color(0.15, 0.15, 0.15, 0.7), 2.0)
 	# Windscreen hint at the front edge of the roof.
 	Ink.poly(self, PackedVector2Array([_project(Vector3(l, w * 0.85, h)), _project(Vector3(l, -w * 0.85, h)), _project(Vector3(l - 14, -w * 0.8, h)), _project(Vector3(l - 14, w * 0.8, h))]), GLASS, 1.4)

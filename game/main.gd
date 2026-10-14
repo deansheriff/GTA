@@ -1,28 +1,31 @@
 extends Node2D
-## M0 style test: one painted Yaba junction in top-down 3/4 (D-004), Android-first Godot (D-005).
-## Walk Tunde, drive "Baba God Dey", watch the street, flip night on, survive NEPA.
+## Naija Street Life: the open world of tropical-island Lagos (D-004, D-005, D-007, D-008).
+## Walk Tunde, drive "Baba God Dey" through traffic, cross the Third Mainland Bridge, survive NEPA.
 ##
 ## Demo/screenshot mode for automated checks:
-##   Godot --path game -- --demo --shots=C:/some/dir
+##   Godot --path game -- --demo --shots=C:/some/dir [--preset=low|medium|high] [--server=host]
 
-const BuildingScript := preload("res://actors/building.gd")
-const PropScript := preload("res://actors/prop.gd")
 const WalkerScript := preload("res://actors/walker.gd")
 const DanfoScript := preload("res://actors/danfo.gd")
 const HudScript := preload("res://ui/hud.gd")
 
-var world: Layout.WorldData
+var map: MapData
+var baker: MaskBaker
 var terrain: ColorRect
-var entities: Node2D
+var streamer: Streamer
+var traffic := Traffic.new()
+var nav := Nav.new()
+var waypoint := Vector2.INF
+var route := PackedVector2Array()
+var route_line: Node2D
+var player_path := PackedVector2Array()
+var _route_t := 0.0
+var crowd := Crowd.new()
 var player: Node2D
 var danfo: Node2D
-var npcs: Array[Node2D] = []
-var props: Array[Node2D] = []
 var camera: Camera2D
 var hud: CanvasLayer
-var modulate_node: CanvasModulate
-var lights_on: Array[PointLight2D] = [] # street and window lights (need NEPA)
-var lights_gen: Array[PointLight2D] = [] # generator-powered lights
+var lights: LightLayer
 var painted_mat: ShaderMaterial
 ## Other players on this street: id -> { walker, danfo, target, code, mode, heading }
 var remotes := {}
@@ -37,6 +40,8 @@ var fps_time := 0.0
 var fps := 0
 var demo := false
 var shots_dir := ""
+var demo_input := Vector2.ZERO
+var _district := ""
 
 
 func _ready() -> void:
@@ -49,21 +54,34 @@ func _ready() -> void:
 			Settings.use_preset(a.trim_prefix("--preset="))
 		elif a.begins_with("--server="):
 			Net.server = a.trim_prefix("--server=")
-		elif a == "--perf-no-terrain":
-			_perf_flags["no_terrain"] = true
-		elif a == "--perf-no-vignette":
-			_perf_flags["no_vignette"] = true
-	world = Layout.build_yaba()
+	map = MapData.shared()
 	_build_materials()
+	baker = MaskBaker.new()
+	add_child(baker)
+	baker.bake(map)
 	_build_terrain()
-	_build_entities()
-	_build_lighting()
+	lights = LightLayer.new()
+	add_child(lights)
+	streamer = Streamer.new()
+	add_child(streamer)
+	streamer.setup(map, painted_mat, lights)
+	_build_actors()
+	nav.setup(map)
+	route_line = Node2D.new()
+	route_line.z_index = 6
+	route_line.draw.connect(_draw_route)
+	add_child(route_line)
+	traffic.setup(map, streamer, painted_mat)
+	crowd.setup(map, streamer, painted_mat)
 	_build_camera()
 	hud = HudScript.new()
 	add_child(hud)
 	hud.toggle_night.connect(_toggle_night)
 	hud.toggle_nepa.connect(func() -> void: _set_nepa(not nepa_on))
 	hud.enter_exit.connect(_enter_exit)
+	hud.setup_maps(map, baker.land_tex, baker.road_tex)
+	hud.waypoint_set.connect(_set_waypoint)
+	hud.waypoint_cleared.connect(func() -> void: _set_waypoint(Vector2.INF))
 	Settings.changed.connect(_apply_settings)
 	_apply_settings(Settings.current)
 	Net.met.connect(_on_met)
@@ -71,13 +89,6 @@ func _ready() -> void:
 	Net.gone.connect(_on_gone)
 	Net.status_changed.connect(func(_t: String) -> void: _push_state())
 	Net.start({ "look": _look_to_wire(player.look), "x": int(player.position.x), "y": int(player.position.y) })
-	if _perf_flags.get("no_terrain", false):
-		terrain.material = null
-		terrain.color = Color("#8a7656")
-	if _perf_flags.get("no_vignette", false):
-		for c in get_children():
-			if c is CanvasLayer and c != hud:
-				c.visible = false
 	if demo:
 		_run_demo()
 
@@ -105,20 +116,16 @@ func _build_materials() -> void:
 
 func _build_terrain() -> void:
 	terrain = ColorRect.new()
-	terrain.size = Layout.WORLD
+	terrain.size = map.world_px
 	terrain.z_index = -100
 	var m := ShaderMaterial.new()
 	m.shader = preload("res://shaders/terrain.gdshader")
-	m.set_shader_parameter("world_size", Layout.WORLD)
+	m.set_shader_parameter("world_size", map.world_px)
+	m.set_shader_parameter("land_tex", baker.land_tex)
+	m.set_shader_parameter("road_tex", baker.road_tex)
+	m.set_shader_parameter("dist_tex", baker.dist_tex)
 	m.set_shader_parameter("noise_lo", _noise_texture(0.012, 11))
 	m.set_shader_parameter("noise_hi", _noise_texture(0.05, 23))
-	m.set_shader_parameter("main_y0", float(Layout.MAIN_Y0))
-	m.set_shader_parameter("main_y1", float(Layout.MAIN_Y1))
-	m.set_shader_parameter("cross_x0", float(Layout.CROSS_X0))
-	m.set_shader_parameter("cross_x1", float(Layout.CROSS_X1))
-	m.set_shader_parameter("gutter", Layout.GUTTER)
-	m.set_shader_parameter("walk", Layout.WALK)
-	# Painted ground textures, if generated (game/art/ground); otherwise procedural colours.
 	var ground := { "tex_dirt": "ground/dirt.png", "tex_grass": "ground/grass.png", "tex_asphalt": "ground/asphalt.png", "tex_walk": "ground/interlock.png" }
 	var all_found := true
 	for key in ground:
@@ -129,126 +136,31 @@ func _build_terrain() -> void:
 	var sand := Art.tex("ground/sand.png")
 	m.set_shader_parameter("tex_sand", sand)
 	m.set_shader_parameter("use_sand_tex", sand != null)
-	m.set_shader_parameter("island_center", Layout.ISLAND_CENTER)
-	m.set_shader_parameter("island_radii", Layout.ISLAND_RADII)
-	m.set_shader_parameter("beach_start", Layout.BEACH_START)
-	m.set_shader_parameter("road_end", Layout.ROAD_END)
 	terrain.material = m
 	add_child(terrain)
 
 
-func _build_entities() -> void:
-	entities = Node2D.new()
-	entities.y_sort_enabled = true
-	add_child(entities)
-	for b in world.buildings:
-		var n: Node2D = BuildingScript.new()
-		n.setup(b)
-		n.material = painted_mat
-		entities.add_child(n)
-	for p in world.props:
-		var n: Node2D = PropScript.new()
-		n.setup(p)
-		n.material = painted_mat
-		entities.add_child(n)
-		props.append(n)
-	# Sagging wires between the poles on the north walkway (drawn above the ground, below roofs).
-	var wires := Node2D.new()
-	wires.z_index = 5
-	wires.draw.connect(func() -> void: _draw_wires(wires))
-	add_child(wires)
-
+func _build_actors() -> void:
 	danfo = DanfoScript.new()
-	danfo.position = world.danfo_start
+	danfo.set_kind("danfo")
+	danfo.position = map.danfo_start
+	danfo.heading = PI * 0.5
 	danfo.material = painted_mat
-	entities.add_child(danfo)
-
+	streamer.add_child(danfo)
 	player = WalkerScript.new()
 	player.look = WalkerScript.tunde()
-	player.position = world.player_start
+	player.position = map.player_start
 	player.use_hero_sheet("characters/tunde-walk.png")
 	player.material = painted_mat
-	entities.add_child(player)
-
-
-func _draw_wires(c: Node2D) -> void:
-	var tops: Array[Vector2] = []
-	for p in props:
-		if (p.kind == "pole" or p.kind == "transformer") and absf(p.position.y - (13.5 * Layout.CELL)) < 1.0:
-			tops.append(p.position + p.wire_anchor())
-	tops.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
-	for i in tops.size() - 1:
-		for off in [-14.0, 0.0, 14.0]:
-			var a := tops[i] + Vector2(0, off * 0.3 - 2)
-			var b := tops[i + 1] + Vector2(0, off * 0.3 - 2)
-			var pts := PackedVector2Array()
-			for k in 13:
-				var t := k / 12.0
-				pts.append(a.lerp(b, t) + Vector2(0, sin(t * PI) * 16.0))
-			c.draw_polyline(pts, Color(0.1, 0.08, 0.07, 0.8), 1.4, true)
-
-
-func _spawn_npcs(count: int) -> void:
-	for n in npcs:
-		n.queue_free()
-	npcs.clear()
-	var r := Ink.rng(2026)
-	var tries := 0
-	while npcs.size() < count and tries < 800:
-		tries += 1
-		var p := Vector2(r.randf_range(32, Layout.WORLD.x - 32), r.randf_range(32, Layout.WORLD.y - 32))
-		if world.is_blocked(p) or Layout.surface_at(p) == "road":
-			continue
-		var n: Node2D = WalkerScript.new()
-		n.look = WalkerScript.random_look(900 + npcs.size() * 17)
-		n.use_pedestrian(npcs.size())
-		n.position = p
-		n.speed = r.randf_range(45, 85)
-		n.material = painted_mat
-		entities.add_child(n)
-		npcs.append(n)
-
-
-func _build_lighting() -> void:
-	modulate_node = CanvasModulate.new()
-	modulate_node.color = Color.WHITE
-	add_child(modulate_node)
-	var tex := GradientTexture2D.new()
-	tex.width = 256
-	tex.height = 256
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(0.5, 0.0)
-	var g := Gradient.new()
-	g.set_color(0, Color(1.0, 0.93, 0.74, 1.0))
-	g.set_color(1, Color(1.0, 0.93, 0.74, 0.0))
-	tex.gradient = g
-	var add_light := func(pos: Vector2, scale_: float, energy: float, generator: bool) -> void:
-		var l := PointLight2D.new()
-		l.texture = tex
-		l.position = pos
-		l.texture_scale = scale_
-		l.energy = energy
-		l.enabled = false
-		add_child(l)
-		(lights_gen if generator else lights_on).append(l)
-	for p in props:
-		if p.kind == "pole" or p.kind == "transformer":
-			add_light.call(p.position + Vector2(0, 10), 1.6, 1.1, false)
-	for b in world.buildings:
-		var fp := b.footprint()
-		var door := Vector2(fp.get_center().x, fp.end.y + 18)
-		add_light.call(door, 1.2, 0.9, false)
-		if b.generator:
-			add_light.call(door, 1.5, 1.2, true)
+	streamer.add_child(player)
 
 
 func _build_camera() -> void:
 	camera = Camera2D.new()
 	camera.limit_left = 0
-	camera.limit_top = -120
-	camera.limit_right = int(Layout.WORLD.x)
-	camera.limit_bottom = int(Layout.WORLD.y)
+	camera.limit_top = 0
+	camera.limit_right = int(map.world_px.x)
+	camera.limit_bottom = int(map.world_px.y)
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 6.0
 	player.add_child(camera)
@@ -279,9 +191,10 @@ func _apply_settings(s: Dictionary) -> void:
 	var quality: int = q.get(s.get("preset"), 1 if s.get("effects") != "off" else 0)
 	(terrain.material as ShaderMaterial).set_shader_parameter("quality", quality)
 	painted_mat.set_shader_parameter("strength", 0.0 if s.get("effects") == "off" else 1.0)
-	_spawn_npcs(int(s.get("max_npcs", 30)))
-	for n in npcs:
-		n.anim_fps = float(s.get("npc_anim_fps", 10))
+	streamer.radius = clampi(int(s.get("draw_distance", 2)) - 1, 0, 2)
+	crowd.target_count = int(s.get("max_npcs", 30))
+	crowd.anim_fps = float(s.get("npc_anim_fps", 10))
+	traffic.target_count = { 0: 6, 1: 12, 2: 18 }.get(quality, 12)
 	_update_lighting()
 
 
@@ -304,19 +217,9 @@ func _set_nepa(on: bool) -> void:
 
 func _update_lighting() -> void:
 	var simple: bool = Settings.get_value("lighting", "full") == "simple"
-	if not night:
-		modulate_node.color = Color.WHITE
-	elif nepa_on:
-		modulate_node.color = Color(0.36, 0.34, 0.52)
-	else:
-		modulate_node.color = Color(0.17, 0.15, 0.28)
-	for l in lights_on:
-		l.enabled = night and nepa_on and not simple
-	for l in lights_gen:
-		l.enabled = night and not nepa_on and not simple
-	var gens: bool = not nepa_on and Settings.get_value("effects", "low") != "off"
-	for p in props:
-		p.set_generator_running(gens)
+	lights.configure(not simple, 0.25 if Settings.get_value("preset") == "low" else 0.5)
+	lights.set_state(night, nepa_on)
+	streamer.set_lighting(night, nepa_on, Settings.get_value("effects", "low") != "off")
 
 
 func _enter_exit() -> void:
@@ -324,8 +227,8 @@ func _enter_exit() -> void:
 		if absf(danfo.speed) > 40.0:
 			return
 		mode = "walking"
-		var side := Vector2.from_angle(danfo.heading + PI / 2) * 52.0
-		player.position = danfo.position + side if not world.is_blocked(danfo.position + side) else danfo.position - side
+		var side := Vector2.from_angle(danfo.heading + PI / 2) * 60.0
+		player.position = danfo.position + side if not map.is_blocked(danfo.position + side) else danfo.position - side
 		player.target = Vector2.INF
 		player.visible = true
 		camera.reparent(player, false)
@@ -339,7 +242,7 @@ func _enter_exit() -> void:
 
 
 func _near_danfo() -> bool:
-	return player.position.distance_to(danfo.position) < 90.0
+	return player.position.distance_to(danfo.position) < 100.0
 
 
 # ---------- input ----------
@@ -361,22 +264,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_enter_exit()
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			camera.zoom = (camera.zoom * 1.1).clamp(Vector2(0.5, 0.5), Vector2(2, 2))
+			camera.zoom = (camera.zoom * 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			camera.zoom = (camera.zoom / 1.1).clamp(Vector2(0.5, 0.5), Vector2(2, 2))
+			camera.zoom = (camera.zoom / 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
 		elif event.button_index == MOUSE_BUTTON_LEFT and mode == "walking":
-			var wp := get_global_mouse_position()
-			if not world.is_blocked(wp):
-				player.target = wp
+			_walk_to(get_global_mouse_position())
 	elif event is InputEventMagnifyGesture:
-		camera.zoom = (camera.zoom * event.factor).clamp(Vector2(0.5, 0.5), Vector2(2, 2))
+		camera.zoom = (camera.zoom * event.factor).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
 
 
 # ---------- loop ----------
-
-var demo_input := Vector2.ZERO
-var _perf_flags := {}
-
 
 func _process(delta: float) -> void:
 	var dt := minf(delta, 0.05)
@@ -384,27 +281,29 @@ func _process(delta: float) -> void:
 	if mode == "walking":
 		if inp != Vector2.ZERO:
 			player.target = Vector2.INF
-		player.step(dt, inp, world)
-		danfo.drive(dt, Vector2.ZERO, world)
+			player_path = PackedVector2Array()
+		elif player.target == Vector2.INF and not player_path.is_empty():
+			player.target = player_path[0]
+			player_path.remove_at(0)
+		player.step(dt, inp, map)
+		danfo.drive(dt, Vector2.ZERO, map)
 	else:
-		var ev: String = danfo.drive(dt, inp, world)
+		var ev: String = danfo.drive(dt, inp, map)
 		player.position = danfo.position
 		if ev == "crash":
 			hud.toast("Ehn! Who put wall there?")
 			if not Settings.get_value("reduced_motion", false):
 				_shake(0.18)
-	for n in npcs:
-		if n.target == Vector2.INF:
-			n.idle_t -= dt
-			if n.idle_t <= 0.0:
-				var reach := 60.0 if n.loiterer else 220.0
-				var t: Vector2 = n.position + Vector2(randf_range(-reach, reach), randf_range(-reach * 0.5, reach * 0.5))
-				if not world.is_blocked(t) and Layout.surface_at(t) != "road":
-					n.target = t
-				n.idle_t = randf_range(0.5, 3.0)
-		n.step(dt, Vector2.ZERO, world)
-
+	var focus: Vector2 = danfo.position if mode == "driving" else player.position
+	var view := _view_rect()
+	streamer.update_view(view, dt)
+	lights.sync(get_viewport().get_camera_2d(), get_viewport_rect().size)
+	traffic.update(dt, focus, danfo if mode == "driving" else null)
+	if traffic.bumped:
+		hud.toast(["Oga, you no see road?", "Na so you dey drive?", "Who give you licence?"][randi() % 3])
+	crowd.update(dt, focus)
 	_net_tick(dt)
+	_route_tick(dt, focus)
 
 	if night:
 		outage_t -= dt
@@ -421,12 +320,21 @@ func _process(delta: float) -> void:
 	state_t -= dt
 	if state_t <= 0.0:
 		state_t = 0.5
+		var d := map.district_at(focus)
+		var dn: String = d.get("name", "Lagoon")
+		if dn != _district:
+			_district = dn
+			hud.toast(dn)
 		_push_state()
 
 
-var _shake_t := 0.0
+func _view_rect() -> Rect2:
+	var cam := get_viewport().get_camera_2d()
+	var size := get_viewport_rect().size / cam.zoom
+	return Rect2(cam.get_screen_center_position() - size * 0.5, size)
+
+
 func _shake(t: float) -> void:
-	_shake_t = t
 	var tw := create_tween()
 	for i in 6:
 		tw.tween_property(camera, "offset", Vector2(randf_range(-6, 6), randf_range(-6, 6)), t / 6.0)
@@ -435,7 +343,68 @@ func _shake(t: float) -> void:
 
 func _push_state() -> void:
 	hud.set_state(mode, mode == "walking" and _near_danfo(), night, nepa_on, fps)
-	hud.set_online("%s · %d nearby" % [Net.status_text(), remotes.size()] if Net.is_online() else Net.status_text())
+	var online: String = "%s · %d nearby" % [Net.status_text(), remotes.size()] if Net.is_online() else Net.status_text()
+	hud.set_online("%s · %s" % [_district, online] if _district != "" else online)
+
+
+# ---------- navigation ----------
+
+func _walk_to(wp: Vector2) -> void:
+	var path := nav.walk_path(player.position, wp)
+	if path.size() < 2:
+		return
+	player_path = path
+	player_path.remove_at(0)
+	player.target = Vector2.INF
+
+
+func _set_waypoint(wp: Vector2) -> void:
+	waypoint = wp
+	_route_t = 0.0
+	if wp == Vector2.INF:
+		route = PackedVector2Array()
+		hud.minimap.waypoint = Vector2.INF
+		hud.minimap.route = route
+		route_line.queue_redraw()
+
+
+func _route_tick(dt: float, focus: Vector2) -> void:
+	var heading: float = danfo.heading if mode == "driving" else (player.velocity.angle() if player.velocity.length() > 1.0 else -PI / 2)
+	hud.minimap.update_view(focus, heading)
+	if hud.map_screen.visible:
+		hud.map_screen.refresh(focus, waypoint, route)
+	if waypoint == Vector2.INF:
+		return
+	if focus.distance_to(waypoint) < 140.0:
+		hud.toast("You don reach!")
+		_set_waypoint(Vector2.INF)
+		return
+	_route_t -= dt
+	if _route_t <= 0.0:
+		_route_t = 1.5
+		route = nav.drive_path(focus, waypoint) if mode == "driving" else nav.walk_path(focus, waypoint)
+		hud.minimap.waypoint = waypoint
+		hud.minimap.route = route
+		route_line.queue_redraw()
+
+
+## Dotted GPS line on the street, like a danfo conductor pointing the way.
+func _draw_route() -> void:
+	if route.size() < 2:
+		return
+	var travelled := 0.0
+	for i in route.size() - 1:
+		var a: Vector2 = route[i]
+		var b: Vector2 = route[i + 1]
+		var seg := a.distance_to(b)
+		var t := fmod(-travelled, 36.0)
+		while t < seg:
+			if t >= 0.0:
+				route_line.draw_circle(a.lerp(b, t / seg), 5.0, Color(0.88, 0.66, 0.11, 0.85))
+			t += 36.0
+		travelled += seg
+		if travelled > 4000.0:
+			break
 
 
 # ---------- multiplayer ----------
@@ -464,12 +433,13 @@ func _on_met(id: int, name_: String, look: Dictionary) -> void:
 	w.use_pedestrian(id * 3 + 1)
 	w.display_name = name_
 	w.material = painted_mat
-	w.visible = false # shown on first position
-	entities.add_child(w)
+	w.visible = false
+	streamer.add_child(w)
 	var d: Node2D = DanfoScript.new()
+	d.set_kind("danfo")
 	d.material = painted_mat
 	d.visible = false
-	entities.add_child(d)
+	streamer.add_child(d)
 	remotes[id] = { "walker": w, "danfo": d, "target": Vector2.INF, "code": 0, "mode": 0, "heading": 0.0 }
 	_push_state()
 
@@ -478,9 +448,8 @@ func _on_moved(id: int, pos: Vector2, code: int, mode_: int, heading_deg: float)
 	var r: Dictionary = remotes.get(id, {})
 	if r.is_empty():
 		return
-	var w: Node2D = r["walker"]
 	if r["target"] == Vector2.INF:
-		w.position = pos
+		(r["walker"] as Node2D).position = pos
 		(r["danfo"] as Node2D).position = pos
 	r["target"] = pos
 	r["code"] = code
@@ -535,53 +504,58 @@ func _wait(t: float) -> void:
 	await get_tree().create_timer(t).timeout
 
 
-func _run_demo() -> void:
-	await _wait(1.0)
-	# Whole-island overview from a temporary camera.
-	var over := Camera2D.new()
-	over.position = Layout.WORLD * 0.5
-	over.zoom = Vector2(0.5, 0.5)
-	add_child(over)
-	over.make_current()
-	await _wait(0.4)
-	await _shot("00-island-overview")
-	camera.make_current()
-	over.queue_free()
-	# Beach close-up on the south shore, then back to town.
-	var home: Vector2 = player.position
-	player.position = Vector2(1240, 1560)
-	await _wait(1.0)
-	await _shot("00b-beach")
-	player.position = home
-	await _wait(1.0)
-	await _shot("01-day-walk")
-	await _measure("day")
-	player.target = danfo.position + Vector2(0, 60)
-	await _wait(1.5)
-	_enter_exit()
-	demo_input = Vector2(1, 0)
-	await _wait(2.0)
-	demo_input = Vector2(0.3, 1)
-	await _wait(0.9)
-	demo_input = Vector2.ZERO
-	await _wait(0.6)
-	await _shot("02-driving")
-	print("danfo at ", danfo.position, " mode ", mode)
-	_toggle_night()
-	await _wait(0.8)
-	await _shot("03-night")
-	_set_nepa(false)
-	await _wait(1.2)
-	await _shot("04-nepa-off")
-	_set_nepa(true)
-	await _wait(0.3)
-	await _shot("05-up-nepa")
-	await _measure("night")
-	get_tree().quit()
-
-
 func _measure(label: String) -> void:
 	var f0 := Engine.get_frames_drawn()
 	var t0 := Time.get_ticks_msec()
 	await _wait(2.5)
-	print("perf %s: %.1f fps (max_fps %d, preset %s, npcs %d)" % [label, (Engine.get_frames_drawn() - f0) * 1000.0 / (Time.get_ticks_msec() - t0), Engine.max_fps, Settings.get_value("preset"), npcs.size()])
+	print("perf %s: %.1f fps (max_fps %d, preset %s, people %d, vehicles %d)" % [label, (Engine.get_frames_drawn() - f0) * 1000.0 / (Time.get_ticks_msec() - t0), Engine.max_fps, Settings.get_value("preset"), crowd.people.size(), traffic.vehicles.size()])
+
+
+func _teleport(p: Vector2) -> void:
+	player.position = p
+	camera.reset_smoothing()
+
+
+func _run_demo() -> void:
+	await _wait(1.0)
+	# Whole-map overview from a temporary camera.
+	var over := Camera2D.new()
+	over.position = map.world_px * 0.5
+	var z := minf(1280.0 / map.world_px.x, 720.0 / map.world_px.y)
+	over.zoom = Vector2(z, z)
+	add_child(over)
+	over.make_current()
+	await _wait(0.5)
+	await _shot("00-lagos-overview")
+	camera.make_current()
+	over.queue_free()
+	for spot in [["01-surulere-start", map.player_start], ["02-yaba", map.road_nodes["yaba_c"] + Vector2(0, 120)], ["03-oshodi", map.road_nodes["oshodi_c"] + Vector2(140, 120)], ["04-obalende", map.landmarks["obalende-motor-park"]["pos"]], ["05-lekki-beach", map.road_nodes["lekki_beach"] + Vector2(0, 260)]]:
+		_teleport(spot[1])
+		await _wait(1.6)
+		await _shot(spot[0])
+	await _measure("day")
+	_set_waypoint(map.landmarks["lekki-event-centre"]["pos"])
+	hud.map_screen.visible = true
+	await _wait(0.6)
+	await _shot("05b-map-screen")
+	hud.map_screen.visible = false
+	# Drive across the Third Mainland Bridge.
+	_teleport(map.road_nodes["yaba_s"] + Vector2(-40, 0))
+	danfo.position = map.road_nodes["yaba_s"]
+	danfo.heading = (map.road_nodes["tmb_mid"] - map.road_nodes["yaba_s"]).angle()
+	await _wait(0.5)
+	_enter_exit()
+	demo_input = (map.road_nodes["tmb_mid"] - map.road_nodes["yaba_s"]).normalized()
+	await _wait(2.2)
+	await _shot("06-third-mainland-bridge")
+	demo_input = Vector2.ZERO
+	await _wait(0.8)
+	_toggle_night()
+	await _wait(0.8)
+	await _shot("07-night")
+	_set_nepa(false)
+	await _wait(1.0)
+	await _shot("08-nepa-off")
+	_set_nepa(true)
+	await _measure("night")
+	get_tree().quit()

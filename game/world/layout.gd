@@ -44,6 +44,8 @@ class BuildingSpec:
 	var sign_text: String
 	var seed: int
 	var generator: bool
+	var art := "" # painted building key (MapData.CATALOG); "" = pick by size
+	var landmark := "" # story landmark id, if any
 
 	func footprint() -> Rect2:
 		return Rect2(Vector2(cell) * CELL, Vector2(size) * CELL)

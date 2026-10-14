@@ -207,3 +207,22 @@ instead of Lagos, with everything else unchanged.
 
 **What doesn't change:** the features (F1–F8), the server, the camera and art style
 (D-004), the platform (D-005), hosting (D-006), the characters and the plot.
+
+## D-008 · Keep the original Lagos place names on the tropical island · 2026-10-14
+**Decision:** The owner asked to keep all the original names (Yaba, Lekki, Ikoyi and
+the rest). The world is a **tropical-island Lagos**: mainland districts in the north
+and west, the lagoon and its bridges, and Lagos Island, Ikoyi, Victoria Island and
+Lekki along the beaches.
+
+**What changes:**
+- "Ayo Island" and the D-007 renaming table are withdrawn.
+- The story uses its original locations: the Lekki owambe, KC's Yaba room, Ikoyi
+  wealth, the Oshodi and Obalende danfo routes, and the Agbado-Ketu Central LGA
+  election.
+
+**What stays:**
+- Real neighbourhood names are used as settings.
+- Every business, venue, agency and person stays fictional (Story Bible §5).
+
+**Owner instruction:** build continuously to production-ready, mark each milestone,
+ask only when input is needed, and make no APK builds until the game is done.

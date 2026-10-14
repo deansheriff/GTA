@@ -23,6 +23,8 @@ func setup(s: Layout.BuildingSpec) -> void:
 
 
 static func _art_for(s: Layout.BuildingSpec) -> String:
+	if s.art != "":
+		return "buildings/%s.png" % s.art
 	if s.size.x >= 5 or s.height >= 96:
 		return "buildings/two-storey.png"
 	if s.size.x == 4:
