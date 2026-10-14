@@ -18,6 +18,80 @@ var target := Vector2.INF
 var idle_t := 0.0
 var _drawn_key := ""
 var display_name := ""
+var _spr: Sprite2D
+var _sheet := "" # "hero" (4x3 walk: down, up, right) or "ped" (painted townsfolk)
+var _ped_index := 0
+var _ped_front: Texture2D
+var _ped_side: Texture2D
+var _base_y := 0.0
+const SPRITE_H := 60.0 # on-screen height of a painted person, px
+
+
+## Painted hero walk sheet (art/characters/*-walk.png + .json). Returns false if missing.
+func use_hero_sheet(path: String) -> bool:
+	var t := Art.tex(path)
+	var info := Art.sheet_info(path)
+	if t == null or info.is_empty():
+		return false
+	_make_sprite(t, int(info["cols"]), int(info["rows"]), float(info["frameH"]))
+	_sheet = "hero"
+	return true
+
+
+## One of 16 painted townsfolk. 0-7 face the viewer (people standing or loitering),
+## 8-15 are side-walking passers-by. Each person comes from one sheet only, so they never
+## change identity when they turn.
+var loiterer := false
+
+
+func use_pedestrian(index: int) -> bool:
+	var i := posmod(index, 16)
+	loiterer = i < 8
+	var path := "characters/pedestrians-a.png" if loiterer else "characters/pedestrians-b.png"
+	var t := Art.tex(path)
+	var info := Art.sheet_info(path)
+	if t == null or info.is_empty():
+		return false
+	_ped_front = t if loiterer else null
+	_ped_side = null if loiterer else t
+	_ped_index = i % 8
+	_make_sprite(t, int(info["cols"]), int(info["rows"]), float(info["frameH"]))
+	_spr.frame = _ped_index
+	_sheet = "ped"
+	return true
+
+
+func _make_sprite(t: Texture2D, cols: int, rows: int, frame_h: float) -> void:
+	_spr = Sprite2D.new()
+	_spr.texture = t
+	_spr.hframes = cols
+	_spr.vframes = rows
+	var sc := SPRITE_H / frame_h
+	_spr.scale = Vector2(sc, sc)
+	# Frames have feet 2 px above their bottom edge: put that baseline on the node origin.
+	_base_y = -(frame_h * 0.5 - 2.0) * sc
+	_spr.position = Vector2(0, _base_y)
+	add_child(_spr)
+	queue_redraw()
+
+
+func _update_sprite() -> void:
+	if _spr == null:
+		return
+	var moving := velocity.length() > 1.0
+	if _sheet == "hero":
+		var row := 2 if facing == "side" else (1 if facing == "up" else 0)
+		var phase := int(anim_t) % 4 if moving else 1
+		_spr.frame = row * 4 + phase
+		_spr.flip_h = facing == "side" and flip
+		_spr.position.y = _base_y
+	else:
+		_spr.frame = _ped_index
+		# Side-walkers face their direction of travel; loiterers always face the viewer.
+		if not loiterer and absf(velocity.x) > 1.0:
+			_spr.flip_h = velocity.x < 0.0
+		# Painted townsfolk have one pose: a small step-bob sells the walk.
+		_spr.position.y = _base_y - (absf(sin(anim_t * PI)) * 2.5 if moving else 0.0)
 
 
 static func tunde() -> Dictionary:
@@ -65,6 +139,7 @@ func step(delta: float, dir: Vector2, world: Layout.WorldData) -> void:
 		anim_t += delta * anim_fps
 	else:
 		anim_t = 0.0
+	_update_sprite()
 	# Moving the node is free; only re-draw when the pose actually changes (~anim_fps, not every frame).
 	var key := "%s%s%d%s" % [facing, flip, int(anim_t) % 4, velocity.length() > 1.0]
 	if key != _drawn_key:
@@ -95,6 +170,7 @@ func follow(delta: float, tgt: Vector2, code: int) -> void:
 		anim_t = 0.0
 	facing = ["down", "up", "side", "side"][clampi(code, 0, 3)]
 	flip = code == 3
+	_update_sprite()
 	var key := "%s%s%d%s" % [facing, flip, int(anim_t) % 4, velocity.length() > 1.0]
 	if key != _drawn_key:
 		_drawn_key = key
@@ -112,6 +188,9 @@ func _draw() -> void:
 	var bottom: Color = look.get("bottom", TROUSERS[0])
 
 	Ink.shadow(self, Vector2(2, 0), Vector2(11, 4), 0.35)
+	if _spr:
+		_draw_name()
+		return
 	# Legs.
 	if look.get("extra", "") != "wrapper":
 		var lx := [-4.5, 1.5]
@@ -162,7 +241,13 @@ func _draw() -> void:
 		draw_arc(hc + Vector2(0, 4.5), 2.6, 0.2, PI - 0.2, 8, Color(0.25, 0.1, 0.06), 1.2)
 	elif facing == "side":
 		draw_circle(hc + Vector2(5.0 * sx, 1.0), 1.6, Ink.COLOR)
-	if display_name != "":
-		var font := ThemeDB.fallback_font
-		draw_string_outline(font, Vector2(-60, -56), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, 4, Ink.COLOR)
-		draw_string(font, Vector2(-60, -56), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color("#f1e6c8"))
+	_draw_name()
+
+
+func _draw_name() -> void:
+	if display_name == "":
+		return
+	var font := ThemeDB.fallback_font
+	var y := -SPRITE_H - 6.0 if _spr else -56.0
+	draw_string_outline(font, Vector2(-60, y), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, 4, Ink.COLOR)
+	draw_string(font, Vector2(-60, y), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color("#f1e6c8"))

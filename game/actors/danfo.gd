@@ -2,8 +2,8 @@ extends Node2D
 ## "Baba God Dey": the yellow danfo, drawn as a 3D box in top-down 3/4 so its sides show correctly
 ## at any heading (smooth free driving, decision D-004). Node origin = centre of the ground footprint.
 
-const LENGTH := 104.0
-const WIDTH := 48.0
+const LENGTH := 132.0
+const WIDTH := 58.0
 const HEIGHT := 44.0
 const K := Layout.HEIGHT_K
 const BODY := Color("#e0a91c")
@@ -13,6 +13,24 @@ var heading := 0.0 # radians, 0 = east, y points south
 var speed := 0.0 # px / s
 var max_road := 380.0
 var max_off := 150.0
+var _art: Sprite2D
+
+
+func _ready() -> void:
+	var t := Art.tex("vehicles/danfo.png")
+	if t:
+		# Painted top-down danfo (front to the right), rotated freely with the heading.
+		_art = Sprite2D.new()
+		_art.texture = t
+		var sc := (LENGTH + 18.0) / float(t.get_width())
+		_art.scale = Vector2(sc, sc)
+		_art.position = Vector2(0, -HEIGHT * K * 0.55)
+		add_child(_art)
+
+
+func _process(_delta: float) -> void:
+	if _art:
+		_art.rotation = heading
 
 
 func drive(delta: float, input: Vector2, world: Layout.WorldData) -> String:
@@ -56,6 +74,8 @@ func _draw() -> void:
 	var w := WIDTH * 0.5
 	var h := HEIGHT
 	Ink.shadow(self, Vector2(10, 6), Vector2(66, 34), 0.36)
+	if _art:
+		return
 	# Wheels peek out under the body.
 	for c in [Vector3(l * 0.62, w, 7), Vector3(-l * 0.62, w, 7), Vector3(l * 0.62, -w, 7), Vector3(-l * 0.62, -w, 7)]:
 		Ink.ellipse(self, _project(c), Vector2(9, 6), Color("#1c1a19"), 1.6, heading)

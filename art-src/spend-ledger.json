@@ -42,6 +42,652 @@
       "usage": null,
       "prompt": "Original in-game environment painting for a 2D Nigerian street-life game called Naija Street Life. CAMERA: high top-down three-quarter view looking down at about 60 degrees; the ground is seen almost from above, and every building shows its full corrugated metal roof plus a short strip of its front wall with door and windows; trees are seen from above as round canopies. SCENE: a busy everyday junction in Yaba, Lagos: cracked grey asphalt roads crossing, with potholes, faded lane paint and open concrete drains along the kerbs; interlocking paving walkways; red laterite dirt and patchy grass verges; one-storey shops and houses with rusty zinc roofs, faded painted plaster walls in ochre, teal and terracotta, burglar-proof window bars, hand-painted shop signboards with no readable text; kerbside POS umbrellas with small tables; a yellow danfo minibus with two black stripes on the road, seen from above; an orange keke tricycle; wooden electric poles with sagging wires and one transformer; a small red petrol generator beside a shop; mango and palm trees; scattered plastic chairs, tyres, water sachets; many tiny people with big heads and simple clothes, some in colourful ankara, walking, sitting, trading. STYLE: hand-painted gouache and watercolour texture with thick dark brown-black ink outlines around every object and character; muted, earthy, slightly desaturated palette with warm accents; grimy, weathered, lived-in surfaces; soft painted shadows falling to the bottom-right from a top-left sun; slightly darker vignetted edges; readable at small scale; cosy but gritty. No text, no letters, no numbers, no UI, no logos, no watermark, no border.",
       "refs": []
+    },
+    {
+      "at": "2026-10-14T12:47:01.467Z",
+      "provider": "openai",
+      "asset": "style-anchor-yaba",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0121,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 360,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 360
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 703
+      },
+      "prompt": "Original in-game environment painting for a 2D Nigerian street-life game called Naija Street Life. CAMERA: high top-down three-quarter view looking down at about 60 degrees; the ground is seen almost from above, and every building shows its full corrugated metal roof plus a short strip of its front wall with door and windows; trees are seen from above as round canopies. SCENE: a busy everyday junction in Yaba, Lagos: cracked grey asphalt roads crossing, with potholes, faded lane paint and open concrete drains along the kerbs; interlocking paving walkways; red laterite dirt and patchy grass verges; one-storey shops and houses with rusty zinc roofs, faded painted plaster walls in ochre, teal and terracotta, burglar-proof window bars, hand-painted shop signboards with no readable text; kerbside POS umbrellas with small tables; a yellow danfo minibus with two black stripes on the road, seen from above; an orange keke tricycle; wooden electric poles with sagging wires and one transformer; a small red petrol generator beside a shop; mango and palm trees; scattered plastic chairs, tyres, water sachets; many tiny people with big heads and simple clothes, some in colourful ankara, walking, sitting, trading. STYLE: hand-painted gouache and watercolour texture with thick dark brown-black ink outlines around every object and character; muted, earthy, slightly desaturated palette with warm accents; grimy, weathered, lived-in surfaces; soft painted shadows falling to the bottom-right from a top-left sun; slightly darker vignetted edges; readable at small scale; cosy but gritty. No text, no letters, no numbers, no UI, no logos, no watermark, no border.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T12:48:30.415Z",
+      "provider": "openai",
+      "asset": "tex-ground-dirt",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0141,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 192,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 192
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 631
+      },
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view, no perspective, no horizon): dusty brown Lagos street dirt mixed with patches of red laterite soil, small pebbles, faint footprints and tyre marks, a few tiny scraps of litter. Even lighting, no cast shadows, no objects, no plants. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T12:48:49.663Z",
+      "provider": "openai",
+      "asset": "tex-ground-grass",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.014,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 174,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 174
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 613
+      },
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view): patchy tropical roadside grass, sage and olive greens with dry yellow tufts and bits of red earth showing through. Even lighting, no cast shadows, no objects. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T12:49:05.006Z",
+      "provider": "openai",
+      "asset": "tex-ground-asphalt",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.014,
+      "seconds": 15,
+      "usage": {
+        "input_tokens": 174,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 174
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 613
+      },
+      "prompt": "A SEAMLESS TILEABLE square texture of worn grey asphalt road seen from DIRECTLY ABOVE (orthographic top view): cracks, darker tar patches, dust, oil stains, NO lane markings and NO potholes. Even lighting, no cast shadows, no objects. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T12:49:19.389Z",
+      "provider": "openai",
+      "asset": "tex-ground-interlock",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0141,
+      "seconds": 14,
+      "usage": {
+        "input_tokens": 182,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 182
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 621
+      },
+      "prompt": "A SEAMLESS TILEABLE square texture of interlocking concrete paving stones seen from DIRECTLY ABOVE (orthographic top view): beige and grey worn pavers in a regular running pattern, dusty joints, a few cracked or sunken stones, red dust. Even lighting, no cast shadows, no objects. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T12:49:43.984Z",
+      "provider": "openai",
+      "asset": "bld-canteen",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0268,
+      "seconds": 25,
+      "usage": {
+        "input_tokens": 1806,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 270
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2245
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): the building is perfectly axis-aligned with its long front wall parallel to the bottom edge of the image and facing the viewer, the rusty corrugated zinc roof seen from above takes the upper two thirds, a short strip of the front wall shows below it. SUBJECT: a small one-storey Lagos mama-put canteen with faded orange plaster, an open serving window with big pots and coolers, a plain blank signboard over the door, burglar-proof window bars, a bench in front. No ground, no grass, no people, no cast shadow on the ground.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:50:06.899Z",
+      "provider": "openai",
+      "asset": "bld-pos-shop",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0267,
+      "seconds": 23,
+      "usage": {
+        "input_tokens": 1777,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 241
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2216
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, long front wall parallel to the bottom edge facing the viewer, rusty corrugated roof seen from above taking the upper two thirds, short strip of front wall below. SUBJECT: a narrow one-storey Lagos phone-repair and POS shop with faded teal paint, a counter window with phone accessories, a blank signboard, a small awning. No ground, no people, no cast shadow on the ground.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:50:36.628Z",
+      "provider": "openai",
+      "asset": "bld-bungalow",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 30,
+      "usage": {
+        "input_tokens": 1778,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 242
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2121
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, long front wall parallel to the bottom edge facing the viewer, large weathered corrugated zinc hip roof seen from above taking the upper two thirds, short strip of front wall with veranda below. SUBJECT: a modest Lagos family bungalow with pale ochre plaster, louvre windows with burglar bars, a small veranda with plastic chairs, potted plants. No ground, no people, no cast shadow on the ground.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:50:55.323Z",
+      "provider": "openai",
+      "asset": "bld-two-storey",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0239,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1793,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 257
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2136
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facade parallel to the bottom edge facing the viewer, flat roof seen from above with water tanks and a satellite dish taking the upper half, the front facade (two storeys, balcony with railings and washing hung out) visible below. SUBJECT: a weathered Lagos two-storey 'face-me-I-face-you' tenement building in faded pink-terracotta paint with shops on the ground floor and roller shutters. No ground, no people, no cast shadow on the ground.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:51:21.693Z",
+      "provider": "openai",
+      "asset": "bld-provision-store",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0267,
+      "seconds": 26,
+      "usage": {
+        "input_tokens": 1778,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 242
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2217
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front wall parallel to the bottom edge facing the viewer, rusty red corrugated roof seen from above taking the upper two thirds, short strip of front wall below. SUBJECT: a small Lagos provision store / barber salon with lavender-grey paint, a glass display with sachet drinks, a barber chair visible through the doorway, a blank painted signboard. No ground, no people, no cast shadow on the ground.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:51:40.788Z",
+      "provider": "openai",
+      "asset": "prop-sheet-street",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0241,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1845,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 309
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2188
+      },
+      "prompt": "A sprite sheet of SIX separate isolated street props on a fully transparent background, arranged in a strict 3 columns by 2 rows grid with wide empty gaps between them, each prop centred in its own cell and fully inside it. CAMERA for every prop: high top-down three-quarter view (seen from above at about 60 degrees, front facing the viewer, not isometric). Top row: (1) a big striped kerbside umbrella over a small wooden table with a POS card machine, (2) a small red petrol generator with a yellow fuel tank, (3) a blue metal container kiosk shop with snacks and recharge cards. Bottom row: (4) a stack of four old car tyres, (5) a blue plastic water drum next to two stacked white plastic chairs, (6) a hawker's wooden tray of oranges on a stand. No ground, no people, no cast shadows.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:51:58.783Z",
+      "provider": "openai",
+      "asset": "prop-sheet-trees",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0239,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1804,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 268
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2147
+      },
+      "prompt": "A sprite sheet of THREE separate isolated plants/poles on a fully transparent background, in a strict 3 columns by 1 row layout with wide empty gaps, each centred in its own cell and fully inside it. CAMERA: high top-down three-quarter view (seen from above at about 60 degrees, not isometric). (1) a large leafy mango shade tree with a round dense canopy and some mangoes, short trunk visible at the bottom, (2) a tall coconut palm with fronds seen from above and the curved trunk, (3) a tall wooden electricity pole with a crossbar, porcelain insulators and a grey transformer box. No ground, no shadows, no wires leaving the cell.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:52:15.311Z",
+      "provider": "openai",
+      "asset": "veh-danfo-top",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1758,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 222
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2101
+      },
+      "prompt": "ONE isolated vehicle sprite on a fully transparent background: a yellow Lagos danfo minibus (Toyota HiAce style) with two black stripes along the sides, a luggage rack on the roof, seen from DIRECTLY ABOVE (true top-down view, roof facing the camera), the front of the bus pointing to the RIGHT edge of the image, centred and horizontal, slight hint of the side panels and wheels. Weathered and dented. No ground, no shadow, no people outside.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:52:34.136Z",
+      "provider": "openai",
+      "asset": "chr-tunde-walk",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0242,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1861,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 325
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2204
+      },
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. CHARACTER: Tunde, a wiry 34-year-old Nigerian danfo driver with dark brown skin, short black hair, a faded red football jersey, dark trousers, sandals and a white towel over one shoulder; chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:52:51.527Z",
+      "provider": "openai",
+      "asset": "chr-pedestrians-a",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0241,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1835,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 299
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2178
+      },
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT ordinary Lagos pedestrians, one full-body person per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera. Mix: a market woman in ankara wrapper and gele carrying a basin on her head, a student in school uniform with a backpack, a man in a kaftan and cap, an okada rider in a helmet holding it, an older man in agbada, a young woman in jeans and a T-shirt with a phone, a hawker with a tray of bread on his head, a security guard in uniform. No ground, no shadows, no labels.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T12:53:10.068Z",
+      "provider": "openai",
+      "asset": "chr-pedestrians-b",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0241,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1831,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 295
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2174
+      },
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT ordinary Lagos pedestrians, one full-body person per cell, each walking to the RIGHT in side view, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera. Mix: a woman in a blue ankara dress, a teenage boy in a football jersey, a man in a white shirt and tie with a briefcase, a woman with a baby tied on her back, a man pushing nothing but carrying a sack, an old woman with a walking stick, a young man in a hoodie, a woman carrying a bowl of pure-water sachets on her head. No ground, no shadows, no labels.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T14:42:54.672Z",
+      "provider": "openai",
+      "asset": "tex-ground-sand",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0141,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 183,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 183
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 622
+      },
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view, no perspective): warm golden beach sand with gentle ripples, small shells, footprints, bits of dry seaweed and coconut husk. Even lighting, no cast shadows, no objects. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T14:43:12.104Z",
+      "provider": "openai",
+      "asset": "tex-ground-island-grass",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0141,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 177,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 177
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 616
+      },
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view): lush tropical island grass, bright and deep greens with small wild flowers and sandy soil showing through in places. Even lighting, no cast shadows, no objects. Edges must tile seamlessly.",
+      "refs": []
+    },
+    {
+      "at": "2026-10-14T14:43:29.050Z",
+      "provider": "openai",
+      "asset": "bld-beach-bar",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0239,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1802,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 266
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2145
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a cheerful beachfront bar and grill on a small island: a big thatched palm-leaf roof seen from above, open front with a bamboo bar counter, coolers, bar stools, string lights and a chalkboard with no writing, painted in sunny turquoise and yellow. No ground, no sand, no people, no cast shadow.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T14:43:49.466Z",
+      "provider": "openai",
+      "asset": "bld-fisher-hut",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0268,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1796,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 260
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2235
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a small Nigerian fisherman's hut on an island: weathered wooden plank walls painted faded blue, a rusty corrugated zinc roof patched with palm thatch, fishing nets and baskets hung on the front wall, an oil lamp by the door. No ground, no sand, no people, no cast shadow.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T14:44:07.313Z",
+      "provider": "openai",
+      "asset": "bld-island-cottage",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0267,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1784,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 248
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2223
+      },
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a small colourful island cottage with coral-pink plaster, white window frames with louvre shutters, a rusty zinc roof seen from above, a little veranda with a hammock and potted hibiscus. No ground, no people, no cast shadow.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T14:44:33.016Z",
+      "provider": "openai",
+      "asset": "prop-sheet-island",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0242,
+      "seconds": 26,
+      "usage": {
+        "input_tokens": 1868,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 332
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2211
+      },
+      "prompt": "A sprite sheet of SIX separate isolated beach props on a fully transparent background, in a strict 3 columns by 2 rows grid with wide empty gaps, each prop centred in its own cell and fully inside it. CAMERA for every prop: high top-down three-quarter view (seen from above at about 60 degrees, front facing the viewer, not isometric). Top row: (1) a long wooden Nigerian fishing canoe painted with bright stripes, lying on its side axis horizontally, with paddles inside, (2) fishing nets drying on two wooden poles, (3) a beach umbrella made of palm thatch with two wooden loungers. Bottom row: (4) a wooden coconut seller's cart piled with green coconuts and a machete-free display, (5) a cluster of three short coconut palms seen from above, (6) a weathered wooden signpost with no writing next to a stack of fish baskets. No ground, no sand, no people, no cast shadows.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
     }
   ]
 }

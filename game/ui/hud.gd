@@ -30,7 +30,7 @@ func _ready() -> void:
 	root.theme = _theme
 	add_child(root)
 
-	var title := _panel_label("Naija Street Life\n[M0 style test · placeholder art]", 15)
+	var title := _panel_label("Naija Street Life\n[M0 style test · AI-painted art]", 15)
 	title.position = Vector2(12, 12)
 	root.add_child(title)
 

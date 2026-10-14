@@ -6,12 +6,35 @@ const K := Layout.HEIGHT_K
 var kind := ""
 var seed := 0
 var smoke: CPUParticles2D
+var _art: Sprite2D
+
+const ART := {
+	"umbrella": ["props/umbrella.png", 96.0], "generator": ["props/generator.png", 52.0],
+	"kiosk": ["props/kiosk.png", 104.0], "tyres": ["props/tyres.png", 56.0],
+	"mango": ["props/mango.png", 190.0], "palm": ["props/palm.png", 190.0],
+	"pole": ["props/pole.png", 70.0], "transformer": ["props/pole.png", 76.0],
+	# Island (decision D-007)
+	"canoe": ["props/canoe.png", 170.0], "nets": ["props/nets.png", 110.0],
+	"beach-umbrella": ["props/beach-umbrella.png", 120.0], "coconut-cart": ["props/coconut-cart.png", 90.0],
+	"palm-cluster": ["props/palm-cluster.png", 170.0], "fish-baskets": ["props/fish-baskets.png", 80.0],
+	"beach-bar": ["buildings/beach-bar.png", 300.0], "fisher-hut": ["buildings/fisher-hut.png", 190.0],
+	"island-cottage": ["buildings/island-cottage.png", 210.0],
+}
 
 
 func setup(spec: Layout.PropSpec) -> void:
 	kind = spec.kind
 	seed = spec.seed
 	position = spec.pos
+	if ART.has(kind):
+		var t := Art.tex(ART[kind][0])
+		if t:
+			_art = Sprite2D.new()
+			_art.texture = t
+			var sc: float = ART[kind][1] / float(t.get_width())
+			_art.scale = Vector2(sc, sc)
+			_art.position = Vector2(0, -t.get_height() * sc * 0.5) # feet on the ground point
+			add_child(_art)
 	if kind == "generator":
 		smoke = CPUParticles2D.new()
 		smoke.position = Vector2(10, -22)
@@ -40,11 +63,19 @@ func set_generator_running(on: bool) -> void:
 
 ## Top of the pole in local coords (for wires).
 func wire_anchor() -> Vector2:
+	if _art:
+		return Vector2(0, -_art.texture.get_height() * _art.scale.y * 0.94)
 	return Vector2(0, -170.0 * K)
 
 
 func _draw() -> void:
 	var r := Ink.rng(seed)
+	if _art:
+		var s := _art.texture.get_width() * _art.scale.x
+		# Big structures get a lighter, flatter contact shadow so it doesn't read as a dark hole.
+		var big := s > 150.0
+		Ink.shadow(self, Vector2(s * 0.08, 2), Vector2(s * 0.42, s * (0.08 if big else 0.14)), 0.18 if big else 0.3)
+		return
 	match kind:
 		"umbrella":
 			Ink.shadow(self, Vector2(10, 4), Vector2(46, 18), 0.28)

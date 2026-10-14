@@ -38,8 +38,8 @@ func _test_device_profile() -> void:
 
 func _test_layout() -> void:
 	var w := Layout.build_yaba()
-	check(Layout.surface_at(Vector2(100, (Layout.MAIN_Y0 + Layout.MAIN_Y1) / 2.0)) == "road", "main road is road")
-	check(Layout.surface_at(Vector2(100, 100)) == "ground", "top-left is ground")
+	check(Layout.surface_at(Vector2(600, (Layout.MAIN_Y0 + Layout.MAIN_Y1) / 2.0)) == "road", "main road is road")
+	check(Layout.surface_at(Vector2(700, 600)) == "ground", "town ground north of the road")
 	check(not w.is_blocked(w.player_start), "player starts on walkable ground")
 	check(not w.is_blocked(w.danfo_start), "danfo starts on walkable ground")
 	var blocked := 0
@@ -47,3 +47,13 @@ func _test_layout() -> void:
 		if w.is_blocked(b.footprint().get_center()):
 			blocked += 1
 	check(blocked == w.buildings.size(), "every building footprint is solid")
+	# Island (D-007)
+	check(Layout.surface_at(Layout.ISLAND_CENTER + Vector2(-300, 0)) != "sea", "island centre is land")
+	check(Layout.surface_at(Vector2(10, 10)) == "sea", "world corner is sea")
+	check(w.is_blocked(Vector2(20, 20)), "the sea blocks walking and driving")
+	check(w.buildings.size() >= 8, "most town lots stay on the island (%d)" % w.buildings.size())
+	var beach := 0
+	for p in w.props:
+		if Layout.surface_at(p.pos) == "beach":
+			beach += 1
+	check(beach >= 10, "beach has life on it (%d props)" % beach)

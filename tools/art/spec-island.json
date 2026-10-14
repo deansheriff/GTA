@@ -1,0 +1,51 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, a sunny, weathered, lived-in tropical Nigerian island town, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "tex-ground-sand",
+      "background": "opaque",
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view, no perspective): warm golden beach sand with gentle ripples, small shells, footprints, bits of dry seaweed and coconut husk. Even lighting, no cast shadows, no objects. Edges must tile seamlessly."
+    },
+    {
+      "name": "tex-ground-island-grass",
+      "background": "opaque",
+      "prompt": "A SEAMLESS TILEABLE square ground texture seen from DIRECTLY ABOVE (orthographic top view): lush tropical island grass, bright and deep greens with small wild flowers and sandy soil showing through in places. Even lighting, no cast shadows, no objects. Edges must tile seamlessly."
+    },
+    {
+      "name": "bld-beach-bar",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a cheerful beachfront bar and grill on a small island: a big thatched palm-leaf roof seen from above, open front with a bamboo bar counter, coolers, bar stools, string lights and a chalkboard with no writing, painted in sunny turquoise and yellow. No ground, no sand, no people, no cast shadow."
+    },
+    {
+      "name": "bld-fisher-hut",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a small Nigerian fisherman's hut on an island: weathered wooden plank walls painted faded blue, a rusty corrugated zinc roof patched with palm thatch, fishing nets and baskets hung on the front wall, an oil lamp by the door. No ground, no sand, no people, no cast shadow."
+    },
+    {
+      "name": "bld-island-cottage",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE isolated building sprite on a fully transparent background. CAMERA: high top-down three-quarter view looking straight down the screen (NOT isometric, NOT rotated): axis-aligned, front facing the viewer and parallel to the bottom edge of the image, roof seen from above taking the upper part, a short strip of the front visible below. SUBJECT: a small colourful island cottage with coral-pink plaster, white window frames with louvre shutters, a rusty zinc roof seen from above, a little veranda with a hammock and potted hibiscus. No ground, no people, no cast shadow."
+    },
+    {
+      "name": "prop-sheet-island",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet of SIX separate isolated beach props on a fully transparent background, in a strict 3 columns by 2 rows grid with wide empty gaps, each prop centred in its own cell and fully inside it. CAMERA for every prop: high top-down three-quarter view (seen from above at about 60 degrees, front facing the viewer, not isometric). Top row: (1) a long wooden Nigerian fishing canoe painted with bright stripes, lying on its side axis horizontally, with paddles inside, (2) fishing nets drying on two wooden poles, (3) a beach umbrella made of palm thatch with two wooden loungers. Bottom row: (4) a wooden coconut seller's cart piled with green coconuts and a machete-free display, (5) a cluster of three short coconut palms seen from above, (6) a weathered wooden signpost with no writing next to a stack of fish baskets. No ground, no sand, no people, no cast shadows."
+    }
+  ]
+}

@@ -173,3 +173,37 @@ APK holds no secrets; each phone gets a guest token from the server.
   showing three bot players with name tags.
 - CI builds the Docker image and smoke-tests it against Postgres.
 - The real Coolify deploy is done by the owner (docs/COOLIFY.md).
+
+## D-007 · New setting: a tropical island instead of Lagos · 2026-10-14
+**Decision:** The owner asked for a new vibe: the game is set on a **tropical island**
+instead of Lagos, with everything else unchanged.
+
+**Interpretation (owner to confirm):**
+- A **fictional Nigerian island off the coast**, with the same people, culture,
+  Pidgin, danfos, POS stands, NEPA and the Up NEPA! story.
+- Working name **"Ayo Island"** (Yoruba *ayọ̀*, "joy"; pending native-speaker review).
+- Real Lagos neighbourhoods are no longer used as settings, which also removes open
+  question 6 in the Phase 2 report.
+
+**Location mapping** (the story is unchanged; only places move):
+
+| Before (Lagos) | Now (Ayo Island) |
+|---|---|
+| Yaba junction (M0 map) | **Ayo Town**: the market junction in the island's centre |
+| Lekki owambe event centre | **Paradise Gardens**, a beachfront event centre |
+| Ikoyi / Banana Island wealth | **Hilltop Estate** |
+| Oshodi, Obalende, Mushin danfo routes | The **ring road** around the island, the ferry jetty and the fish market |
+| Agbado-Ketu Central LGA | **Ayo Island Local Council** (the Chief's election) |
+| "The mainland" | Off-screen, across the water: the ferry, and KC's Japa dream |
+
+**What changes:**
+- **Map:** a coastline with animated sea, beaches and a jetty, inside the same
+  40×30-cell world. The sea blocks walking and driving.
+- **Art:** new island assets: sand, beach shacks, fishing huts, canoes, nets, beach
+  bar, coconut palms. The existing town art stays, since island towns have zinc-roof
+  shops too.
+- **Story Bible and mission list:** place names follow the table above. Scenes and
+  jokes stay. A full text pass happens with the deliverable-4 scripts.
+
+**What doesn't change:** the features (F1–F8), the server, the camera and art style
+(D-004), the platform (D-005), hosting (D-006), the characters and the plot.

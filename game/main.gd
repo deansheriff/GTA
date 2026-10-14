@@ -118,6 +118,21 @@ func _build_terrain() -> void:
 	m.set_shader_parameter("cross_x1", float(Layout.CROSS_X1))
 	m.set_shader_parameter("gutter", Layout.GUTTER)
 	m.set_shader_parameter("walk", Layout.WALK)
+	# Painted ground textures, if generated (game/art/ground); otherwise procedural colours.
+	var ground := { "tex_dirt": "ground/dirt.png", "tex_grass": "ground/grass.png", "tex_asphalt": "ground/asphalt.png", "tex_walk": "ground/interlock.png" }
+	var all_found := true
+	for key in ground:
+		var gt := Art.tex(ground[key])
+		all_found = all_found and gt != null
+		m.set_shader_parameter(key, gt)
+	m.set_shader_parameter("use_tex", all_found)
+	var sand := Art.tex("ground/sand.png")
+	m.set_shader_parameter("tex_sand", sand)
+	m.set_shader_parameter("use_sand_tex", sand != null)
+	m.set_shader_parameter("island_center", Layout.ISLAND_CENTER)
+	m.set_shader_parameter("island_radii", Layout.ISLAND_RADII)
+	m.set_shader_parameter("beach_start", Layout.BEACH_START)
+	m.set_shader_parameter("road_end", Layout.ROAD_END)
 	terrain.material = m
 	add_child(terrain)
 
@@ -151,6 +166,7 @@ func _build_entities() -> void:
 	player = WalkerScript.new()
 	player.look = WalkerScript.tunde()
 	player.position = world.player_start
+	player.use_hero_sheet("characters/tunde-walk.png")
 	player.material = painted_mat
 	entities.add_child(player)
 
@@ -185,6 +201,7 @@ func _spawn_npcs(count: int) -> void:
 			continue
 		var n: Node2D = WalkerScript.new()
 		n.look = WalkerScript.random_look(900 + npcs.size() * 17)
+		n.use_pedestrian(npcs.size())
 		n.position = p
 		n.speed = r.randf_range(45, 85)
 		n.material = painted_mat
@@ -380,7 +397,8 @@ func _process(delta: float) -> void:
 		if n.target == Vector2.INF:
 			n.idle_t -= dt
 			if n.idle_t <= 0.0:
-				var t: Vector2 = n.position + Vector2(randf_range(-220, 220), randf_range(-220, 220))
+				var reach := 60.0 if n.loiterer else 220.0
+				var t: Vector2 = n.position + Vector2(randf_range(-reach, reach), randf_range(-reach * 0.5, reach * 0.5))
 				if not world.is_blocked(t) and Layout.surface_at(t) != "road":
 					n.target = t
 				n.idle_t = randf_range(0.5, 3.0)
@@ -443,6 +461,7 @@ func _on_met(id: int, name_: String, look: Dictionary) -> void:
 		return
 	var w: Node2D = WalkerScript.new()
 	w.look = _look_from_wire(look)
+	w.use_pedestrian(id * 3 + 1)
 	w.display_name = name_
 	w.material = painted_mat
 	w.visible = false # shown on first position
@@ -517,7 +536,24 @@ func _wait(t: float) -> void:
 
 
 func _run_demo() -> void:
-	await _wait(1.5)
+	await _wait(1.0)
+	# Whole-island overview from a temporary camera.
+	var over := Camera2D.new()
+	over.position = Layout.WORLD * 0.5
+	over.zoom = Vector2(0.5, 0.5)
+	add_child(over)
+	over.make_current()
+	await _wait(0.4)
+	await _shot("00-island-overview")
+	camera.make_current()
+	over.queue_free()
+	# Beach close-up on the south shore, then back to town.
+	var home: Vector2 = player.position
+	player.position = Vector2(1240, 1560)
+	await _wait(1.0)
+	await _shot("00b-beach")
+	player.position = home
+	await _wait(1.0)
 	await _shot("01-day-walk")
 	await _measure("day")
 	player.target = danfo.position + Vector2(0, 60)

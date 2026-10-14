@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates painted game art with Gemini image models (decision D-004).
+ * Generates painted game art with OpenAI GPT Image (default) or Gemini image models (decision D-004).
  *
  *   node --env-file=.env tools/art/gen.mjs <spec.json> [assetName ...]
  *
@@ -13,10 +13,20 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 
 const KEY = process.env.GEMINI_API_KEY;
-if (!KEY) { console.error('GEMINI_API_KEY missing (put it in .env)'); process.exit(1); }
+const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const BUDGET = Number(process.env.ART_BUDGET_USD ?? 10);
 const LEDGER = 'art-src/spend-ledger.json';
 const RAW = 'art-src/raw';
+
+// OpenAI GPT Image token prices (USD per 1M), developers.openai.com/api/docs/pricing, 2026-10-14.
+// Actual cost is computed from the usage the API returns; ESTIMATE is only for the pre-call budget check.
+const OPENAI_RATES = {
+  'gpt-image-2.5-flare': { text: 5, image: 8, out: 30 },
+  'gpt-image-2.5-sunburst': { text: 5, image: 8, out: 30 },
+  'gpt-image-2': { text: 5, image: 8, out: 30 },
+  'gpt-image-1-mini': { text: 2, image: 2.5, out: 8 },
+};
+const OPENAI_ESTIMATE = { low: 0.02, medium: 0.07, high: 0.25, auto: 0.25 };
 
 // Conservative per-image estimates (USD) from ai.google.dev pricing, 2026-10-14. Rounded up.
 const PRICE = {
@@ -44,8 +54,56 @@ function findImages(node, out = []) {
   return out;
 }
 
+async function openaiGenerate(a) {
+  const model = a.model ?? spec.model ?? 'gpt-image-2.5-flare';
+  const quality = a.quality ?? spec.quality ?? 'medium';
+  const est = OPENAI_ESTIMATE[quality] * (a.n ?? 1) * (a.size && a.size !== '1024x1024' ? 1.5 : 1);
+  if (spent() + est > BUDGET) {
+    console.error(`✗ Budget stop: spent ~$${spent().toFixed(2)} of $${BUDGET}; ${a.name} would add ~$${est.toFixed(2)}.`);
+    process.exit(2);
+  }
+  const prompt = [spec.stylePrefix, a.prompt, spec.styleSuffix].filter(Boolean).join('\n\n');
+  const common = { model, prompt, size: a.size ?? '1024x1024', quality, background: a.background ?? 'transparent', output_format: 'png', n: a.n ?? 1 };
+  process.stdout.write(`→ ${a.name} (${model}, ${common.size}, ${quality}, ${common.background}${a.refs?.length ? ', refs ' + a.refs.length : ''}) ... `);
+  const t0 = Date.now();
+  let res;
+  if (a.refs?.length) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(common)) form.append(k, String(v));
+    for (const ref of a.refs) form.append('image[]', new Blob([readFileSync(ref)], { type: 'image/png' }), ref.split('/').pop());
+    res = await fetch('https://api.openai.com/v1/images/edits', { method: 'POST', headers: { authorization: `Bearer ${OPENAI_KEY}` }, body: form });
+  } else {
+    res = await fetch('https://api.openai.com/v1/images/generations', { method: 'POST', headers: { authorization: `Bearer ${OPENAI_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify(common) });
+  }
+  const json = await res.json().catch(() => ({}));
+  const u = json.usage ?? {};
+  const r = OPENAI_RATES[model] ?? OPENAI_RATES['gpt-image-2'];
+  const textIn = u.input_tokens_details?.text_tokens ?? u.input_tokens ?? 0;
+  const imageIn = u.input_tokens_details?.image_tokens ?? 0;
+  const cost = res.ok ? (textIn * r.text + imageIn * r.image + (u.output_tokens ?? 0) * r.out) / 1e6 : 0;
+  const images = (json.data ?? []).filter((d) => d.b64_json);
+  ledger.calls.push({ at: new Date().toISOString(), provider: 'openai', asset: a.name, model, size: common.size, quality, background: common.background, ok: res.ok && images.length > 0, http: res.status, estUsd: Number(cost.toFixed(4)), seconds: Math.round((Date.now() - t0) / 1000), usage: u, prompt: a.prompt, refs: a.refs ?? [] });
+  writeFileSync(LEDGER, JSON.stringify(ledger, null, 2) + '\n');
+  if (!res.ok || images.length === 0) {
+    console.log(`FAILED (http ${res.status}) ${JSON.stringify(json.error ?? json).slice(0, 600)}`);
+    return;
+  }
+  images.forEach((img, i) => {
+    const file = join(RAW, `${a.name}${images.length > 1 ? `-${i}` : ''}.png`);
+    writeFileSync(file, Buffer.from(img.b64_json, 'base64'));
+    console.log(`ok → ${file} ($${cost.toFixed(3)})`);
+  });
+  console.log(`   spent so far $${spent().toFixed(2)} / $${BUDGET}`);
+}
+
 const assets = spec.assets.filter((a) => only.length === 0 || only.includes(a.name));
 for (const a of assets) {
+  if ((a.provider ?? spec.provider ?? 'openai') === 'openai') {
+    if (!OPENAI_KEY) { console.error('OPENAI_API_KEY missing (put it in .env)'); process.exit(1); }
+    await openaiGenerate(a);
+    continue;
+  }
+  if (!KEY) { console.error('GEMINI_API_KEY missing (put it in .env)'); process.exit(1); }
   const model = a.model ?? spec.model ?? 'gemini-nano-banana-2.1';
   const size = a.imageSize ?? spec.imageSize ?? '1K';
   const est = PRICE[model]?.[size] ?? 0.3;

@@ -1,6 +1,6 @@
 class_name Layout
 extends RefCounted
-## M0 style-test map: one Yaba junction, top-down 3/4 (decision D-004).
+## M0 style-test map: Ayo Town, the market junction at the heart of Ayo Island (decisions D-004, D-007).
 ## Layout sits on an invisible square grid (CELL px). The ground is one painted surface (terrain shader).
 
 const CELL := 64
@@ -18,6 +18,19 @@ const WALK := 34.0
 
 ## Height foreshortening for anything that stands up (walls, poles, people).
 const HEIGHT_K := 0.62
+
+## The island: an irregular oval coastline. The SAME formula runs in shaders/terrain.gdshader.
+const ISLAND_CENTER := Vector2(1280, 940)
+const ISLAND_RADII := Vector2(1150, 820)
+const BEACH_START := 0.86 # island radius where land turns to beach
+const ROAD_END := 0.9 # roads stop where the sand gets deep
+
+
+## 0 at the centre, 1.0 at the waterline, >1 out at sea.
+static func island_r(p: Vector2) -> float:
+	var d := (p - ISLAND_CENTER) / ISLAND_RADII
+	var a := atan2(d.y, d.x)
+	return d.length() + 0.05 * sin(a * 5.0 + 1.3) + 0.035 * sin(a * 9.0 + 0.4) + 0.02 * sin(a * 13.0 + 2.1)
 
 const WALLS := [Color("#c9a66b"), Color("#86a58a"), Color("#c08566"), Color("#8f9cbf"), Color("#d6c49c"), Color("#b78aa6")]
 const SIGNS := ["AUNTY BOSS KITCHEN", "KONFAM POS", "GIDI BARBING SALON", "9BARS RECHARGE", "GOD'S TIME REPAIRS", "MIRACLE FM 99.9", "TAP-TAP POS", "NO CONDITION IS PERMANENT"]
@@ -63,6 +76,18 @@ class WorldData:
 
 ## What is painted at a ground point (before noise picks grass, dirt or laterite).
 static func surface_at(p: Vector2) -> String:
+	var r := island_r(p)
+	if r > 1.0:
+		return "sea"
+	if r > ROAD_END:
+		return "beach"
+	var town := _town_surface(p)
+	if town == "ground" and r > BEACH_START:
+		return "beach"
+	return town
+
+
+static func _town_surface(p: Vector2) -> String:
 	var in_main := p.y >= MAIN_Y0 and p.y < MAIN_Y1
 	var in_cross := p.x >= CROSS_X0 and p.x < CROSS_X1
 	if in_main or in_cross:
@@ -90,6 +115,10 @@ static func build_yaba() -> WorldData:
 	]
 	for i in lots.size():
 		var l: Array = lots[i]
+		# Keep only lots fully on solid land (not on the beach or in the sea).
+		var fp := Rect2(Vector2(l[0], l[1]) * CELL, Vector2(l[2], l[3]) * CELL)
+		if maxf(maxf(island_r(fp.position), island_r(fp.end)), maxf(island_r(Vector2(fp.end.x, fp.position.y)), island_r(Vector2(fp.position.x, fp.end.y)))) > BEACH_START - 0.02:
+			continue
 		var b := BuildingSpec.new()
 		b.cell = Vector2i(l[0], l[1])
 		b.size = Vector2i(l[2], l[3])
@@ -129,10 +158,50 @@ static func build_yaba() -> WorldData:
 		add.call("palm" if i % 3 == 0 else "mango", trees[i][0], trees[i][1], 400 + i)
 	add.call("tyres", 8, 21, 500)
 	add.call("tyres", 19, 7, 501)
+	# Drop props that ended up in the sea; town props on the beach are fine.
+	w.props = w.props.filter(func(p: PropSpec) -> bool: return island_r(p.pos) < 0.98)
+	# Beach life: canoes, nets, palm-thatch umbrellas, a coconut seller, fishermen's huts, a beach bar.
+	_place_beach(w)
 	for p in w.props:
-		if p.kind != "umbrella":
+		if p.kind != "umbrella" and p.kind != "beach-umbrella":
 			w.block_cell(int(p.pos.x / CELL), int(p.pos.y / CELL))
+	# The sea is solid for walking and driving.
+	for r in ROWS:
+		for c in COLS:
+			if island_r((Vector2(c, r) + Vector2(0.5, 0.5)) * CELL) > 1.0:
+				w.block_cell(c, r)
 
-	w.danfo_start = Vector2(8 * CELL, 15 * CELL - 4)
+	w.danfo_start = Vector2(9 * CELL, 15 * CELL - 4)
 	w.player_start = Vector2(10.5 * CELL, 16.6 * CELL)
 	return w
+
+
+## Walk around the coast and place beach things on the sand band, with buildings on bigger gaps.
+static func _place_beach(w: WorldData) -> void:
+	var kinds := ["canoe", "palm-cluster", "nets", "beach-umbrella", "coconut-cart", "canoe", "fish-baskets", "palm-cluster"]
+	var k := 0
+	var steps := 36
+	for i in steps:
+		var a := TAU * float(i) / float(steps) + 0.07
+		# Find the beach mid-line (r ≈ 0.93) along this direction.
+		var dir := Vector2(cos(a), sin(a))
+		var pos := ISLAND_CENTER
+		for s in 120:
+			pos = ISLAND_CENTER + dir * ISLAND_RADII * (s / 100.0)
+			if island_r(pos) >= 0.93:
+				break
+		if pos.x < CELL or pos.y < CELL or pos.x > WORLD.x - CELL or pos.y > WORLD.y - CELL:
+			continue
+		if _town_surface(pos) == "road":
+			continue # keep the road ends clear
+		var p := PropSpec.new()
+		if i % 9 == 4:
+			p.kind = "beach-bar" if i < 18 else "fisher-hut"
+		elif i % 9 == 7:
+			p.kind = "island-cottage"
+		else:
+			p.kind = kinds[k % kinds.size()]
+			k += 1
+		p.pos = pos
+		p.seed = 700 + i
+		w.props.append(p)

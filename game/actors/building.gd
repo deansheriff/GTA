@@ -4,12 +4,30 @@ extends Node2D
 ## The node sits at the footprint's front-left ground corner so y-sorting works.
 
 var spec: Layout.BuildingSpec
+var _art: Sprite2D
 
 
 func setup(s: Layout.BuildingSpec) -> void:
 	spec = s
 	var fp := s.footprint()
 	position = Vector2(fp.position.x, fp.end.y)
+	var t := Art.tex(_art_for(s))
+	if t:
+		# Painted building: fit its width to the footprint (+ eaves), front wall on the ground line.
+		_art = Sprite2D.new()
+		_art.texture = t
+		var sc := (fp.size.x + 14.0) / float(t.get_width())
+		_art.scale = Vector2(sc, sc)
+		_art.position = Vector2(fp.size.x * 0.5, -t.get_height() * sc * 0.5 + 6.0)
+		add_child(_art)
+
+
+static func _art_for(s: Layout.BuildingSpec) -> String:
+	if s.size.x >= 5 or s.height >= 96:
+		return "buildings/two-storey.png"
+	if s.size.x == 4:
+		return "buildings/bungalow.png" if s.seed % 2 == 0 else "buildings/two-storey.png"
+	return ["buildings/canteen.png", "buildings/pos-shop.png", "buildings/provision-store.png"][s.seed % 3]
 
 
 func _draw() -> void:
@@ -18,6 +36,10 @@ func _draw() -> void:
 	var hk := spec.height * Layout.HEIGHT_K
 	var r := Ink.rng(spec.seed)
 
+	if _art:
+		# Soft contact shadow along the front and right side; the painting carries its own shading.
+		Ink.shadow(self, Vector2(w * 0.5, 4), Vector2(w * 0.56, 16), 0.32)
+		return
 	# Ground shadow falling to the bottom-right.
 	draw_colored_polygon(PackedVector2Array([
 		Vector2(w, -d - hk * 0.2), Vector2(w + hk * 0.55, -d + hk * 0.15), Vector2(w + hk * 0.55, hk * 0.22), Vector2(8, hk * 0.22), Vector2(0, 0), Vector2(w, 0)

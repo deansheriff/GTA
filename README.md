@@ -7,8 +7,10 @@ above at an angle.
 ## Status
 - **Platform:** Android only, built with **Godot 4.6.3** (decision D-005).
 - **Look:** top-down 3/4 camera with painted, ink-outlined art in The Omins' style (decision D-004).
-- **Milestone 0 is in progress.** Playable now, with **placeholder art drawn in code**, in one
-  Yaba junction:
+- **Setting:** **Ayo Island**, a fictional tropical Nigerian island (decision D-007).
+- **Milestone 0 is in progress.** Playable now, with **AI-painted art** (GPT Image; see
+  [provenance](docs/art/PROVENANCE.md)), in Ayo Town on Ayo Island:
+  - animated sea and beaches with canoes, nets, beach bars, fishermen's huts and palms
   - painted ground, zinc-roofed shops, POS umbrellas, poles and wires, generators, trees
   - walk Tunde
   - drive the danfo "Baba God Dey" in any direction
@@ -17,15 +19,15 @@ above at an angle.
   - graphics presets suggested per device
   - runs at 60 fps
   - **multiplayer:** connect to your server (Settings → Online) and see other players walk and drive
-- **Next:** painted art generated with Gemini (needs billing enabled on the Gemini API
-  project), then Milestone 1, the Prologue.
+- **Next:** 8-direction danfo art and the three hero sheets, then Milestone 1: the Prologue
+  at Paradise Gardens.
 
 ## Layout
 | Path | What |
 |---|---|
 | `game/` | Godot project (GDScript): `core/` settings and helpers, `world/` layout, `actors/`, `shaders/`, `ui/`, `tests/` |
 | `apps/server/` | TypeScript (Fastify) server: realtime multiplayer (`/ws`), API, PostgreSQL; deploys to Coolify via `compose.yaml` ([guide](docs/COOLIFY.md)) |
-| `tools/art/` | Gemini art generator with a spend ledger and budget stop |
+| `tools/art/` | Art generator (OpenAI GPT Image, or Gemini) with a spend ledger and $10 budget stop, plus `process.mjs` to slice sprites |
 | `scripts/build.ps1` | Tests and debug APK |
 | `docs/` | Research, proposal, decisions, story |
 
