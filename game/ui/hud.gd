@@ -5,6 +5,7 @@ extends CanvasLayer
 signal toggle_night
 signal toggle_nepa
 signal enter_exit
+signal action_pressed
 signal waypoint_set(pos: Vector2)
 signal waypoint_cleared
 
@@ -19,6 +20,10 @@ var _root: Control
 var _stats: PanelContainer
 var _stats_label: Label
 var _online_label: Label
+var _job_label: Label
+var _needs_bars := {}
+var phone: Control
+var pos_game: Control
 var _action: Button
 var _toast: Label
 var _toast_t := 0.0
@@ -61,11 +66,22 @@ func _ready() -> void:
 	col.position = Vector2(-12, -90)
 	col.add_theme_constant_override("separation", 10)
 	root.add_child(col)
+	col.add_child(_button("Phone", func() -> void: if phone: phone.open()))
 	col.add_child(_button("Settings", func() -> void: _show_settings(root)))
-	col.add_child(_button("Night", func() -> void: toggle_night.emit()))
-	col.add_child(_button("NEPA", func() -> void: toggle_nepa.emit()))
+	if "--dev" in OS.get_cmdline_user_args() or "--demo" in OS.get_cmdline_user_args():
+		col.add_child(_button("Night", func() -> void: toggle_night.emit()))
+		col.add_child(_button("NEPA", func() -> void: toggle_nepa.emit()))
 
-	_action = _button("Enter danfo", func() -> void: enter_exit.emit())
+	var job := _panel_label("", 14)
+	job.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	job.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	job.offset_right = -12
+	job.offset_top = 98
+	job.visible = false
+	root.add_child(job)
+	_job_label = job.get_meta("label")
+
+	_action = _button("Enter danfo", func() -> void: action_pressed.emit())
 	_action.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	_action.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	_action.grow_vertical = Control.GROW_DIRECTION_BEGIN
@@ -109,10 +125,85 @@ func _ready() -> void:
 	_apply_ui_scale(root)
 
 
-func set_state(mode: String, near_danfo: bool, night: bool, nepa_on: bool, fps: int) -> void:
-	_stats_label.text = "%d fps   %s   %s" % [fps, "Night" if night else "Day", "Light dey" if nepa_on else "No light"]
-	_action.visible = near_danfo or mode == "driving"
-	_action.text = "Comot from danfo" if mode == "driving" else "Enter Baba God Dey"
+func set_state(_mode: String, _near_danfo: bool, _night: bool, nepa_on: bool, fps: int) -> void:
+	_stats_label.text = "%s   ₦%s   %s   %s%s" % [Clock.label(), Life.fmt_naira(Life.money), Life.mood_label(), "" if nepa_on else "No light   ", ("%d fps" % fps) if "--demo" in OS.get_cmdline_user_args() else ""]
+	for n in _needs_bars:
+		var pb: ProgressBar = _needs_bars[n]
+		pb.value = Life.needs[n]
+		(pb.get_theme_stylebox("fill") as StyleBoxFlat).bg_color = Color("#2f8a52") if pb.value > 50 else (DANFO if pb.value > 25 else Color("#a8382c"))
+
+
+## Context action (bottom right): "" hides it.
+func set_action(text: String) -> void:
+	_action.visible = text != ""
+	_action.text = text
+
+
+func set_job(text: String) -> void:
+	_job_label.get_parent().visible = text != ""
+	_job_label.text = text
+
+
+## Phone, POS mini-game and needs bars (M2).
+func setup_life(jobs: JobRunner) -> void:
+	var needs_box := VBoxContainer.new()
+	needs_box.position = Vector2(14, 236)
+	needs_box.add_theme_constant_override("separation", 3)
+	_root.add_child(needs_box)
+	for n in Life.NEEDS:
+		var row := HBoxContainer.new()
+		var l := Label.new()
+		l.text = { "hunger": "Belle", "energy": "Power", "fun": "Joy", "social": "Gist", "hygiene": "Neat" }[n]
+		l.custom_minimum_size = Vector2(40, 0)
+		l.add_theme_font_size_override("font_size", 11)
+		l.add_theme_color_override("font_color", PAPER)
+		l.add_theme_color_override("font_outline_color", INK)
+		l.add_theme_constant_override("outline_size", 4)
+		row.add_child(l)
+		var pb := ProgressBar.new()
+		pb.max_value = 100
+		pb.show_percentage = false
+		pb.custom_minimum_size = Vector2(124, 9)
+		var bg := StyleBoxFlat.new()
+		bg.bg_color = Color(0.11, 0.09, 0.07, 0.7)
+		bg.set_corner_radius_all(4)
+		pb.add_theme_stylebox_override("background", bg)
+		var fill := StyleBoxFlat.new()
+		fill.bg_color = Color("#2f8a52")
+		fill.set_corner_radius_all(4)
+		pb.add_theme_stylebox_override("fill", fill)
+		row.add_child(pb)
+		needs_box.add_child(row)
+		_needs_bars[n] = pb
+	phone = preload("res://ui/phone.gd").new()
+	phone.visible = false
+	_root.add_child(phone)
+	phone.setup(jobs)
+	phone.open_map.connect(func() -> void: map_screen.visible = true)
+	phone.open_settings.connect(func() -> void: _show_settings(_root))
+	pos_game = preload("res://ui/pos_game.gd").new()
+	_root.add_child(pos_game)
+
+
+## Vendor menu: buy food and items with game money.
+func open_shop(title: String, stock: Array) -> void:
+	var card := _card(_root, title, "Wallet: ₦%s" % Life.fmt_naira(Life.money), true)
+	var dlg := _dialog_root(card)
+	for id in stock:
+		var it := Life.item(id)
+		if it.is_empty():
+			continue
+		var row := HBoxContainer.new()
+		var l := Label.new()
+		l.text = "%s · ₦%s" % [it["name"], Life.fmt_naira(int(it["price"]))]
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(l)
+		var b := _button("Buy", func() -> void:
+			if Life.buy(id):
+				dlg.queue_free())
+		row.add_child(b)
+		card.add_child(row)
+	card.add_child(_button("Waka pass (leave)", func() -> void: dlg.queue_free()))
 
 
 ## Minimap under the title, full map on tap (M1).

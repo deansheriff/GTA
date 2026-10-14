@@ -45,6 +45,36 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
     return { ai: { gemini: cfg.geminiConfigured ? 'configured' : 'missing' }, players };
   });
 
+  // Cloud saves: the guest token authenticates; a newer revision wins, so two phones can't
+  // silently overwrite each other with older progress.
+  const MAX_SAVE_BYTES = 256 * 1024;
+  const auth = async (req: { headers: Record<string, unknown> }) => {
+    const h = String(req.headers.authorization ?? '');
+    if (!h.startsWith('Bearer ') || h.length > 300) return null;
+    return store.findByToken(h.slice(7));
+  };
+  app.get('/api/save', async (req, reply) => {
+    reply.header('cache-control', 'no-store');
+    const player = await auth(req);
+    if (!player) return reply.code(401).send({ error: 'unauthorized' });
+    const save = await store.getSave(player.id);
+    if (!save) return reply.code(404).send({ error: 'no_save' });
+    return save;
+  });
+  app.put('/api/save', { bodyLimit: MAX_SAVE_BYTES }, async (req, reply) => {
+    reply.header('cache-control', 'no-store');
+    const player = await auth(req);
+    if (!player) return reply.code(401).send({ error: 'unauthorized' });
+    const body = req.body as { revision?: unknown; data?: unknown } | null;
+    const revision = Number(body?.revision);
+    if (!Number.isInteger(revision) || revision < 1 || typeof body?.data !== 'object' || body.data === null) {
+      return reply.code(400).send({ error: 'bad_save' });
+    }
+    const res = await store.putSave(player.id, revision, body.data);
+    if (!res.ok) return reply.code(409).send({ error: 'stale_revision', revision: res.revision });
+    return { ok: true, revision: res.revision };
+  });
+
   const rt = registerRealtime(app, store);
   app.addHook('onClose', async () => {
     rt.stop();

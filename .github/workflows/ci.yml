@@ -28,8 +28,10 @@ jobs:
           unzip -q godot.zip && mv Godot_v4.6.3-stable_linux.x86_64 godot && chmod +x godot
       - name: Import project
         run: ./godot --headless --path game --import
-      - name: Unit tests
-        run: ./godot --headless --path game --script res://tests/run_tests.gd
+      - name: Unit tests (any SCRIPT ERROR fails the build)
+        run: |
+          ./godot --headless --path game --script res://tests/run_tests.gd 2>&1 | tee test.log
+          ! grep -q "SCRIPT ERROR" test.log
 
   docker:
     runs-on: ubuntu-latest

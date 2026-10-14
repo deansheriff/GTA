@@ -42,6 +42,16 @@ var demo := false
 var shots_dir := ""
 var demo_input := Vector2.ZERO
 var _district := ""
+var jobs: JobRunner
+var interactions := Interactions.new()
+var _action := "" # current context action id
+var _action_target := {}
+var _action_t := 0.0
+var night_forced := -1 # dev/demo override: -1 follows the clock, 0 day, 1 night
+var nepa_forced := -1
+var _outages: Array = [] # today's NEPA outage windows [{start, end, districts}]
+var _outage_day := -1
+const RICH := ["ikoyi", "victoria-island", "lekki"]
 
 
 func _ready() -> void:
@@ -79,6 +89,29 @@ func _ready() -> void:
 	hud.toggle_night.connect(_toggle_night)
 	hud.toggle_nepa.connect(func() -> void: _set_nepa(not nepa_on))
 	hud.enter_exit.connect(_enter_exit)
+	hud.action_pressed.connect(_do_action)
+	jobs = JobRunner.new()
+	add_child(jobs)
+	jobs.setup(map)
+	interactions.build(map, Life.items_db.get("vendors", {}))
+	hud.setup_life(jobs)
+	hud.phone.accept_job.connect(func(o: Dictionary) -> void:
+		jobs.accept(o)
+		_set_waypoint(jobs.target()))
+	hud.phone.cancel_job.connect(func() -> void:
+		jobs.cancel()
+		_set_waypoint(Vector2.INF))
+	jobs.message.connect(func(m: String) -> void: hud.toast(m))
+	jobs.job_changed.connect(_on_job_changed)
+	hud.pos_game.finished.connect(func(s: int, f: int) -> void: jobs.finish_pos(s, f))
+	Life.toast.connect(func(m: String) -> void: hud.toast(m))
+	SaveGame.world_provider = _world_state
+	SaveGame.world_restorer = _restore_world
+	SaveGame.extra_providers["jobs"] = jobs.to_dict
+	SaveGame.extra_restorers["jobs"] = jobs.from_dict
+	if not demo:
+		SaveGame.load_local()
+	Net.welcomed.connect(func(_id: int, _room: String) -> void: SaveGame.pull_cloud())
 	hud.setup_maps(map, baker.land_tex, baker.road_tex)
 	hud.waypoint_set.connect(_set_waypoint)
 	hud.waypoint_cleared.connect(func() -> void: _set_waypoint(Vector2.INF))
@@ -200,19 +233,61 @@ func _apply_settings(s: Dictionary) -> void:
 
 # ---------- world state ----------
 
+## Dev/demo: force night on/off (normally the clock decides).
 func _toggle_night() -> void:
-	night = not night
-	_update_lighting()
+	night_forced = 0 if night else 1
+	_tick_day_night(player.position)
 	_push_state()
 
 
+## Dev/demo: force NEPA on/off (normally today's outage schedule decides).
 func _set_nepa(on: bool) -> void:
+	nepa_forced = 1 if on else 0
+	_apply_nepa(on)
+
+
+func _apply_nepa(on: bool) -> void:
 	if on == nepa_on:
 		return
 	nepa_on = on
 	hud.toast("UP NEPA!" if on else "NEPA don take light", on)
 	_update_lighting()
 	_push_state()
+
+
+func _tick_day_night(focus: Vector2) -> void:
+	var dark := Clock.darkness() if night_forced == -1 else float(night_forced)
+	var now_night := dark > 0.02
+	lights.darkness = dark
+	if now_night != night or absf(dark - _last_dark) > 0.02:
+		_last_dark = dark
+		night = now_night
+		_update_lighting()
+	if nepa_forced == -1:
+		_apply_nepa(not _in_outage(focus))
+
+
+var _last_dark := -1.0
+
+
+## Each in-game day has its own outage windows; rich districts suffer less (generators are another
+## story). Deterministic per day so every player on the street shares the same blackout.
+func _in_outage(focus: Vector2) -> bool:
+	if _outage_day != Clock.day():
+		_outage_day = Clock.day()
+		_outages.clear()
+		var r := RandomNumberGenerator.new()
+		r.seed = Clock.day() * 104729
+		for i in r.randi_range(3, 6):
+			var start := r.randi_range(0, 23) * 60 + r.randi_range(0, 59)
+			_outages.append({ "start": start, "end": start + r.randi_range(25, 150), "rich": r.randf() < 0.3 })
+	var t := Clock.minutes % 1440
+	var d: Dictionary = map.district_at(focus)
+	var rich: bool = d.get("id", "") in RICH
+	for o in _outages:
+		if t >= int(o["start"]) and t < int(o["end"]) and (not rich or o["rich"]):
+			return true
+	return false
 
 
 func _update_lighting() -> void:
@@ -305,11 +380,14 @@ func _process(delta: float) -> void:
 	_net_tick(dt)
 	_route_tick(dt, focus)
 
-	if night:
-		outage_t -= dt
-		if outage_t <= 0.0:
-			outage_t = randf_range(40.0, 90.0)
-			_set_nepa(not nepa_on)
+	_tick_day_night(focus)
+	player.speed = 150.0 * Life.pace_factor()
+	var stuck: bool = mode == "driving" and absf(danfo.speed) < 40.0
+	jobs.tick(dt, focus, mode, stuck)
+	_action_t -= dt
+	if _action_t <= 0.0:
+		_action_t = 0.2
+		_update_action(focus)
 
 	fps_frames += 1
 	fps_time += delta
@@ -345,6 +423,86 @@ func _push_state() -> void:
 	hud.set_state(mode, mode == "walking" and _near_danfo(), night, nepa_on, fps)
 	var online: String = "%s · %d nearby" % [Net.status_text(), remotes.size()] if Net.is_online() else Net.status_text()
 	hud.set_online("%s · %s" % [_district, online] if _district != "" else online)
+
+
+# ---------- life: actions, jobs, saving ----------
+
+func _update_action(focus: Vector2) -> void:
+	_action_target = {}
+	if mode == "driving":
+		_action = "exit"
+		hud.set_action("Comot from danfo")
+	elif _near_danfo():
+		_action = "enter"
+		hud.set_action("Enter Baba God Dey")
+	else:
+		var p := interactions.nearest(focus, Life.home)
+		if p.is_empty():
+			_action = ""
+			hud.set_action("")
+		else:
+			_action_target = p
+			_action = p["kind"]
+			hud.set_action(("Buy · " + p["label"]) if p["kind"] == "vendor" else p["label"])
+	var j := jobs.active
+	if j.is_empty():
+		hud.set_job("")
+	elif j["type"] == "danfo" and j["stage"] == "driving":
+		hud.set_job("%s · %d passengers · patience %d%%" % [j["name"], int(j["passengers"]), int(j["patience"])])
+	elif j["type"] == "delivery" and j["stage"] == "deliver":
+		hud.set_job("%s · due %02d:%02d" % [j["name"], (int(j["deadline"]) % 1440) / 60, int(j["deadline"]) % 60])
+	else:
+		hud.set_job("%s · go to the start" % j["name"])
+
+
+func _do_action() -> void:
+	match _action:
+		"enter", "exit":
+			_enter_exit()
+		"vendor":
+			var v: Dictionary = Life.items_db["vendors"][_action_target["vendor"]]
+			hud.open_shop(_action_target["label"], v["stock"])
+		"home":
+			var dur := Life.sleep()
+			hud.toast("You slept %d hours. Fresh like new money." % (dur / 60))
+			SaveGame.save_now()
+
+
+func _on_job_changed(j: Dictionary) -> void:
+	if j.is_empty():
+		_set_waypoint(Vector2.INF)
+		SaveGame.save_now()
+		return
+	_set_waypoint(jobs.target())
+	if j["type"] == "pos" and j["stage"] == "shift":
+		hud.pos_game.start(float(jobs.db["pos"]["network_fail"]))
+
+
+func _world_state() -> Dictionary:
+	return {
+		"mode": mode, "player": [player.position.x, player.position.y],
+		"danfo": [danfo.position.x, danfo.position.y, danfo.heading],
+	}
+
+
+func _restore_world(w: Dictionary) -> void:
+	if w.has("player"):
+		player.position = Vector2(w["player"][0], w["player"][1])
+	if w.has("danfo"):
+		danfo.position = Vector2(w["danfo"][0], w["danfo"][1])
+		danfo.heading = float(w["danfo"][2])
+		danfo.queue_redraw()
+	if w.get("mode", "walking") == "driving" and mode != "driving":
+		player.position = danfo.position
+		_enter_exit()
+	camera.reset_smoothing()
+
+
+func _notification(what: int) -> void:
+	# Save when Android pauses/closes the app.
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if not demo:
+			SaveGame.save_now()
 
 
 # ---------- navigation ----------
@@ -534,6 +692,20 @@ func _run_demo() -> void:
 		await _wait(1.6)
 		await _shot(spot[0])
 	await _measure("day")
+	# Life systems: buy food, take a delivery, sleep.
+	Life.needs["hunger"] = 20.0
+	Life.buy("amala")
+	print("life: hunger %.0f money %d mood %s" % [Life.needs["hunger"], Life.money, Life.mood_label()])
+	jobs.accept(jobs.offers.filter(func(o: Dictionary) -> bool: return o["type"] == "delivery")[0])
+	_teleport(jobs.start_pos(jobs.active))
+	await _wait(0.6)
+	_teleport(jobs.end_pos(jobs.active))
+	await _wait(0.6)
+	print("life: after delivery money %d, hustle lv %d" % [Life.money, Life.level("hustle")])
+	hud.phone.open()
+	await _wait(0.4)
+	await _shot("05a-phone")
+	hud.phone.visible = false
 	_set_waypoint(map.landmarks["lekki-event-centre"]["pos"])
 	hud.map_screen.visible = true
 	await _wait(0.6)

@@ -72,3 +72,27 @@ test('two players on the same street see each other move', async () => {
   for (const s of [a, b, c]) s.close();
   await app.close();
 });
+
+test('cloud saves: auth required, newer revision wins', async () => {
+  const app = await buildApp({ version: '0', geminiConfigured: false });
+  await app.listen({ port: 0, host: '127.0.0.1' });
+  const port = (app.server.address() as { port: number }).port;
+  const ws = new WebSocket(`ws://127.0.0.1:${port}/ws`);
+  await new Promise((r) => ws.on('open', r));
+  const welcome = waitFor(ws, (m) => m.t === 'welcome');
+  ws.send(JSON.stringify({ t: 'hello', name: 'Saver', look: {}, x: 1, y: 1 }));
+  const { token } = await welcome;
+  ws.close();
+
+  const auth = { authorization: `Bearer ${token}` };
+  assert.equal((await app.inject({ url: '/api/save' })).statusCode, 401);
+  assert.equal((await app.inject({ url: '/api/save', headers: auth })).statusCode, 404);
+  const put = (revision: number, money: number) =>
+    app.inject({ method: 'PUT', url: '/api/save', headers: auth, payload: { revision, data: { life: { money } } } });
+  assert.equal((await put(2, 5000)).statusCode, 200);
+  assert.equal((await put(1, 99999)).statusCode, 409, 'older revision is rejected');
+  const got = await app.inject({ url: '/api/save', headers: auth });
+  assert.deepEqual(got.json(), { revision: 2, data: { life: { money: 5000 } } });
+  assert.equal((await app.inject({ method: 'PUT', url: '/api/save', headers: auth, payload: { revision: 'x', data: 1 } })).statusCode, 400);
+  await app.close();
+});

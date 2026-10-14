@@ -18,6 +18,8 @@ func _initialize() -> void:
 	_test_device_profile()
 	_test_layout()
 	_test_map()
+	await process_frame # autoloads (Clock, Life, SaveGame) are ready after the first frame
+	_test_life()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -125,3 +127,52 @@ func _test_nav(m: MapData) -> void:
 		if m.surface_at(p) == MapData.S.BRIDGE:
 			crosses_bridge = true
 	check(crosses_bridge, "the Yaba to Lekki route crosses the lagoon by bridge")
+
+
+func _test_life() -> void:
+	var life: Node = root.get_node("Life")
+	var clock: Node = root.get_node("Clock")
+	clock.minutes = 12 * 60
+	check(is_equal_approx(clock.darkness(), 0.0), "noon is daylight")
+	clock.minutes = 23 * 60
+	check(is_equal_approx(clock.darkness(), 1.0), "11pm is night")
+	clock.minutes = 18 * 60 + 45
+	check(clock.darkness() > 0.2 and clock.darkness() < 0.8, "dusk is in between")
+	check(clock.weekday() == "Monday" or clock.day() != 1, "day 1 is a Monday")
+	life.money = 5000
+	life.needs["hunger"] = 20.0
+	check(life.buy("amala"), "can buy amala with ₦5,000")
+	check(life.money < 5000 and life.needs["hunger"] > 60.0, "buying food costs money and fills the belle")
+	life.money = 10
+	check(not life.buy("jollof"), "can't buy jollof with ₦10")
+	check(life.money == 10, "a failed purchase costs nothing")
+	check(life.xp_for(1) == 100, "level 2 needs 100 XP")
+	life.skills_xp["driving"] = 0
+	life.add_xp("driving", 150)
+	check(life.level("driving") == 2, "150 XP is driving level 2")
+	clock.minutes = 22 * 60
+	life.needs["energy"] = 5.0
+	var slept: int = life.sleep()
+	check(life.needs["energy"] == 100.0 and clock.minutes % 1440 == 6 * 60 + 30, "sleeping until 06:30 restores energy (%d min)" % slept)
+	var save: Node = root.get_node("SaveGame")
+	life.money = 12345
+	var snap: Dictionary = save.snapshot()
+	life.money = 1
+	save.apply(snap)
+	check(life.money == 12345, "save snapshot round-trips the wallet")
+	# A full delivery job.
+	var m := MapData.shared()
+	var jr: Node = load("res://world/job_runner.gd").new() # loaded at runtime: uses autoloads
+	root.add_child(jr)
+	jr.setup(m)
+	check(jr.offers.size() >= 4, "the phone lists today's gigs (%d)" % jr.offers.size())
+	var del: Array = jr.offers.filter(func(o: Dictionary) -> bool: return o["type"] == "delivery")
+	check(not del.is_empty(), "there is a delivery gig today")
+	if not del.is_empty():
+		var before: int = life.money
+		jr.accept(del[0])
+		jr.tick(0.1, jr.start_pos(jr.active), "walking", false)
+		check(jr.active.get("stage", "") == "deliver", "arriving at the pickup starts the delivery")
+		jr.tick(0.1, jr.end_pos(jr.active), "walking", false)
+		check(jr.active.is_empty() and life.money > before, "delivering pays (₦%d)" % (life.money - before))
+	jr.queue_free()

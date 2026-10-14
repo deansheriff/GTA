@@ -23,15 +23,19 @@ milestones, make no APK until the game is done, then do one release build.
 - ✅ **Minimap** (round, route, landmarks) and **full map screen** (districts, landmarks, tap-to-route)
 - ✅ District name on entry; 50 headless tests; **60 fps** on Medium day and night on the dev PC
 
-## M2 — Life-sim core ⬜
-- ⬜ Game clock and calendar, day/night tied to time, NEPA schedule per district
-- ⬜ Needs (hunger, energy, fun, social, hygiene) and moods
-- ⬜ Money (₦), wallet, a transaction ledger, inventory, shops and food vendors
-- ⬜ Jobs and side hustles (danfo fares, catering/POS, content gigs), skills with XP
-- ⬜ Housing (home base, sleep, wardrobe)
-- ⬜ In-game phone UI: Family Meeting chat, map, gigs, bank, settings, gist
-- ⬜ Save/load locally plus server sync with conflict handling
-- ⬜ NPC routines (home, work, leisure) and the rules-based decision layer
+## M2 — Life-sim core ✅ (2026-10-14)
+- ✅ **Game clock** (1 real s = 1 game min), dusk/dawn blend, day/night lighting from the clock
+- ✅ **NEPA:** a per-day outage schedule shared by all players, with fewer cuts in Ikoyi/VI/Lekki
+- ✅ **Needs:** hunger, energy, fun, social, hygiene; mood labels; low energy slows you
+- ✅ **Money:** ₦ wallet, ledger, inventory, items catalogue (street food, power bank, airtime…)
+- ✅ **Vendors:** buildings and stalls are shops (mama-put, provision store, kiosks, beach bar, coconut seller); haggling skill discount
+- ✅ **Hustles:** danfo runs with passengers, patience and the agbero cut; deliveries with deadlines; the POS shift mini-game
+- ✅ **Skills:** XP curve 100×lv^1.5, level-up toasts
+- ✅ **Housing:** sleep at your home landmark until morning
+- ✅ **Phone:** Map, Hustle, Bank, Me, Settings (story apps plug in during M3)
+- ✅ **Saving:** atomic local save, autosave every 60 s, on sleep and when Android pauses; cloud sync to `/api/save`, where the newer revision wins
+- ⏩ NPC routines and the rules-based decision layer move to M3 (story NPCs) and M6 (F6 brains)
+- ✅ 66 game tests and 9 server tests; CI fails on any SCRIPT ERROR
 
 ## M3 — Story engine, Prologue and Act 1 ⬜
 - ⬜ Mission system: data-driven objectives, triggers, checkpoints, fail/retry, rewards

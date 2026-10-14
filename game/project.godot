@@ -15,6 +15,9 @@ boot_splash/bg_color=Color(0.11, 0.09, 0.07, 1)
 
 Settings="*res://core/settings.gd"
 Net="*res://core/net.gd"
+Clock="*res://core/clock.gd"
+Life="*res://core/life.gd"
+SaveGame="*res://core/save_game.gd"
 
 [display]
 

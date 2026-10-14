@@ -17,6 +17,9 @@ export interface Store {
   createGuest(name: string, look: Record<string, unknown>): Promise<{ player: PlayerRecord; token: string }>;
   findByToken(token: string): Promise<PlayerRecord | null>;
   touch(id: string, name: string, look: Record<string, unknown>): Promise<void>;
+  getSave(playerId: string): Promise<{ revision: number; data: unknown } | null>;
+  /** Stores the save only if `revision` is newer than the stored one. Returns the stored revision. */
+  putSave(playerId: string, revision: number, data: unknown): Promise<{ ok: boolean; revision: number }>;
   health(): Promise<boolean>;
   close(): Promise<void>;
 }
@@ -26,6 +29,16 @@ const newToken = () => randomBytes(32).toString('base64url');
 
 export class MemoryStore implements Store {
   private byHash = new Map<string, PlayerRecord>();
+  private saves = new Map<string, { revision: number; data: unknown }>();
+  async getSave(playerId: string) {
+    return this.saves.get(playerId) ?? null;
+  }
+  async putSave(playerId: string, revision: number, data: unknown) {
+    const cur = this.saves.get(playerId);
+    if (cur && cur.revision >= revision) return { ok: false, revision: cur.revision };
+    this.saves.set(playerId, { revision, data });
+    return { ok: true, revision };
+  }
   async init() {}
   async createGuest(name: string, look: Record<string, unknown>) {
     const token = newToken();
@@ -52,6 +65,12 @@ const MIGRATIONS = [
      token_hash text NOT NULL UNIQUE,
      created_at timestamptz NOT NULL DEFAULT now(),
      last_seen timestamptz NOT NULL DEFAULT now()
+   )`,
+  `CREATE TABLE IF NOT EXISTS saves (
+     player_id uuid PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
+     revision integer NOT NULL,
+     data jsonb NOT NULL,
+     updated_at timestamptz NOT NULL DEFAULT now()
    )`,
 ];
 
@@ -90,6 +109,25 @@ export class PgStore implements Store {
 
   async touch(id: string, name: string, look: Record<string, unknown>) {
     await this.pool.query('UPDATE players SET name = $2, look = $3, last_seen = now() WHERE id = $1', [id, name, JSON.stringify(look)]);
+  }
+
+  async getSave(playerId: string) {
+    const r = await this.pool.query('SELECT revision, data FROM saves WHERE player_id = $1', [playerId]);
+    return r.rows[0] ? { revision: Number(r.rows[0].revision), data: r.rows[0].data } : null;
+  }
+
+  async putSave(playerId: string, revision: number, data: unknown) {
+    // Atomic "newer revision wins": the update only happens if the stored revision is older.
+    const r = await this.pool.query(
+      `INSERT INTO saves (player_id, revision, data) VALUES ($1, $2, $3)
+       ON CONFLICT (player_id) DO UPDATE SET revision = EXCLUDED.revision, data = EXCLUDED.data, updated_at = now()
+       WHERE saves.revision < EXCLUDED.revision
+       RETURNING revision`,
+      [playerId, revision, JSON.stringify(data)],
+    );
+    if (r.rowCount === 1) return { ok: true, revision };
+    const cur = await this.getSave(playerId);
+    return { ok: false, revision: cur?.revision ?? 0 };
   }
 
   async health() {

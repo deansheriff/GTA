@@ -1,0 +1,31 @@
+{
+  "_comment": "Prices in naira (game money). Fictional brands only. Effects restore needs (0-100) or hero stats.",
+  "items": {
+    "amala": { "name": "Amala & ewedu", "price": 900, "effects": { "hunger": 55 }, "line": "Amala hot well well. Mama added extra ponmo." },
+    "jollof": { "name": "Jollof rice & chicken", "price": 2200, "effects": { "hunger": 65, "fun": 5 }, "line": "Party jollof, even on a Tuesday." },
+    "suya": { "name": "Suya", "price": 1200, "effects": { "hunger": 30, "fun": 8 }, "line": "Yaji don touch your soul." },
+    "puff-puff": { "name": "Puff-puff (5)", "price": 300, "effects": { "hunger": 12 }, "line": "Small chops for the road." },
+    "agege-bread": { "name": "Agege bread", "price": 700, "effects": { "hunger": 25, "bp": -25 }, "line": "Bread so soft, Blood Pressure don calm down." },
+    "pepper-soup": { "name": "Pepper soup", "price": 1800, "effects": { "hunger": 35, "bp": -40, "energy": 8 }, "line": "Pepper soup: medicine for the soul." },
+    "pure-water": { "name": "Pure water", "price": 50, "effects": { "hunger": 4, "energy": 4 }, "line": "Sachet tear with teeth, as tradition demands." },
+    "malt": { "name": "Cold malt", "price": 600, "effects": { "energy": 15, "fun": 6 }, "line": "Chilled. Refreshed. Ready for go-slow." },
+    "coconut": { "name": "Fresh coconut", "price": 500, "effects": { "hunger": 10, "energy": 12 }, "line": "Coconut water straight from the island." },
+    "fried-fish": { "name": "Fried fish & yam", "price": 1500, "effects": { "hunger": 45 }, "line": "Fresh from the canoe this morning." },
+    "power-bank": { "name": "Power bank", "price": 4500, "effects": { "battery": 50 }, "line": "Fully charged. For now." },
+    "recharge-card": { "name": "9Bars airtime (₦500)", "price": 500, "effects": {}, "line": "Airtime loaded. Network still dey find itself." },
+    "bucket-bath": { "name": "Bucket bath (bathhouse)", "price": 200, "effects": { "hygiene": 70 }, "line": "Fresh like new money." },
+    "football-match": { "name": "Viewing-centre ticket", "price": 500, "effects": { "fun": 45, "social": 25 }, "line": "GOAL! The whole viewing centre is on its feet." }
+  },
+  "vendors": {
+    "canteen": { "title": "Mama-put", "stock": ["amala", "jollof", "pepper-soup", "pure-water", "malt"] },
+    "provision-store": { "title": "Provision store", "stock": ["agege-bread", "malt", "pure-water", "power-bank", "recharge-card"] },
+    "pos-shop": { "title": "POS & phone shop", "stock": ["power-bank", "recharge-card", "pure-water"] },
+    "umbrella": { "title": "POS umbrella", "stock": ["recharge-card", "pure-water"] },
+    "kiosk": { "title": "Kiosk", "stock": ["puff-puff", "malt", "pure-water", "recharge-card"] },
+    "orange-tray": { "title": "Hawker", "stock": ["puff-puff", "pure-water"] },
+    "coconut-cart": { "title": "Coconut seller", "stock": ["coconut"] },
+    "beach-bar": { "title": "Beach bar & grill", "stock": ["fried-fish", "suya", "malt", "coconut"] },
+    "fisher-hut": { "title": "Fisherman's wife", "stock": ["fried-fish"] },
+    "two-storey": { "title": "Ground-floor shops", "stock": ["suya", "agege-bread", "malt", "bucket-bath", "football-match"] }
+  }
+}

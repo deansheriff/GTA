@@ -16,6 +16,7 @@ var _nepa_on := true
 var _enabled := true
 var _res_scale := 0.5
 var night_color := Color(0.36, 0.34, 0.52)
+var darkness := 1.0 # 0 day … 1 full night (dusk/dawn blend)
 var blackout_color := Color(0.17, 0.15, 0.28)
 
 
@@ -93,11 +94,12 @@ func _lit(generator: bool) -> bool:
 
 
 func _refresh() -> void:
-	var on := _night
+	var on := _night and darkness > 0.02
 	_overlay.visible = on
 	_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if on and _enabled else SubViewport.UPDATE_DISABLED
 	var mat := _overlay.material as ShaderMaterial
-	mat.set_shader_parameter("dark", night_color if _nepa_on else blackout_color)
+	var base: Color = night_color if _nepa_on else blackout_color
+	mat.set_shader_parameter("dark", Color.WHITE.lerp(base, darkness))
 	mat.set_shader_parameter("use_lights", _enabled)
 	for h in _lights:
 		(_lights[h]["sprite"] as Sprite2D).visible = _lit(_lights[h]["generator"])
