@@ -37,15 +37,39 @@ milestones, make no APK until the game is done, then do one release build.
 - ⏩ NPC routines and the rules-based decision layer move to M3 (story NPCs) and M6 (F6 brains)
 - ✅ 66 game tests and 9 server tests; CI fails on any SCRIPT ERROR
 
-## M3 — Story engine, Prologue and Act 1 ⬜
-- ⬜ Mission system: data-driven objectives, triggers, checkpoints, fail/retry, rewards
-- ⬜ Dialogue system: portraits, choices, flags, typewriter text, skip
-- ⬜ Hero switching via Family Meeting chat, with off-screen events
-- ⬜ Hero stats and abilities: Blood Pressure / Go-Slow Whisperer / Conductor Combo;
-  Aura / The Stare / Ajo Network; Hype + Battery / Go Live / Gist
-- ⬜ Still-panel cutscenes (low-bandwidth mode is the default)
-- ⬜ Prologue (P1–P4) and Act 1 (1.1–1.5): scripts plus mini-games (money spraying, jollof
-  queue, POS network failure, power hunt)
+## M3 — Story engine, Prologue and Act 1 ✅ (2026-10-14)
+- ✅ **Mission system** (`story/mission_runner.gd`, `data/story/missions.json`): data-driven steps
+  (goto, collect, ability, film, minigame, chase, jam, say, panels, chat, switch, place, interior,
+  npc, set), flag gates, timers, battery fail, checkpoints, fail → retry from checkpoint or quit,
+  rewards, auto-chaining, resume from checkpoint after loading a save
+- ✅ **Dialogue** (`ui/dialogue_box.gd`): painted portraits, name plates, typewriter text, choices
+  with flags/effects/replies, Skip (stops at choices), tap/Space to advance
+- ✅ **Still-panel cutscenes** (`ui/story_panels.gd`): painted comic frames, slow push-in (off with
+  reduced motion), title card
+- ✅ **Hero switching** (phone → Switch, renamed "Family Meeting 🔥" after 1.5): chat exchanges
+  from a bank (a cold one when trust < 30), each hero keeps their own position and needs, weighted
+  off-screen events after 2+ hours away (towed danfo, market dispute, viral gutter, small request)
+- ✅ **Abilities** (`story/abilities.gd`, `ui/ability_bar.gd`): Tunde's BP meter (go-slow, crashes,
+  smooth driving, Wahala Mode at 100, traffic proverbs), Go-Slow Whisperer (traffic slows, the
+  danfo slips through), Conductor Combo (Sule's five calls); Aunty's Aura, The Stare (freezes
+  story NPCs or townsfolk, longer with Aura), Ajo Network (free daily keke ride); KC's Battery
+  (drains, charges at home when NEPA is on), Film, Go Live (crowd rallies), Hype. Gist is Act 2.
+- ✅ **Interiors** (`world/interior.gd`): the painted Royal Pavilion owambe hall with guests,
+  hotspots, blackout darkness, tap-to-walk
+- ✅ **Chases** (`story/chase.gd`): on foot (1.3) and in the danfo (1.4) with a heat meter and
+  passenger votes
+- ✅ **Mini-games:** jollof queue, money spraying (rhythm), blackout quick-time, POS network
+  failure (switch network / hold at the window), counting, generator standoff
+- ✅ **Prologue P1–P4 and Act 1 1.1–1.5** fully scripted and playable, ~60 dialogue scenes
+  (all Pidgin pending native-speaker review 🔒)
+- ✅ **Named NPCs with daily routines** in free roam (Sule, Mama Nkem, Officer Gbenga, the barber,
+  Alhaji Mechanic, Pepper and Salt, Engineer Bayo); talk to them
+- ✅ **Phone apps:** Story (progress, quit, GPS to mission start), Switch, Keke (paid fast travel)
+- ✅ Mission stars on the street, minimap and full map; only Tunde drives Baba God Dey (D-009)
+- ✅ Landmark buildings are now always placed (the authored cell is a hint; nearest free lot)
+- ✅ **Story QA autoplay:** `-- --story-auto --shots=DIR` plays the Prologue and Act 1 end to end
+  (85 screenshots; 52–61 fps); 111 game tests incl. a full fake-host run of all 9 missions,
+  retry from checkpoint, switching, abilities and save round-trip
 
 ## M4 — Acts 2 and 3, endings ⬜
 - ⬜ Act 2 (2.1–2.8) including Generator Wars, Japa Interview, Danfo Chase, Aso-Ebi

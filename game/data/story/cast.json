@@ -1,0 +1,332 @@
+{
+  "_comment": "Story cast (all fictional; Story Bible §4). sprite = [sheet, frame] in art/characters; ped = painted townsfolk index (0-7 face the viewer); portrait in art/portraits. colour tints the name plate. routine = where and when they hang out in free roam; chatter = what they say when you talk to them (pending native-speaker review).",
+  "cast": {
+    "tunde": {
+      "name": "Tunde",
+      "portrait": "portraits/tunde.png",
+      "colour": "#a8382c"
+    },
+    "ngozi": {
+      "name": "Aunty Boss",
+      "portrait": "portraits/ngozi.png",
+      "colour": "#c96f24"
+    },
+    "kc": {
+      "name": "KC",
+      "portrait": "portraits/kc.png",
+      "colour": "#76418a"
+    },
+    "chief": {
+      "name": "Chief Double Chop",
+      "portrait": "portraits/chief.png",
+      "sprite": [
+        "characters/story-cast.png",
+        0
+      ],
+      "colour": "#c8a02a"
+    },
+    "pepper": {
+      "name": "Pepper",
+      "portrait": "portraits/pepper.png",
+      "sprite": [
+        "characters/story-cast.png",
+        1
+      ],
+      "colour": "#a8382c",
+      "routine": [
+        {
+          "from": 10,
+          "to": 16,
+          "at": "landmark:agbado-ketu-council",
+          "offset": [
+            -60,
+            40
+          ]
+        }
+      ],
+      "chatter": [
+        "I'm not looking for anybody. I'm just… standing.",
+        "Salt's jollof is overrated. Write that down."
+      ]
+    },
+    "salt": {
+      "name": "Salt",
+      "portrait": "portraits/salt.png",
+      "sprite": [
+        "characters/story-cast.png",
+        2
+      ],
+      "colour": "#d9d3c4",
+      "routine": [
+        {
+          "from": 10,
+          "to": 16,
+          "at": "landmark:agbado-ketu-council",
+          "offset": [
+            60,
+            40
+          ]
+        }
+      ],
+      "chatter": [
+        "Pepper is lying. My jollof is the best in Agbado-Ketu.",
+        "Have you seen a bag? Asking for a friend. The friend is the Chief."
+      ]
+    },
+    "ledger": {
+      "name": "Barrister Ledger",
+      "portrait": "portraits/ledger.png",
+      "sprite": [
+        "characters/story-cast.png",
+        3
+      ],
+      "colour": "#3a4250"
+    },
+    "bayo": {
+      "name": "Engineer Bayo",
+      "portrait": "portraits/bayo.png",
+      "sprite": [
+        "characters/story-cast.png",
+        4
+      ],
+      "colour": "#2f6f99",
+      "routine": [
+        {
+          "from": 17,
+          "to": 22,
+          "at": "landmark:petronaija-station",
+          "offset": [
+            -80,
+            30
+          ]
+        }
+      ],
+      "chatter": [
+        "Light? Light is a process. A spiritual process.",
+        "I'm a professional. I only accept suya."
+      ]
+    },
+    "sule": {
+      "name": "Sule",
+      "portrait": "portraits/sule.png",
+      "sprite": [
+        "characters/story-cast.png",
+        5
+      ],
+      "colour": "#e0a91c",
+      "routine": [
+        {
+          "from": 6,
+          "to": 21,
+          "at": "landmark:tunde-depot",
+          "offset": [
+            -90,
+            30
+          ]
+        }
+      ],
+      "chatter": [
+        "Hmm.",
+        "Bus is clean.",
+        "Fuel is low.",
+        "Oshodi! Enter with your change!"
+      ]
+    },
+    "mc": {
+      "name": "MC Gbedu",
+      "portrait": "portraits/mc.png",
+      "sprite": [
+        "characters/story-cast.png",
+        6
+      ],
+      "colour": "#84509a"
+    },
+    "mama-chief": {
+      "name": "Mama Chief",
+      "portrait": "portraits/mama-chief.png",
+      "sprite": [
+        "characters/story-cast.png",
+        7
+      ],
+      "colour": "#84509a"
+    },
+    "passenger": {
+      "name": "Passenger",
+      "portrait": "portraits/passenger.png",
+      "ped": 0,
+      "colour": "#2f8a52"
+    },
+    "guest-a": {
+      "name": "Mrs. Adeleke (guest)",
+      "portrait": "portraits/passenger.png",
+      "ped": 5,
+      "colour": "#1f9a86"
+    },
+    "guest-b": {
+      "name": "Uncle Femi (guest)",
+      "ped": 2,
+      "colour": "#2f6f99",
+      "portrait": "portraits/guest-b.png"
+    },
+    "guest-c": {
+      "name": "Iya Bisi (guest)",
+      "ped": 0,
+      "colour": "#c4473a",
+      "portrait": "portraits/guest-c.png"
+    },
+    "guest-d": {
+      "name": "Brother Chidi (guest)",
+      "ped": 3,
+      "colour": "#22806f"
+    },
+    "warden": {
+      "name": "Officer Gbenga (LARDO)",
+      "ped": 7,
+      "colour": "#2f6f99",
+      "routine": [
+        {
+          "from": 8,
+          "to": 17,
+          "at": "node:ikoyi_c",
+          "offset": [
+            0,
+            -120
+          ]
+        }
+      ],
+      "chatter": [
+        "Particulars!",
+        "Your shoe lace is a traffic offence. I'm watching you.",
+        "…Do you like Fuji? Don't tell anybody I asked."
+      ],
+      "portrait": "portraits/warden.png"
+    },
+    "cousin": {
+      "name": "\"Cousin from abroad\"",
+      "ped": 2,
+      "colour": "#b55422",
+      "portrait": "portraits/cousin.png"
+    },
+    "debtor": {
+      "name": "Mr. Next-Week",
+      "ped": 2,
+      "colour": "#6b6e66",
+      "portrait": "portraits/debtor.png"
+    },
+    "gele-queen": {
+      "name": "Gele champion",
+      "ped": 5,
+      "colour": "#84509a",
+      "portrait": "portraits/gele-queen.png"
+    },
+    "mama-nkem": {
+      "name": "Mama Nkem",
+      "portrait": "portraits/mama-nkem.png",
+      "ped": 0,
+      "colour": "#2f8a52",
+      "routine": [
+        {
+          "from": 7,
+          "to": 18,
+          "at": "landmark:oshodi-market",
+          "offset": [
+            -120,
+            40
+          ]
+        }
+      ],
+      "chatter": [
+        "Tomatoes are ₦1,500 a basket today. Don't argue.",
+        "Ajo is trust, my child.",
+        "Have you eaten? You look like you've been running from somebody."
+      ]
+    },
+    "market-woman": {
+      "name": "Market woman",
+      "ped": 6,
+      "colour": "#c96f24",
+      "portrait": "portraits/market-woman.png"
+    },
+    "barber": {
+      "name": "Barber Sharp",
+      "ped": 3,
+      "colour": "#3a4250",
+      "routine": [
+        {
+          "from": 8,
+          "to": 21,
+          "at": "landmark:yaba-barbershop",
+          "offset": [
+            60,
+            10
+          ]
+        }
+      ],
+      "chatter": [
+        "Fresh cut? I'm the Picasso of Yaba.",
+        "Generator dey. Light no dey. Business is business."
+      ],
+      "portrait": "portraits/barber.png"
+    },
+    "usher": {
+      "name": "Church usher",
+      "ped": 4,
+      "colour": "#d9d3c4",
+      "portrait": "portraits/usher.png"
+    },
+    "kiosk": {
+      "name": "Charge Am Here guy",
+      "ped": 3,
+      "colour": "#e0a91c",
+      "routine": [
+        {
+          "from": 9,
+          "to": 23,
+          "at": "landmark:yaba-charging-kiosk",
+          "offset": [
+            40,
+            10
+          ]
+        }
+      ],
+      "chatter": [
+        "Charge Am Here! Thirty phones, one socket, zero wahala.",
+        "The extension box is not smoking. It's thinking."
+      ],
+      "portrait": "portraits/kiosk.png"
+    },
+    "mechanic": {
+      "name": "Alhaji Mechanic",
+      "ped": 2,
+      "colour": "#4e3a2c",
+      "routine": [
+        {
+          "from": 7,
+          "to": 19,
+          "at": "landmark:mushin-mechanic",
+          "offset": [
+            40,
+            0
+          ]
+        }
+      ],
+      "chatter": [
+        "Tunde still owes me for that gearbox. Tell him.",
+        "Every car is a patient. Some patients are stubborn."
+      ],
+      "portrait": "portraits/mechanic.png"
+    },
+    "chat": {
+      "name": "Live chat",
+      "colour": "#e8a090"
+    },
+    "all": {
+      "name": "Everybody",
+      "colour": "#e0a91c"
+    },
+    "tip": {
+      "name": "How to play",
+      "colour": "#e0a91c"
+    }
+  }
+}

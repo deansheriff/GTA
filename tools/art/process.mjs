@@ -37,7 +37,13 @@ const JOBS = [
   { src: 'veh-car-topdown', kind: 'single', out: 'vehicles/car.png', width: 180 },
   { src: 'veh-keke-topdown', kind: 'single', out: 'vehicles/keke.png', width: 120 },
   { src: 'veh-okada-topdown', kind: 'single', out: 'vehicles/okada.png', width: 90 },
-  { src: 'chr-tunde-walk', kind: 'frames', cols: 4, rows: 3, out: 'characters/tunde-walk.png', frameH: 96 },
+  { src: 'chr-tunde-walk-v2', kind: 'frames', cols: 4, rows: 3, out: 'characters/tunde-walk.png', frameH: 96, cut: 70 },
+  { src: 'chr-ngozi-walk', kind: 'frames', cols: 4, rows: 3, out: 'characters/ngozi-walk.png', frameH: 96, cut: 110 },
+  { src: 'chr-kc-walk', kind: 'frames', cols: 4, rows: 3, out: 'characters/kc-walk.png', frameH: 96, cut: 70 },
+  { src: 'chr-story-cast', kind: 'frames', cols: 4, rows: 2, out: 'characters/story-cast.png', frameH: 100, cut: 70 },
+  ...['tunde', 'ngozi', 'kc', 'chief', 'pepper', 'salt', 'sule', 'mc', 'ledger', 'bayo', 'mama-chief', 'passenger', 'warden', 'debtor', 'cousin', 'mama-nkem', 'market-woman', 'barber', 'usher', 'kiosk', 'mechanic', 'guest-b', 'guest-c', 'gele-queen'].map((k) => ({ src: 'pt-' + k, kind: 'single', out: `portraits/${k}.png`, width: 384, cut: 40 })),
+  ...['panel-owambe', 'panel-blackout', 'panel-bag', 'panel-family-meeting', 'panel-title'].map((k) => ({ src: k, kind: 'panel', out: `story/${k}.jpg`, width: 1280 })),
+  { src: 'int-owambe-hall', kind: 'panel', out: 'interiors/owambe-hall.jpg', width: 1536 },
   { src: 'chr-pedestrians-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-a.png', frameH: 96 },
   { src: 'chr-pedestrians-b', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-b.png', frameH: 96 },
 ];
@@ -166,7 +172,18 @@ for (const job of JOBS) {
     report.push(`- ${await save(await seamless(img0, job.size), job.out)}`);
     continue;
   }
+  if (job.kind === 'panel') {
+    const file = join(OUT, job.out);
+    mkdirSync(dirname(file), { recursive: true });
+    await toSharp(img0).resize({ width: job.width }).flatten({ background: '#1d1611' }).jpeg({ quality: 84 }).toFile(file);
+    report.push(`- ${file}`);
+    continue;
+  }
   const img = keyBackdrop(img0);
+  if (job.cut) {
+    // Drop the soft glow/shadow halo some generations paint around figures.
+    for (let i = 3; i < img.data.length; i += 4) if (img.data[i] < job.cut) img.data[i] = 0;
+  }
   if (job.kind === 'single') {
     const b = alphaBounds(img);
     if (!b) { report.push(`- ${job.src}: empty`); continue; }

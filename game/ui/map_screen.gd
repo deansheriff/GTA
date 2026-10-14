@@ -9,6 +9,7 @@ signal closed
 var map: MapData
 var player_pos := Vector2.ZERO
 var waypoint := Vector2.INF
+var stars: Array[Vector2] = [] # story mission starts
 var route := PackedVector2Array()
 var _map_rect := Rect2()
 var _tex: TextureRect
@@ -109,6 +110,14 @@ func _draw_overlay(c: Control) -> void:
 		for p in route:
 			pts.append(_to_screen(p))
 		c.draw_polyline(pts, Color("#e0a91c"), 3.0, true)
+	for s in stars:
+		var sp := _to_screen(s)
+		var pts := PackedVector2Array()
+		for i in 10:
+			pts.append(sp + Vector2.from_angle(-PI / 2 + i * PI / 5.0) * (12.0 if i % 2 == 0 else 5.0))
+		c.draw_colored_polygon(pts, Color("#e0a91c"))
+		pts.append(pts[0])
+		c.draw_polyline(pts, Color("#1d1611"), 2.0, true)
 	if waypoint != Vector2.INF:
 		var wp := _to_screen(waypoint)
 		c.draw_circle(wp, 7.0, Color("#e0a91c"))

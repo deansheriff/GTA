@@ -808,6 +808,1026 @@
       "refs": [
         "art-src/raw/style-anchor-yaba.png"
       ]
+    },
+    {
+      "at": "2026-10-14T15:34:22.146Z",
+      "provider": "openai",
+      "asset": "chr-tunde-walk-v2",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0244,
+      "seconds": 24,
+      "usage": {
+        "input_tokens": 1897,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 361
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2240
+      },
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Tunde, a wiry 34-year-old Nigerian danfo driver, dark brown skin, short black hair with a little grey, a short scruffy beard, visible smile lines, a faded red football jersey, dark trousers, worn sandals and a white towel over one shoulder, a chewing stick in his mouth. Clearly an adult man in his thirties, not a boy.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:34:43.609Z",
+      "provider": "openai",
+      "asset": "chr-ngozi-walk",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0244,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1894,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 358
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2237
+      },
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Ngozi 'Aunty Boss' Eze, a solid 41-year-old Nigerian businesswoman and canteen owner, dark brown skin, a bright orange-and-teal ankara wrapper dress with a matching big gele head-tie, reading glasses on a beaded chain, a small POS card machine in a holster on her hip, confident commanding walk.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:35:12.729Z",
+      "provider": "openai",
+      "asset": "chr-kc-walk",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0243,
+      "seconds": 29,
+      "usage": {
+        "input_tokens": 1884,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 348
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2227
+      },
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Kelechi 'KC Vibes' Nwosu, a slim 23-year-old Nigerian content creator, brown skin, a neat afro, a purple shirt over a white tee, ripped jeans and white sneakers, a small ring light and folded tripod strapped to his backpack, holding his phone up as if filming.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:35:35.029Z",
+      "provider": "openai",
+      "asset": "chr-story-cast",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0246,
+      "seconds": 22,
+      "usage": {
+        "input_tokens": 1943,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 407
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2286
+      },
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT characters, one full-body person per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera. Top row: (1) Chief Double Chop, a plump pompous Nigerian politician in a gold agbada with a matching cap, many beads and a fly-whisk; (2) Pepper, a lanky henchman in a red shirt and sunglasses; (3) Salt, a big round henchman in a white shirt with arms folded; (4) Barrister Ledger, a nervous sweating lawyer in a cheap suit holding a briefcase. Bottom row: (5) Engineer Bayo, a power-company lineman in blue overalls and a yellow hard hat holding a suya wrap; (6) Sule, a quiet 19-year-old danfo conductor holding a wad of naira notes; (7) a flamboyant wedding MC in a shiny agbada holding a microphone; (8) Mama Chief, a regal 90-year-old woman in a purple lace buba and gele, leaning on an ornate walking stick, smiling mischievously. No ground, no shadows, no labels.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:35:54.897Z",
+      "provider": "openai",
+      "asset": "pt-tunde",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1760,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 224
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2199
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Tunde, 34, wiry Nigerian danfo driver, short scruffy beard, faded red football jersey, white towel on shoulder, chewing stick, loud confident grin. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:36:19.762Z",
+      "provider": "openai",
+      "asset": "pt-ngozi",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 25,
+      "usage": {
+        "input_tokens": 1773,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 237
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2212
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Ngozi 'Aunty Boss', 41, Nigerian canteen queen in an orange-and-teal ankara outfit and big gele, reading glasses lowered on her nose, a terrifying calm 'I remember what you owe me' look. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:36:38.330Z",
+      "provider": "openai",
+      "asset": "pt-kc",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1755,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 219
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2194
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: KC Vibes, 23, Nigerian content creator with a neat afro and purple shirt, holding his phone up to film himself, anxious excited grin. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:36:58.720Z",
+      "provider": "openai",
+      "asset": "pt-chief",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1752,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 216
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2191
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Chief 'Double Chop', a plump pompous Nigerian politician in a gold agbada and cap with many beads, fake campaign smile. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:37:17.921Z",
+      "provider": "openai",
+      "asset": "pt-pepper",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1747,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 211
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2186
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Pepper, a lanky henchman in a red shirt and sunglasses, trying to look tough but confused. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:37:33.536Z",
+      "provider": "openai",
+      "asset": "pt-salt",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1743,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 207
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2182
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Salt, a big round henchman in a white shirt, sleepy and hungry expression. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:37:53.200Z",
+      "provider": "openai",
+      "asset": "pt-sule",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1751,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 215
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2190
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Sule, a quiet 19-year-old danfo conductor with a knowing deadpan look, naira notes folded between his fingers. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:38:12.457Z",
+      "provider": "openai",
+      "asset": "pt-mc",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1747,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 211
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2186
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a flamboyant Nigerian wedding MC in a shiny agbada with a microphone, mid-shout, huge enthusiasm. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:38:28.090Z",
+      "provider": "openai",
+      "asset": "pt-ledger",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1746,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 210
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2185
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Barrister 'Ledger', a nervous Nigerian lawyer in a cheap suit, sweating, clutching a notebook. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:38:47.283Z",
+      "provider": "openai",
+      "asset": "pt-bayo",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1753,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 217
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2192
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Engineer Bayo 'Light Man', a power-company lineman in blue overalls and yellow hard hat, eating suya, unimpressed. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:39:06.931Z",
+      "provider": "openai",
+      "asset": "pt-mama-chief",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1745,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 209
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2184
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mama Chief, a regal mischievous 90-year-old Nigerian grandmother in purple lace and gele. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:39:27.699Z",
+      "provider": "openai",
+      "asset": "pt-passenger",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1743,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 207
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2182
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a talkative middle-aged Nigerian market woman passenger with a basket, pointing and complaining loudly. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:39:51.970Z",
+      "provider": "openai",
+      "asset": "panel-owambe",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 24,
+      "usage": {
+        "input_tokens": 1774,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 238
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2117
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a lavish Lekki owambe wedding party in a decorated event hall at night: hundreds of guests in matching aso-ebi lace and gele, dancing, naira notes raining down as guests spray money on the dancing couple, a flamboyant MC on stage, buffet coolers of jollof, colourful lights. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:40:09.564Z",
+      "provider": "openai",
+      "asset": "panel-blackout",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1765,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 229
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2108
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: the SAME lavish event hall plunged into darkness by a power cut: almost pitch black, only phone screens glowing and lighting up shocked faces in aso-ebi, silhouettes frozen mid-dance, one person's hand reaching under a table for a plaid Ghana-must-go bag. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:40:26.898Z",
+      "provider": "openai",
+      "asset": "panel-bag",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1760,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 224
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2103
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: close-up inside a battered yellow Lagos danfo minibus: a plaid red-white-blue Ghana-must-go bag stuffed with cash peeking out from under a torn passenger seat, a few naira notes spilling out, sunlight through dusty windows. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:40:48.130Z",
+      "provider": "openai",
+      "asset": "panel-family-meeting",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0239,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1794,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 258
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2137
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: night inside a small mama-put canteen lit by a single bulb powered by a noisy generator: three people arguing around a table with a plaid Ghana-must-go bag on it - a wiry danfo driver with a towel on his shoulder shouting, a commanding woman in ankara and gele with arms folded, and a young man with an afro filming on his phone; pots and coolers in the background. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:41:08.961Z",
+      "provider": "openai",
+      "asset": "panel-title",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0237,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1754,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 218
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2097
+      },
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a moody painted Lagos night skyline by the lagoon with tangled electricity poles and wires, every building dark except one single light bulb flickering on in the centre, empty space in the upper middle for a title. No text, no letters.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T15:41:27.262Z",
+      "provider": "openai",
+      "asset": "int-owambe-hall",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "opaque",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0238,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1774,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 238
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 2117
+      },
+      "prompt": "A top-down three-quarter view FLOOR PLAN illustration of the INTERIOR of a lavish Nigerian owambe event hall, seen from above, axis-aligned (not isometric): a polished tiled floor, rows of round banquet tables with gold and purple aso-ebi tablecloths and chairs on the left and right, a central dance floor, a raised decorated stage with flowers and a high table at the top, a long buffet table with coolers and chafing dishes along the bottom wall, speakers in the corners. NO people. Same painted style as the reference.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:15:22.654Z",
+      "provider": "openai",
+      "asset": "pt-warden",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1765,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 229
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2204
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Officer Gbenga, a self-important Nigerian road traffic warden in a crisp blue-and-white uniform and peaked cap, holding a notebook, squinting suspiciously, 'Particulars!' expression. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:15:39.488Z",
+      "provider": "openai",
+      "asset": "pt-debtor",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1765,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 229
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2204
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mr. Okafor 'Mr. Next-Week', a smooth-talking middle-aged Nigerian man in a kaftan and cap, holding up his phone screen as proof, guilty fake smile. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:15:57.694Z",
+      "provider": "openai",
+      "asset": "pt-cousin",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 18,
+      "usage": {
+        "input_tokens": 1758,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 222
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2197
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a young Nigerian man pretending to be 'the groom's cousin from abroad', in a too-big suit and sunglasses on his head, nervous grin, sweat on forehead. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:16:14.104Z",
+      "provider": "openai",
+      "asset": "pt-mama-nkem",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1756,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 220
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2195
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mama Nkem, a fearsome wise Nigerian market council leader in her fifties, colourful wrapper and head-tie, arms crossed, knowing smile. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:16:31.552Z",
+      "provider": "openai",
+      "asset": "pt-market-woman",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1748,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 212
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2187
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a lively young Nigerian market trader woman with a tray of tomatoes on her head, mid-laugh, hoop earrings. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:16:54.857Z",
+      "provider": "openai",
+      "asset": "pt-barber",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 23,
+      "usage": {
+        "input_tokens": 1750,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 214
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2189
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Barber Sharp, a proud young Nigerian barber with an extremely bold geometric fade haircut, clippers in hand, waiting for compliments. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:17:10.977Z",
+      "provider": "openai",
+      "asset": "pt-usher",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1746,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 210
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2185
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a stern Nigerian church usher in a white suit with a sash, holding an offering basket, eyebrows raised. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:17:25.526Z",
+      "provider": "openai",
+      "asset": "pt-kiosk",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 15,
+      "usage": {
+        "input_tokens": 1748,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 212
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2187
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a hustling Nigerian phone-charging kiosk owner, a tangle of chargers around his neck, cheerful salesman grin. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:17:41.807Z",
+      "provider": "openai",
+      "asset": "pt-mechanic",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1758,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 222
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2197
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Alhaji Mechanic, a grizzled Nigerian auto mechanic in oil-stained overalls and a kufi cap, holding a spanner, unimpressed. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:17:58.887Z",
+      "provider": "openai",
+      "asset": "pt-guest-b",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 17,
+      "usage": {
+        "input_tokens": 1755,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 219
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2194
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Uncle Femi, a jovial Nigerian wedding guest in a shiny blue agbada and fila cap, plate of jollof in hand, laughing. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:18:15.343Z",
+      "provider": "openai",
+      "asset": "pt-guest-c",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0266,
+      "seconds": 16,
+      "usage": {
+        "input_tokens": 1755,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 219
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2194
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Iya Bisi, a dramatic older Nigerian wedding guest in red aso-ebi lace and an enormous gele, eating chin-chin, judging everyone. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
+    },
+    {
+      "at": "2026-10-14T16:18:36.355Z",
+      "provider": "openai",
+      "asset": "pt-gele-queen",
+      "model": "gpt-image-2.5-flare",
+      "size": "1024x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0265,
+      "seconds": 21,
+      "usage": {
+        "input_tokens": 1753,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 217
+        },
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "image_tokens": 439,
+          "text_tokens": 0
+        },
+        "total_tokens": 2192
+      },
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a glamorous Nigerian woman in purple aso-ebi with the tallest, most sculptural gele head-tie ever seen, striking a proud pose. Head and shoulders only, no text.",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ]
     }
   ]
 }

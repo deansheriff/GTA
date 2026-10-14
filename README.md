@@ -6,21 +6,30 @@ above at an angle.
 
 ## Status
 - **Platform:** Android only, built with **Godot 4.6.3** (decision D-005).
-- **Look:** top-down 3/4 camera with painted, ink-outlined art in The Omins' style (decision D-004).
-- **Setting:** **Ayo Island**, a fictional tropical Nigerian island (decision D-007).
-- **Milestone 0 is in progress.** Playable now, with **AI-painted art** (GPT Image; see
-  [provenance](docs/art/PROVENANCE.md)), in Ayo Town on Ayo Island:
-  - animated sea and beaches with canoes, nets, beach bars, fishermen's huts and palms
-  - painted ground, zinc-roofed shops, POS umbrellas, poles and wires, generators, trees
-  - walk Tunde
-  - drive the danfo "Baba God Dey" in any direction
-  - a small crowd of pedestrians
-  - night, and NEPA cuts ("UP NEPA!")
-  - graphics presets suggested per device
-  - runs at 60 fps
-  - **multiplayer:** connect to your server (Settings → Online) and see other players walk and drive
-- **Next:** 8-direction danfo art and the three hero sheets, then Milestone 1: the Prologue
-  at Paradise Gardens.
+- **Look:** top-down 3/4 camera with painted, ink-outlined art in The Omins' style (D-004),
+  AI-painted (GPT Image; see [provenance](docs/art/PROVENANCE.md)).
+- **Setting:** a tropical-island Lagos with the real place names: Ikeja, Oshodi, Mushin, Yaba,
+  Surulere, Agbado-Ketu, Lagos Island, Ikoyi, Victoria Island, Lekki (D-008). Every business,
+  agency and person is fictional.
+- **Milestones done** (see the [production plan](docs/PRODUCTION_PLAN.md)):
+  - **M0/M1 · open world:** the whole city streams in chunks; traffic drives on the right;
+    crowds; the Third Mainland Bridge; day/night; NEPA blackouts; minimap and GPS; 60 fps
+  - **M2 · life-sim:** needs, money, shops, danfo/delivery/POS hustles, skills, sleep, phone,
+    local + cloud saves
+  - **M3 · story:** "Up NEPA!" Prologue and Act 1 (9 missions) with dialogue and portraits,
+    painted cutscenes, the owambe hall, chases, six mini-games, three switchable heroes and
+    their abilities, named characters on daily routines
+  - **Server:** realtime multiplayer rooms per district and cloud saves, deployable to Coolify
+- **Next:** M4, Acts 2 and 3 and the four endings.
+
+## Run and test
+```powershell
+$g = ".tools\godot\Godot_v4.6.3-stable_win64_console.exe"
+& $g --path game                                   # play (desktop preview)
+& $g --headless --path game --script res://tests/run_tests.gd   # unit tests
+& $g --path game -- --story-auto --shots=build/shots   # plays the whole story by itself
+& $g --path game -- --demo --shots=build/shots         # free-roam tour + perf numbers
+```
 
 ## Layout
 | Path | What |

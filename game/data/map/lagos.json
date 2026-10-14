@@ -75,7 +75,12 @@
     { "id": "mama-chief-house", "name": "Adebayo-Williams residence", "district": "ikoyi", "cell": [114,100], "kind": "bungalow" },
     { "id": "agbado-ketu-council", "name": "Agbado-Ketu Central LGA Secretariat", "district": "agbado-ketu", "cell": [158,28], "kind": "two-storey" },
     { "id": "miracle-fm", "name": "Miracle FM 99.9", "district": "ikeja", "cell": [110,16], "kind": "two-storey" },
-    { "id": "petronaija-station", "name": "PetroNaija filling station", "district": "mushin", "cell": [56,56], "kind": "station" }
+    { "id": "petronaija-station", "name": "PetroNaija filling station", "district": "mushin", "cell": [56,56], "kind": "station" },
+    { "id": "ojota-bus-stop", "name": "Ojota bus stop", "district": "agbado-ketu", "cell": [140,25], "kind": "park" },
+    { "id": "yaba-barbershop", "name": "Sharp Cut Barbing Saloon", "district": "yaba", "cell": [97,55], "kind": "pos-shop" },
+    { "id": "yaba-church", "name": "Overflowing Grace Assembly", "district": "yaba", "cell": [107,54], "kind": "two-storey" },
+    { "id": "yaba-charging-kiosk", "name": "Charge Am Here", "district": "yaba", "cell": [96,63], "kind": "provision-store" },
+    { "id": "mushin-mechanic", "name": "Alhaji Mechanic Workshop", "district": "mushin", "cell": [40,63], "kind": "park" }
   ],
   "start": { "player": [44,90], "danfo": [46,86] }
 }

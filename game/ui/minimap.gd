@@ -12,6 +12,7 @@ var heading := 0.0
 var waypoint := Vector2.INF
 var route := PackedVector2Array()
 var others: Array[Vector2] = []
+var stars: Array[Vector2] = [] # story mission starts
 var _rect: TextureRect
 
 
@@ -68,6 +69,11 @@ func _draw_overlay(c: Control) -> void:
 		if _inside(lp):
 			c.draw_circle(lp, 4.0, Color("#a8382c"))
 			c.draw_arc(lp, 4.0, 0, TAU, 12, Color("#1d1611"), 1.5, true)
+	for s in stars:
+		var lp := _to_local(s)
+		if not _inside(lp):
+			lp = size * 0.5 + (lp - size * 0.5).normalized() * size.x * 0.44
+		_star(c, lp, 7.0)
 	for o in others:
 		var lp := _to_local(o)
 		if _inside(lp):
@@ -84,6 +90,15 @@ func _draw_overlay(c: Control) -> void:
 	var side := Vector2(-f.y, f.x)
 	c.draw_colored_polygon(PackedVector2Array([ctr + f * 9.0, ctr - f * 6.0 + side * 6.0, ctr - f * 3.0, ctr - f * 6.0 - side * 6.0]), Color("#f1e6c8"))
 	c.draw_polyline(PackedVector2Array([ctr + f * 9.0, ctr - f * 6.0 + side * 6.0, ctr - f * 3.0, ctr - f * 6.0 - side * 6.0, ctr + f * 9.0]), Color("#1d1611"), 1.5, true)
+
+
+func _star(c: Control, at: Vector2, r: float) -> void:
+	var pts := PackedVector2Array()
+	for i in 10:
+		pts.append(at + Vector2.from_angle(-PI / 2 + i * PI / 5.0) * (r if i % 2 == 0 else r * 0.45))
+	c.draw_colored_polygon(pts, Color("#e0a91c"))
+	pts.append(pts[0])
+	c.draw_polyline(pts, Color("#1d1611"), 1.5, true)
 
 
 func _gui_input(event: InputEvent) -> void:

@@ -1,0 +1,318 @@
+{
+  "_comment": "Up NEPA! dialogue for the Prologue and Act 1. ALL Pidgin, Yoruba, Igbo and Hausa lines are PENDING NATIVE-SPEAKER REVIEW (Story Bible §10). Every person, brand and agency is fictional. Choice: {text, flag?, value?, fx?, reply?: [lines]}.",
+  "lines": {
+    "p1_intro": [
+      { "who": "sule", "text": "Ojota! Owambe guests! Lekki! Enter with your change!" },
+      { "who": "guest-a", "text": "Driver, I hope this bus has AC. This lace cost me ₦85,000." },
+      { "who": "tunde", "text": "Madam, the AC is the window. Wind is free. Baba God dey!" },
+      { "who": "guest-c", "text": "Adeleke, that your aso-ebi is not original. The colour is shouting \"Balogun Market\"." },
+      { "who": "guest-a", "text": "At least I didn't sew mine last night with candle light." },
+      { "who": "guest-b", "text": "Ladies, ladies. We will settle it at the jollof." },
+      { "who": "tunde", "text": "Everybody hold body. Royal Pavilion, Lekki. We go reach before the couple enter. I promise you." },
+      { "who": "sule", "text": "…" }
+    ],
+    "p1_chinchin": [
+      { "who": "guest-c", "text": "Driver, stop small. I want to buy chin-chin for the road." },
+      { "who": "tunde", "text": "Mama, the road is the bridge. It is six minutes." },
+      { "who": "guest-c", "text": "Six minutes is long. My sugar is low." },
+      { "who": "guest-d", "text": "Which kind sugar? You've been eating my puff-puff since Ojota." },
+      { "who": "tunde", "text": "Nobody is stopping. We are on a mission. The mission is jollof.", "choices": [
+        { "text": "\"No stopping. Hold your belle.\"", "fx": { "stats": { "bp": 5 } }, "reply": [ { "who": "guest-c", "text": "This driver has no home training." } ] },
+        { "text": "Toss her your last puff-puff", "fx": { "stats": { "bp": -5 } }, "reply": [ { "who": "guest-c", "text": "Ah. God bless you, my son. You will marry a good woman." }, { "who": "tunde", "text": "I'm already married to this bus." } ] }
+      ] }
+    ],
+    "p1_warden": [
+      { "who": "warden", "text": "Stop there! Yellow bus! PARTICULARS!" },
+      { "who": "tunde", "text": "Officer Gbenga. My brother. My guy. My personal nightmare." },
+      { "who": "warden", "text": "Your side mirror is facing the wrong spiritual direction. That one is an offence." },
+      { "who": "sule", "text": "Oga, leave am for me." }
+    ],
+    "p1_warden_pass": [
+      { "who": "warden", "text": "VIP? Owambe VIP? …Is it the Adeleke wedding? My cousin's wife's sister is catering!" },
+      { "who": "warden", "text": "Go, go! Tell them Gbenga said they should keep me moin-moin." },
+      { "who": "tunde", "text": "Sule, if you talk two more words this year, I will promote you." },
+      { "who": "sule", "text": "Hmm." }
+    ],
+    "p1_arrive": [
+      { "who": "guest-a", "text": "We have arrived in style! In a danfo, but in style!" },
+      { "who": "guest-b", "text": "Driver, come inside. I know the family. Come and chop." },
+      { "who": "tunde", "text": "I'm working. I must find passengers for the return…" },
+      { "who": "guest-b", "text": "Nonsense. Free jollof is not something you reject. Sule, you too, come." },
+      { "who": "tunde", "text": "…Baba God dey. Sule, lock the bus." }
+    ],
+    "p2_intro": [
+      { "who": "ngozi", "text": "Girls! Listen. Elders first. Then the bride's family. Then everybody else." },
+      { "who": "ngozi", "text": "Anybody who comes with their own takeaway pack, you call me. I will handle them personally." },
+      { "who": "ngozi", "text": "And nobody, I repeat NOBODY, comes back for a second plate before the couple's family eats. This jollof is politics." }
+    ],
+    "p2_cousin": [
+      { "who": "cousin", "text": "Aunty, I'm the groom's cousin. From abroad. Just flew in. Please add extra chicken, the flight was long." },
+      { "who": "ngozi", "text": "…" },
+      { "who": "cousin", "text": "From… from London. Near London. Around London side." },
+      { "who": "ngozi", "text": "…" },
+      { "who": "cousin", "text": "Ikorodu. I'm from Ikorodu. I came by BRT. Please, one plate, I'm begging." },
+      { "who": "ngozi", "text": "Join the queue like a citizen. And greet your mother for me.", "choices": [
+        { "text": "Give him a small plate anyway", "fx": { "stats": { "aura": 3 } }, "reply": [ { "who": "cousin", "text": "Aunty, God will bless you. I will tell everybody in London." } ] },
+        { "text": "Back of the queue", "fx": { "stats": { "aura": 1 } } }
+      ] }
+    ],
+    "p2_debtor": [
+      { "who": "debtor", "text": "Aunty Boss! The food is excellent, as usual. God bless your hands." },
+      { "who": "ngozi", "text": "Mr. Okafor. You owe me ₦8,000. Since the last owambe. February." },
+      { "who": "debtor", "text": "Ah, Aunty, I sent it! Transfer. It must be the network." },
+      { "who": "ngozi", "text": "It must be. Write it down. I don't forget.", "choices": [
+        { "text": "\"Pay me before the cake is cut.\"", "flag": "okafor_debt", "value": "pressed", "fx": { "stats": { "aura": 2 } }, "reply": [ { "who": "debtor", "text": "Before the cake. Yes ma. Definitely. Is the cake… far?" } ] },
+        { "text": "\"Next week. Monday. Not Tuesday.\"", "flag": "okafor_debt", "value": "monday" }
+      ] }
+    ],
+    "p3_intro": [
+      { "who": "kc", "text": "Wassup wassup, it's your boy KC Vibes, live from the owambe of the YEAR!" },
+      { "who": "kc", "text": "Today we are catching three viral moments. Three! The MC, the money spraying and the gele competition." },
+      { "who": "kc", "text": "Like and subscribe! …Battery 70%. We move." }
+    ],
+    "p3_mc": [
+      { "who": "mc", "text": "Ladies and gentlemen! Put your hands together for the groom's mother, who will now dance for the THIRD time!" },
+      { "who": "kc", "text": "Content! Pure content! The MC is a national treasure." },
+      { "who": "mc", "text": "Where are my money sprayers? Make it rain! Make it pour! Make it flood!" }
+    ],
+    "p3_trip": [
+      { "who": "kc", "text": "And the gele competition is… oh no. Oh NO. The bride's mother!" },
+      { "who": "kc", "text": "She tripped on her own gele. On camera. In 4K." },
+      { "who": "kc", "text": "I'm deleting it. I am deleting it right now. Respect for elders.", "choices": [
+        { "text": "Delete it (really)", "flag": "kept_trip_clip", "value": true, "reply": [ { "who": "tip", "text": "KC deletes it. (He did not delete it.)" } ] }
+      ] }
+    ],
+    "p4_mc": [
+      { "who": "mc", "text": "And now, the moment! The couple's first dance! DJ, give me something for the soul!" },
+      { "who": "chief", "text": "Light for All! Terms and conditions apply! Ha ha!" },
+      { "who": "ledger", "text": "Chief, please, keep your voice down. The bag… the bag is under the table." },
+      { "who": "chief", "text": "Ledger, relax. Who will steal from me in my own mother's friend's daughter's wedding?" }
+    ],
+    "p4_light": [
+      { "who": "all", "text": "UP NEPAAAA!" },
+      { "who": "mc", "text": "Everybody freeze! Nobody move! …Why is everybody frozen in a dancing pose?" },
+      { "who": "chief", "text": "MY BAG! Where is my bag?! LEDGER!" },
+      { "who": "ledger", "text": "It was here! It was just here! It must be… the opposition! Yes. The opposition did it." },
+      { "who": "kc", "text": "Bro. I recorded EVERYTHING. In the dark. With flash." },
+      { "who": "tunde", "text": "Sule. We are going home. Now." },
+      { "who": "ngozi", "text": "Somebody owes me for forty plates of jollof that disappeared in the dark. I'm writing it down." }
+    ],
+    "m11_intro": [
+      { "who": "tunde", "text": "Sule, today we make money. No owambe, no wahala, no Chief, no bag stories." },
+      { "who": "sule", "text": "Hmm." },
+      { "who": "tunde", "text": "Oshodi to Obalende, then back over the bridge. Full bus both ways. Baba God dey!" }
+    ],
+    "m11_fares": [
+      { "who": "passenger", "text": "Driver, I gave you ₦1,000 since Oshodi. Where's my change?" },
+      { "who": "sule", "text": "Change dey come." },
+      { "who": "passenger", "text": "Dey come from where? From heaven?" },
+      { "who": "tunde", "text": "Madam, in this life, change is a journey. Not a destination." },
+      { "who": "passenger", "text": "…That is actually deep." }
+    ],
+    "m11_goslow": [
+      { "who": "passenger", "text": "Driver, this go-slow is spiritual. I can see my house from here, and my house is in Ikeja." },
+      { "who": "tunde", "text": "Everybody calm down. I know these roads like I know my own pocket. Empty, but I know them." },
+      { "who": "tunde", "text": "Wait. I can see it. The gap. The holy gap." }
+    ],
+    "m11_nextime": [
+      { "who": "passenger", "text": "Driver, I no get change. I'll pay you next time." },
+      { "who": "tunde", "text": "Next time? Oga, there is no next time in danfo! This is not a subscription!" },
+      { "who": "passenger", "text": "Next time. God's time is the best." },
+      { "who": "sule", "text": "He forgot his bag." },
+      { "who": "tunde", "text": "Sule, two words in one day? What's happening to you?" }
+    ],
+    "m11_bag": [
+      { "who": "tunde", "text": "…" },
+      { "who": "tunde", "text": "Sule. Sule, come and see. Close the door." },
+      { "who": "sule", "text": "That's a lot of money." },
+      { "who": "tunde", "text": "That is the Chief's bag. From the owambe. The one everybody is looking for." },
+      { "who": "tunde", "text": "Nobody saw anything. Nobody knows anything. We are not in this.", "choices": [
+        { "text": "\"We're keeping it safe. Only safe.\"", "flag": "tunde_first", "value": "safe" },
+        { "text": "\"Let me just… count it small.\"", "flag": "tunde_first", "value": "count", "fx": { "stats": { "bp": 10 } }, "reply": [ { "who": "sule", "text": "Don't." } ] }
+      ] }
+    ],
+    "m12_intro": [
+      { "who": "mama-nkem", "text": "Aunty Boss! Ajo day! The women are ready. Some of them are ready to argue." },
+      { "who": "ngozi", "text": "Mama Nkem, ajo is trust. Trust is money. And money, I don't forget." },
+      { "who": "ngozi", "text": "Six women. Six contributions. Nobody leaves the market until I say so." }
+    ],
+    "m12_w1": [
+      { "who": "market-woman", "text": "Aunty, here is my ₦5,000. Complete. Count it twice." },
+      { "who": "ngozi", "text": "I counted it three times while you were bringing it out. Thank you, my sister." }
+    ],
+    "m12_w2": [
+      { "who": "market-woman", "text": "Aunty, I'll pay double next week. My tomato spoiled." },
+      { "who": "ngozi", "text": "Your tomato spoiled last week too. Tomato does not spoil every week.", "choices": [
+        { "text": "The Stare", "fx": { "stats": { "aura": 3 } }, "reply": [ { "who": "market-woman", "text": "…Here. ₦5,000. Please stop looking at me like that." } ] },
+        { "text": "\"Bring half today.\"", "fx": { "stats": { "aura": -1 } }, "reply": [ { "who": "market-woman", "text": "Half today, half in my prayers. Thank you, Aunty." } ] }
+      ] }
+    ],
+    "m12_w3": [
+      { "who": "market-woman", "text": "Aunty, have you heard? They say the Chief's bag grew legs and walked away." },
+      { "who": "ngozi", "text": "Gossip is free. Ajo is ₦5,000. Bring it." }
+    ],
+    "m12_w4": [
+      { "who": "debtor", "text": "Aunty, I've transferred it! Look, here's the screenshot." },
+      { "who": "ngozi", "text": "This screenshot is from 2023. The date is right there. And it's in the old naira design." },
+      { "who": "debtor", "text": "…The network is very slow, Aunty.", "choices": [
+        { "text": "\"You owe me ₦5,000. And now ₦500 for insulting my eyes.\"", "fx": { "stats": { "aura": 4 }, "story_money": 500 } },
+        { "text": "\"Pay tomorrow. Before seven.\"", "fx": { "stats": { "aura": -2 } } }
+      ] }
+    ],
+    "m12_w5": [
+      { "who": "market-woman", "text": "My own is ready. And I brought you agbalumo." },
+      { "who": "ngozi", "text": "This is why you will collect first next month." }
+    ],
+    "m12_w6": [
+      { "who": "mama-nkem", "text": "Last one. Mine. Plus the market council dues." },
+      { "who": "ngozi", "text": "Mama Nkem, you're the only person in Lagos who has never owed me." },
+      { "who": "mama-nkem", "text": "Because I have seen what you do to debtors, my sister." }
+    ],
+    "m12_pos": [
+      { "who": "mama-nkem", "text": "Aunty, the POS queue is long today. And Konnekt network is… you know." },
+      { "who": "ngozi", "text": "\"Network don fail, come back tomorrow.\" I know. Let me handle it." },
+      { "who": "tip", "text": "When the network fails, tap SWITCH NETWORK or HOLD IT AT THE WINDOW before the customer's patience runs out." }
+    ],
+    "m12_dispute": [
+      { "who": "market-woman", "text": "Aunty! This woman says I owe her ₦200 for pepper!" },
+      { "who": "mama-nkem", "text": "It was ₦200 for pepper AND she touched my tomatoes with her eyes!" },
+      { "who": "ngozi", "text": "Both of you. Silence. The ₦200 dispute will be settled. Today.", "choices": [
+        { "text": "Split it: ₦100 each, and everybody shakes hands", "fx": { "stats": { "aura": 2 } }, "reply": [ { "who": "market-woman", "text": "Wisdom. Pure wisdom. Solomon is shaking." } ] },
+        { "text": "Pay the ₦200 yourself to end the noise", "fx": { "story_money": -200, "stats": { "aura": -1 } }, "reply": [ { "who": "mama-nkem", "text": "Aunty Boss is paying? Write it in the newspaper!" } ] },
+        { "text": "The Stare. On both of them.", "fx": { "stats": { "aura": 4 } }, "reply": [ { "who": "market-woman", "text": "…We are no longer quarrelling. We are friends. Since childhood." } ] }
+      ] }
+    ],
+    "m12_whisper": [
+      { "who": "mama-nkem", "text": "Aunty… come closer. Two men came here this morning. One in a red shirt, one big like a fridge." },
+      { "who": "mama-nkem", "text": "They were asking for \"a canteen woman in the video\". The video from the owambe. The one where the light went." },
+      { "who": "ngozi", "text": "Which video?" },
+      { "who": "mama-nkem", "text": "The one with forty thousand views, Aunty. You're in it. Covering a pot." },
+      { "who": "ngozi", "text": "…Who filmed it?" },
+      { "who": "mama-nkem", "text": "Some boy. KC something. \"Vibes\"." },
+      { "who": "ngozi", "text": "Write it down. KC Vibes. I don't forget." }
+    ],
+    "m13_intro": [
+      { "who": "kc", "text": "Guys. GUYS. The blackout clip. Forty thousand viewers. FORTY THOUSAND." },
+      { "who": "chat", "text": "who took the bag 👀  ·  zoom on the table!!  ·  is that a canteen aunty lol" },
+      { "who": "kc", "text": "I'm going live right now to break it down frame by frame. Phone battery is at…" },
+      { "who": "kc", "text": "…4%. And NEPA has taken light. Again." },
+      { "who": "kc", "text": "Okay. Okay okay okay. Content creators don't panic. We adapt. Somebody in Yaba has power." }
+    ],
+    "m13_barber": [
+      { "who": "barber", "text": "My generator, my rules. ₦200 to charge. And you must give me your opinion on this haircut." },
+      { "who": "kc", "text": "That is… a bold fade. Very bold. Brave, even." },
+      { "who": "barber", "text": "Thank you! Nobody appreciates art in this area. Plug in." }
+    ],
+    "m13_church": [
+      { "who": "usher", "text": "You can charge. The church has an inverter. But you must sit until the end of the prayer." },
+      { "who": "kc", "text": "How long is the prayer?" },
+      { "who": "usher", "text": "Pastor started at 9. It's 11. We are on point 3 of 12." },
+      { "who": "chat", "text": "😂😂 bro is trapped  ·  AMEN  ·  type 1 for blessings" }
+    ],
+    "m13_kiosk": [
+      { "who": "kiosk", "text": "Charge Am Here! Thirty phones, one socket, zero wahala." },
+      { "who": "kc", "text": "That extension box is smoking." },
+      { "who": "kiosk", "text": "It's not smoking. It's thinking. ₦100, plug in." }
+    ],
+    "m13_reveal": [
+      { "who": "kc", "text": "Okay chat, frame 412. Look at the hand going under the table. That's the bag. And that face is…" },
+      { "who": "kc", "text": "That face is the CHIEF'S OWN TREASURER. The man is—" },
+      { "who": "chat", "text": "??? continue!!!  ·  KC??  ·  it froze  ·  he don japa 😭" },
+      { "who": "kc", "text": "Guys… guys? The signal. The signal dropped exactly there. Of course it did." }
+    ],
+    "m13_pepper": [
+      { "who": "pepper", "text": "Hey! You! Purple shirt! You're the boy in the video!" },
+      { "who": "kc", "text": "Me? No. I'm his twin. He's in Abuja. Like and subscribe!" },
+      { "who": "pepper", "text": "Come here! The Chief wants to \"discuss content\" with you!" },
+      { "who": "kc", "text": "RUN, KC. RUN." }
+    ],
+    "m13_canteen": [
+      { "who": "ngozi", "text": "You. Purple shirt. Sit down." },
+      { "who": "kc", "text": "Aunty, please, there's a man chasing me, I just need five minutes—" },
+      { "who": "ngozi", "text": "You are KC Vibes. You filmed me covering my pot in the dark. Forty thousand people have seen my elbow." },
+      { "who": "kc", "text": "…Fifty-two thousand now, Aunty. It's trending." },
+      { "who": "ngozi", "text": "You owe me an explanation. And ₦2,500 for the malt you're about to drink. Sit. Food is ready." }
+    ],
+    "m14_intro": [
+      { "who": "sule", "text": "Two men came to the park. Red shirt. Big man. They asked for a yellow danfo." },
+      { "who": "tunde", "text": "Sule, every danfo in Lagos is yellow." },
+      { "who": "sule", "text": "With \"Baba God Dey\" on the back." },
+      { "who": "tunde", "text": "…Okay. We need to hide the bus. Alhaji Mechanic in Mushin. He owes me." }
+    ],
+    "m14_passenger": [
+      { "who": "passenger", "text": "Driver, I am going to Mushin. I have paid. Full journey." },
+      { "who": "tunde", "text": "Madam, today is not a good day. Please come down." },
+      { "who": "passenger", "text": "I have paid for the full journey. I am not coming down. I will be filing my nails." },
+      { "who": "tip", "text": "Pepper and Salt are coming. Keep them away. Passengers will shout directions: vote on the turns. The heat meter shows how close they are." }
+    ],
+    "m14_hide": [
+      { "who": "tunde", "text": "Alhaji! Cover the bus! Now now now!" },
+      { "who": "mechanic", "text": "Tunde, you still owe me for the last gearbox." },
+      { "who": "tunde", "text": "Put it on my account!" },
+      { "who": "mechanic", "text": "Your account is a book. A full book." },
+      { "who": "passenger", "text": "This is my stop. Thank you, driver. Five stars. Very exciting service." },
+      { "who": "sule", "text": "We need help. Somebody with sense." },
+      { "who": "tunde", "text": "I know one woman in Surulere. Her canteen has a generator and she fears nobody." }
+    ],
+    "m15_open": [
+      { "who": "ngozi", "text": "So. A danfo driver, a content creator, and a bag of money. In my canteen. At night." },
+      { "who": "tunde", "text": "Madam, I just need somewhere to keep it for one night. One night!" },
+      { "who": "kc", "text": "Aunty, the whole internet is looking for this bag. I can make it a series—" },
+      { "who": "ngozi", "text": "Nobody is filming anything inside my canteen. Generator! Somebody add fuel!" }
+    ],
+    "m15_standoff": [
+      { "who": "tunde", "text": "The bag was under seat 4! I didn't steal anything!" },
+      { "who": "kc", "text": "I have the video! It was the treasurer! Ledger!" },
+      { "who": "ngozi", "text": "Lower your voices, my customers are sleeping upstairs!" },
+      { "who": "tunde", "text": "If the Chief finds this bag with us, we're finished!" },
+      { "who": "kc", "text": "If the internet finds it with us, we're FAMOUS!" },
+      { "who": "ngozi", "text": "If either of you breaks my plate, you're both finished AND famous!" },
+      { "who": "tunde", "text": "We should hide it somewhere nobody will look!" },
+      { "who": "kc", "text": "We should give it back with a camera running!" },
+      { "who": "ngozi", "text": "We should count it! Nobody makes decisions about money they haven't counted!" },
+      { "who": "tunde", "text": "…That actually makes sense." }
+    ],
+    "m15_bag": [
+      { "who": "ngozi", "text": "Wait. Bring that bag here. Look at this handle." },
+      { "who": "ngozi", "text": "This stitching. Double cross, then a knot. This is MY stitching. I sewed this bag. Three years ago. For a client." },
+      { "who": "kc", "text": "Which client?" },
+      { "who": "ngozi", "text": "A man who paid with \"transfer, I've sent it\". I never forgot his face." },
+      { "who": "tunde", "text": "…" },
+      { "who": "kc", "text": "Tunde, you've gone quiet. Tunde doesn't go quiet." },
+      { "who": "tunde", "text": "I'm just tired. Long day. What do we do with it?", "choices": [
+        { "text": "Hide it", "flag": "bag_choice", "value": "hide" },
+        { "text": "Return it", "flag": "bag_choice", "value": "return", "fx": { "flags": { "tried_honest": true } } },
+        { "text": "Count it first", "flag": "bag_choice", "value": "count" }
+      ] }
+    ],
+    "m15_return": [
+      { "who": "tip", "text": "The next morning, at the Chief's campaign office…" },
+      { "who": "pepper", "text": "You want to return a bag? To the Chief? Which bag?" },
+      { "who": "salt", "text": "The Chief has not lost any bag. The Chief has never had a bag. Who sent you?" },
+      { "who": "pepper", "text": "Go away before we arrest you for… for… bringing a bag." },
+      { "who": "ngozi", "text": "So they can't admit it's theirs. Interesting. Write it down." },
+      { "who": "kc", "text": "I filmed it. Just saying." }
+    ],
+    "m15_count": [
+      { "who": "ngozi", "text": "Nobody decides anything about money that hasn't been counted. Tunde, the rubber bands. KC, put down that phone and count." }
+    ],
+    "m15_diary": [
+      { "who": "kc", "text": "Wait. What's this? Stuck between the notes… a page." },
+      { "who": "ngozi", "text": "\"Paid: Rally ₦4.5m. Paid: 'consultants' ₦12m. Paid: Light for All transformer… ₦0.\"" },
+      { "who": "tunde", "text": "It's a diary. Somebody wrote down everything." },
+      { "who": "ngozi", "text": "Somebody who doesn't forget. I like this person already." }
+    ],
+    "m15_hide": [
+      { "who": "ngozi", "text": "Under the rice. Nobody looks under fifty kilos of rice." },
+      { "who": "tunde", "text": "Except thieves who want rice." },
+      { "who": "ngozi", "text": "Thieves who want my rice will meet my Stare." }
+    ],
+    "m15_close": [
+      { "who": "ngozi", "text": "Listen, both of you. From today, we talk every day. Nobody does anything alone." },
+      { "who": "kc", "text": "I'm making a group chat." },
+      { "who": "tunde", "text": "No group chat. Group chats are where peace goes to die." },
+      { "who": "kc", "text": "Too late. I've added Sule." },
+      { "who": "sule", "text": "Hmm." }
+    ]
+  }
+}

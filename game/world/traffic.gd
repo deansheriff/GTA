@@ -32,7 +32,7 @@ func update(delta: float, focus: Vector2, player_vehicle: Node2D) -> void:
 	bumped = false
 	# Despawn far vehicles, spawn new ones in a ring around the focus.
 	for v in vehicles.duplicate():
-		if (v["node"] as Node2D).position.distance_to(focus) > DESPAWN:
+		if (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
 			(v["node"] as Node).queue_free()
 			vehicles.erase(v)
 	var tries := 0
@@ -41,6 +41,56 @@ func update(delta: float, focus: Vector2, player_vehicle: Node2D) -> void:
 		_try_spawn(focus)
 	for v in vehicles:
 		_drive(v, delta, player_vehicle)
+
+
+## Story go-slow (mission 1.1): a solid queue of stopped vehicles on the road nearest `pos`,
+## in both directions. `from` is where the player is coming from (unused for now, kept for tuning).
+func jam(pos: Vector2, _from: Vector2) -> void:
+	var best := ["", ""]
+	var bd := INF
+	for a in map.road_graph:
+		for b in map.road_graph[a]:
+			var pa: Vector2 = map.road_nodes[a]
+			var pb: Vector2 = map.road_nodes[b]
+			var q := Geometry2D.get_closest_point_to_segment(pos, pa, pb)
+			var d := q.distance_to(pos)
+			if d < bd:
+				bd = d
+				best = [a, b]
+	if best[0] == "":
+		return
+	for dir in 2:
+		var a: String = best[dir]
+		var b: String = best[1 - dir]
+		var pa: Vector2 = map.road_nodes[a]
+		var pb: Vector2 = map.road_nodes[b]
+		var len := pa.distance_to(pb)
+		var t0 := Geometry2D.get_closest_point_to_segment(pos, pa, pb).distance_to(pa)
+		for i in range(-4, 5):
+			var t := clampf(t0 + i * 150.0, 20.0, len - 20.0)
+			var roll := _rng.randf()
+			var kind := "danfo" if roll < 0.45 else ("car" if roll < 0.85 else "keke")
+			var n: Node2D = VehicleScript.new()
+			n.set_kind(kind, CAR_COLOURS[_rng.randi() % CAR_COLOURS.size()] if kind == "car" else Color(0, 0, 0, 0))
+			n.material = painted_mat
+			parent.add_child(n)
+			var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _edge_width(a, b) * 0.25, "speed": 0.0, "stop_t": 40.0, "cls": _edge_speed(a, b), "kind": kind, "jam": true }
+			_place(v)
+			vehicles.append(v)
+
+
+## The Whisperer found the gaps: the jam starts crawling again.
+func release_jam() -> void:
+	for v in vehicles:
+		if v.get("jam", false):
+			v["stop_t"] = 0.0
+
+
+func clear_jam() -> void:
+	for v in vehicles.duplicate():
+		if v.get("jam", false):
+			(v["node"] as Node).queue_free()
+			vehicles.erase(v)
 
 
 func _edge_speed(a: String, b: String) -> float:

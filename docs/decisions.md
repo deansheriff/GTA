@@ -226,3 +226,17 @@ Lekki along the beaches.
 
 **Owner instruction:** build continuously to production-ready, mark each milestone,
 ask only when input is needed, and make no APK builds until the game is done.
+
+## D-009 · Story engine choices for M3 · 2026-10-14
+**Decision (engineering, within the approved proposal; owner can override):**
+- **Switching unlocks after the Prologue (P4),** not after 1.5, so each hero's Act 1 mission is
+  reachable. The phone app is called "Switch" until 1.5, when KC creates the "Family Meeting 🔥"
+  group and the app takes that name (the story beat in the mission list is kept).
+- **Only Tunde drives Baba God Dey.** Aunty Boss and KC walk, hail a paid keke from the phone, or
+  (Aunty) ride free once a day on the Ajo Network. This keeps the heroes distinct and the bus
+  Tunde's.
+- **Act 1 1.1 is shortened** from three full Oshodi–Obalende loops to one loop and a return over
+  the bridge (the map is large; three loops tested at ~10 minutes of pure driving).
+- **The whole map stays open after the Prologue** (the mission list's "free roam opens: Yaba,
+  Lekki, Oshodi" is not used as a lock).
+- **Story money (₦s) is separate** from the wallet until the credits (Bible §9.7).

@@ -327,8 +327,17 @@ func _place_landmarks(list: Array) -> void:
 		var pos := (Vector2(cell) + Vector2(0.5, 1.0)) * CELL
 		landmarks[l["id"]] = { "name": l["name"], "district": l["district"], "pos": pos, "kind": l["kind"] }
 		if CATALOG.has(l["kind"]):
-			var b := _try_building(l["kind"], cell, hash(l["id"]) & 0xffff, 0)
+			# The authored cell is a hint: roads and walkways often run through it, so search the
+			# nearest free lot (closest first) instead of silently dropping the landmark's building.
+			var b: Layout.BuildingSpec = null
+			for r in 7:
+				for dy in range(-r, r + 1):
+					for dx in range(-r, r + 1):
+						if b == null and maxi(absi(dx), absi(dy)) == r:
+							b = _try_building(l["kind"], cell + Vector2i(dx, dy), hash(l["id"]) & 0xffff, 0)
 			if b:
+				var fp := b.footprint()
+				cell = Vector2i(int(fp.position.x / CELL), int(fp.end.y / CELL) - 1) # front-left cell
 				b.sign_text = l["name"]
 				b.landmark = l["id"]
 				landmarks[l["id"]]["pos"] = Vector2(b.footprint().get_center().x, b.footprint().end.y + 24)

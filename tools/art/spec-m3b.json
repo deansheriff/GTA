@@ -1,0 +1,105 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "pt-warden",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Officer Gbenga, a self-important Nigerian road traffic warden in a crisp blue-and-white uniform and peaked cap, holding a notebook, squinting suspiciously, 'Particulars!' expression. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-debtor",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mr. Okafor 'Mr. Next-Week', a smooth-talking middle-aged Nigerian man in a kaftan and cap, holding up his phone screen as proof, guilty fake smile. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-cousin",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a young Nigerian man pretending to be 'the groom's cousin from abroad', in a too-big suit and sunglasses on his head, nervous grin, sweat on forehead. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-mama-nkem",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mama Nkem, a fearsome wise Nigerian market council leader in her fifties, colourful wrapper and head-tie, arms crossed, knowing smile. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-market-woman",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a lively young Nigerian market trader woman with a tray of tomatoes on her head, mid-laugh, hoop earrings. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-barber",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Barber Sharp, a proud young Nigerian barber with an extremely bold geometric fade haircut, clippers in hand, waiting for compliments. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-usher",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a stern Nigerian church usher in a white suit with a sash, holding an offering basket, eyebrows raised. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-kiosk",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a hustling Nigerian phone-charging kiosk owner, a tangle of chargers around his neck, cheerful salesman grin. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-mechanic",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Alhaji Mechanic, a grizzled Nigerian auto mechanic in oil-stained overalls and a kufi cap, holding a spanner, unimpressed. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-guest-b",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Uncle Femi, a jovial Nigerian wedding guest in a shiny blue agbada and fila cap, plate of jollof in hand, laughing. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-guest-c",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Iya Bisi, a dramatic older Nigerian wedding guest in red aso-ebi lace and an enormous gele, eating chin-chin, judging everyone. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-gele-queen",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a glamorous Nigerian woman in purple aso-ebi with the tallest, most sculptural gele head-tie ever seen, striking a proud pose. Head and shoulders only, no text."
+    }
+  ]
+}

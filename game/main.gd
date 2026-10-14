@@ -4,6 +4,7 @@ extends Node2D
 ##
 ## Demo/screenshot mode for automated checks:
 ##   Godot --path game -- --demo --shots=C:/some/dir [--preset=low|medium|high] [--server=host]
+##   Godot --path game -- --story-auto --shots=C:/some/dir   (plays the Prologue + Act 1 by itself)
 
 const WalkerScript := preload("res://actors/walker.gd")
 const DanfoScript := preload("res://actors/danfo.gd")
@@ -52,12 +53,17 @@ var nepa_forced := -1
 var _outages: Array = [] # today's NEPA outage windows [{start, end, districts}]
 var _outage_day := -1
 const RICH := ["ikoyi", "victoria-island", "lekki"]
+var story: StoryHost
+var story_auto := false
 
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--demo":
 			demo = true
+		elif a == "--story-auto":
+			demo = true
+			story_auto = true
 		elif a.begins_with("--shots="):
 			shots_dir = a.trim_prefix("--shots=")
 		elif a.begins_with("--preset="):
@@ -96,6 +102,9 @@ func _ready() -> void:
 	interactions.build(map, Life.items_db.get("vendors", {}))
 	hud.setup_life(jobs)
 	hud.phone.accept_job.connect(func(o: Dictionary) -> void:
+		if story and story.mission_running():
+			hud.toast("Finish the story mission first.")
+			return
 		jobs.accept(o)
 		_set_waypoint(jobs.target()))
 	hud.phone.cancel_job.connect(func() -> void:
@@ -109,6 +118,8 @@ func _ready() -> void:
 	SaveGame.world_restorer = _restore_world
 	SaveGame.extra_providers["jobs"] = jobs.to_dict
 	SaveGame.extra_restorers["jobs"] = jobs.from_dict
+	SaveGame.extra_providers["story"] = Story.to_dict
+	SaveGame.extra_restorers["story"] = Story.from_dict
 	if not demo:
 		SaveGame.load_local()
 	Net.welcomed.connect(func(_id: int, _room: String) -> void: SaveGame.pull_cloud())
@@ -122,8 +133,16 @@ func _ready() -> void:
 	Net.gone.connect(_on_gone)
 	Net.status_changed.connect(func(_t: String) -> void: _push_state())
 	Net.start({ "look": _look_to_wire(player.look), "x": int(player.position.x), "y": int(player.position.y) })
-	if demo:
+	story = StoryHost.new()
+	story.auto = story_auto
+	add_child(story)
+	story.setup(self)
+	if story_auto:
+		_run_story_demo()
+	elif demo:
 		_run_demo()
+	else:
+		story.begin()
 
 
 # ---------- build ----------
@@ -298,6 +317,9 @@ func _update_lighting() -> void:
 
 
 func _enter_exit() -> void:
+	if mode != "driving" and _near_danfo() and Life.hero != "tunde":
+		hud.toast("Na Tunde get this bus. (Hail a keke from the phone.)")
+		return
 	if mode == "driving":
 		if absf(danfo.speed) > 40.0:
 			return
@@ -342,6 +364,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera.zoom = (camera.zoom * 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			camera.zoom = (camera.zoom / 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
+		elif event.button_index == MOUSE_BUTTON_LEFT and story and story.interior.active:
+			story.interior.tap(event.position)
 		elif event.button_index == MOUSE_BUTTON_LEFT and mode == "walking":
 			_walk_to(get_global_mouse_position())
 	elif event is InputEventMagnifyGesture:
@@ -353,7 +377,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	var dt := minf(delta, 0.05)
 	var inp := _input_vector()
-	if mode == "walking":
+	if story.abilities.in_wahala() or story.paused_by_story():
+		inp = Vector2.ZERO
+	if story.interior.active:
+		danfo.drive(dt, Vector2.ZERO, map)
+	elif mode == "walking":
 		if inp != Vector2.ZERO:
 			player.target = Vector2.INF
 			player_path = PackedVector2Array()
@@ -367,13 +395,15 @@ func _process(delta: float) -> void:
 		player.position = danfo.position
 		if ev == "crash":
 			hud.toast("Ehn! Who put wall there?")
+			if Life.hero == "tunde":
+				Life.stats["bp"] = minf(100.0, float(Life.stats.get("bp", 20.0)) + 4.0)
 			if not Settings.get_value("reduced_motion", false):
 				_shake(0.18)
 	var focus: Vector2 = danfo.position if mode == "driving" else player.position
 	var view := _view_rect()
 	streamer.update_view(view, dt)
 	lights.sync(get_viewport().get_camera_2d(), get_viewport_rect().size)
-	traffic.update(dt, focus, danfo if mode == "driving" else null)
+	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null)
 	if traffic.bumped:
 		hud.toast(["Oga, you no see road?", "Na so you dey drive?", "Who give you licence?"][randi() % 3])
 	crowd.update(dt, focus)
@@ -381,7 +411,8 @@ func _process(delta: float) -> void:
 	_route_tick(dt, focus)
 
 	_tick_day_night(focus)
-	player.speed = 150.0 * Life.pace_factor()
+	story.tick(dt)
+	player.speed = 150.0 * Life.pace_factor() * (1.25 if story.chase.active else 1.0)
 	var stuck: bool = mode == "driving" and absf(danfo.speed) < 40.0
 	jobs.tick(dt, focus, mode, stuck)
 	_action_t -= dt
@@ -429,7 +460,17 @@ func _push_state() -> void:
 
 func _update_action(focus: Vector2) -> void:
 	_action_target = {}
-	if mode == "driving":
+	var sp := story.mission_prompt(focus)
+	if story.interior.active or story.paused_by_story():
+		_action = ""
+		hud.set_action("")
+	elif sp != "":
+		_action = "mission"
+		hud.set_action(sp)
+	elif mode == "walking" and story.ambient_prompt(focus) != "":
+		_action = "talk"
+		hud.set_action(story.ambient_prompt(focus))
+	elif mode == "driving":
 		_action = "exit"
 		hud.set_action("Comot from danfo")
 	elif _near_danfo():
@@ -445,7 +486,7 @@ func _update_action(focus: Vector2) -> void:
 			_action = p["kind"]
 			hud.set_action(("Buy · " + p["label"]) if p["kind"] == "vendor" else p["label"])
 	var j := jobs.active
-	if j.is_empty():
+	if j.is_empty() or story.mission_running():
 		hud.set_job("")
 	elif j["type"] == "danfo" and j["stage"] == "driving":
 		hud.set_job("%s · %d passengers · patience %d%%" % [j["name"], int(j["passengers"]), int(j["patience"])])
@@ -457,6 +498,10 @@ func _update_action(focus: Vector2) -> void:
 
 func _do_action() -> void:
 	match _action:
+		"mission":
+			story.start_prompted()
+		"talk":
+			story.talk()
 		"enter", "exit":
 			_enter_exit()
 		"vendor":
@@ -529,12 +574,15 @@ func _set_waypoint(wp: Vector2) -> void:
 func _route_tick(dt: float, focus: Vector2) -> void:
 	var heading: float = danfo.heading if mode == "driving" else (player.velocity.angle() if player.velocity.length() > 1.0 else -PI / 2)
 	hud.minimap.update_view(focus, heading)
+	hud.minimap.stars = story.marker_positions()
+	hud.map_screen.stars = hud.minimap.stars
 	if hud.map_screen.visible:
 		hud.map_screen.refresh(focus, waypoint, route)
 	if waypoint == Vector2.INF:
 		return
 	if focus.distance_to(waypoint) < 140.0:
-		hud.toast("You don reach!")
+		if not story.mission_running():
+			hud.toast("You don reach!")
 		_set_waypoint(Vector2.INF)
 		return
 	_route_t -= dt
@@ -672,6 +720,47 @@ func _measure(label: String) -> void:
 func _teleport(p: Vector2) -> void:
 	player.position = p
 	camera.reset_smoothing()
+
+
+## Story QA: play the Prologue and all of Act 1 with autoplaying UI, screenshots along the way.
+func _run_story_demo() -> void:
+	Story.reset()
+	await _wait(0.8)
+	var t0 := Time.get_ticks_msec()
+	story.begin()
+	while not Story.is_done("P4") and Time.get_ticks_msec() - t0 < 240000:
+		await _wait(0.5)
+	print("story: prologue done=%s switching=%s hero=%s" % [Story.is_done("P4"), Story.switching, Life.hero])
+	for id in ["1.1", "1.2", "1.3", "1.4", "1.5"]:
+		var m: Dictionary = Story.missions[id]
+		var hero: String = m["hero"] if m["hero"] in Story.HEROES else Life.hero
+		if hero != Life.hero:
+			await story._do_switch(hero, Vector2.INF)
+		_teleport(story._start_pos(id))
+		await _wait(0.4)
+		story.start_mission(id)
+		var t1 := Time.get_ticks_msec()
+		while not Story.is_done(id) and Time.get_ticks_msec() - t1 < 180000:
+			await _wait(0.5)
+		print("story: %s done=%s money_s=%d flags=%s" % [id, Story.is_done(id), Story.story_money, Life.flags])
+	await _wait(1.0)
+	await _shot("story-zz-free-roam")
+	# Phone story apps and a named character on their daily routine.
+	hud.phone.open()
+	story._build_story_app(hud.phone)
+	await _wait(0.4)
+	await _shot("story-zz-phone-story")
+	story._build_switch_app(hud.phone)
+	await _wait(0.4)
+	await _shot("story-zz-phone-switch")
+	hud.phone.visible = false
+	Clock.minutes = (Clock.day()) * 1440 + 10 * 60
+	_teleport(map.landmarks["tunde-depot"]["pos"] + Vector2(-40, 90))
+	await _wait(2.5)
+	await _shot("story-zz-sule-at-depot")
+	await _measure("story")
+	print("story: complete=%s tiers=%s rel=%s" % [Story.is_done("1.5"), Story.tiers, Life.relationships])
+	get_tree().quit()
 
 
 func _run_demo() -> void:

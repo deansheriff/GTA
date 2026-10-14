@@ -57,6 +57,9 @@ func end_pos(o: Dictionary) -> Vector2:
 
 
 func accept(o: Dictionary) -> void:
+	if o.get("type", "") == "danfo" and Life.hero != "tunde":
+		message.emit("Only Tunde drives Baba God Dey. Switch to him for danfo runs.")
+		return
 	active = o.duplicate()
 	active["stage"] = "go_to_start"
 	job_changed.emit(active)

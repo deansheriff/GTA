@@ -62,6 +62,8 @@ func use_pedestrian(index: int) -> bool:
 
 
 func _make_sprite(t: Texture2D, cols: int, rows: int, frame_h: float) -> void:
+	if _spr:
+		_spr.queue_free() # switching heroes swaps the sheet
 	_spr = Sprite2D.new()
 	_spr.texture = t
 	_spr.hframes = cols

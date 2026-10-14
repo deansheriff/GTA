@@ -1,0 +1,191 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "chr-tunde-walk-v2",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Tunde, a wiry 34-year-old Nigerian danfo driver, dark brown skin, short black hair with a little grey, a short scruffy beard, visible smile lines, a faded red football jersey, dark trousers, worn sandals and a white towel over one shoulder, a chewing stick in his mouth. Clearly an adult man in his thirties, not a boy."
+    },
+    {
+      "name": "chr-ngozi-walk",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Ngozi 'Aunty Boss' Eze, a solid 41-year-old Nigerian businesswoman and canteen owner, dark brown skin, a bright orange-and-teal ankara wrapper dress with a matching big gele head-tie, reading glasses on a beaded chain, a small POS card machine in a holster on her hip, confident commanding walk."
+    },
+    {
+      "name": "chr-kc-walk",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A character WALK-CYCLE sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, 12 frames of the SAME character, each full body centred in its own equal cell with empty gaps, same size and same feet baseline in every cell. Chunky charming proportions with a large head (about one third of body height), small body, as seen from a high top-down three-quarter camera (from above at about 60 degrees). Row 1: four frames walking DOWN toward the viewer (left foot, passing, right foot, passing). Row 2: four frames walking UP away from the viewer. Row 3: four frames walking to the RIGHT in side view. The legs must visibly alternate. No ground, no shadows, no labels. CHARACTER: Kelechi 'KC Vibes' Nwosu, a slim 23-year-old Nigerian content creator, brown skin, a neat afro, a purple shirt over a white tee, ripped jeans and white sneakers, a small ring light and folded tripod strapped to his backpack, holding his phone up as if filming."
+    },
+    {
+      "name": "chr-story-cast",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT characters, one full-body person per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera. Top row: (1) Chief Double Chop, a plump pompous Nigerian politician in a gold agbada with a matching cap, many beads and a fly-whisk; (2) Pepper, a lanky henchman in a red shirt and sunglasses; (3) Salt, a big round henchman in a white shirt with arms folded; (4) Barrister Ledger, a nervous sweating lawyer in a cheap suit holding a briefcase. Bottom row: (5) Engineer Bayo, a power-company lineman in blue overalls and a yellow hard hat holding a suya wrap; (6) Sule, a quiet 19-year-old danfo conductor holding a wad of naira notes; (7) a flamboyant wedding MC in a shiny agbada holding a microphone; (8) Mama Chief, a regal 90-year-old woman in a purple lace buba and gele, leaning on an ornate walking stick, smiling mischievously. No ground, no shadows, no labels."
+    },
+    {
+      "name": "pt-tunde",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Tunde, 34, wiry Nigerian danfo driver, short scruffy beard, faded red football jersey, white towel on shoulder, chewing stick, loud confident grin. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-ngozi",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Ngozi 'Aunty Boss', 41, Nigerian canteen queen in an orange-and-teal ankara outfit and big gele, reading glasses lowered on her nose, a terrifying calm 'I remember what you owe me' look. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-kc",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: KC Vibes, 23, Nigerian content creator with a neat afro and purple shirt, holding his phone up to film himself, anxious excited grin. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-chief",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Chief 'Double Chop', a plump pompous Nigerian politician in a gold agbada and cap with many beads, fake campaign smile. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-pepper",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Pepper, a lanky henchman in a red shirt and sunglasses, trying to look tough but confused. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-salt",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Salt, a big round henchman in a white shirt, sleepy and hungry expression. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-sule",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Sule, a quiet 19-year-old danfo conductor with a knowing deadpan look, naira notes folded between his fingers. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-mc",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a flamboyant Nigerian wedding MC in a shiny agbada with a microphone, mid-shout, huge enthusiasm. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-ledger",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Barrister 'Ledger', a nervous Nigerian lawyer in a cheap suit, sweating, clutching a notebook. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-bayo",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Engineer Bayo 'Light Man', a power-company lineman in blue overalls and yellow hard hat, eating suya, unimpressed. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-mama-chief",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: Mama Chief, a regal mischievous 90-year-old Nigerian grandmother in purple lace and gele. Head and shoulders only, no text."
+    },
+    {
+      "name": "pt-passenger",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1024x1024",
+      "prompt": "ONE head-and-shoulders character PORTRAIT for a dialogue box, on a fully transparent background, facing the viewer at a slight three-quarter angle, very expressive comedic face, hand-painted gouache with ink outlines, warm lighting, same art style as the reference. CHARACTER: a talkative middle-aged Nigerian market woman passenger with a basket, pointing and complaining loudly. Head and shoulders only, no text."
+    },
+    {
+      "name": "panel-owambe",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a lavish Lekki owambe wedding party in a decorated event hall at night: hundreds of guests in matching aso-ebi lace and gele, dancing, naira notes raining down as guests spray money on the dancing couple, a flamboyant MC on stage, buffet coolers of jollof, colourful lights. No text, no letters."
+    },
+    {
+      "name": "panel-blackout",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: the SAME lavish event hall plunged into darkness by a power cut: almost pitch black, only phone screens glowing and lighting up shocked faces in aso-ebi, silhouettes frozen mid-dance, one person's hand reaching under a table for a plaid Ghana-must-go bag. No text, no letters."
+    },
+    {
+      "name": "panel-bag",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: close-up inside a battered yellow Lagos danfo minibus: a plaid red-white-blue Ghana-must-go bag stuffed with cash peeking out from under a torn passenger seat, a few naira notes spilling out, sunlight through dusty windows. No text, no letters."
+    },
+    {
+      "name": "panel-family-meeting",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: night inside a small mama-put canteen lit by a single bulb powered by a noisy generator: three people arguing around a table with a plaid Ghana-must-go bag on it - a wiry danfo driver with a towel on his shoulder shouting, a commanding woman in ankara and gele with arms folded, and a young man with an afro filming on his phone; pots and coolers in the background. No text, no letters."
+    },
+    {
+      "name": "panel-title",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A wide painted STORY PANEL illustration (like a comic frame) for a cutscene, in the same hand-painted gouache-and-ink style as the reference, cinematic composition, expressive cartoon characters with large heads. SCENE: a moody painted Lagos night skyline by the lagoon with tangled electricity poles and wires, every building dark except one single light bulb flickering on in the centre, empty space in the upper middle for a title. No text, no letters."
+    },
+    {
+      "name": "int-owambe-hall",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "size": "1536x1024",
+      "background": "opaque",
+      "prompt": "A top-down three-quarter view FLOOR PLAN illustration of the INTERIOR of a lavish Nigerian owambe event hall, seen from above, axis-aligned (not isometric): a polished tiled floor, rows of round banquet tables with gold and purple aso-ebi tablecloths and chairs on the left and right, a central dance floor, a raised decorated stage with flowers and a high table at the top, a long buffet table with coolers and chafing dishes along the bottom wall, speakers in the corners. NO people. Same painted style as the reference."
+    }
+  ]
+}

@@ -20,6 +20,7 @@ func _initialize() -> void:
 	_test_map()
 	await process_frame # autoloads (Clock, Life, SaveGame) are ready after the first frame
 	_test_life()
+	await _test_story()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -75,7 +76,16 @@ func _test_map() -> void:
 	check(ms < 8000, "map builds in under 8 s on desktop (%d ms)" % ms)
 	check(m.buildings.size() > 250, "a full city of buildings (%d)" % m.buildings.size())
 	check(m.props.size() > 400, "streets are furnished (%d props)" % m.props.size())
-	check(m.landmarks.size() == 10, "all story landmarks placed")
+	check(m.landmarks.size() == 15, "all story landmarks placed (%d)" % m.landmarks.size())
+	var placed := {}
+	for b in m.buildings:
+		if b.landmark != "":
+			placed[b.landmark] = true
+	var missing: Array = []
+	for id in m.landmarks:
+		if MapData.CATALOG.has(m.landmarks[id]["kind"]) and not placed.has(id):
+			missing.append(id)
+	check(missing.is_empty(), "every building landmark got its building: missing %s" % str(missing))
 	for id in m.landmarks:
 		var p: Vector2 = m.landmarks[id]["pos"]
 		check(not m.is_blocked(p), "landmark %s is reachable on foot" % id)
@@ -176,3 +186,152 @@ func _test_life() -> void:
 		jr.tick(0.1, jr.end_pos(jr.active), "walking", false)
 		check(jr.active.is_empty() and life.money > before, "delivering pays (₦%d)" % (life.money - before))
 	jr.queue_free()
+
+
+## Story engine (M3): data integrity, a full Prologue + Act 1 run on a fake host, switching,
+## abilities and saving. Story scripts use autoloads, so they are loaded at runtime.
+func _test_story() -> void:
+	var story: Node = root.get_node("Story")
+	var life: Node = root.get_node("Life")
+	var m := MapData.shared()
+	check(story.missions.size() >= 9, "Prologue and Act 1 are scripted (%d missions)" % story.missions.size())
+	# Data integrity: every reference resolves.
+	var bad: Array = []
+	var games := ["jollof", "spray", "quick", "counting", "standoff", "pos"]
+	for id in story.order:
+		var mission: Dictionary = story.missions[id]
+		var refs: Array = []
+		if mission.has("start"):
+			refs.append(mission["start"])
+		for s in mission["steps"]:
+			for k in ["at", "to"]:
+				if s.has(k) and s[k] is String:
+					refs.append(s[k])
+			if s.get("do") == "say" and s["lines"] is String and story.line_list(s["lines"]).is_empty():
+				bad.append("%s: missing dialogue %s" % [id, s["lines"]])
+			if s.get("do") == "minigame" and not s["game"] in games:
+				bad.append("%s: unknown mini-game %s" % [id, s["game"]])
+			if s.get("do") == "chat" and not story.chats.get("scripted", {}).has(s["chat"]):
+				bad.append("%s: missing chat %s" % [id, s["chat"]])
+			if s.get("do") == "minigame" and s.get("params", {}).get("lines", null) is String and story.line_list(s["params"]["lines"]).is_empty():
+				bad.append("%s: missing standoff lines" % id)
+			if s.get("do") == "panels":
+				for pn in s["panels"]:
+					if Art.tex(pn["img"]) == null:
+						bad.append("%s: missing panel art %s" % [id, pn["img"]])
+			for pt in s.get("points", []):
+				refs.append(pt["at"])
+				if pt.has("say") and story.line_list(pt["say"]).is_empty():
+					bad.append("%s: missing dialogue %s" % [id, pt["say"]])
+		for r in refs:
+			var rs := String(r)
+			if rs.begins_with("landmark:") and not m.landmarks.has(rs.trim_prefix("landmark:")):
+				bad.append("%s: unknown landmark %s" % [id, rs])
+			if rs.begins_with("node:") and not m.road_nodes.has(rs.trim_prefix("node:")):
+				bad.append("%s: unknown road node %s" % [id, rs])
+	for key in story.dialogue:
+		for line in story.dialogue[key]:
+			var w := String(line.get("who", ""))
+			if not story.cast.has(w):
+				bad.append("dialogue %s: unknown speaker %s" % [key, w])
+	for w in story.cast:
+		var c: Dictionary = story.cast[w]
+		if c.has("portrait") and Art.tex(c["portrait"]) == null:
+			bad.append("cast %s: missing portrait" % w)
+	check(bad.is_empty(), "story data references resolve: %s" % str(bad.slice(0, 5)))
+	for h in story.HEROES:
+		check(Art.tex(story.HERO_SHEET[h]) != null and not Art.sheet_info(story.HERO_SHEET[h]).is_empty(), "%s has a walk sheet" % h)
+		check(m.landmarks.has(story.HERO_HOME[h]), "%s has a home landmark" % h)
+
+	# Full run on the fake host.
+	story.reset()
+	life.flags = {}
+	var host: Node = load("res://tests/fake_story_host.gd").new()
+	root.add_child(host)
+	var runner: Node = load("res://story/mission_runner.gd").new()
+	root.add_child(runner)
+	host.runner = runner
+	runner.setup(host, m)
+	host.pick = 2 # "Count it first" in 1.5
+	runner.start("P1")
+	var frames := 0
+	while not story.is_done("P4") and frames < 4000:
+		await process_frame
+		frames += 1
+	check(story.is_done("P1") and story.is_done("P2") and story.is_done("P3") and story.is_done("P4"), "the Prologue chains P1 → P4 by itself")
+	check(story.switching, "hero switching unlocks after the Prologue")
+	check(host.minigames.has("jollof") and host.minigames.has("spray") and host.minigames.has("quick"), "Prologue mini-games run: %s" % str(host.minigames))
+	check(life.hero == "tunde", "Tunde is in control after the Prologue (got %s)" % life.hero)
+	check(not story.available().has("1.4") and story.available().has("1.1"), "1.4 waits for 1.1")
+	for id in ["1.1", "1.2", "1.3", "1.4", "1.5"]:
+		runner.start(id)
+		frames = 0
+		while not story.is_done(id) and frames < 3000:
+			await process_frame
+			frames += 1
+		check(story.is_done(id), "mission %s completes" % id)
+	check(host.fails == 0, "no step failed on the happy path (%d)" % host.fails)
+	check(story.flag("bag_choice") == "count" and story.flag("act1_done"), "the bag choice is remembered (%s)" % str(story.flag("bag_choice")))
+	check(host.minigames.has("counting") and host.minigames.has("pos") and host.minigames.has("standoff"), "Act 1 mini-games run")
+	check(story.tier("whisperer") >= 1 and story.tier("ajo") >= 1 and story.tier("golive") >= 1, "Act 1 unlocks Whisperer, Ajo Network and Go Live")
+	check(story.story_money > 0 and life.has_item("the-bag"), "story money and the bag are awarded")
+	check(story.family_rel() > 50, "Family Meeting raises trust (%d)" % story.family_rel())
+	# A failed mini-game offers a retry from the last checkpoint, then the mission completes.
+	host.fails = 0
+	host.fail_games = 1
+	story.done.erase("P2")
+	var jollof_before: int = host.minigames.count("jollof")
+	runner.start("P2")
+	frames = 0
+	while not story.is_done("P2") and frames < 3000:
+		await process_frame
+		frames += 1
+	check(host.fails == 1 and story.is_done("P2"), "failing the jollof rush retries and then completes P2")
+	check(host.minigames.count("jollof") == jollof_before + 2, "the retry replays the mini-game from its checkpoint")
+	check(story.is_done("P3"), "a replayed mission does not re-run the missions after it")
+	# Saving.
+	var snap: Dictionary = story.to_dict()
+	story.reset()
+	check(not story.is_done("1.5"), "reset clears progress")
+	story.from_dict(snap)
+	check(story.is_done("1.4") and story.tier("ajo") >= 1, "story progress round-trips through the save")
+	runner.queue_free()
+	host.queue_free()
+
+	# Switching keeps each hero's own needs and position.
+	life.hero = "tunde"
+	life.needs["hunger"] = 33.0
+	var res: Dictionary = story.swap_hero("ngozi", Vector2(500, 600))
+	check(life.hero == "ngozi" and life.home == "aunty-boss-kitchen", "switching to Aunty Boss moves home to her kitchen")
+	life.needs["hunger"] = 90.0
+	res = story.swap_hero("tunde", Vector2(10, 10))
+	check(res["pos"] == Vector2(500, 600), "Tunde comes back where he was left")
+	check(life.needs["hunger"] < 40.0, "Tunde keeps his own hunger (%.0f)" % life.needs["hunger"])
+
+	# Abilities.
+	var ab: Node = load("res://story/abilities.gd").new()
+	root.add_child(ab)
+	life.hero = "tunde"
+	life.stats["bp"] = 90.0
+	for i in 10:
+		ab.tick(1.0, { "mode": "driving", "stuck": true })
+	check(ab.in_wahala(), "BP 100 triggers Wahala Mode")
+	for i in 8:
+		ab.tick(1.0, { "mode": "driving", "stuck": false })
+	check(not ab.in_wahala() and life.stats["bp"] < 100.0, "Wahala Mode ends and BP drops")
+	life.hero = "kc"
+	life.stats["battery"] = 10.0
+	ab.use("film")
+	check(ab.filming, "KC can film")
+	for i in 60:
+		ab.tick(1.0, {})
+	check(life.stats["battery"] <= 0.0 and not ab.filming, "filming drains the battery and stops at 0%")
+	check(not ab.use("film"), "a dead phone can't film")
+	life.hero = "ngozi"
+	life.stats["aura"] = 100.0
+	check(is_equal_approx(ab.stare_seconds(), 6.0), "full Aura doubles The Stare")
+	check(ab.tier("stare") >= 1 and ab.tier("conductor") >= 1, "Prologue abilities are available from the start")
+	ab.queue_free()
+	life.hero = "tunde"
+	story.reset()
+	life.flags = {}
