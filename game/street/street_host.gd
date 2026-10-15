@@ -213,6 +213,11 @@ func _build_hud() -> void:
 	_radio_btn.custom_minimum_size = Vector2(150, 44)
 	_radio_btn.add_theme_font_size_override("font_size", 14)
 	_radio_btn.position = Vector2(14, 470)
+	var radio_icon: Texture2D = Art.tex("ui/app-radio.png")
+	if radio_icon:
+		_radio_btn.icon = radio_icon
+		_radio_btn.expand_icon = true
+		_radio_btn.add_theme_constant_override("icon_max_width", 28)
 	root.add_child(_radio_btn)
 
 

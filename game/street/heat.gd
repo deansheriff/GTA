@@ -152,7 +152,7 @@ func _caught() -> void:
 				host.impound("Task Force: no money for the fine")
 				Street.heat = 0.0
 		"fight":
-			var res: Dictionary = await main.story.story_minigame("fight", { "opponent": "Task Force", "intro": "Three of them. One of you. Na today!" })
+			var res: Dictionary = await main.story.story_minigame("fight", { "opponent": "Task Force", "intro": "Three of them. One of you. Na today!", "opponent_sprite": ["characters/officials-a.png", 2 + randi() % 2] })
 			if int(res.get("score", 0)) > 55:
 				Street.add_heat(-2.0)
 				Street.add_rep(3.0)

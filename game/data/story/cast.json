@@ -153,20 +153,47 @@
     "marshal": {
       "name": "Road Marshal",
       "portrait": "portraits/passenger.png",
-      "ped": 7,
-      "colour": "#d8701c"
+      "colour": "#d8701c",
+      "sprites": [
+        [
+          "characters/officials-a.png",
+          0
+        ],
+        [
+          "characters/officials-a.png",
+          1
+        ]
+      ]
     },
     "agbero": {
       "name": "Agbero",
       "portrait": "portraits/passenger.png",
-      "ped": 3,
-      "colour": "#8a3a2a"
+      "colour": "#8a3a2a",
+      "sprites": [
+        [
+          "characters/officials-a.png",
+          4
+        ],
+        [
+          "characters/officials-a.png",
+          5
+        ]
+      ]
     },
     "taskforce": {
       "name": "Task Force",
       "portrait": "portraits/passenger.png",
-      "ped": 11,
-      "colour": "#2f5e3a"
+      "colour": "#2f5e3a",
+      "sprites": [
+        [
+          "characters/officials-a.png",
+          2
+        ],
+        [
+          "characters/officials-a.png",
+          3
+        ]
+      ]
     },
     "fisherman": {
       "name": "Baba Ejá (fisherman)",
@@ -177,8 +204,41 @@
     "angry-driver": {
       "name": "Angry driver",
       "portrait": "portraits/passenger.png",
-      "ped": 6,
-      "colour": "#b5452f"
+      "colour": "#b5452f",
+      "sprites": [
+        [
+          "characters/drivers-a.png",
+          0
+        ],
+        [
+          "characters/drivers-a.png",
+          1
+        ],
+        [
+          "characters/drivers-a.png",
+          2
+        ],
+        [
+          "characters/drivers-a.png",
+          3
+        ],
+        [
+          "characters/drivers-a.png",
+          4
+        ],
+        [
+          "characters/drivers-a.png",
+          5
+        ],
+        [
+          "characters/drivers-a.png",
+          6
+        ],
+        [
+          "characters/drivers-a.png",
+          7
+        ]
+      ]
     },
     "passenger": {
       "name": "Passenger",
@@ -424,6 +484,17 @@
       "portrait": "portraits/attendant.png",
       "ped": 6,
       "colour": "#a8382c"
+    },
+    "bouncer": {
+      "name": "Bouncer",
+      "portrait": "portraits/passenger.png",
+      "sprites": [
+        [
+          "characters/officials-a.png",
+          6
+        ]
+      ],
+      "colour": "#1d1d1d"
     }
   }
 }

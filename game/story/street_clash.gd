@@ -162,9 +162,17 @@ func _npc_clash(v: Dictionary) -> void:
 	_busy = false
 
 
+## Who climbs out matches what they drive (characters/drivers-a.png): a danfo driver, conductor
+## or truck driver; a taxi man, office worker or woman driver from a car; a keke driver; an okada
+## rider with his helmet.
+const DRIVER_LOOKS := { "danfo": [0, 1, 3], "car": [2, 4, 5], "keke": [6], "okada": [7] }
+
+
 func _spawn_driver(veh: Node2D) -> Node2D:
 	var driver: Node2D = preload("res://actors/story_npc.gd").new()
 	driver.setup("angry-driver", "angry-driver")
+	var looks: Array = DRIVER_LOOKS.get(veh.get("kind"), [0, 2, 4])
+	driver.use_sprite("characters/drivers-a.png", looks[_rng.randi() % looks.size()])
 	driver.material = main.painted_mat
 	driver.position = veh.position + Vector2.from_angle(veh.heading + PI / 2.0) * 60.0
 	main.streamer.add_child(driver)
@@ -313,7 +321,7 @@ func _ask(title: String, body: String, mode: int, seconds := 0.0) -> String:
 		t += get_process_delta_time()
 		if seconds > 0.0 and t >= seconds:
 			picked[0] = "peace" # no answer counts as peace
-		if main.story.auto:
+		if main.story.auto or (main.demo and t > 1.5):
 			picked[0] = "peace"
 	main.story._busy -= 1
 	dlg.queue_free()

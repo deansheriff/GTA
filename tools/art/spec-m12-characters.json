@@ -1,0 +1,53 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI. No uniforms insignia, no badges with words, no real agency marks.",
+  "assets": [
+    {
+      "name": "chr-drivers-a",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/chr-pedestrians-a.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT full-body people, one per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera, exactly like the people in the second reference image. Lagos DRIVERS, each looking annoyed with hands on hips or pointing: (1) a danfo bus driver in a sweaty white singlet and shorts with a towel over his shoulder, (2) a danfo conductor in a faded waistcoat holding folded cash, (3) a taxi driver in a striped polo shirt and flat cap, (4) a tired truck driver in blue overalls, (5) a man in a white office shirt, tie and trousers stepping out of his car, (6) a woman driver in a blouse, wrapper skirt and headwrap, holding car keys, (7) a keke tricycle driver in a short-sleeved shirt and a bucket hat, (8) an okada motorcycle rider in a reflective vest holding his red helmet. No ground, no shadows, no labels."
+    },
+    {
+      "name": "chr-officials-a",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/chr-pedestrians-a.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT full-body people, one per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera, exactly like the people in the second reference image. street authority figures, all fictional with plain uniforms and no insignia or words: (1) a road marshal man in an orange high-visibility vest over a white shirt with a whistle, (2) a road marshal woman in the same orange vest with a notepad, (3) a task force officer in a plain dark green uniform and black beret, arms crossed, (4) another task force officer in dark green with a baton, (5) a motor park tout (agbero) in a singlet with a towel round his neck and a cane, (6) another agbero in an open shirt with a chain, counting money, (7) a big bouncer in a black T-shirt, (8) a roadside mechanic in oily overalls holding a spanner. No ground, no shadows, no labels."
+    },
+    {
+      "name": "chr-townsfolk-c",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/chr-pedestrians-a.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT full-body people, one per cell, each standing facing down toward the viewer, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera, exactly like the people in the second reference image. ordinary Lagos townsfolk standing around: (1) a businessman in a suit with a briefcase, (2) an elderly woman with a walking stick and headscarf, (3) a young woman in a bright dress taking a selfie, (4) a man in a long kaftan and fila cap, (5) a nurse in plain blue scrubs, (6) a mother in ankara with a baby tied on her back, (7) a teenage boy in a football jersey holding a ball, (8) a pure-water seller with a cooler on her head. No ground, no shadows, no labels."
+    },
+    {
+      "name": "chr-townsfolk-d",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/chr-pedestrians-a.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, EIGHT DIFFERENT full-body people, one per cell, each walking to the RIGHT in side view mid-stride, centred with empty gaps, same scale and feet baseline. Chunky charming proportions with large heads (about one third of body height), seen from a high top-down three-quarter camera, exactly like the people in the second reference image. busy Lagos passers-by: (1) a man in a suit hurrying with a briefcase, (2) a woman in ankara carrying shopping bags, (3) a student with a backpack, (4) a young man in jeans and T-shirt on his phone, (5) an older man in agbada, (6) a woman with a tray of fruit on her head, (7) a man pushing a small wheelbarrow, (8) a girl in school uniform with a bag. No ground, no shadows, no labels."
+    },
+    {
+      "name": "ui-app-icons-2",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png"
+      ],
+      "prompt": "A sprite sheet of 12 simple bold app ICONS for a phone UI in a game, on a fully transparent background, a strict grid of 4 columns by 3 rows, each icon centered in its own cell with empty gaps, same size, chunky hand-painted gouache with thick ink outlines, warm Lagos palette (danfo yellow, ink brown, cream, red, green). Row 1: (1) a spanner crossed with a fuel jerrycan (garage), (2) three small yellow buses in a row (fleet), (3) a small house with a generator beside it (home), (4) a folded shirt with a cap on top (style). Row 2: (5) a gold star medal (awards), (6) a megaphone with speech lines (gist), (7) a chequered race flag (race), (8) three linked hands (crew). Row 3: (9) a pair of red boxing gloves (boxing), (10) a market basket with tomatoes and peppers (market), (11) an old camera (camera), (12) a radio with an antenna (radio)."
+    }
+  ]
+}

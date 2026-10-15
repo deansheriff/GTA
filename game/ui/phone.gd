@@ -12,7 +12,7 @@ const PAPER := Color("#f1e6c8")
 const DANFO := Color("#e0a91c")
 
 var jobs: JobRunner
-const APP_ICON := { "Map": "map", "Hustle": "hustle", "Bank": "bank", "Me": "me", "Settings": "settings", "Story": "story", "Switch": "switch", "Keke": "keke", "Chat": "chat", "Gigs": "gigs", "Profile": "me", "Vote": "vote", "Win": "win" }
+const APP_ICON := { "Map": "map", "Hustle": "hustle", "Bank": "bank", "Me": "me", "Settings": "settings", "Story": "story", "Switch": "switch", "Keke": "keke", "Chat": "chat", "Gigs": "gigs", "Profile": "me", "Vote": "vote", "Win": "win", "Garage": "garage", "Fleet": "fleet", "Home": "home", "Style": "style", "Awards": "awards", "Gist": "gist", "Race": "race", "Crew": "crew", "Boxing": "boxing", "Market": "market", "Camera": "camera" }
 var _screen: VBoxContainer
 var _title: Label
 var _apps := [] # [{name, builder: Callable}]

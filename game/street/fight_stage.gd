@@ -43,7 +43,11 @@ func begin(params: Dictionary) -> void:
 		_spawned = false
 	else:
 		them = preload("res://actors/walker.gd").new()
-		them.use_pedestrian(randi() % 16)
+		var look: Variant = params.get("opponent_sprite")
+		if look is Array:
+			them.use_sheet(String(look[0]), int(look[1]))
+		else:
+			them.use_pedestrian(randi() % 16) # someone standing, facing you
 		them.display_name = String(params.get("opponent", ""))
 		them.material = main.painted_mat
 		main.streamer.add_child(them)

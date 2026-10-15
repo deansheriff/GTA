@@ -51,6 +51,13 @@ const JOBS = [
   { src: 'panel-splash', kind: 'panel', out: 'story/panel-splash.jpg', width: 1280 },
   { src: 'chr-pedestrians-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-a.png', frameH: 96 },
   { src: 'chr-pedestrians-b', kind: 'frames', cols: 4, rows: 2, out: 'characters/pedestrians-b.png', frameH: 96 },
+  // M12: drivers matched to vehicles, street officials, and two more townsfolk sheets (owner:
+  // "add more character models"; the angry driver was always the same hawker).
+  { src: 'chr-drivers-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/drivers-a.png', frameH: 96, cut: 120 },
+  { src: 'chr-officials-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/officials-a.png', frameH: 96, cut: 120 },
+  { src: 'chr-townsfolk-c', kind: 'frames', cols: 4, rows: 2, out: 'characters/townsfolk-c.png', frameH: 96, cut: 120 },
+  { src: 'chr-townsfolk-d', kind: 'frames', cols: 4, rows: 2, out: 'characters/townsfolk-d.png', frameH: 96, cut: 120 },
+  { src: 'ui-app-icons-2', kind: 'sheet', cols: 4, rows: 3, cut: 120, outs: ['ui/app-garage.png', 'ui/app-fleet.png', 'ui/app-home.png', 'ui/app-style.png', 'ui/app-awards.png', 'ui/app-gist.png', 'ui/app-race.png', 'ui/app-crew.png', 'ui/app-boxing.png', 'ui/app-market.png', 'ui/app-camera.png', 'ui/app-radio.png'], widths: Array(12).fill(128) },
 ];
 
 async function load(name) {
@@ -170,7 +177,10 @@ async function seamless(img, size) {
 }
 
 const report = [];
+// Optional: only these raw sources (node tools/art/process.mjs chr-drivers-a ...).
+const ONLY = process.argv.slice(2);
 for (const job of JOBS) {
+  if (ONLY.length && !ONLY.includes(job.src)) continue;
   const img0 = await load(job.src);
   if (!img0) { report.push(`- ${job.src}: missing (not generated yet)`); continue; }
   if (job.kind === 'texture') {

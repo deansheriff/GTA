@@ -14,6 +14,8 @@ extends Node
 
 const GIST_KINDS := { "award": "award", "impound": "impound", "zoom": "zoom", "hero": "hero", "owambe": "owambe", "fleet": "fleet", "home": "home", "event": "event", "photo": "photo", "race": "race_win", "boxing": "boxing" }
 const LADDER := ["Small Pikin from Mushin", "Iya Basira's son", "Conductor Jide", "Agbero Lanre", "Mechanic Sunday", "Bouncer Big T", "Area Father's nephew", "\"The Wall\" of Oshodi"]
+## What each ladder fighter looks like: [sheet, frame].
+const LADDER_LOOKS := [["characters/townsfolk-c.png", 6], ["characters/drivers-a.png", 0], ["characters/drivers-a.png", 1], ["characters/officials-a.png", 4], ["characters/officials-a.png", 7], ["characters/officials-a.png", 6], ["characters/officials-a.png", 5], ["characters/drivers-a.png", 3]]
 
 var host: StreetHost
 var main: Node2D
@@ -389,7 +391,7 @@ func _ladder_fight(lvl: int) -> void:
 	for i in 10:
 		windows.append(maxf(0.55, 1.4 - lvl * 0.08 - i * 0.06))
 	main.street.reactions.crowd_to(main.player.position)
-	var res: Dictionary = await main.story.story_minigame("fight", { "opponent": LADDER[lvl], "windows": windows, "intro": "Area Ladder, fight %d: %s" % [lvl + 1, LADDER[lvl]] })
+	var res: Dictionary = await main.story.story_minigame("fight", { "opponent": LADDER[lvl], "windows": windows, "intro": "Area Ladder, fight %d: %s" % [lvl + 1, LADDER[lvl]], "opponent_sprite": LADDER_LOOKS[lvl] })
 	if int(res.get("score", 0)) > 50:
 		Street.counters["ladder"] = lvl + 1
 		Street.count("fights_won")

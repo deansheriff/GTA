@@ -48,23 +48,35 @@ func use_hero_sheet(path: String) -> bool:
 	return true
 
 
-## One of 16 painted townsfolk. 0-7 face the viewer (people standing or loitering),
-## 8-15 are side-walking passers-by. Each person comes from one sheet only, so they never
-## change identity when they turn.
+## Standing/loitering townsfolk face the viewer; side-walkers turn with their direction.
 var loiterer := false
 
 
+## One of 32 painted townsfolk: 0-15 face the viewer (standing, loitering), 16-31 walk side-on.
+## (M12 added townsfolk-c and townsfolk-d to the original two sheets.)
+const FRONT_SHEETS := ["characters/pedestrians-a.png", "characters/townsfolk-c.png"]
+const SIDE_SHEETS := ["characters/pedestrians-b.png", "characters/townsfolk-d.png"]
+
+
 func use_pedestrian(index: int) -> bool:
-	var i := posmod(index, 16)
-	loiterer = i < 8
-	var path := "characters/pedestrians-a.png" if loiterer else "characters/pedestrians-b.png"
+	var i := posmod(index, 32)
+	var standing := i < 16
+	var path: String = FRONT_SHEETS[i / 8] if standing else SIDE_SHEETS[(i - 16) / 8]
+	if Art.tex(path) == null:
+		path = FRONT_SHEETS[0] if standing else SIDE_SHEETS[0] # sheet missing: fall back
+	return use_sheet(path, i % 8, standing)
+
+
+## A specific painted person: `frame` of a 4x2 character sheet (townsfolk, drivers, officials).
+func use_sheet(path: String, frame: int, standing := true) -> bool:
+	loiterer = standing
 	var t := Art.tex(path)
 	var info := Art.sheet_info(path)
 	if t == null or info.is_empty():
 		return false
 	_ped_front = t if loiterer else null
 	_ped_side = null if loiterer else t
-	_ped_index = i % 8
+	_ped_index = frame
 	_make_sprite(t, int(info["cols"]), int(info["rows"]), float(info["frameH"]))
 	_spr.frame = _ped_index
 	_sheet = "ped"

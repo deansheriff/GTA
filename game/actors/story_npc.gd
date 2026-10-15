@@ -29,13 +29,26 @@ func setup(id: String, who_id: String) -> void:
 	colour = Color(String(info.get("colour", "#e0a91c")))
 	var path := ""
 	var frame := 0
-	if info.has("sprite"):
+	if info.has("sprites"):
+		# A role with several looks (drivers, marshals, agberos…): a different one each time.
+		var pick: Array = info["sprites"][randi() % (info["sprites"] as Array).size()]
+		path = pick[0]
+		frame = int(pick[1])
+	elif info.has("sprite"):
 		path = info["sprite"][0]
 		frame = int(info["sprite"][1])
 	else:
 		var i := int(info.get("ped", 0))
 		path = "characters/pedestrians-a.png" if i < 8 else "characters/pedestrians-b.png"
 		frame = i % 8
+	use_sprite(path, frame)
+
+
+## Show this NPC as `frame` of a painted character sheet.
+func use_sprite(path: String, frame: int) -> void:
+	if _spr:
+		_spr.queue_free()
+		_spr = null
 	var t := Art.tex(path)
 	var sheet := Art.sheet_info(path)
 	if t and not sheet.is_empty():

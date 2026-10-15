@@ -1059,7 +1059,18 @@ func _demo_street() -> void:
 	demo_input = Vector2.ZERO
 	await _wait(2.0)
 	street.checkpoints.clear()
-	# Area heat: the Task Force comes.
+	# Crash wahala: who climbs out matches the vehicle.
+	for kind in ["okada", "car"]:
+		var nv: Dictionary = traffic.spawn_on("yaba_c", map.road_graph["yaba_c"][0], 220.0, kind)
+		clash.call("_npc_clash", nv)
+		await _wait(1.0)
+		await _shot("14b-angry-%s-driver" % kind)
+		for n in streamer.get_children():
+			if n.get("npc_id") == "angry-driver" and n.get("_spr"):
+				print("demo: %s driver looks like drivers-a frame %d" % [kind, (n.get("_spr") as Sprite2D).frame])
+		while clash.get("_busy"):
+			await get_tree().process_frame
+		# Area heat: the Task Force comes.
 	Street.heat = 3.2
 	await _wait(3.5)
 	await _shot("15-task-force")

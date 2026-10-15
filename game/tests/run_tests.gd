@@ -23,6 +23,7 @@ func _initialize() -> void:
 	await _test_story()
 	await _test_clash()
 	_test_street()
+	_test_people()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -481,3 +482,16 @@ func _test_street() -> void:
 	var list: Array = st.achievement_list()
 	check(list.size() >= 25 and list.filter(func(a: Dictionary) -> bool: return a["done"]).size() >= 2, "the awards list reports progress")
 	st.reset()
+
+
+## More character models (M12): 32 different townsfolk, and drivers/officials sheets load.
+func _test_people() -> void:
+	var seen := {}
+	var w: Node2D = load("res://actors/walker.gd").new()
+	for i in 32:
+		w.use_pedestrian(i)
+		seen["%s#%d" % [(w.get("_spr") as Sprite2D).texture.resource_path, int(w.get("_ped_index"))]] = true
+	check(seen.size() == 32, "the crowd draws on 32 different people (%d)" % seen.size())
+	for sheet in ["characters/drivers-a.png", "characters/officials-a.png"]:
+		check(w.use_sheet(sheet, 7), "%s loads" % sheet)
+	w.free()
