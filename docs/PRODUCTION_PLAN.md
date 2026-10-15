@@ -240,3 +240,15 @@ milestones, make no APK until the game is done, then do one release build.
   - Solid, high-contrast title buttons.
 - ⚠ adb on the dev PC drops the emulator connection during large installs, so the final APK
   wasn't re-run on the emulator. Test it on a real phone (see `docs/BUILD.md`).
+- ✅ **Owner's BlueStacks test** (2026-10-15). Fixes:
+  - **Empty dialogue and How-to-play text:** the typewriter never revealed text when frames were
+    long or the player tapped early. It now always reveals the full line (`ui/dialogue_box.gd`).
+  - **Living title screen:** the same splash painting, now animated. A shader moves clouds,
+    water, umbrellas, the crowd, the idling danfo and breathing figures. People walk up and
+    down the street, and okadas and kekes pass, slipping behind cut-outs of the foreground
+    figures. Birds, exhaust and a flickering NEPA lamp complete it (`ui/title_scene.gd`, D-014).
+  - **Vehicles no longer drive through each other:** oriented-box collision (`world/collide.gd`)
+    for traffic, the player's danfo and other players' vehicles. Traffic queues in proper lanes.
+  - **Street wahala (D-014):** crash hard into traffic and the other driver gets out: Fight (a
+    fist-fight mini-game) or Apologise. Online, the server decides, and an apology doesn't
+    stop a player who chooses to fight.

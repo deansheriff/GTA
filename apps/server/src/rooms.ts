@@ -11,7 +11,10 @@ export const ROOM_CAPACITY = 80;
 export const INTEREST_RADIUS = 1600;
 /** Max speeds (px/s) with slack for network jitter. Walking 150, danfo 380 in the client. */
 const MAX_SPEED = { walk: 240, drive: 520 } as const;
-const WORLD = { w: 2560, h: 1920 };
+// Tropical-island Lagos: 192 × 132 cells of 64 px (game/data/map/lagos.json).
+const WORLD = { w: 192 * 64, h: 132 * 64 };
+/** Fast travel (keke, story scenes, hero switches) may jump once every few seconds without a strike. */
+const WARP_COOLDOWN_MS = 3000;
 
 export type Mode = 0 | 1; // 0 walking, 1 driving
 
@@ -33,6 +36,7 @@ interface Member extends PublicInfo {
   m: Mode;
   h: number;
   lastMoveAt: number;
+  lastWarpAt: number;
   version: number; // increments on every accepted move
   seen: Map<number, number>; // other member id -> version last sent to this member
   strikes: number;
@@ -68,7 +72,7 @@ export class Room {
     this.members.set(id, {
       id, playerId, name: sanitizeName(name), look: sanitizeLook(look),
       x: clamp(x, 0, WORLD.w), y: clamp(y, 0, WORLD.h), f: 0, m: 0, h: 0,
-      lastMoveAt: now, version: 1, seen: new Map(), strikes: 0,
+      lastMoveAt: now, lastWarpAt: 0, version: 1, seen: new Map(), strikes: 0,
     });
     return id;
   }
@@ -81,14 +85,16 @@ export class Room {
    * Accept a move if it is physically possible since the last accepted one; otherwise keep the
    * server position (the client will be corrected by its own echo). Returns false when rejected.
    */
-  move(id: number, x: number, y: number, f: number, m: Mode, h: number, now: number): boolean {
+  move(id: number, x: number, y: number, f: number, m: Mode, h: number, now: number, warp = false): boolean {
     const p = this.members.get(id);
     if (!p || !Number.isFinite(x) || !Number.isFinite(y)) return false;
     const dt = Math.max(0.05, (now - p.lastMoveAt) / 1000);
     const dist = Math.hypot(x - p.x, y - p.y);
     // 48 px of slack absorbs network jitter and the first move after joining.
     const limit = MAX_SPEED[m === 1 ? 'drive' : 'walk'] * dt + 48;
-    if (dist > limit) {
+    const warpOk = warp && now - p.lastWarpAt >= WARP_COOLDOWN_MS;
+    if (warpOk) p.lastWarpAt = now;
+    if (dist > limit && !warpOk) {
       p.strikes++;
       return false;
     }
@@ -100,6 +106,12 @@ export class Room {
     p.lastMoveAt = now;
     p.version++;
     return true;
+  }
+
+  /** Server-side position of an account in this room (for clash distance checks). */
+  findPlayer(playerId: string): { id: number; x: number; y: number; m: Mode; name: string } | null {
+    for (const p of this.members.values()) if (p.playerId === playerId) return { id: p.id, x: p.x, y: p.y, m: p.m, name: p.name };
+    return null;
   }
 
   strikes(id: number): number {

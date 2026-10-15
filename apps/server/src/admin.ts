@@ -276,6 +276,19 @@ export function registerAdmin(app: FastifyInstance, db: Db, onPlayerChanged: (id
     return { events: events.rows, crashes: crashes.rows, challenges: challenges.rows, tickets: tickets.rows };
   });
 
+  // Street clashes: who keeps starting fights (aggressors facing peaceful players).
+  app.get('/api/admin/clashes', async (req, reply) => {
+    if (!guard(req, reply)) return;
+    const recent = await db.query(`SELECT c.created_at, pa.name AS a, c.choice_a, pb.name AS b, c.choice_b, c.outcome, c.score_a, c.score_b FROM clashes c LEFT JOIN players pa ON pa.id = c.a LEFT JOIN players pb ON pb.id = c.b ORDER BY c.id DESC LIMIT 50`);
+    const aggressors = await db.query(
+      `SELECT p.id, p.name, count(*) AS fights_started_against_peace FROM (
+         SELECT a AS pid FROM clashes WHERE choice_a = 'fight' AND choice_b = 'peace' AND created_at > now() - interval '7 days'
+         UNION ALL SELECT b FROM clashes WHERE choice_b = 'fight' AND choice_a = 'peace' AND created_at > now() - interval '7 days'
+       ) x JOIN players p ON p.id = x.pid GROUP BY p.id, p.name ORDER BY 3 DESC LIMIT 20`,
+    );
+    return { recent: recent.rows, aggressors: aggressors.rows };
+  });
+
   app.get('/api/admin/npc-chats', async (req, reply) => {
     if (!guard(req, reply)) return;
     const r = await db.query(`SELECT c.id, p.name AS player, c.npc, c.player_text, c.reply, c.fallback, c.reported, c.created_at FROM npc_chat_log c LEFT JOIN players p ON p.id = c.player_id ORDER BY c.reported DESC, c.id DESC LIMIT 100`);

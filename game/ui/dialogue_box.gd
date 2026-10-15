@@ -121,7 +121,7 @@ func _gui_input(event: InputEvent) -> void:
 	if tap and _choices.get_child_count() == 0:
 		accept_event()
 		if _typing:
-			_typing = false
+			_finish_typing()
 		else:
 			_advance.emit()
 
@@ -131,7 +131,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		if _choices.get_child_count() == 0:
 			get_viewport().set_input_as_handled()
 			if _typing:
-				_typing = false
+				_finish_typing()
 			else:
 				_advance.emit()
 
@@ -140,9 +140,18 @@ func _process(delta: float) -> void:
 	if not _typing:
 		return
 	_shown += delta * CPS * float(Settings.get_pref("dialogue_speed", 1.0))
-	_text.visible_characters = int(_shown)
-	if _text.visible_characters >= _text.get_total_character_count():
-		_typing = false
+	# Compare with the string length: get_total_character_count() is 0 until the label has been
+	# shaped, which on Android ended the typewriter at zero characters (empty dialogue boxes).
+	if int(_shown) >= _text.text.length():
+		_finish_typing()
+	else:
+		_text.visible_characters = int(_shown)
+
+
+## Show the whole line (end of typing, or the player tapped to skip ahead).
+func _finish_typing() -> void:
+	_typing = false
+	_text.visible_characters = -1
 
 
 ## Play a conversation. Returns the choices picked, in order.

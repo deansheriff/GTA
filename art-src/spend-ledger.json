@@ -2548,6 +2548,66 @@
       "refs": [
         "art-src/raw/style-anchor-yaba.png"
       ]
+    },
+    {
+      "at": "2026-10-15T06:56:01.210Z",
+      "provider": "openai",
+      "asset": "title-walkers",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0208,
+      "seconds": 19,
+      "usage": {
+        "input_tokens": 1450,
+        "input_tokens_details": {
+          "image_tokens": 1080,
+          "text_tokens": 370
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 1793
+      },
+      "prompt": "A sprite sheet of 8 full-body Lagos street pedestrians, seen at eye level from a slight distance, a strict grid of 4 columns by 2 rows, each figure centered in its own cell with clear empty gaps, all the same height, feet at the bottom of the cell. Row 1, walking TOWARD the viewer (front view, mid-stride): (1) a market woman in a bright ankara wrapper balancing a basin of oranges on her head, (2) a young man in a football jersey and shorts carrying a backpack, (3) an older man in a flowing white agbada with a cap, (4) a schoolgirl in a blue pinafore uniform. Row 2, walking AWAY from the viewer (back view, mid-stride): (5) a hawker woman with a tray of bread on her head and a patterned wrapper, (6) a man in a faded t-shirt and jeans carrying a sack on his shoulder, (7) a woman in a long gown with a headtie, (8) a boy in a singlet and shorts.",
+      "refs": [
+        "game/art/story/panel-splash.jpg"
+      ]
+    },
+    {
+      "at": "2026-10-15T06:56:21.458Z",
+      "provider": "openai",
+      "asset": "title-vehicles",
+      "model": "gpt-image-2.5-flare",
+      "size": "1536x1024",
+      "quality": "medium",
+      "background": "transparent",
+      "ok": true,
+      "http": 200,
+      "estUsd": 0.0204,
+      "seconds": 20,
+      "usage": {
+        "input_tokens": 1381,
+        "input_tokens_details": {
+          "image_tokens": 1080,
+          "text_tokens": 301
+        },
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "image_tokens": 343,
+          "text_tokens": 0
+        },
+        "total_tokens": 1724
+      },
+      "prompt": "A sprite sheet of 4 Lagos street vehicles at eye level, a strict 2 by 2 grid, each vehicle centered in its own cell with clear empty gaps, wheels at the bottom of the cell. (1) top-left: an okada motorcycle taxi with a rider in a red helmet and a passenger, seen from the FRONT, coming toward the viewer. (2) top-right: the same kind of okada with rider and passenger seen from the BACK, riding away. (3) bottom-left: a green and yellow keke tricycle taxi with a driver, seen from the FRONT three-quarter view, coming toward the viewer. (4) bottom-right: the same keke tricycle seen from the BACK, driving away. Plain unbranded vehicles.",
+      "refs": [
+        "game/art/story/panel-splash.jpg"
+      ]
     }
   ]
 }

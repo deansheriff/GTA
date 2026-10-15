@@ -332,6 +332,24 @@ const MIGRATIONS: { v: number; sql: string[] }[] = [
       `ALTER TABLE votes ADD CONSTRAINT votes_voter_fkey FOREIGN KEY (voter) REFERENCES players(id) ON DELETE SET NULL`,
     ],
   },
+  {
+    // Street clashes (fight or apologise) between online players: logged for moderators.
+    v: 5,
+    sql: [
+      `CREATE TABLE IF NOT EXISTS clashes (
+         id bigserial PRIMARY KEY,
+         a uuid REFERENCES players(id) ON DELETE SET NULL,
+         b uuid REFERENCES players(id) ON DELETE SET NULL,
+         choice_a text NOT NULL,
+         choice_b text NOT NULL,
+         outcome text NOT NULL,
+         winner uuid,
+         score_a integer,
+         score_b integer,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+    ],
+  },
 ];
 
 export async function migrate(db: Db): Promise<number> {

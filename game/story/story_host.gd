@@ -22,6 +22,7 @@ const GAMES := {
 	"debate": preload("res://ui/minigames/debate.gd"),
 	"cue": preload("res://ui/minigames/light_cue.gd"),
 	"spray_dance": preload("res://ui/minigames/money_spray.gd"),
+	"fight": preload("res://ui/minigames/fist_fight.gd"),
 }
 const INK := Color("#1d1611")
 const PAPER := Color("#f1e6c8")

@@ -150,6 +150,12 @@
       ],
       "colour": "#84509a"
     },
+    "angry-driver": {
+      "name": "Angry driver",
+      "portrait": "portraits/passenger.png",
+      "ped": 6,
+      "colour": "#b5452f"
+    },
     "passenger": {
       "name": "Passenger",
       "portrait": "portraits/passenger.png",

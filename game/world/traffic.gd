@@ -18,7 +18,6 @@ var target_count := 12
 var vehicles: Array = [] # [{node, from, to, t, len, lane, speed, stop_t, cls_speed}]
 var _rng := RandomNumberGenerator.new()
 ## Set when the player rammed traffic this frame (for a toast).
-var bumped := false
 
 
 func setup(m: MapData, p: Node2D, mat: Material) -> void:
@@ -29,7 +28,6 @@ func setup(m: MapData, p: Node2D, mat: Material) -> void:
 
 
 func update(delta: float, focus: Vector2, player_vehicle: Node2D) -> void:
-	bumped = false
 	# Despawn far vehicles, spawn new ones in a ring around the focus.
 	for v in vehicles.duplicate():
 		if (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
@@ -74,7 +72,7 @@ func jam(pos: Vector2, _from: Vector2) -> void:
 			n.set_kind(kind, CAR_COLOURS[_rng.randi() % CAR_COLOURS.size()] if kind == "car" else Color(0, 0, 0, 0))
 			n.material = painted_mat
 			parent.add_child(n)
-			var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _edge_width(a, b) * 0.25, "speed": 0.0, "stop_t": 40.0, "cls": _edge_speed(a, b), "kind": kind, "jam": true }
+			var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _lane(a, b), "speed": 0.0, "stop_t": 40.0, "cls": _edge_speed(a, b), "kind": kind, "jam": true }
 			_place(v)
 			vehicles.append(v)
 
@@ -100,6 +98,11 @@ func _edge_speed(a: String, b: String) -> float:
 		if i >= 0 and ((i + 1 < nodes.size() and nodes[i + 1] == b) or (i > 0 and nodes[i - 1] == b)):
 			return r["speed"]
 	return 0.7
+
+
+## Lane offset from the centre line: at least 31 px so opposite lanes never overlap (a danfo is 58 px wide).
+func _lane(a: String, b: String) -> float:
+	return maxf(_edge_width(a, b) * 0.25, 31.0)
 
 
 func _edge_width(a: String, b: String) -> float:
@@ -135,7 +138,7 @@ func _try_spawn(focus: Vector2) -> void:
 	n.set_kind(kind, CAR_COLOURS[_rng.randi() % CAR_COLOURS.size()] if kind == "car" else Color(0, 0, 0, 0))
 	n.material = painted_mat
 	parent.add_child(n)
-	var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _edge_width(a, b) * 0.25, "speed": 0.0, "stop_t": 0.0, "cls": _edge_speed(a, b), "kind": kind }
+	var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _lane(a, b), "speed": 0.0, "stop_t": 0.0, "cls": _edge_speed(a, b), "kind": kind }
 	_place(v)
 	vehicles.append(v)
 
@@ -173,19 +176,42 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D) -> void:
 		var tp := player_vehicle.position - n.position
 		if tp.length() < 240.0 and tp.dot(fwd) > 10.0 and absf(tp.cross(fwd)) < 40.0:
 			want = 0.0
-	# Never drive through the player's danfo: stop dead and give it a little bump.
-	if player_vehicle and n.position.distance_to(player_vehicle.position) < 96.0:
-		want = 0.0
-		v["speed"] = 0.0
-		v["t"] = maxf(0.0, float(v["t"]) - 2.0)
-		if absf(player_vehicle.speed) > 120.0:
-			player_vehicle.speed *= 0.4
-			bumped = true
 	v["speed"] = move_toward(float(v["speed"]), want, 420.0 * delta)
-	v["t"] = float(v["t"]) + float(v["speed"]) * delta
+	var old_t := float(v["t"])
+	var old_edge: Array = [v["from"], v["to"], v["len"], v["lane"], v["cls"]]
+	v["t"] = old_t + float(v["speed"]) * delta
 	if float(v["t"]) >= float(v["len"]):
 		_next_edge(v)
 	_place(v)
+	# Solid vehicles: if this move would overlap another vehicle (or the player's), undo it and wait.
+	# A vehicle stuck for a long time (rare junction standoff) briefly squeezes through.
+	var blocked := float(v["speed"]) > 0.0 and _blocked(v, player_vehicle)
+	if blocked and float(v.get("stuck", 0.0)) < 4.0:
+		v["from"] = old_edge[0]
+		v["to"] = old_edge[1]
+		v["len"] = old_edge[2]
+		v["lane"] = old_edge[3]
+		v["cls"] = old_edge[4]
+		v["t"] = old_t
+		v["speed"] = 0.0
+		v["stuck"] = float(v.get("stuck", 0.0)) + delta
+		_place(v)
+	elif not blocked:
+		v["stuck"] = 0.0
+	# else: stuck for 4 s at a junction standoff, so it squeezes through until it's clear.
+
+
+func _blocked(v: Dictionary, player_vehicle: Node2D) -> bool:
+	var n: Node2D = v["node"]
+	var fwd := Vector2.from_angle(n.heading)
+	for o in vehicles:
+		if o == v:
+			continue
+		var on: Node2D = o["node"]
+		# Only what's in front of us blocks us (the one behind waits for us, not the other way).
+		if (on.position - n.position).dot(fwd) > 0.0 and Collide.vehicles(n, on) != Vector2.ZERO:
+			return true
+	return player_vehicle != null and Collide.vehicles(n, player_vehicle) != Vector2.ZERO
 
 
 func _next_edge(v: Dictionary) -> void:
@@ -199,7 +225,7 @@ func _next_edge(v: Dictionary) -> void:
 	v["to"] = next
 	v["t"] = 0.0
 	v["len"] = pa.distance_to(map.road_nodes[next])
-	v["lane"] = _edge_width(at, next) * 0.25
+	v["lane"] = _lane(at, next)
 	v["cls"] = _edge_speed(at, next)
 	# Junction go-slow: sometimes everyone waits for the "warden".
 	if (map.road_graph.get(at, []) as Array).size() > 2 and _rng.randf() < 0.25:

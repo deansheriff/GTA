@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Title screen: painted splash, logo, Continue / New game, Settings and Credits (with the Godot
+## Title screen: the living painted splash, logo, Continue / New game, Settings and Credits (with the Godot
 ## licence notice the engine's MIT licence requires).
 
 signal play(new_game: bool)
@@ -24,12 +24,8 @@ func _ready() -> void:
 	bg.color = Color("#0d0a07")
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.add_child(bg)
-	var img := TextureRect.new()
-	img.texture = Art.tex("story/panel-splash.jpg")
-	img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	img.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_root.add_child(img)
+	# The splash painting, alive: the street walks, rides and breathes (ui/title_scene.gd).
+	_root.add_child(TitleScene.new())
 	var v := VBoxContainer.new()
 	v.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	v.grow_horizontal = Control.GROW_DIRECTION_BOTH

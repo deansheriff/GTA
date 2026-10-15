@@ -11,7 +11,7 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 - The only reference image is our own generated `style-anchor-yaba`.
 - Every person depicted is a fictional character; no real people, brands or logos.
 
-**Spend:** $2.04 of the owner-approved $10 cap (84 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
+**Spend:** $2.08 of the owner-approved $10 cap (86 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
 
 | Asset | Provider / model | Size, quality | Cost (USD) | Generated |
 |---|---|---|---|---|
@@ -99,6 +99,8 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 | `ui-app-icon` | openai / gpt-image-2.5-flare | 1024x1024, medium | 0.026 | 2026-10-14 21:41 |
 | `panel-splash` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:42 |
 | `panel-ending-c` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.024 | 2026-10-14 21:52 |
+| `title-walkers` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.021 | 2026-10-15 06:56 |
+| `title-vehicles` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.020 | 2026-10-15 06:56 |
 
 ## Prompts
 

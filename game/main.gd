@@ -56,6 +56,7 @@ const RICH := ["ikoyi", "victoria-island", "lekki"]
 var story: StoryHost
 var story_auto := false
 var online: OnlineApps
+var clash := StreetClash.new()
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
 
@@ -159,6 +160,8 @@ func _ready() -> void:
 	online = OnlineApps.new()
 	add_child(online)
 	online.setup(hud.phone, story)
+	add_child(clash)
+	clash.setup(self)
 	built = true
 	if story_auto:
 		_run_story_demo()
@@ -480,8 +483,8 @@ func _process(delta: float) -> void:
 	streamer.update_view(view, dt)
 	lights.sync(get_viewport().get_camera_2d(), get_viewport_rect().size)
 	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null)
-	if traffic.bumped:
-		hud.toast(["Oga, you no see road?", "Na so you dey drive?", "Who give you licence?"][randi() % 3])
+	if not story.interior.active:
+		clash.tick(dt)
 	crowd.update(dt, focus)
 	_net_tick(dt)
 	_route_tick(dt, focus)

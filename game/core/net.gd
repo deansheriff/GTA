@@ -10,6 +10,9 @@ signal gone(id: int)
 signal chat(msg: Dictionary) # street chat {id, pid, name, text, v}
 signal dm(msg: Dictionary) # direct message {id, pid, to, name, text, sent?}
 signal server_error(code: String)
+signal clash(msg: Dictionary) # a collision with another player: {id, pid, name, ms}
+signal clash_fight(msg: Dictionary) # {id, name, seq, windows, you, them}
+signal clash_end(msg: Dictionary) # {id, outcome, winner?, scores?}
 
 const CFG := "user://net.cfg"
 const SEND_HZ := 10.0
@@ -18,6 +21,7 @@ var server := ""
 var player_name := "Tunde"
 var token := ""
 var my_id := -1
+var my_pid := ""
 var room := ""
 var bytes_in := 0
 var bytes_out := 0
@@ -28,6 +32,7 @@ var _retry_in := 0.0
 var _backoff := 2.0
 var _send_t := 0.0
 var _last_sent := ""
+var _last_pos := Vector2.INF
 var _pending_hello := {}
 var district := "yaba"
 ## Player ids (pid) of people met on the street, by member id: DMs, blocks and reports use them.
@@ -142,9 +147,19 @@ func send_move(pos: Vector2, facing: int, mode: int, heading_deg: float) -> void
 	var key := JSON.stringify(msg)
 	if key == _last_sent:
 		return
+	# A big jump (story warp, fast travel) is flagged so the server's speed check accepts it.
+	if _last_pos != Vector2.INF and pos.distance_to(_last_pos) > 400.0:
+		msg["w"] = 1
+	_last_pos = pos
 	_last_sent = key
 	_send_t = 1.0 / SEND_HZ
 	_send(msg)
+
+
+## Any other realtime message (clash bump/choice/result).
+func send_msg(msg: Dictionary) -> void:
+	if _state == "online" and _ws:
+		_send(msg)
 
 
 func _send(msg: Dictionary) -> void:
@@ -159,6 +174,8 @@ func _handle(m: Variant) -> void:
 	match String(m.get("t", "")):
 		"welcome":
 			my_id = int(m["id"])
+			my_pid = String(m.get("pid", ""))
+			_last_pos = Vector2.INF
 			room = String(m.get("room", ""))
 			if m.has("token"):
 				token = String(m["token"])
@@ -177,6 +194,12 @@ func _handle(m: Variant) -> void:
 			chat.emit(m)
 		"dm":
 			dm.emit(m)
+		"clash":
+			clash.emit(m)
+		"clash_fight":
+			clash_fight.emit(m)
+		"clash_end":
+			clash_end.emit(m)
 		"err":
 			server_error.emit(String(m.get("code", "?")))
 			push_warning("server: %s" % m.get("code", "?"))

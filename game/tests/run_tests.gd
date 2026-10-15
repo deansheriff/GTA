@@ -21,6 +21,7 @@ func _initialize() -> void:
 	await process_frame # autoloads (Clock, Life, SaveGame) are ready after the first frame
 	_test_life()
 	await _test_story()
+	await _test_clash()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -394,3 +395,30 @@ func _test_story() -> void:
 	life.hero = "tunde"
 	story.reset()
 	life.flags = {}
+
+
+## Collisions and street clashes (owner request 2026-10-15).
+func _test_clash() -> void:
+	var half := Vector2(66, 29)
+	check(Collide.obb_mtv(Vector2.ZERO, 0.0, half, Vector2(300, 0), 0.0, half) == Vector2.ZERO, "vehicles far apart don't collide")
+	var mtv := Collide.obb_mtv(Vector2(0, 0), 0.0, half, Vector2(100, 10), 0.0, half)
+	check(mtv != Vector2.ZERO and mtv.x < 0.0, "overlapping vehicles get pushed apart, away from each other")
+	check(Collide.obb_mtv(Vector2(0, 0) + mtv, 0.0, half, Vector2(100, 10), 0.0, half).length() < 0.01, "after the push they no longer overlap")
+	check(Collide.obb_mtv(Vector2.ZERO, 0.0, half, Vector2(0, 70), PI / 2.0, half) != Vector2.ZERO, "a crossing vehicle (rotated box) collides")
+	# The fist fight writes the same log the server re-scores (apps/server/src/clash.ts scoreFight).
+	var g: Control = load("res://ui/minigames/fist_fight.gd").new()
+	g.autoplay = true
+	root.add_child(g)
+	var seq := ["jab", "duck", "block", "jab", "duck", "block", "jab", "jab", "duck", "block"]
+	var res: Dictionary = await g.play({ "opponent": "Test", "seq": seq })
+	var log: Array = res.get("log", [])
+	var hits := 0
+	for i in seq.size():
+		var e: Dictionary = log[i] if i < log.size() else {}
+		if e.get("move") == seq[i] and float(e.get("t", 99)) >= 0.12 and float(e.get("t", 99)) <= maxf(0.8, 1.5 - i * 0.07):
+			hits += 1
+	check(int(res.get("score", 0)) == 100 and hits == 10, "fist fight autoplay wins and its log passes the server's re-scoring (%d/10)" % hits)
+	g.queue_free()
+	var sc: Node = load("res://story/street_clash.gd").new()
+	check(sc != null and sc.has_method("tick"), "street clash manager loads")
+	sc.free()

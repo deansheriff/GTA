@@ -1,0 +1,21 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, warm golden-hour sunset light from the right, weathered and lived-in contemporary Lagos. Match the painting style, palette, lighting and line quality of the attached reference image exactly, but do NOT copy its composition: these are separate cut-out figures to animate on top of it.",
+  "styleSuffix": "Fully transparent background, no ground, no shadows on the background, no text, no letters, no numbers, no logos, no brand names, no watermark, no border, no UI.",
+  "assets": [
+    {
+      "name": "title-walkers",
+      "refs": ["game/art/story/panel-splash.jpg"],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet of 8 full-body Lagos street pedestrians, seen at eye level from a slight distance, a strict grid of 4 columns by 2 rows, each figure centered in its own cell with clear empty gaps, all the same height, feet at the bottom of the cell. Row 1, walking TOWARD the viewer (front view, mid-stride): (1) a market woman in a bright ankara wrapper balancing a basin of oranges on her head, (2) a young man in a football jersey and shorts carrying a backpack, (3) an older man in a flowing white agbada with a cap, (4) a schoolgirl in a blue pinafore uniform. Row 2, walking AWAY from the viewer (back view, mid-stride): (5) a hawker woman with a tray of bread on her head and a patterned wrapper, (6) a man in a faded t-shirt and jeans carrying a sack on his shoulder, (7) a woman in a long gown with a headtie, (8) a boy in a singlet and shorts."
+    },
+    {
+      "name": "title-vehicles",
+      "refs": ["game/art/story/panel-splash.jpg"],
+      "size": "1536x1024",
+      "prompt": "A sprite sheet of 4 Lagos street vehicles at eye level, a strict 2 by 2 grid, each vehicle centered in its own cell with clear empty gaps, wheels at the bottom of the cell. (1) top-left: an okada motorcycle taxi with a rider in a red helmet and a passenger, seen from the FRONT, coming toward the viewer. (2) top-right: the same kind of okada with rider and passenger seen from the BACK, riding away. (3) bottom-left: a green and yellow keke tricycle taxi with a driver, seen from the FRONT three-quarter view, coming toward the viewer. (4) bottom-right: the same keke tricycle seen from the BACK, driving away. Plain unbranded vehicles."
+    }
+  ]
+}

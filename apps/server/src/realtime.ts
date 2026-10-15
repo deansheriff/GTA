@@ -4,6 +4,7 @@ import { RoomManager, TICK_HZ, sanitizeLook, sanitizeName, type Room } from './r
 import type { Store } from './store.ts';
 import { ChatHub, type ChatTarget } from './social.ts';
 import { accountById, isBanned } from './account.ts';
+import { ClashManager, type ClashParty } from './clash.ts';
 
 /**
  * WebSocket protocol at /ws (JSON, compact). The first client message must be "hello".
@@ -13,10 +14,15 @@ import { accountById, isBanned } from './account.ts';
  *   {"t":"move","x","y","f","m","h"}        at most ~10/s, only when something changed
  *   {"t":"chat","text"}                      street chat (moderated, see social.ts)
  *   {"t":"dm","to":pid,"text"}               direct message
+ *   {"t":"bump","pid"}                        my vehicle hit this player (server checks distance)
+ *   {"t":"clash_choice","id","choice"}        "fight" | "peace"
+ *   {"t":"clash_result","id","log"}           fist-fight input log [{move,t}]
  * server → client
- *   {"t":"welcome","id","room","token"?}    token only for a newly created guest
+ *   {"t":"welcome","id","pid","room","token"?}    token only for a newly created guest
  *   {"t":"snap","meet"?:[{id,name,look,pid}],"p"?:[[id,x,y,f,m,h]],"gone"?:[id]}   ~10/s, only if non-empty
  *   {"t":"chat","id","pid","name","text","v"}  {"t":"dm","id","pid","to","name","text","sent"?}
+ *   {"t":"clash","id","pid","name","ms"}  {"t":"clash_fight","id","name","seq","windows","you","them"}
+ *   {"t":"clash_end","id","outcome","winner"?,"scores"?}
  *   {"t":"err","code"}
  */
 const MAX_MSG_BYTES = 2048;
@@ -36,6 +42,8 @@ interface Session {
 export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; hub: ChatHub; stop: () => void } {
   const rooms = new RoomManager();
   const sessions = new Set<Session>();
+  const clashes = new ClashManager(store.db);
+  const party = (s: Session): ClashParty => ({ pid: s.playerId!, name: s.room?.findPlayer(s.playerId!)?.name ?? 'Player', send: (m) => send(s, m) });
   const hub = new ChatHub(store.db, function* (): Iterable<ChatTarget> {
     for (const s of sessions) {
       if (s.playerId && s.room) yield { playerId: s.playerId, room: s.room.name, send: (m) => send(s, m) };
@@ -89,18 +97,30 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
         s.room = room;
         s.playerId = player.id;
         s.memberId = room.join(player.id, name, look, Number(msg.x) || 0, Number(msg.y) || 0, now);
-        send(s, { t: 'welcome', id: s.memberId, room: room.name, ...(token ? { token } : {}) });
+        send(s, { t: 'welcome', id: s.memberId, pid: player.id, room: room.name, ...(token ? { token } : {}) });
         return;
       }
 
       if (msg.t === 'move' && s.room && s.memberId !== undefined) {
-        s.room.move(s.memberId, Number(msg.x), Number(msg.y), Number(msg.f) || 0, msg.m === 1 ? 1 : 0, Number(msg.h) || 0, now);
+        s.room.move(s.memberId, Number(msg.x), Number(msg.y), Number(msg.f) || 0, msg.m === 1 ? 1 : 0, Number(msg.h) || 0, now, msg.w === 1);
         if (s.room.strikes(s.memberId) > MAX_STRIKES) {
           send(s, { t: 'err', code: 'kicked_speed' });
           socket.close(4001, 'speed');
         }
         return;
       }
+
+      if (msg.t === 'bump' && s.room && s.playerId && typeof msg.pid === 'string') {
+        const other = [...sessions].find((o) => o.playerId === msg.pid && o.room === s.room);
+        const me = s.room.findPlayer(s.playerId);
+        const them = other ? s.room.findPlayer(other.playerId!) : null;
+        if (!other || !me || !them) return send(s, { t: 'err', code: 'clash_gone' });
+        const r = await clashes.report(party(s), party(other), me, them);
+        if (r !== 'ok') send(s, { t: 'err', code: `clash_${r}` });
+        return;
+      }
+      if (msg.t === 'clash_choice' && s.playerId) return clashes.choose(s.playerId, msg.id, msg.choice);
+      if (msg.t === 'clash_result' && s.playerId) return clashes.result(s.playerId, msg.id, msg.log);
 
       if ((msg.t === 'chat' || msg.t === 'dm') && s.room && s.playerId) {
         const me: ChatTarget = { playerId: s.playerId, room: s.room.name, send: (m) => send(s, m) };
@@ -113,6 +133,7 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
     });
 
     socket.on('close', () => {
+      if (s.playerId) clashes.left(s.playerId);
       if (s.room && s.memberId !== undefined) s.room.leave(s.memberId);
       sessions.delete(s);
       rooms.prune();

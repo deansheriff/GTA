@@ -297,3 +297,30 @@ ask only when input is needed, and make no APK builds until the game is done.
   Godot and Node.
 - **Telemetry is opt-in** (default off), anonymous and whitelisted. The age gate is
   self-declared, with phone verification for prizes; a lawyer must confirm that's enough.
+
+## D-014 · Street clashes and the living title · 2026-10-15
+**Owner request:** "players can engage in a fist fight due to collisions… pick… not fighting and
+apologise… this should not work against other online players who still choose to fight", and
+"animate the first screen… do not change the scene".
+**Decision (engineering):**
+- **NPC clashes** happen outside missions only, with a 25 s cooldown.
+  - Apologise always ends it: 65% accept; otherwise the driver asks ₦1,000 for the bumper, and you
+    can pay or keep apologising.
+  - Fight runs the slapstick `fist_fight` mini-game; there is no blood (Story Bible).
+- **Online clashes:** the server checks the contact against its own positions.
+  - Both players choose within 10 s; no answer counts as peace.
+  - If either player picks Fight, both fight the same server-made sequence, and the server
+    re-scores each input log.
+  - Effects are cosmetic only (needs and stats); no money changes hands.
+  - Limits:
+    - 3 min per-pair cooldown.
+    - 8 clashes an hour.
+    - Blocks are respected.
+    - Every clash is logged (`GET /api/admin/clashes` shows aggressors against peaceful players).
+  - A player who is in a mission or a menu auto-apologises. If they're jumped anyway, they can't
+    answer, so the fight costs them nothing.
+- **Title animation:**
+  - It is the same painting, with no new scene.
+  - Moving figures are new painted cut-outs: `spec-title.json`, about $0.04, generated with our
+    own splash as the only reference.
+  - The keke's grille badge was painted out (`tools/art/title_sprites.mjs`).
