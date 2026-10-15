@@ -56,6 +56,8 @@ const RICH := ["ikoyi", "victoria-island", "lekki"]
 var story: StoryHost
 var story_auto := false
 var online: OnlineApps
+var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
+var _title: CanvasLayer
 
 
 func _ready() -> void:
@@ -71,19 +73,29 @@ func _ready() -> void:
 			Settings.use_preset(a.trim_prefix("--preset="))
 		elif a.begins_with("--server="):
 			Net.server = a.trim_prefix("--server=")
+	var show_title := not demo and not Engine.has_meta("skip_title")
+	if show_title:
+		# The title appears at once ("Loading Lagos…") while the city is built a stage per frame.
+		_title = preload("res://ui/title_screen.gd").new()
+		add_child(_title)
+	await _stage()
 	map = MapData.shared()
+	await _stage()
 	_build_materials()
 	baker = MaskBaker.new()
 	add_child(baker)
 	baker.bake(map)
+	await _stage()
 	_build_terrain()
 	lights = LightLayer.new()
 	add_child(lights)
 	streamer = Streamer.new()
 	add_child(streamer)
 	streamer.setup(map, painted_mat, lights)
+	await _stage()
 	_build_actors()
 	nav.setup(map)
+	await _stage()
 	route_line = Node2D.new()
 	route_line.z_index = 6
 	route_line.draw.connect(_draw_route)
@@ -93,6 +105,8 @@ func _ready() -> void:
 	_build_camera()
 	hud = HudScript.new()
 	add_child(hud)
+	if show_title:
+		hud.visible = false
 	hud.toggle_night.connect(_toggle_night)
 	hud.toggle_nepa.connect(func() -> void: _set_nepa(not nepa_on))
 	hud.enter_exit.connect(_enter_exit)
@@ -145,6 +159,7 @@ func _ready() -> void:
 	online = OnlineApps.new()
 	add_child(online)
 	online.setup(hud.phone, story)
+	built = true
 	if story_auto:
 		_run_story_demo()
 	elif demo:
@@ -153,24 +168,35 @@ func _ready() -> void:
 		Engine.remove_meta("skip_title") # "New game" reloads the scene straight into the story
 		story.begin()
 	else:
-		_show_title(had_save)
+		_ready_title(had_save)
 
 
-## Title screen (M8): Continue / New game / Settings / Credits. The world idles behind it.
-func _show_title(had_save: bool) -> void:
-	var title: CanvasLayer = preload("res://ui/title_screen.gd").new()
-	title.has_save = had_save
-	hud.visible = false
-	add_child(title)
-	title.open_settings.connect(func() -> void: hud._show_settings(title._root))
-	title.play.connect(func(new_game: bool) -> void:
+## Let a frame through between heavy build stages so input keeps flowing on slow phones.
+func _stage() -> void:
+	await get_tree().process_frame
+
+
+## Title screen (M8): Continue / New game / Settings / Credits, shown while the city loads.
+func _ready_title(had_save: bool) -> void:
+	_title.open_settings.connect(func() -> void: hud._show_settings(_title._root))
+	_title.play.connect(func(new_game: bool) -> void:
 		hud.visible = true
 		if new_game and had_save:
 			SaveGame.wipe()
 			Engine.set_meta("skip_title", true)
 			get_tree().reload_current_scene()
 			return
+		await _first_run()
 		story.begin())
+	_title.set_ready(had_save)
+
+
+## First launch: graphics suggestion, then the 18+ question, then the story (one at a time).
+func _first_run() -> void:
+	if Settings.first_run:
+		await hud.show_welcome()
+	if int(Settings.get_pref("age_ok", -1)) == -1:
+		await online.age_gate()
 
 
 # ---------- build ----------
@@ -400,6 +426,8 @@ func _input_vector() -> Vector2:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not built:
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_E:
 		_enter_exit()
 	elif event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_H:
@@ -420,6 +448,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # ---------- loop ----------
 
 func _process(delta: float) -> void:
+	if not built:
+		return
 	var dt := minf(delta, 0.05)
 	var inp := _input_vector()
 	if story.abilities.in_wahala() or story.paused_by_story():

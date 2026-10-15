@@ -1,10 +1,10 @@
 {
-  "_comment": "Family Meeting 🔥 chat banks, off-screen events (abilities spec §5) and in-vehicle banter. ALL Pidgin lines PENDING NATIVE-SPEAKER REVIEW. Events are cosmetic or economic only and never touch story state.",
+  "_comment": "Family Meeting! chat banks, off-screen events (abilities spec §5) and in-vehicle banter. ALL Pidgin lines PENDING NATIVE-SPEAKER REVIEW. Events are cosmetic or economic only and never touch story state.",
   "scripted": {
     "p4_dark": [
-      { "who": "tunde", "text": "Who just touched my pocket?? 😤" },
+      { "who": "tunde", "text": "Who just touched my pocket?? >:(" },
       { "who": "ngozi", "text": "Nobody touches my jollof pot. NOBODY." },
-      { "who": "kc", "text": "darkness = content 📸🔦" },
+      { "who": "kc", "text": "darkness = content (camera)(torch)" },
       { "who": "mc", "text": "DJ? DJ!! Generator? …Generator is ALSO in the dark?!" }
     ],
     "p4_morning": [
@@ -13,33 +13,33 @@
       { "who": "sule", "text": "Since today." },
       { "who": "tunde", "text": "Okay. Today we work. Forget yesterday. Forget the Chief. Forget the bag." },
       { "who": "sule", "text": "Which bag?" },
-      { "who": "tunde", "text": "Exactly. Which bag. 💯" }
+      { "who": "tunde", "text": "Exactly. Which bag. 100%" }
     ],
     "m15_group": [
-      { "who": "kc", "text": "KC created the group \"Family Meeting 🔥\"" },
+      { "who": "kc", "text": "KC created the group \"Family Meeting!\"" },
       { "who": "kc", "text": "KC added Tunde, Aunty Boss, Sule" },
       { "who": "ngozi", "text": "Who added me to this rubbish?" },
       { "who": "tunde", "text": "Change the name. We are not family." },
-      { "who": "kc", "text": "We are now 🙏🏾 The bag made us family" },
+      { "who": "kc", "text": "We are now (abeg) The bag made us family" },
       { "who": "ngozi", "text": "Fine. Rule 1: no voice notes longer than 1 minute. Rule 2: you all owe me for dinner." },
-      { "who": "sule", "text": "👍🏾" }
+      { "who": "sule", "text": "(thumbs up)" }
     ]
   },
   "switch": {
     "tunde": [
       [ { "who": "ngozi", "text": "Tunde where are you?" }, { "who": "tunde", "text": "Dey come." }, { "who": "ngozi", "text": "Which one is \"dey come\"? Since 2pm?" }, { "who": "tunde", "text": "Go-slow. On my mother's head." } ],
-      [ { "who": "kc", "text": "Tunde, can I film the danfo for my next skit?" }, { "who": "tunde", "text": "Only if you pay fare like a normal human being" }, { "who": "kc", "text": "Exposure is payment 😅" }, { "who": "tunde", "text": "Exposure no dey buy fuel" } ],
-      [ { "who": "sule", "text": "Bus is ready." }, { "who": "tunde", "text": "Sule, three words! Proud of you 🥹" } ],
+      [ { "who": "kc", "text": "Tunde, can I film the danfo for my next skit?" }, { "who": "tunde", "text": "Only if you pay fare like a normal human being" }, { "who": "kc", "text": "Exposure is payment hehe" }, { "who": "tunde", "text": "Exposure no dey buy fuel" } ],
+      [ { "who": "sule", "text": "Bus is ready." }, { "who": "tunde", "text": "Sule, three words! Proud of you (teary)" } ],
       [ { "who": "ngozi", "text": "Tunde. You owe me ₦3,500 for pepper soup." }, { "who": "tunde", "text": "Aunty, I'm coming to work it off. Baba God dey!" }, { "who": "ngozi", "text": "Baba God does not pay my debts." } ]
     ],
     "ngozi": [
-      [ { "who": "kc", "text": "Aunty please is there food 🙏🏾" }, { "who": "ngozi", "text": "Food is ready. Money is also ready to receive." }, { "who": "kc", "text": "Ah. Can I pay with likes?" }, { "who": "ngozi", "text": "Come and try it." } ],
-      [ { "who": "tunde", "text": "Aunty Boss, good evening ma 🙏🏾" }, { "who": "ngozi", "text": "What do you want." }, { "who": "tunde", "text": "Nothing! Just greeting." }, { "who": "ngozi", "text": "Nobody in Lagos greets for free. Talk." } ],
+      [ { "who": "kc", "text": "Aunty please is there food (abeg)" }, { "who": "ngozi", "text": "Food is ready. Money is also ready to receive." }, { "who": "kc", "text": "Ah. Can I pay with likes?" }, { "who": "ngozi", "text": "Come and try it." } ],
+      [ { "who": "tunde", "text": "Aunty Boss, good evening ma (abeg)" }, { "who": "ngozi", "text": "What do you want." }, { "who": "tunde", "text": "Nothing! Just greeting." }, { "who": "ngozi", "text": "Nobody in Lagos greets for free. Talk." } ],
       [ { "who": "ngozi", "text": "Market council meeting at 4. Everybody behave." }, { "who": "kc", "text": "Can I livestream it?" }, { "who": "ngozi", "text": "If you value your phone, no." } ]
     ],
     "kc": [
-      [ { "who": "tunde", "text": "KC where are you" }, { "who": "kc", "text": "Shooting content. Very important content." }, { "who": "ngozi", "text": "He is sleeping. His status says sleeping since 10am." }, { "who": "kc", "text": "that was a skit about sleeping 😭" } ],
-      [ { "who": "kc", "text": "NEW VIDEO OUT 🔥🔥 link in bio" }, { "who": "ngozi", "text": "What is a bio" }, { "who": "tunde", "text": "Aunty don't click it, it will finish your data" } ],
+      [ { "who": "tunde", "text": "KC where are you" }, { "who": "kc", "text": "Shooting content. Very important content." }, { "who": "ngozi", "text": "He is sleeping. His status says sleeping since 10am." }, { "who": "kc", "text": "that was a skit about sleeping lol" } ],
+      [ { "who": "kc", "text": "NEW VIDEO OUT !! link in bio" }, { "who": "ngozi", "text": "What is a bio" }, { "who": "tunde", "text": "Aunty don't click it, it will finish your data" } ],
       [ { "who": "ngozi", "text": "KC your phone is on 2% again isn't it" }, { "who": "kc", "text": "How did you know" }, { "who": "ngozi", "text": "Because you're typing like a man drowning." } ]
     ]
   },

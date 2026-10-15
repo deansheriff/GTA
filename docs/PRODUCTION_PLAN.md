@@ -229,4 +229,14 @@ milestones, make no APK until the game is done, then do one release build.
   - Gemini credits.
   - SMS gateway.
   - Lawyer review of `docs/legal/`.
-- ⏭ **Next:** a debug APK for device testing (`build/naija-street-life-debug.apk`).
+- ✅ **Device test** (Android 16 emulator, 2026-10-15): the debug APK installs and launches,
+  and the title screen, first-run flow and Prologue gameplay all work. Fixes from that test:
+  - **Staged loading:** the title appears at once with "Loading Lagos…" while the city builds one
+    stage per frame. This fixed the "not responding" prompt at startup.
+  - **First-run dialogs come one at a time:** graphics, then 18+, then the story.
+  - The stats checkbox is readable.
+  - Colour emoji (missing in Godot's Android font fallback) were replaced with text.
+  - Traffic keeps gaps and never spawns on top of other vehicles.
+  - Solid, high-contrast title buttons.
+- ⚠ adb on the dev PC drops the emulator connection during large installs, so the final APK
+  wasn't re-run on the emulator. Test it on a real phone (see `docs/BUILD.md`).

@@ -126,6 +126,9 @@ func _try_spawn(focus: Vector2) -> void:
 	var d := pos.distance_to(focus)
 	if d < SPAWN_MIN or d > SPAWN_MAX:
 		return
+	for o in vehicles:
+		if (o["node"] as Node2D).position.distance_to(pos) < 200.0:
+			return # never spawn on top of another vehicle
 	var roll := _rng.randf()
 	var kind := "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada"))
 	var n: Node2D = VehicleScript.new()
@@ -163,11 +166,12 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D) -> void:
 			continue
 		var on: Node2D = o["node"]
 		var to := on.position - n.position
-		if to.length() < 150.0 and to.dot(fwd) > 20.0 and absf(to.cross(fwd)) < 34.0:
-			want = minf(want, float(o["speed"]) * 0.9)
+		if to.length() < 260.0 and to.dot(fwd) > 20.0 and absf(to.cross(fwd)) < 34.0:
+			# Keep a car length of gap: stop dead inside 150 px (device test showed queues piling up).
+			want = 0.0 if to.length() < 150.0 else minf(want, float(o["speed"]) * 0.9)
 	if player_vehicle:
 		var tp := player_vehicle.position - n.position
-		if tp.length() < 160.0 and tp.dot(fwd) > 10.0 and absf(tp.cross(fwd)) < 40.0:
+		if tp.length() < 240.0 and tp.dot(fwd) > 10.0 and absf(tp.cross(fwd)) < 40.0:
 			want = 0.0
 	# Never drive through the player's danfo: stop dead and give it a little bump.
 	if player_vehicle and n.position.distance_to(player_vehicle.position) < 96.0:

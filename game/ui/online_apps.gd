@@ -61,13 +61,12 @@ func setup(p: Control, story_host: Node) -> void:
 	phone.add_app("Profile", func() -> void: _profile())
 	phone.add_app("Vote", func() -> void: _vote())
 	phone.add_app("Win", func() -> void: _challenges())
-	if int(Settings.get_pref("age_ok", -1)) == -1 and not "--demo" in OS.get_cmdline_user_args() and not "--story-auto" in OS.get_cmdline_user_args():
-		_age_gate.call_deferred()
+
 	Net.chat.connect(func(m: Dictionary) -> void:
 		street.append(m)
 		if street.size() > 40:
 			street.pop_front()
-		host.main.hud.toast("💬 %s: %s" % [m.get("name", ""), String(m.get("text", "")).left(60)])
+		host.main.hud.toast("Chat · %s: %s" % [m.get("name", ""), String(m.get("text", "")).left(60)])
 		Sound.sfx("notify")
 		if phone.visible and phone._title.text == "Street chat":
 			_chat_home())
@@ -124,7 +123,7 @@ func news_line(archetype: String = "") -> Dictionary:
 
 
 static func credit(line: Dictionary) -> String:
-	return "%s  📰 via %s" % [line.get("text", ""), line.get("outlet", "?")]
+	return "%s  News via %s" % [line.get("text", ""), line.get("outlet", "?")]
 
 
 func mood(archetype: String) -> String:
@@ -232,13 +231,25 @@ func _offline_note() -> bool:
 
 # ---------- first run: age gate and consent (M7) ----------
 
+signal age_done
+
+
+func age_gate() -> void:
+	_age_gate()
+	await age_done
+
+
 func _age_gate() -> void:
 	var root: Control = host.main.hud._root
 	var card: VBoxContainer = host.main.hud._card(root, "Before you play", "Online features (chat, gigs, voting, challenges) are for players aged 18 and over. The story works for everyone.")
 	var dlg: Control = host.main.hud._dialog_root(card)
 	var stats := CheckBox.new()
 	stats.text = "Share anonymous stats and crash reports to help fix the game (optional)"
-	stats.add_theme_color_override("font_color", Color("#1d1611"))
+	for k in ["font_color", "font_pressed_color", "font_hover_color", "font_focus_color", "font_hover_pressed_color"]:
+		stats.add_theme_color_override(k, Color("#1d1611"))
+	for k in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
+		stats.add_theme_stylebox_override(k, StyleBoxEmpty.new())
+	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card.add_child(stats)
 	var links := Label.new()
 	links.text = "Privacy policy and terms: Settings → Online, once you connect to a server."
@@ -250,12 +261,14 @@ func _age_gate() -> void:
 	row.add_child(host.main.hud._button("I'm 18 or older", func() -> void:
 		Settings.set_pref("telemetry", stats.button_pressed)
 		Settings.set_pref("age_ok", 1)
-		dlg.queue_free()))
+		dlg.queue_free()
+		age_done.emit()))
 	row.add_child(host.main.hud._button("I'm under 18", func() -> void:
 		Settings.set_pref("telemetry", false)
 		Settings.set_pref("age_ok", 0)
 		Net.disconnect_now()
 		dlg.queue_free()
+		age_done.emit()
 		host.main.hud.toast("Story mode is all yours. Online features stay off.")))
 
 
@@ -698,7 +711,7 @@ func _vote() -> void:
 		if results is Dictionary:
 			tally = " · %d votes" % int((results as Dictionary).get(str(int(cand["id"])), 0))
 		var won := e.get("winner") != null and int(e["winner"]) == int(cand["id"])
-		phone._label("%s%s%s\n\"%s\" · %s%s" % ["🏆 " if won else "", cand["name"], " (NPC)" if cand.get("npc", false) else "", cand["slogan"], cand.get("policyName", ""), tally], 15, DANFO if won else PAPER)
+		phone._label("%s%s%s\n\"%s\" · %s%s" % ["WINNER: " if won else "", cand["name"], " (NPC)" if cand.get("npc", false) else "", cand["slogan"], cand.get("policyName", ""), tally], 15, DANFO if won else PAPER)
 		if e["phase"] == "voting" and e.get("myReceipt") == null:
 			_btn("Vote for %s" % cand["name"], func() -> void:
 				var v: Dictionary = await Net.api("POST", "/api/elections/%d/vote" % int(e["id"]), { "candidate": int(cand["id"]) })

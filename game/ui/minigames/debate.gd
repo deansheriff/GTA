@@ -77,7 +77,7 @@ func _play(k: int) -> void:
 	var v := float(_btns[k].get_meta("v"))
 	if _chat and v >= 25.0:
 		v *= 1.5
-		_note.text = "Live chat: \"RECEIPTS!!! 🔥🔥\" The room roars."
+		_note.text = "Live chat: \"RECEIPTS!!!\" The room roars."
 	else:
 		_note.text = "The room murmurs." if v > 0.0 else "Boos. Even the Chief's people winced."
 	_points += v * 0.35

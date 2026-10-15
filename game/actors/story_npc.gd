@@ -59,7 +59,7 @@ func say(text: String, seconds := 3.0) -> void:
 
 func freeze(seconds: float) -> void:
 	frozen_t = seconds
-	say("😳 …", seconds)
+	say("?! …", seconds)
 
 
 ## Step toward a goal (used by foot chases). Slides along walls like the player does.

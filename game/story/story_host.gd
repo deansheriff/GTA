@@ -2,7 +2,7 @@ class_name StoryHost
 extends Node
 ## Connects "Up NEPA!" to the running game: implements the story_* calls MissionRunner makes
 ## (dialogue, panels, chats, mini-games, NPCs, interiors, chases), shows mission markers, handles
-## hero switching (Family Meeting 🔥), abilities, the Story / Switch / Keke phone apps and the
+## hero switching (Family Meeting!), abilities, the Story / Switch / Keke phone apps and the
 ## story autoplay used for headless QA (--story-auto).
 
 signal ability_used(ability: String, detail: String)
@@ -208,7 +208,7 @@ func tick(dt: float) -> void:
 		if main.mode == "driving" and not runner.running() and main.online:
 			var r: Dictionary = main.online.news_line("")
 			if not r.is_empty():
-				subtitle("📻 Gidi Gist FM: %s" % OnlineApps.credit(r), 8.0)
+				subtitle("Radio · Gidi Gist FM: %s" % OnlineApps.credit(r), 8.0)
 	if _subtitle_t > 0.0:
 		_subtitle_t -= dt
 		if _subtitle_t <= 0.0:
@@ -514,7 +514,7 @@ func switch_hero(to: String) -> void:
 	var bank: Array = Story.chats.get("switch_cold", []) if cold else Story.chats.get("switch", {}).get(to, [])
 	if not bank.is_empty():
 		_busy += 1
-		await chat.play(bank.pick_random(), "Family Meeting 🔥" if Story.flag("group_chat") else "Phone", to)
+		await chat.play(bank.pick_random(), "Family Meeting!" if Story.flag("group_chat") else "Phone", to)
 		_busy -= 1
 	_do_switch(to, Vector2.INF)
 
@@ -596,7 +596,7 @@ func _build_story_app(phone: Control) -> void:
 		phone._screen.add_child(q)
 	for id in Story.order:
 		var m: Dictionary = Story.missions[id]
-		var state := "✓" if Story.is_done(id) else ("★" if Story.requirements_met(id) else "🔒")
+		var state := "✓" if Story.is_done(id) else ("★" if Story.requirements_met(id) else "Locked")
 		var who: String = "All" if m["hero"] in ["all", "any"] else Story.HERO_NAME[m["hero"]]
 		phone._label("%s  %s · %s  (%s)" % [state, id, m["title"], who], 16, PAPER if Story.requirements_met(id) else Color(1, 1, 1, 0.45))
 		if not Story.is_done(id) and Story.requirements_met(id) and not m.get("auto", false):
@@ -625,7 +625,7 @@ func _replay_story(phone: Control) -> void:
 
 
 func _build_switch_app(phone: Control) -> void:
-	phone._clear("Family Meeting 🔥" if Story.flag("group_chat") else "Switch hero")
+	phone._clear("Family Meeting!" if Story.flag("group_chat") else "Switch hero")
 	var why := can_switch()
 	if why != "":
 		phone._label(why, 15, DANFO)
@@ -874,7 +874,7 @@ func story_minigame(game: String, params: Dictionary) -> Dictionary:
 
 func story_switch(hero: String, chat_id: String, at: Vector2) -> void:
 	if chat_id != "":
-		await story_chat(Story.chats.get("scripted", {}).get(chat_id, []), "Family Meeting 🔥")
+		await story_chat(Story.chats.get("scripted", {}).get(chat_id, []), "Family Meeting!")
 	if hero == Life.hero and at == Vector2.INF:
 		return
 	if hero == Life.hero:

@@ -163,7 +163,7 @@ func use(a: String, detail := "") -> bool:
 		"film":
 			filming = not filming
 			detail = "on" if filming else "off"
-			message.emit("Recording… 🔴" if filming else "Saved to drafts.")
+			message.emit("Recording… (REC)" if filming else "Saved to drafts.")
 		"golive":
 			live = not live
 			detail = "on" if live else "off"

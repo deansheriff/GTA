@@ -165,7 +165,7 @@ func _step(s: Dictionary, token: int) -> bool:
 			return true
 		"chat":
 			if not _instant:
-				await host.story_chat(Story.chats.get("scripted", {}).get(s["chat"], []), s.get("title", "Family Meeting 🔥"))
+				await host.story_chat(Story.chats.get("scripted", {}).get(s["chat"], []), s.get("title", "Family Meeting!"))
 			return true
 		"tip":
 			if not _instant:

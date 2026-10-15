@@ -71,7 +71,7 @@ func _rebuild(ab: Abilities) -> void:
 		if c != _hero_label:
 			c.queue_free()
 	_bars.clear()
-	var stats: Array = { "tunde": [["bp", "BP", Color("#c4473a"), 100.0]], "ngozi": [["aura", "Aura", Color("#a46ad0"), 100.0]], "kc": [["battery", "Battery", Color("#3f8a3a"), 100.0], ["hype", "Hype 🔥", Color("#e07a1c"), 1000.0]] }.get(_hero, [])
+	var stats: Array = { "tunde": [["bp", "BP", Color("#c4473a"), 100.0]], "ngozi": [["aura", "Aura", Color("#a46ad0"), 100.0]], "kc": [["battery", "Battery", Color("#3f8a3a"), 100.0], ["hype", "Hype", Color("#e07a1c"), 1000.0]] }.get(_hero, [])
 	for s in stats:
 		var row := HBoxContainer.new()
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -131,7 +131,7 @@ func refresh(ab: Abilities) -> void:
 		var cd := ab.cooldown(a)
 		var label: String = Abilities.LABELS.get(a, a)
 		if ab.tier(a) <= 0:
-			b.text = "🔒 " + label
+			b.text = "Locked: " + label
 			b.disabled = true
 		else:
 			b.disabled = false

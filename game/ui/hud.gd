@@ -119,8 +119,6 @@ func _ready() -> void:
 	_toast.visible = false
 	root.add_child(_toast)
 
-	if Settings.first_run and not "--demo" in OS.get_cmdline_user_args():
-		_show_welcome(root)
 	Settings.changed.connect(func(_s: Dictionary) -> void: _apply_ui_scale(root))
 	_apply_ui_scale(root)
 
@@ -241,6 +239,15 @@ func _process(delta: float) -> void:
 
 # ---------- dialogs ----------
 
+signal welcome_closed
+
+
+## First-run graphics suggestion; resolves when the player has chosen.
+func show_welcome() -> void:
+	_show_welcome(_root)
+	await welcome_closed
+
+
 func _show_welcome(root: Control) -> void:
 	var s: Dictionary = Settings.suggestion
 	var names := { "low": "Low", "medium": "Medium", "high": "High" }
@@ -253,10 +260,14 @@ func _show_welcome(root: Control) -> void:
 	row.add_theme_constant_override("separation", 10)
 	row.add_child(_button("Use this", func() -> void:
 		Settings.set_all(Settings.current)
-		_dialog_root(card).queue_free()))
+		_dialog_root(card).queue_free()
+		welcome_closed.emit()))
 	row.add_child(_button("Choose myself", func() -> void:
 		_dialog_root(card).queue_free()
-		_show_settings(root)))
+		_show_settings(root)
+		_settings_panel.tree_exited.connect(func() -> void:
+			Settings.set_all(Settings.current)
+			welcome_closed.emit(), CONNECT_ONE_SHOT)))
 	card.add_child(row)
 
 

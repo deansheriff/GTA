@@ -1103,7 +1103,7 @@
         {
           "do": "chat",
           "chat": "m15_group",
-          "title": "Family Meeting 🔥"
+          "title": "Family Meeting!"
         },
         {
           "do": "set",
@@ -1111,7 +1111,7 @@
         },
         {
           "do": "tip",
-          "text": "Family Meeting 🔥 is now in your phone: switch between Tunde, Aunty Boss and KC any time in free roam. Act 2, \"Spread\", is open: three missions, any order. Hidden diary pages are now scattered around Lagos, too."
+          "text": "Family Meeting! is now in your phone: switch between Tunde, Aunty Boss and KC any time in free roam. Act 2, \"Spread\", is open: three missions, any order. Hidden diary pages are now scattered around Lagos, too."
         }
       ],
       "rewards": {

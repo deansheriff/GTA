@@ -11,6 +11,8 @@ const DANFO := Color("#e0a91c")
 
 var has_save := false
 var _root: Control
+var _menu: VBoxContainer
+var _loading: Label
 
 
 func _ready() -> void:
@@ -50,7 +52,22 @@ func _ready() -> void:
 	menu.offset_bottom = -40
 	menu.add_theme_constant_override("separation", 10)
 	_root.add_child(menu)
-	_build_menu.call_deferred(menu)
+	_menu = menu
+	_loading = Label.new()
+	_loading.text = "Loading Lagos…"
+	_loading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_loading.add_theme_font_size_override("font_size", 26)
+	_loading.add_theme_color_override("font_color", PAPER)
+	_loading.add_theme_color_override("font_outline_color", INK)
+	_loading.add_theme_constant_override("outline_size", 10)
+	menu.add_child(_loading)
+
+
+## Called once the world is built: swap "Loading…" for the menu.
+func set_ready(saved: bool) -> void:
+	has_save = saved
+	_loading.queue_free()
+	_build_menu(_menu)
 
 
 func _build_menu(menu: VBoxContainer) -> void:
@@ -73,6 +90,16 @@ func _btn(text: String, cb: Callable, w := 370) -> Button:
 	b.text = text
 	b.custom_minimum_size = Vector2(w, 60)
 	b.add_theme_font_size_override("font_size", 24)
+	# Solid, high-contrast buttons over the bright painting (device test).
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.11, 0.08, 0.05, 0.92) if state != "pressed" else DANFO.darkened(0.2)
+		sb.border_color = DANFO
+		sb.set_border_width_all(3)
+		sb.set_corner_radius_all(14)
+		b.add_theme_stylebox_override(state, sb)
+	b.add_theme_color_override("font_color", PAPER)
+	b.add_theme_color_override("font_hover_color", DANFO)
 	b.pressed.connect(func() -> void:
 		Sound.sfx("tap")
 		cb.call())

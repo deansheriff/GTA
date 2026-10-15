@@ -1,5 +1,5 @@
 extends Control
-## "Family Meeting 🔥" group chat overlay: messages pop in one by one like a real phone, the current
+## "Family Meeting!" group chat overlay: messages pop in one by one like a real phone, the current
 ## hero's own messages on the right. Used for hero switching, scripted beats and the chat history.
 
 signal _tapped
