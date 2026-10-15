@@ -21,6 +21,7 @@ var reactions: Reactions
 var hustles: Hustles
 var life: StreetLife
 var online: StreetOnline
+var fights: FightStage
 var points: Array = [] # service points: {pos, kind, label, ...}
 var _hud: Control
 var _fuel_bar: ProgressBar
@@ -47,7 +48,8 @@ func setup(m: Node2D) -> void:
 	hustles = Hustles.new()
 	life = StreetLife.new()
 	online = StreetOnline.new()
-	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online]:
+	fights = FightStage.new()
+	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online, fights]:
 		add_child(mod)
 		mod.setup(self)
 	points = care.build_points(main.map) + life.build_points(main.map) + hustles.build_points(main.map)

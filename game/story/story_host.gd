@@ -870,6 +870,16 @@ func story_minigame(game: String, params: Dictionary) -> Dictionary:
 	_auto_shot("game-" + game)
 	if game == "pos":
 		res = await main.hud.pos_game.play(params)
+	elif game == "fight" and main.street and not interior.active:
+		# Street fights play out in the world, with the buttons in a panel below.
+		var g: MiniGame = _games[game]
+		var stage: FightStage = main.street.fights
+		stage.begin(params)
+		var link := func(kind: String, mv: String) -> void: stage.exchange(kind, mv)
+		g.connect("exchange", link)
+		res = await g.play(params)
+		g.disconnect("exchange", link)
+		await stage.finish(res)
 	else:
 		var g: MiniGame = _games[game]
 		res = await g.play(params)

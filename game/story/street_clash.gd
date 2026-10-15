@@ -16,7 +16,12 @@ const NPC_COOLDOWN := 60.0
 const NPC_CHANCE := 0.5
 const HOLDUP_HORN := 4.0 # s of blocking before the honking starts
 const HOLDUP_DRAG := 9.0 # s before the drivers get out
-const HOLDUP_COOLDOWN := 45.0
+const HOLDUP_COOLDOWN := 120.0
+## Owner feedback: the drivers shouldn't drag you out every time. Each time the queue's patience
+## runs out it's a roll: 30% the first time, more if you keep blocking (and with Area heat), less
+## for well-respected drivers.
+const DRAG_FIRST_CHANCE := 0.3
+const CURSES := ["The drivers lean on their horns and curse your ancestors… but stay in their cars. For now.", "\"Oga, you dey sleep?!\" Nobody comes out… this time.", "Somebody opens a car door, thinks twice, and closes it. Move, before they change their mind!"]
 const DRAG_REACH := 120.0 # px from a stopped player vehicle to drag its driver out
 const DRAG_STILL_MS := 1600 # a remote vehicle must be this still (the server checks 1500)
 # Pidgin lines below are pending native-speaker review (like data/story/*.json).
@@ -30,6 +35,7 @@ var _bump_cd := 0.0
 var _holdup_cd := 0.0
 var _horn_t := 0.0
 var _honked := false
+var _drag_chance := DRAG_FIRST_CHANCE
 var _busy := false
 var _online_id := ""
 var _busy_ids := {} # online clashes we couldn't answer (busy in a mini-game or menu)
@@ -134,7 +140,7 @@ func _npc_clash(v: Dictionary) -> void:
 	var choice: String = await _ask("Wahala!", "The other driver jumps out: \"%s\"" % line, 0)
 	if choice == "fight":
 		main.street.reactions.crowd_to(main.danfo.position)
-		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": "Angry driver" })
+		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": "Angry driver", "opponent_node": driver })
 		_apply_fight(_score(res) > 50, _score(res) == 50, "the angry driver")
 	elif _rng.randf() < 0.65:
 		driver.say("Okay. Make e no happen again.", 4.0)
@@ -179,6 +185,8 @@ func _queuing() -> bool:
 
 
 func _tick_holdup(dt: float) -> void:
+	if absf(main.danfo.speed) > 80.0:
+		_drag_chance = DRAG_FIRST_CHANCE # you moved on: their patience resets too
 	var t: float = main.traffic.holdup_t
 	if _busy or _holdup_cd > 0.0 or _story_blocks() or main.story.auto or t <= 0.0 or _queuing():
 		if t <= 0.0:
@@ -193,7 +201,16 @@ func _tick_holdup(dt: float) -> void:
 			_honked = true
 			main.hud.toast(HONK_LINES[_rng.randi() % HONK_LINES.size()])
 	if t > HOLDUP_DRAG:
-		_drag_out_by_npcs()
+		var chance := clampf(_drag_chance + Street.heat * 0.05 - Street.rep / 400.0, 0.1, 0.85)
+		if main.demo or _rng.randf() < chance:
+			_drag_chance = DRAG_FIRST_CHANCE
+			_drag_out_by_npcs()
+		else:
+			_drag_chance += 0.2
+			main.hud.toast(CURSES[_rng.randi() % CURSES.size()])
+			Sound.sfx("horn", 0.9)
+			main.traffic.reset_holdup()
+			_holdup_cd = 10.0
 
 
 ## The drivers you're holding up get out, march to your bus and drag you out for a beating.
@@ -249,7 +266,7 @@ func _drag_out_by_npcs() -> void:
 		var who := "Angry drivers" if drivers.size() > 1 else "Angry driver"
 		main.street.reactions.crowd_to(main.player.position)
 		Street.add_heat(0.5)
-		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": who, "intro": "You blocked the road and they dragged you out of the bus!" })
+		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": who, "intro": "You blocked the road and they dragged you out of the bus!", "opponent_node": drivers[0] if not drivers.is_empty() else null })
 		if _score(res) > 50:
 			main.hud.toast("You fought them off! They go back to their cars, grumbling.", true)
 			Life.restore("fun", 10.0)
@@ -412,7 +429,8 @@ func _on_clash_fight(m: Dictionary) -> void:
 		intro = "You apologised, but %s wants a fight. Defend yourself!" % name_
 	main.hud.toast(intro)
 	main.street.reactions.crowd_to(main.player.position if main.mode == "walking" else main.danfo.position)
-	var res: Dictionary = await main.story.story_minigame("fight", { "opponent": name_, "seq": m["seq"], "windows": m["windows"], "intro": intro })
+	var opp: Dictionary = main.street.online._remote_by_pid(String(m.get("pid", "")))
+	var res: Dictionary = await main.story.story_minigame("fight", { "opponent": name_, "seq": m["seq"], "windows": m["windows"], "intro": intro, "opponent_node": opp.get("walker") })
 	Net.send_msg({ "t": "clash_result", "id": m["id"], "log": res.get("log", []) })
 
 

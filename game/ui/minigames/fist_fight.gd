@@ -25,9 +25,22 @@ var _prompt: Label
 var _fx: Label
 var _clock: ProgressBar
 var _rng := RandomNumberGenerator.new()
+## Each exchange, for the fight you watch in the street (street/fight_stage.gd):
+## kind = "hit" (your jab landed), "duck", "block" (you avoided theirs) or "ouch" (they got you).
+signal exchange(kind: String, move: String)
 
 
 func _build() -> void:
+	# A compact panel at the bottom so the fight itself shows in the street above it.
+	(get_child(0) as ColorRect).color = Color(0, 0, 0, 0.08)
+	var center: Control = get_child(1)
+	center.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	center.offset_top = -262
+	center.offset_bottom = -6
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	(get_child(0) as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_theme_constant_override("separation", 6)
 	set_title("WAHALA!")
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -111,6 +124,7 @@ func _move(m: String) -> void:
 	_log.append({ "move": m, "t": snappedf(_window(_i) - _left, 0.01) })
 	if m == _seq[_i]:
 		_hits += 1
+		exchange.emit("hit" if m == "jab" else m, m)
 		if m == "jab":
 			_them_pride.value -= 1
 			_fx.text = HIT_LINES[_rng.randi() % HIT_LINES.size()]
@@ -118,6 +132,7 @@ func _move(m: String) -> void:
 			_fx.text = "Dodged! The crowd cheers."
 		Sound.sfx("tap", 1.4)
 	else:
+		exchange.emit("ouch", m)
 		_me_pride.value -= 1
 		_fx.text = OUCH_LINES[_rng.randi() % OUCH_LINES.size()]
 		Sound.sfx("crash", 1.3)
@@ -143,6 +158,7 @@ func _process(delta: float) -> void:
 	_clock.value = _left
 	if _left <= 0.0:
 		_log.append({ "move": "none", "t": 99 })
+		exchange.emit("ouch", "none")
 		_me_pride.value -= 1
 		_fx.text = "Too slow! " + OUCH_LINES[_rng.randi() % OUCH_LINES.size()]
 		_next()

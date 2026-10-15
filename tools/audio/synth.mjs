@@ -88,13 +88,40 @@ function bassNote(freq, sec) {
 
 // ---------- sound effects ----------
 {
-  // Danfo "goat horn": two detuned square tones with a wobble.
-  const x = len(0.7);
+  // Car horn (owner: "not a proper horn sound"). A real horn is an electromagnetic diaphragm:
+  // a buzzy pulse-like tone rich in harmonics, usually two horns a minor third apart (~415/500 Hz),
+  // with a bell resonance around 2.5 kHz, a near-instant attack and a hard stop. No rand() here,
+  // so every sound after this stays byte-identical.
+  const x = len(0.62);
+  const biquad = (inp, type, f, q) => {
+    const w = (2 * Math.PI * f) / SR, al = Math.sin(w) / (2 * q), c = Math.cos(w);
+    let b0, b1, b2;
+    if (type === 'bp') { b0 = al; b1 = 0; b2 = -al; } else { b0 = (1 + c) / 2; b1 = -(1 + c); b2 = (1 + c) / 2; }
+    const a0 = 1 + al, a1 = -2 * c, a2 = 1 - al;
+    const out = new Float32Array(inp.length);
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    for (let i = 0; i < inp.length; i++) {
+      const y = (b0 * inp[i] + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) / a0;
+      x2 = x1; x1 = inp[i]; y2 = y1; y1 = y;
+      out[i] = y;
+    }
+    return out;
+  };
+  const pulse = (ph, duty) => (ph % 1 < duty ? 1 : -1);
+  let p1 = 0, p2 = 0;
   for (let i = 0; i < x.length; i++) {
-    const t = i / SR, v = 1 + 0.03 * Math.sin(2 * Math.PI * 7 * t);
-    x[i] = (sq(380 * v * t) + 0.8 * sq(478 * v * t)) * 0.3 * env(i, x.length, 0.02, 0.12);
+    const t = i / SR;
+    const spin = 0.95 + 0.05 * Math.min(1, t / 0.025); // the diaphragm comes up to pitch
+    p1 += (415 * spin) / SR;
+    p2 += (498 * spin) / SR;
+    const raw = 0.55 * pulse(p1, 0.32) + 0.35 * saw(p1) + 0.5 * pulse(p2, 0.3) + 0.3 * saw(p2);
+    const a = Math.min(1, t / 0.008) * Math.min(1, Math.max(0, (x.length / SR - t) / 0.035));
+    x[i] = Math.tanh(raw * 1.8) * a;
   }
-  wav('sfx/horn.wav', lowpass(x, 2500));
+  const bell = biquad(x, 'bp', 2500, 1.4);
+  const body = biquad(x, 'hp', 260, 0.7);
+  for (let i = 0; i < x.length; i++) x[i] = body[i] * 0.55 + bell[i] * 1.3;
+  wav('sfx/horn.wav', lowpass(x, 6000));
 }
 {
   const x = len(0.06);
