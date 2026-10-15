@@ -2,20 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cag6nhpucqu0d"
-path="res://.godot/imported/keke-b.png-da95f3734b59efe6af6b4b763d918751.ctex"
+uid="uid://dm0wn5rwmrr4j"
+path.s3tc="res://.godot/imported/aerial.jpg-4c27468b7ef70a5e22e417fac2b8d596.s3tc.ctex"
+path.etc2="res://.godot/imported/aerial.jpg-4c27468b7ef70a5e22e417fac2b8d596.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
-source_file="res://art/title/keke-b.png"
-dest_files=["res://.godot/imported/keke-b.png-da95f3734b59efe6af6b4b763d918751.ctex"]
+source_file="res://art/title/aerial.jpg"
+dest_files=["res://.godot/imported/aerial.jpg-4c27468b7ef70a5e22e417fac2b8d596.s3tc.ctex", "res://.godot/imported/aerial.jpg-4c27468b7ef70a5e22e417fac2b8d596.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

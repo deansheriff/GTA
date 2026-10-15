@@ -78,6 +78,25 @@ func _test_map() -> void:
 	check(m.buildings.size() > 250, "a full city of buildings (%d)" % m.buildings.size())
 	check(m.props.size() > 400, "streets are furnished (%d props)" % m.props.size())
 	check(m.landmarks.size() == 19, "all story landmarks placed (%d)" % m.landmarks.size())
+	# Street poles are solid only where the pole is, not across their whole 64 px cell (owner
+	# report: the bus got stuck next to a pole and couldn't turn away).
+	var pole: Variant = null
+	for pr in m.props:
+		if pr.kind == "pole" and not m.is_blocked(pr.pos + Vector2(40, 0)) and not m.is_blocked(pr.pos - Vector2(40, 0)):
+			pole = pr
+			break
+	check(pole != null, "found a free-standing street pole")
+	if pole:
+		check(m.is_blocked(pole.pos), "a pole is solid")
+		check(not m.is_blocked(pole.pos + Vector2(22, 0)), "a step away from a pole is free (no invisible cell wall)")
+		var half := Vector2(132, 58) * 0.46
+		var touching: Vector2 = pole.pos + Vector2(0, half.y + 4.0)
+		var free_spot := false
+		for i in 8:
+			var h := i * TAU / 8.0
+			if not m.body_blocked(touching + Vector2.from_angle(h) * 6.0, h, half) or not m.body_blocked(touching + Vector2(0, 30), h, half):
+				free_spot = true
+		check(free_spot, "a bus parked against a pole can still drive away")
 	var placed := {}
 	for b in m.buildings:
 		if b.landmark != "":

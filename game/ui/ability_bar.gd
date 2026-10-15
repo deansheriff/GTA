@@ -29,10 +29,7 @@ func _ready() -> void:
 	_hero_label = _outlined("", 15, DANFO)
 	_meter_box.add_child(_hero_label)
 	_btn_col = VBoxContainer.new()
-	_btn_col.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_btn_col.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_btn_col.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_btn_col.position = Vector2(-16, -96)
+	HudLayout.pin_bottom_right(_btn_col, 16, 96) # above the action button
 	_btn_col.add_theme_constant_override("separation", 10)
 	add_child(_btn_col)
 	_calls = HBoxContainer.new()

@@ -20,6 +20,7 @@ var BODY := Color("#e0a91c")
 
 var heading := 0.0 # radians, 0 = east, y points south
 var speed := 0.0 # px / s
+var _wedged_t := 0.0
 var max_road := 380.0
 var max_off := 150.0
 var _art: Sprite2D
@@ -73,17 +74,37 @@ func drive(delta: float, input: Vector2, world: MapData) -> String:
 		speed = lerpf(speed, top_speed, minf(1.0, 3.0 * delta))
 	var fwd := Vector2.from_angle(heading)
 	var next := position + fwd * speed * delta
-	var nose := next + fwd * (LENGTH * 0.45) * signf(speed if speed != 0.0 else 1.0)
+	var half := Vector2(LENGTH, WIDTH) * 0.46
 	var event := ""
-	if not world.is_blocked(next) and not world.is_blocked(nose):
+	if not world.body_blocked(next, heading, half):
+		position = next
+		_wedged_t = 0.0
+	elif world.body_blocked(position, heading, half) and not world.is_blocked(next):
+		# Already touching something (turned into a pole, pushed by traffic): never trap the bus;
+		# any move that keeps the centre clear is allowed so you can always drive out.
 		position = next
 	elif absf(speed) > 90.0:
 		speed = -speed * 0.3
 		event = "crash"
 	else:
 		speed = 0.0
+		# Wedged with the stick held for a while: hop to the nearest clear spot (last resort).
+		if input.length() > 0.15:
+			_wedged_t += delta
+			if _wedged_t > 1.5:
+				_wedged_t = 0.0
+				_unwedge(world, half)
 	queue_redraw()
 	return event
+
+
+func _unwedge(world: MapData, half: Vector2) -> void:
+	for r: float in [24.0, 48.0, 72.0, 96.0, 128.0]:
+		for i in 12:
+			var p := position + Vector2.from_angle(i * TAU / 12.0) * r
+			if not world.body_blocked(p, heading, half):
+				position = p
+				return
 
 
 func _project(local: Vector3) -> Vector2:

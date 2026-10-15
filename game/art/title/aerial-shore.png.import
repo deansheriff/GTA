@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dfh87xlqxiuhk"
-path="res://.godot/imported/walk-b-bread.png-5622303ac184a01c2ff6db260573d9de.ctex"
+uid="uid://ctaaur2xj6c21"
+path="res://.godot/imported/aerial-shore.png-8f967e822e20ac23f3fb9cf25d0d4563.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/title/walk-b-bread.png"
-dest_files=["res://.godot/imported/walk-b-bread.png-5622303ac184a01c2ff6db260573d9de.ctex"]
+source_file="res://art/title/aerial-shore.png"
+dest_files=["res://.godot/imported/aerial-shore.png-8f967e822e20ac23f3fb9cf25d0d4563.ctex"]
 
 [params]
 

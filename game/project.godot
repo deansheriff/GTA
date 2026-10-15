@@ -9,6 +9,7 @@ config/description="A Nigerian life-sim and comedy-crime game. Story mode: Up NE
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.png"
+config/quit_on_go_back=false
 boot_splash/bg_color=Color(0.11, 0.09, 0.07, 1)
 boot_splash/image="res://art/boot.png"
 

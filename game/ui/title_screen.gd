@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Title screen: the living painted splash, logo, Continue / New game, Settings and Credits (with the Godot
+## Title screen: an aerial view of the island, logo, Continue / New game, Settings and Credits (with the Godot
 ## licence notice the engine's MIT licence requires).
 
 signal play(new_game: bool)
@@ -13,6 +13,7 @@ var has_save := false
 var _root: Control
 var _menu: VBoxContainer
 var _loading: Label
+var _scene: Control
 
 
 func _ready() -> void:
@@ -24,8 +25,9 @@ func _ready() -> void:
 	bg.color = Color("#0d0a07")
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.add_child(bg)
-	# The splash painting, alive: the street walks, rides and breathes (ui/title_scene.gd).
-	_root.add_child(TitleScene.new())
+	# Tropical-island Lagos from the air: planes, surf, birds, boats, traffic (ui/title_aerial.gd).
+	_scene = TitleAerial.new()
+	_root.add_child(_scene)
 	var v := VBoxContainer.new()
 	v.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	v.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -136,3 +138,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 	d.size = Vector2i(720, 520)
 	_root.add_child(d)
 	d.popup_centered()
+
+
+## The world's map is ready (main.gd stage 1): the aerial title starts traffic on the real roads.
+func set_map(m: MapData) -> void:
+	if _scene and _scene.has_method("set_map"):
+		_scene.set_map(m)

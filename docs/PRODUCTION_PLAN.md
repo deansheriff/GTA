@@ -257,3 +257,9 @@ milestones, make no APK until the game is done, then do one release build.
     - Blocking the road brings the drivers behind you out to drag you out and beat you, in story
       mode too.
     - Online players can drag stopped drivers out of their vehicles.
+  - **Second round (D-015):**
+    - The aerial title screen.
+    - The action button is visible on phones again (re-entering the bus after a drag-out works).
+    - Settings has a Close button, and Android back closes dialogs.
+    - Street poles no longer trap the bus.
+    - Traffic and people are solid.

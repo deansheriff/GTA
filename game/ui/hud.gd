@@ -82,10 +82,9 @@ func _ready() -> void:
 	_job_label = job.get_meta("label")
 
 	_action = _button("Enter danfo", func() -> void: action_pressed.emit())
-	_action.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_action.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_action.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_action.position = Vector2(-16, -16)
+	_action.custom_minimum_size = Vector2(170, 64)
+	_action.add_theme_font_size_override("font_size", 22)
+	HudLayout.pin_bottom_right(_action, 16, 16)
 	_action.add_theme_color_override("font_color", INK)
 	_action.add_theme_stylebox_override("normal", _box(DANFO, INK))
 	_action.add_theme_stylebox_override("hover", _box(DANFO.lightened(0.1), INK))
@@ -274,8 +273,14 @@ func _show_welcome(root: Control) -> void:
 func _show_settings(root: Control) -> void:
 	if is_instance_valid(_settings_panel):
 		return
-	var card := _card(root, "Graphics", "", true)
+	var card := _card(root, "Settings", "", true, func() -> void:
+		if is_instance_valid(_settings_panel):
+			_settings_panel.queue_free())
 	_settings_panel = _dialog_root(card)
+	var gfx := Label.new()
+	gfx.text = "Graphics"
+	gfx.add_theme_font_size_override("font_size", 20)
+	card.add_child(gfx)
 	var s: Dictionary = Settings.current
 	var sug: String = Settings.suggestion.get("preset", "medium")
 	var presets := HBoxContainer.new()
@@ -411,7 +416,9 @@ func _small(text: String) -> Label:
 	return l
 
 
-func _card(root: Control, heading: String, body: String, scrollable := false) -> VBoxContainer:
+## A dimmed modal card. With `on_close`, a Close button is pinned in the header (outside any
+## scrolling) and the Android back button closes it too (owner feedback: settings had no way out).
+func _card(root: Control, heading: String, body: String, scrollable := false, on_close := Callable()) -> VBoxContainer:
 	var dim := ColorRect.new()
 	dim.color = Color(0.05, 0.03, 0.02, 0.55)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -421,23 +428,36 @@ func _card(root: Control, heading: String, body: String, scrollable := false) ->
 	dim.add_child(center)
 	var panel := PanelContainer.new()
 	center.add_child(panel)
+	var outer := VBoxContainer.new()
+	outer.add_theme_constant_override("separation", 8)
+	panel.add_child(outer)
+	var head := HBoxContainer.new()
+	outer.add_child(head)
+	var h := Label.new()
+	h.text = heading
+	h.add_theme_font_size_override("font_size", 24)
+	h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(h)
+	if on_close.is_valid():
+		var x := _button("Close", on_close)
+		x.custom_minimum_size = Vector2(110, 52)
+		head.add_child(x)
+		dim.set_meta("on_close", on_close)
+		dim.add_to_group("closable_dialog")
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 10)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.custom_minimum_size = Vector2(440, 0)
 	if scrollable:
-		# Long lists scroll on small phones; height capped to the screen.
+		# Long lists scroll on small phones; height capped to the screen. Drag anywhere to scroll.
 		var scroll := ScrollContainer.new()
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		scroll.custom_minimum_size = Vector2(460, minf(520.0, get_viewport().get_visible_rect().size.y - 80.0))
-		panel.add_child(scroll)
+		scroll.scroll_deadzone = 8
+		scroll.custom_minimum_size = Vector2(470, minf(470.0, get_viewport().get_visible_rect().size.y - 150.0))
+		outer.add_child(scroll)
 		scroll.add_child(v)
 	else:
-		panel.add_child(v)
-	var h := Label.new()
-	h.text = heading
-	h.add_theme_font_size_override("font_size", 24)
-	v.add_child(h)
+		outer.add_child(v)
 	if body != "":
 		var b := Label.new()
 		b.text = body
@@ -504,3 +524,20 @@ func _apply_ui_scale(root: Control) -> void:
 	var sc := float(Settings.get_value("ui_scale", 1.0))
 	_theme.default_font_size = int(18 * sc)
 	root.scale = Vector2.ONE # fonts scale via theme; layout grows with content
+
+
+## Android back button / Escape: close the top-most closable dialog. Returns false if none was open.
+func close_top_dialog() -> bool:
+	var open := get_tree().get_nodes_in_group("closable_dialog")
+	for i in range(open.size() - 1, -1, -1):
+		var d: Node = open[i]
+		if is_instance_valid(d) and not d.is_queued_for_deletion() and d.is_visible_in_tree():
+			(d.get_meta("on_close") as Callable).call()
+			return true
+	if phone and phone.visible:
+		phone.visible = false
+		return true
+	if map_screen and map_screen.visible:
+		map_screen.visible = false
+		return true
+	return false

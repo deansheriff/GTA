@@ -23,6 +23,9 @@ const CATALOG := {
 	"beach-bar": { "size": Vector2i(5, 3), "h": 58.0 },
 }
 ## Props that block movement (umbrellas and beach umbrellas you can walk under).
+## Collision radius (px) of each solid prop. Props used to block their whole 64 px cell, an
+## invisible wall that reached into the road beside every pole (owner: "stuck near a street pole").
+const PROP_RADIUS := { "pole": 9.0, "transformer": 16.0, "generator": 20.0, "kiosk": 30.0, "tyres": 18.0, "mango": 16.0, "palm": 12.0, "palm-cluster": 22.0, "drum-chairs": 20.0, "orange-tray": 16.0, "canoe": 30.0, "nets": 20.0, "fish-baskets": 18.0, "coconut-cart": 22.0 }
 const SOLID_PROPS := ["pole", "transformer", "generator", "kiosk", "tyres", "mango", "palm", "palm-cluster", "drum-chairs", "orange-tray", "canoe", "nets", "fish-baskets", "coconut-cart"]
 
 var cols := 0
@@ -40,6 +43,7 @@ var road_nodes := {} # name -> Vector2 px
 var road_graph := {} # node name -> Array[node name]
 var buildings: Array[Layout.BuildingSpec] = []
 var props: Array[Layout.PropSpec] = []
+var solids := {} # Vector2i cell -> [Vector3(x, y, radius)] solid props
 var landmarks := {} # id -> {name, district, pos(px), kind}
 var chunks := {} # Vector2i -> {"buildings": [], "props": []}
 var player_start := Vector2.ZERO
@@ -111,7 +115,35 @@ func surface_at(p: Vector2) -> int:
 
 func is_blocked(p: Vector2) -> bool:
 	var c := cell_of(p)
-	return blocked[c.y * cols + c.x] == 1 if in_bounds(c) else true
+	if not in_bounds(c) or blocked[c.y * cols + c.x] == 1:
+		return true
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			for sp: Vector3 in solids.get(c + Vector2i(dx, dy), []):
+				if p.distance_squared_to(Vector2(sp.x, sp.y)) < sp.z * sp.z:
+					return true
+	return false
+
+
+## A vehicle body (oriented box, half = half length/width) against buildings, water and props.
+func body_blocked(pos: Vector2, heading: float, half: Vector2) -> bool:
+	var fwd := Vector2.from_angle(heading)
+	var side := Vector2(-fwd.y, fwd.x)
+	for k: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(-1, 0), Vector2(0.5, 0), Vector2(-0.5, 0), Vector2(0.92, 0.9), Vector2(0.92, -0.9), Vector2(-0.92, 0.9), Vector2(-0.92, -0.9)]:
+		var c := cell_of(pos + fwd * half.x * k.x + side * half.y * k.y)
+		if not in_bounds(c) or blocked[c.y * cols + c.x] == 1:
+			return true
+	var c0 := cell_of(pos)
+	var reach := int(ceil((half.x + 32.0) / CELL))
+	for dy in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			for sp: Vector3 in solids.get(c0 + Vector2i(dx, dy), []):
+				var local := Vector2(sp.x, sp.y) - pos
+				var ox := maxf(absf(local.dot(fwd)) - half.x, 0.0)
+				var oy := maxf(absf(local.dot(side)) - half.y, 0.0)
+				if ox * ox + oy * oy < sp.z * sp.z:
+					return true
+	return false
 
 
 func is_water(s: int) -> bool:
@@ -460,7 +492,9 @@ func _add_prop(kind: String, p: Vector2, seed: int) -> void:
 	props.append(sp)
 	if kind in SOLID_PROPS:
 		occupied[c.y * cols + c.x] = 1
-		blocked[c.y * cols + c.x] = 1
+		if not solids.has(c):
+			solids[c] = []
+		solids[c].append(Vector3(p.x, p.y, float(PROP_RADIUS.get(kind, 16.0))))
 
 
 func _index_chunks() -> void:

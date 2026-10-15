@@ -343,3 +343,36 @@ apologise… this should not work against other online players who still choose 
       within 170 px. The fight then starts straight away, with no choice card.
     - The same cooldowns, hourly cap, blocks and logging apply.
   - **Traffic steers around a parked danfo** instead of driving through it.
+
+## D-015 · Aerial title, solid world, phone-friendly HUD · 2026-10-15
+**Owner request:** "Make it an aerial view of the map with planes flying over the islands and
+waves crashing on the shore with birds flying", plus four bug reports.
+**Decision (engineering):**
+- **Title:** the painted street title (D-014) is replaced by tropical-island Lagos from the air.
+  - The island image is the game's own map, rendered from above: `main.gd --bake-aerial`
+    writes `art/title/aerial.png`, a shore-distance map and the sights to visit. Re-bake it after
+    map changes. It isn't generated art, so it isn't in the art ledger.
+  - The water is all shader: swells, surf on every beach and glints.
+  - Moving over it: airliners with contrails, a light plane, a news helicopter, seagull flocks,
+    boats with wakes, clouds with shadows, and danfos and cars on the real roads.
+  - The painted street cut-outs are removed from the game; they stay in the spend ledger.
+- **Action button** ("Enter danfo"): it was mostly off-screen on phones (anchored with
+  `position` before the screen had a size), so you couldn't get back in after a drag-out. HUD
+  corners are now pinned with offsets (`ui/hud_layout.gd`).
+- **Settings:**
+  - Modal cards get a pinned Close button.
+  - The Android back button and Escape close the top dialog, phone or map.
+  - Back only quits when nothing is open; before, it quit the game.
+- **Street poles:**
+  - Solid props now have real collision circles. Before, each blocked its whole 64 px cell, an
+    invisible wall that reached into the road.
+  - The bus checks its whole body against walls and props.
+  - A bus that's already touching something may always move away from it.
+  - If the stick has been held for 1.5 s with no movement, it hops to the nearest clear spot.
+- **Solid traffic and people:**
+  - A traffic move that would create or deepen an overlap is undone. The old "squeeze through
+    after 4 s" is gone; gridlocks clear by backing up.
+  - Traffic stops for people in the road.
+  - The crowd and the player are pushed out of vehicles and apart from each other
+    (`world/bodies.gd`).
+  - The demo measures the worst traffic overlap.

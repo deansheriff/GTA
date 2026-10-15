@@ -60,6 +60,7 @@ var clash := StreetClash.new()
 var _crash_quip_t := 0.0
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
+var _bake_dir := ""
 
 
 func _ready() -> void:
@@ -75,6 +76,9 @@ func _ready() -> void:
 			Settings.use_preset(a.trim_prefix("--preset="))
 		elif a.begins_with("--server="):
 			Net.server = a.trim_prefix("--server=")
+		elif a.begins_with("--bake-aerial="):
+			demo = true
+			_bake_dir = a.trim_prefix("--bake-aerial=")
 	var show_title := not demo and not Engine.has_meta("skip_title")
 	if show_title:
 		# The title appears at once ("Loading Lagos…") while the city is built a stage per frame.
@@ -82,6 +86,8 @@ func _ready() -> void:
 		add_child(_title)
 	await _stage()
 	map = MapData.shared()
+	if _title:
+		_title.set_map(map) # the aerial title starts traffic on the real roads
 	await _stage()
 	_build_materials()
 	baker = MaskBaker.new()
@@ -164,7 +170,9 @@ func _ready() -> void:
 	add_child(clash)
 	clash.setup(self)
 	built = true
-	if story_auto:
+	if _bake_dir != "":
+		_bake_aerial(_bake_dir)
+	elif story_auto:
 		_run_story_demo()
 	elif demo:
 		_run_demo()
@@ -430,6 +438,9 @@ func _input_vector() -> Vector2:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ESCAPE and hud:
+		hud.close_top_dialog()
+		return
 	if not built:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_E:
@@ -487,10 +498,15 @@ func _process(delta: float) -> void:
 	var view := _view_rect()
 	streamer.update_view(view, dt)
 	lights.sync(get_viewport().get_camera_2d(), get_viewport_rect().size)
-	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null, danfo if mode == "walking" and not story.interior.active else null)
+	var on_foot: Array = crowd.people.duplicate()
+	if mode == "walking":
+		on_foot.append(player)
+	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null, danfo if mode == "walking" and not story.interior.active else null, on_foot)
 	if not story.interior.active:
 		clash.tick(dt)
 	crowd.update(dt, focus)
+	if not story.interior.active:
+		Bodies.resolve(self)
 	_net_tick(dt)
 	_route_tick(dt, focus)
 
@@ -645,6 +661,13 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if not demo:
 			SaveGame.save_now()
+	# Android back: close the top dialog, phone or map first; only quit when nothing is open.
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud and hud.close_top_dialog():
+			return
+		if not demo:
+			SaveGame.save_now()
+		get_tree().quit()
 
 
 # ---------- navigation ----------
@@ -906,6 +929,10 @@ func _run_demo() -> void:
 	await _wait(0.4)
 	await _shot("05a-phone")
 	hud.phone.visible = false
+	hud._show_settings(hud._root)
+	await _wait(0.4)
+	await _shot("05g-settings")
+	print("demo: settings closes with back = %s" % hud.close_top_dialog())
 	if Net.server != "":
 		# Online apps against a live server (M5).
 		await _wait(1.5)
@@ -964,8 +991,115 @@ func _demo_holdup() -> void:
 	await _shot("09-holdup-honking")
 	await _wait(4.5)
 	await _shot("10-holdup-drivers-coming")
-	await _wait(3.0)
+	# QA: traffic must never overlap (owner: "vehicles pass through each other").
+	var worst := 0.0
+	for f in 900:
+		await get_tree().process_frame
+		for i in traffic.vehicles.size():
+			for j in range(i + 1, traffic.vehicles.size()):
+				worst = maxf(worst, Collide.vehicles(traffic.vehicles[i]["node"], traffic.vehicles[j]["node"], 0.0).length())
+	print("demo: worst traffic overlap %.1f px" % worst)
 	await _shot("11-holdup-dragged-out")
-	await _wait(14.0)
+	await _wait(6.0)
 	print("demo: holdup mode=%s energy=%.0f" % [mode, Life.needs["energy"]])
 	await _shot("12-holdup-after")
+
+
+# ---------- title art bake ----------
+
+## Renders the island from above for the title screen (ui/title_aerial.gd):
+##   Godot --path game --resolution 1280x720 -- --bake-aerial=res://art/title
+## Writes aerial.png (the whole map at 1/4 scale, stitched from tiles), aerial-shore.png (per map
+## cell: R = distance from land over water, G = open sea) and aerial.json (sizes, sea colour, sights).
+func _bake_aerial(dir: String) -> void:
+	const SCALE := 0.25
+	hud.visible = false
+	player.visible = false
+	danfo.visible = false
+	route_line.visible = false
+	traffic.target_count = 0
+	for v in traffic.vehicles:
+		(v["node"] as Node).queue_free()
+	traffic.vehicles.clear()
+	crowd.target_count = 0
+	crowd.clear()
+	night_forced = 0
+	nepa_forced = 1
+	var had_weather: bool = Settings.get_value("weather", true)
+	Settings.set_value("weather", false)
+	var view := get_viewport_rect().size
+	var cam := Camera2D.new()
+	cam.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
+	cam.zoom = Vector2(SCALE, SCALE)
+	add_child(cam)
+	cam.make_current()
+	var out_size := Vector2i(map.world_px * SCALE)
+	var out := Image.create(out_size.x, out_size.y, false, Image.FORMAT_RGB8)
+	var tile_world := view / SCALE
+	var tiles := Vector2i(ceili(map.world_px.x / tile_world.x), ceili(map.world_px.y / tile_world.y))
+	for j in tiles.y:
+		for i in tiles.x:
+			cam.position = Vector2(i, j) * tile_world
+			for k in 3:
+				streamer.update_view(Rect2(cam.position, tile_world), 1.0)
+				await _wait(0.6)
+			var img := get_viewport().get_texture().get_image()
+			img.convert(Image.FORMAT_RGB8)
+			out.blit_rect(img, Rect2i(Vector2i.ZERO, Vector2i(view)), Vector2i(Vector2(i, j) * view))
+	out.save_jpg(dir.path_join("aerial.jpg"), 0.9)
+	# Shore distance per cell (BFS from land over water, in cells, capped).
+	var cap := 10
+	var dist := PackedInt32Array()
+	dist.resize(map.cols * map.rows)
+	var queue: Array[int] = []
+	for idx in dist.size():
+		if map.is_water(map.surface[idx]):
+			dist[idx] = cap
+		else:
+			dist[idx] = 0
+			queue.append(idx)
+	var head := 0
+	while head < queue.size():
+		var idx: int = queue[head]
+		head += 1
+		var x := idx % map.cols
+		var y := idx / map.cols
+		for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var nx := x + d.x
+			var ny := y + d.y
+			if nx < 0 or ny < 0 or nx >= map.cols or ny >= map.rows:
+				continue
+			var n := ny * map.cols + nx
+			if dist[n] > dist[idx] + 1:
+				dist[n] = dist[idx] + 1
+				queue.append(n)
+	# Sea vs lagoon, blurred over a few cells so the colours blend instead of meeting in steps.
+	var sea_f := PackedFloat32Array()
+	sea_f.resize(dist.size())
+	for idx in dist.size():
+		var acc := 0.0
+		var n := 0
+		var x := idx % map.cols
+		var y := idx / map.cols
+		for dy in range(-4, 5):
+			for dx in range(-4, 5):
+				var xx := clampi(x + dx, 0, map.cols - 1)
+				var yy := clampi(y + dy, 0, map.rows - 1)
+				acc += 1.0 if map.surface[yy * map.cols + xx] == MapData.S.SEA else 0.0
+				n += 1
+		sea_f[idx] = acc / n
+	var shore := Image.create(map.cols, map.rows, false, Image.FORMAT_RGB8)
+	for idx in dist.size():
+		shore.set_pixel(idx % map.cols, idx / map.cols, Color(float(dist[idx]) / cap, sea_f[idx], 0.0))
+	shore.save_png(dir.path_join("aerial-shore.png"))
+	var sights := []
+	for k in ["tmb_mid", "lekki_beach", "yaba_c", "oshodi_c"]:
+		if map.road_nodes.has(k):
+			sights.append([map.road_nodes[k].x, map.road_nodes[k].y])
+	var meta := { "world": [map.world_px.x, map.world_px.y], "cell": MapData.CELL, "scale": SCALE, "sea": "#" + out.get_pixel(4, 4).to_html(false), "sights": sights }
+	var f := FileAccess.open(dir.path_join("aerial.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(meta, "  "))
+	f.close()
+	print("bake: aerial %s, %d tiles, shore %dx%d" % [out_size, tiles.x * tiles.y, map.cols, map.rows])
+	Settings.set_value("weather", had_weather)
+	get_tree().quit()

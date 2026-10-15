@@ -32,7 +32,7 @@ func setup(m: MapData, p: Node2D, mat: Material) -> void:
 
 ## player_vehicle: the danfo while you drive it (traffic queues behind it). parked: the danfo when
 ## you've left it; traffic swerves around it instead of driving through it.
-func update(delta: float, focus: Vector2, player_vehicle: Node2D, parked: Node2D = null) -> void:
+func update(delta: float, focus: Vector2, player_vehicle: Node2D, parked: Node2D = null, people: Array = []) -> void:
 	# Despawn far vehicles, spawn new ones in a ring around the focus.
 	for v in vehicles.duplicate():
 		if (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
@@ -45,7 +45,7 @@ func update(delta: float, focus: Vector2, player_vehicle: Node2D, parked: Node2D
 	holdup_t = 0.0
 	held.clear()
 	for v in vehicles:
-		_drive(v, delta, player_vehicle, parked)
+		_drive(v, delta, player_vehicle, parked, people)
 		if v.get("held", false):
 			held.append(v)
 			holdup_t = maxf(holdup_t, float(v["held_t"]))
@@ -185,7 +185,7 @@ func _place(v: Dictionary) -> void:
 		n.queue_redraw() # code-drawn vehicles only re-draw when they turn
 
 
-func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D = null) -> void:
+func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D = null, people: Array = []) -> void:
 	var n: Node2D = v["node"]
 	var want: float = BASE_SPEED * float(v["cls"]) * (1.15 if v["kind"] == "okada" else 1.0)
 	var waiting_story := float(v["stop_t"]) > 0.0
@@ -216,46 +216,71 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D 
 		if tq.dot(fwd) > -110.0 and tq.dot(fwd) < 220.0 and absf(tq.cross(fwd)) < 60.0:
 			swerve = 70.0
 			want = minf(want, BASE_SPEED * 0.45)
-	v["swerve"] = move_toward(float(v.get("swerve", 0.0)), swerve, 90.0 * delta)
+	var old_sw := float(v.get("swerve", 0.0))
+	# Steer out only while rolling (a stopped car doesn't slide sideways).
+	v["swerve"] = move_toward(float(v.get("swerve", 0.0)), swerve, 90.0 * delta * clampf(absf(float(v["speed"])) / 60.0, 0.0, 1.0))
+	# People in the road: stop for them (crowd, the player on foot).
+	for p: Node2D in people:
+		var tw := p.position - n.position
+		if tw.length_squared() < 140.0 * 140.0 and tw.dot(fwd) > 0.0 and absf(tw.cross(fwd)) < 38.0:
+			want = 0.0
+			break
+	# Gridlock breaker: stuck nose-to-nose for a while, back up a little and try again.
+	if float(v.get("rev_t", 0.0)) > 0.0:
+		v["rev_t"] = float(v["rev_t"]) - delta
+		want = -55.0
+	elif float(v.get("stuck", 0.0)) > 5.0:
+		v["rev_t"] = 1.2
+		v["stuck"] = 0.0
 	held = held and not waiting_story and absf(player_vehicle.speed if player_vehicle else 99.0) < 25.0
 	v["held"] = held
 	v["held_t"] = float(v.get("held_t", 0.0)) + delta if held else 0.0
 	v["speed"] = move_toward(float(v["speed"]), want, 420.0 * delta)
 	var old_t := float(v["t"])
 	var old_edge: Array = [v["from"], v["to"], v["len"], v["lane"], v["cls"]]
-	v["t"] = old_t + float(v["speed"]) * delta
+	var old_pos := n.position
+	var old_heading: float = n.heading
+	v["t"] = maxf(0.0, old_t + float(v["speed"]) * delta)
 	if float(v["t"]) >= float(v["len"]):
 		_next_edge(v)
 	_place(v)
-	# Solid vehicles: if this move would overlap another vehicle (or the player's), undo it and wait.
-	# A vehicle stuck for a long time (rare junction standoff) briefly squeezes through.
-	var blocked := float(v["speed"]) > 0.0 and _blocked(v, player_vehicle)
-	if blocked and float(v.get("stuck", 0.0)) < 4.0:
+	# Solid vehicles (owner: "vehicles pass through each other"): a move that creates or deepens an
+	# overlap with any vehicle (or the player's, parked or driven) is undone. Moving apart is
+	# always allowed, so nothing ever locks inside another; gridlocks clear by backing up.
+	var blocked := n.position != old_pos and _blocked(v, old_pos, old_heading, [player_vehicle, parked])
+	if blocked:
 		v["from"] = old_edge[0]
 		v["to"] = old_edge[1]
 		v["len"] = old_edge[2]
 		v["lane"] = old_edge[3]
 		v["cls"] = old_edge[4]
 		v["t"] = old_t
+		v["swerve"] = old_sw
 		v["speed"] = 0.0
 		v["stuck"] = float(v.get("stuck", 0.0)) + delta
 		_place(v)
-	elif not blocked:
+	else:
 		v["stuck"] = 0.0
-	# else: stuck for 4 s at a junction standoff, so it squeezes through until it's clear.
 
 
-func _blocked(v: Dictionary, player_vehicle: Node2D) -> bool:
+func _blocked(v: Dictionary, old_pos: Vector2, old_heading: float, extra: Array) -> bool:
 	var n: Node2D = v["node"]
-	var fwd := Vector2.from_angle(n.heading)
+	var others: Array = extra.filter(func(x: Variant) -> bool: return x != null)
 	for o in vehicles:
-		if o == v:
+		if o != v:
+			others.append(o["node"])
+	var half := Vector2(n.LENGTH, n.WIDTH) * 0.5 + Vector2(3, 3)
+	for on: Node2D in others:
+		if on.position.distance_squared_to(n.position) > 200.0 * 200.0:
 			continue
-		var on: Node2D = o["node"]
-		# Only what's in front of us blocks us (the one behind waits for us, not the other way).
-		if (on.position - n.position).dot(fwd) > 0.0 and Collide.vehicles(n, on) != Vector2.ZERO:
+		var oh := Vector2(on.LENGTH, on.WIDTH) * 0.5 + Vector2(3, 3)
+		var now := Collide.obb_mtv(n.position, n.heading, half, on.position, on.heading, oh).length()
+		if now <= 0.0:
+			continue
+		var before := Collide.obb_mtv(old_pos, old_heading, half, on.position, on.heading, oh).length()
+		if now > before + 0.01:
 			return true
-	return player_vehicle != null and Collide.vehicles(n, player_vehicle) != Vector2.ZERO
+	return false
 
 
 func _next_edge(v: Dictionary) -> void:
