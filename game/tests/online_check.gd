@@ -85,6 +85,29 @@ func _initialize() -> void:
 	while got_err[0] == "" and Time.get_ticks_msec() - t0 < 3000:
 		await process_frame
 	check(got_err[0] == "blocked_personal_data", "server blocks phone numbers in chat (%s)" % got_err[0])
+	# M11 street life.
+	await net.api("POST", "/api/wallet/move", { "amount": 12000 })
+	var crew_name := "Check Crew %d" % (randi() % 100000)
+	var crew: Dictionary = await net.api("POST", "/api/crews", { "name": crew_name, "tag": "C%d" % (randi() % 999) })
+	check(crew["ok"], "start a crew (%s)" % str(crew["data"]))
+	var mine: Dictionary = await net.api("GET", "/api/crews/mine")
+	check(mine["ok"] and mine["data"].get("crew") is Dictionary, "my crew")
+	var routes: Dictionary = await net.api("GET", "/api/routes")
+	check(routes["ok"] and (routes["data"].get("routes", []) as Array).size() == 6, "route standings for all six routes")
+	var box: Dictionary = await net.api("GET", "/api/boxing")
+	check(box["ok"] and int(box["data"].get("me", {}).get("rating", 0)) == 1000, "boxing board with my rating")
+	var trade: Dictionary = await net.api("GET", "/api/trade")
+	check(trade["ok"] and trade["data"].get("district") == net.district, "market prices for the district I'm in")
+	var buy: Dictionary = await net.api("POST", "/api/trade", { "good": "pepper", "qty": 1, "side": "buy" })
+	check(buy["ok"] and int(buy["data"].get("qty", 0)) == 1, "buy goods with market money (%s)" % str(buy["data"]))
+	var gist: Dictionary = await net.api("POST", "/api/gist", { "kind": "fight_win" })
+	check(gist["ok"] and String(gist["data"].get("text", "")).begins_with("OnlineCheck"), "post to the Lagos Gist feed")
+	var feed: Dictionary = await net.api("GET", "/api/gist")
+	check(feed["ok"] and (feed["data"].get("posts", []) as Array).size() >= 1, "read the feed")
+	got_err[0] = ""
+	net.send_look({ "outfit": "agbada", "cap": "#efe8d6", "bus": "#2f6f99", "sl": "3", "crew": "CC" })
+	await create_timer(1.0).timeout
+	check(got_err[0] == "", "style update accepted by the server (%s)" % got_err[0])
 	print("online: %d passed, %d failed" % [passes, failures])
 	net.set_server("", "Tunde") # don't leave this machine pointed at the test server
 	quit(1 if failures > 0 else 0)

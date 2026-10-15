@@ -22,6 +22,7 @@ func _initialize() -> void:
 	_test_life()
 	await _test_story()
 	await _test_clash()
+	_test_street()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -441,3 +442,42 @@ func _test_clash() -> void:
 	var sc: Node = load("res://story/street_clash.gd").new()
 	check(sc != null and sc.has_method("tick"), "street clash manager loads")
 	sc.free()
+
+
+## Street systems state (M9–M11): awards, reputation prices, the bus, save round-trip.
+func _test_street() -> void:
+	var st: Node = root.get_node("Street")
+	st.reset()
+	var got := []
+	var cb := func(id: String, _t: String) -> void: got.append(id)
+	st.unlocked.connect(cb)
+	for i in 9:
+		st.count("agbero_paid")
+	check(not got.has("agbero-10"), "an award waits for its goal")
+	st.count("agbero_paid")
+	check(got.has("agbero-10"), "\"Paid the agbero 10 times\" unlocks on the tenth")
+	st.count("agbero_paid")
+	check(got.count("agbero-10") == 1, "an award unlocks once")
+	st.unlocked.disconnect(cb)
+	st.rep = 80.0
+	var cheap: float = st.price_k()
+	st.rep = -80.0
+	var dear: float = st.price_k()
+	check(cheap < 1.0 and dear > 1.0, "street rep changes prices (%.2f / %.2f)" % [cheap, dear])
+	st.rep = 0.0
+	st.fuel = 0.0
+	check(st.bus_limit() < 100.0, "an empty tank sputters")
+	st.fuel = 50.0
+	st.damage = 90.0
+	check(st.bus_limit() < 200.0, "a wrecked bus limps")
+	st.damage = 10.0
+	check(st.bus_limit() == INF, "a healthy bus has no limit")
+	st.add_heat(9.0)
+	check(st.stars() == 5, "Area heat caps at five stars")
+	var saved: Dictionary = st.to_dict()
+	st.reset()
+	st.from_dict(saved)
+	check(st.stars() == 5 and int(st.counters.get("agbero_paid", 0)) == 11, "street state survives a save")
+	var list: Array = st.achievement_list()
+	check(list.size() >= 25 and list.filter(func(a: Dictionary) -> bool: return a["done"]).size() >= 2, "the awards list reports progress")
+	st.reset()

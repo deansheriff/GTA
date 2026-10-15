@@ -13,6 +13,7 @@ signal server_error(code: String)
 signal clash(msg: Dictionary) # a collision with another player: {id, pid, name, ms}
 signal clash_fight(msg: Dictionary) # {id, name, seq, windows, you, them}
 signal clash_end(msg: Dictionary) # {id, outcome, winner?, scores?}
+signal street_msg(msg: Dictionary) # M11: race_*, coop_*, box_* (street/street_online.gd)
 
 const CFG := "user://net.cfg"
 const SEND_HZ := 10.0
@@ -207,6 +208,8 @@ func _handle(m: Variant) -> void:
 			clash_fight.emit(m)
 		"clash_end":
 			clash_end.emit(m)
+		_ when String(m.get("t", "")).begins_with("race_") or String(m.get("t", "")).begins_with("coop_") or String(m.get("t", "")).begins_with("box_"):
+			street_msg.emit(m)
 		"err":
 			server_error.emit(String(m.get("code", "?")))
 			push_warning("server: %s" % m.get("code", "?"))

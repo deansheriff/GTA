@@ -350,6 +350,103 @@ const MIGRATIONS: { v: number; sql: string[] }[] = [
        )`,
     ],
   },
+  {
+    // M11 online street life: crews and route control, races, ranked boxing, the trading market,
+    // the Lagos Gist feed and co-op jobs.
+    v: 6,
+    sql: [
+      `CREATE TABLE IF NOT EXISTS crews (
+         id bigserial PRIMARY KEY,
+         name text NOT NULL UNIQUE,
+         tag text NOT NULL UNIQUE,
+         colour text NOT NULL DEFAULT '#e0a91c',
+         owner uuid REFERENCES players(id) ON DELETE SET NULL,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS crew_members (
+         player_id uuid PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
+         crew_id bigint NOT NULL REFERENCES crews(id) ON DELETE CASCADE,
+         role text NOT NULL DEFAULT 'member',
+         joined_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS route_points (
+         crew_id bigint NOT NULL REFERENCES crews(id) ON DELETE CASCADE,
+         route text NOT NULL,
+         week text NOT NULL,
+         points integer NOT NULL DEFAULT 0,
+         PRIMARY KEY (crew_id, route, week)
+       )`,
+      `CREATE TABLE IF NOT EXISTS route_runs (
+         id bigserial PRIMARY KEY,
+         player_id uuid REFERENCES players(id) ON DELETE CASCADE,
+         route text NOT NULL,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS race_results (
+         id bigserial PRIMARY KEY,
+         race text NOT NULL,
+         player_id uuid REFERENCES players(id) ON DELETE SET NULL,
+         place integer NOT NULL,
+         ms integer,
+         duel boolean NOT NULL DEFAULT false,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE TABLE IF NOT EXISTS box_ratings (
+         player_id uuid PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
+         rating integer NOT NULL DEFAULT 1000,
+         wins integer NOT NULL DEFAULT 0,
+         losses integer NOT NULL DEFAULT 0
+       )`,
+      `CREATE TABLE IF NOT EXISTS box_week_wins (
+         week text NOT NULL,
+         player_id uuid NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+         wins integer NOT NULL DEFAULT 0,
+         PRIMARY KEY (week, player_id)
+       )`,
+      `CREATE TABLE IF NOT EXISTS box_champions (
+         week text PRIMARY KEY,
+         player_id uuid REFERENCES players(id) ON DELETE SET NULL,
+         name text NOT NULL,
+         wins integer NOT NULL
+       )`,
+      `CREATE TABLE IF NOT EXISTS market_prices (
+         good text NOT NULL,
+         district text NOT NULL,
+         price double precision NOT NULL,
+         updated_at timestamptz NOT NULL DEFAULT now(),
+         PRIMARY KEY (good, district)
+       )`,
+      `CREATE TABLE IF NOT EXISTS market_holdings (
+         player_id uuid NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+         good text NOT NULL,
+         qty integer NOT NULL DEFAULT 0,
+         cost bigint NOT NULL DEFAULT 0,
+         PRIMARY KEY (player_id, good)
+       )`,
+      `CREATE TABLE IF NOT EXISTS gist_posts (
+         id bigserial PRIMARY KEY,
+         player_id uuid REFERENCES players(id) ON DELETE CASCADE,
+         name text NOT NULL,
+         district text NOT NULL,
+         kind text NOT NULL,
+         text text NOT NULL,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+      `CREATE INDEX IF NOT EXISTS gist_posts_recent ON gist_posts (created_at DESC)`,
+      `CREATE TABLE IF NOT EXISTS coop_jobs (
+         id text PRIMARY KEY,
+         driver uuid REFERENCES players(id) ON DELETE SET NULL,
+         partner uuid REFERENCES players(id) ON DELETE SET NULL,
+         route text NOT NULL,
+         role text NOT NULL,
+         outcome text NOT NULL,
+         together double precision,
+         score integer,
+         paid integer,
+         created_at timestamptz NOT NULL DEFAULT now()
+       )`,
+    ],
+  },
 ];
 
 export async function migrate(db: Db): Promise<number> {

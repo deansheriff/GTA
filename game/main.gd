@@ -847,7 +847,8 @@ func _on_gone(id: int) -> void:
 func _net_tick(dt: float) -> void:
 	var pos: Vector2 = danfo.position if mode == "driving" else player.position
 	var heading_deg := rad_to_deg(danfo.heading) if mode == "driving" else 0.0
-	Net.send_move(pos, player.facing_code(), 1 if mode == "driving" else 0, heading_deg)
+	var riding: bool = street != null and street.online.riding() # co-op: you're in their bus
+	Net.send_move(pos, player.facing_code(), 1 if mode == "driving" or riding else 0, heading_deg)
 	for id in remotes:
 		var r: Dictionary = remotes[id]
 		if r["target"] == Vector2.INF:
@@ -1095,6 +1096,33 @@ func _demo_street() -> void:
 		await _shot("19-game-" + g[0])
 		while story.paused_by_story():
 			await get_tree().process_frame
+	# M11: online apps (offline here), photo mode and an Area Ladder bout.
+	for app in ["Race", "Crew", "Boxing", "Market"]:
+		hud.phone.open()
+		var a2: Dictionary = (hud.phone._apps as Array).filter(func(x: Dictionary) -> bool: return x["name"] == app)[0]
+		hud.phone._title.text = app
+		(a2["builder"] as Callable).call()
+		await _wait(0.6)
+		await _shot("20-app-" + app.to_lower())
+	hud.phone.visible = false
+	street.online.start_photo()
+	await _wait(0.3)
+	street.online.photo._next_filter()
+	street.online.photo._next_filter()
+	street.online.photo._next_filter()
+	await _wait(0.4)
+	await _shot("21-photo-mode")
+	street.online.photo._exit()
+	story._games["fight"].autoplay = true
+	if mode == "driving":
+		danfo.speed = 0.0
+		_enter_exit()
+	street.online.call("_ladder_fight", 0)
+	await _wait(1.5)
+	await _shot("22-area-ladder")
+	while story.paused_by_story():
+		await get_tree().process_frame
+	story._games["fight"].autoplay = false
 	print("demo: street ok heat=%.1f fuel=%.0f damage=%.0f awards=%d" % [Street.heat, Street.fuel, Street.damage, Street.achieved.size()])
 
 

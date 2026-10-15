@@ -382,7 +382,8 @@ func _on_clash_fight(m: Dictionary) -> void:
 	var id := String(m["id"])
 	var name_ := String(m.get("name", "Someone"))
 	var dragged: bool = m.get("dragged", false)
-	if dragged and _online_id != id:
+	var ranked: bool = m.get("ranked", false)
+	if (dragged or ranked) and _online_id != id:
 		# A drag-out starts straight at the fight (no choice card first).
 		if _busy_elsewhere():
 			_busy_ids[id] = true
@@ -405,6 +406,8 @@ func _on_clash_fight(m: Dictionary) -> void:
 			Sound.sfx("crash", 0.8)
 	elif dragged:
 		intro = "You dragged %s out of their bus. Now fight!" % name_
+	elif ranked:
+		intro = "Ranked street boxing vs %s. Ding ding!" % name_
 	elif m.get("you") == "peace":
 		intro = "You apologised, but %s wants a fight. Defend yourself!" % name_
 	main.hud.toast(intro)
@@ -427,4 +430,13 @@ func _on_clash_end(m: Dictionary) -> void:
 		Life.restore("social", 5.0)
 		return
 	var winner = m.get("winner")
+	if m.get("ranked", false):
+		# A sanctioned bout: no Area heat, just the rating.
+		var won: bool = winner != null and String(winner) == Net.my_pid
+		var rating := int((m.get("ratings", {}) as Dictionary).get(Net.my_pid, 0))
+		main.hud.toast("%s Rating: %d." % ["You won the bout!" if won else ("Draw." if winner == null else "You lost the bout."), rating], won)
+		if won:
+			Street.count("fights_won")
+			Street.post_gist("boxing", "%s won a ranked boxing bout." % Street._me())
+		return
 	_apply_fight(winner != null and String(winner) == Net.my_pid, winner == null, "them")

@@ -37,6 +37,7 @@ interface Clash {
   logs: Record<string, unknown>;
   stage: 'choose' | 'fight' | 'done';
   dragged: boolean;
+  ranked: boolean;
   timer?: NodeJS.Timeout;
   started: number;
 }
@@ -68,6 +69,8 @@ export class ClashManager {
   private active = new Map<string, Clash>();
   private pairAt = new Map<string, number>();
   private recent = new Map<string, number[]>();
+  /** Ranked boxing (street_online.ts): rating changes for a finished ranked bout. */
+  onRanked: ((a: string, b: string, winner: string | null) => Promise<{ a: number; b: number }>) | null = null;
 
   constructor(db: Db) {
     this.db = db;
@@ -109,6 +112,17 @@ export class ClashManager {
     return 'ok';
   }
 
+  /** A ranked street-boxing bout (M11): both agreed, so the fight starts at once. */
+  async bout(a: ClashParty, b: ClashParty, posA: { x: number; y: number }, posB: { x: number; y: number }, now = Date.now()): Promise<string> {
+    const r = await this.precheck(a, b, posA, posB, DRAG_PX * 2, now);
+    if (typeof r === 'string') return r;
+    r.ranked = true;
+    r.choice[a.pid] = 'fight';
+    r.choice[b.pid] = 'fight';
+    await this.decide(r);
+    return 'ok';
+  }
+
   private async precheck(a: ClashParty, b: ClashParty, posA: { x: number; y: number }, posB: { x: number; y: number }, reach: number, now: number): Promise<string | Clash> {
     if (a.pid === b.pid) return 'self';
     if (Math.hypot(posA.x - posB.x, posA.y - posB.y) > reach) return 'too_far';
@@ -122,7 +136,7 @@ export class ClashManager {
     mine.push(now);
     this.recent.set(a.pid, mine);
     this.pairAt.set(key, now);
-    const c: Clash = { id: randomBytes(8).toString('hex'), a, b, choice: {}, seq: [], logs: {}, stage: 'choose', started: now, dragged: false };
+    const c: Clash = { id: randomBytes(8).toString('hex'), a, b, choice: {}, seq: [], logs: {}, stage: 'choose', started: now, dragged: false, ranked: false };
     this.active.set(c.id, c);
     return c;
   }
@@ -155,6 +169,7 @@ export class ClashManager {
         t: 'clash_fight', id: c.id, pid: other.pid, name: other.name, seq: f.seq, windows: f.windows,
         you: c.choice[me.pid] ?? 'peace', them: c.choice[other.pid] ?? 'peace',
         ...(c.dragged ? { dragged: true, by: c.a.pid } : {}),
+        ...(c.ranked ? { ranked: true } : {}),
       });
     }
     c.timer = setTimeout(() => void this.finish(c), FIGHT_MS);
@@ -175,7 +190,12 @@ export class ClashManager {
     const sa = scoreFight(c.seq, c.logs[c.a.pid]);
     const sb = scoreFight(c.seq, c.logs[c.b.pid]);
     const winner = sa === sb ? null : sa > sb ? c.a.pid : c.b.pid;
-    for (const p of [c.a, c.b]) p.send({ t: 'clash_end', id: c.id, outcome: 'fight', winner, scores: { [c.a.pid]: sa, [c.b.pid]: sb } });
+    let ratings: Record<string, number> | undefined;
+    if (c.ranked && this.onRanked) {
+      const r = await this.onRanked(c.a.pid, c.b.pid, winner).catch(() => null);
+      if (r) ratings = { [c.a.pid]: r.a, [c.b.pid]: r.b };
+    }
+    for (const p of [c.a, c.b]) p.send({ t: 'clash_end', id: c.id, outcome: 'fight', winner, scores: { [c.a.pid]: sa, [c.b.pid]: sb }, ...(c.ranked ? { ranked: true, ratings } : {}) });
     await this.log(c, c.choice[c.a.pid] ?? 'peace', c.choice[c.b.pid] ?? 'peace', 'fight', winner, sa, sb);
   }
 

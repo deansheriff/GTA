@@ -5,6 +5,7 @@ import type { Store } from './store.ts';
 import { ChatHub, type ChatTarget } from './social.ts';
 import { accountById, isBanned } from './account.ts';
 import { ClashManager, type ClashParty } from './clash.ts';
+import { StreetRealtime, type StreetPorts } from './street_online.ts';
 
 /**
  * WebSocket protocol at /ws (JSON, compact). The first client message must be "hello".
@@ -15,6 +16,8 @@ import { ClashManager, type ClashParty } from './clash.ts';
  *   {"t":"chat","text"}                      street chat (moderated, see social.ts)
  *   {"t":"dm","to":pid,"text"}               direct message
  *   {"t":"bump","pid"}                        my vehicle hit this player (server checks distance)
+ *   M11 (street_online.ts): race_open {to, duel?}, race_join {id}, coop_invite {pid, role},
+ *   coop_accept {id}, coop_task {id, score}, box_challenge {pid}, box_accept {id}
  *   {"t":"look","look"}                       style changed (outfit, cap, bus paint, slogan, crew tag)
  *   {"t":"drag","pid"}                        on foot, drag this player out of their stopped vehicle and fight
  *   {"t":"clash_choice","id","choice"}        "fight" | "peace"
@@ -44,10 +47,38 @@ interface Session {
   msgCount: number;
 }
 
-export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; hub: ChatHub; stop: () => void } {
+export function registerRealtime(app: FastifyInstance, store: Store): { rooms: RoomManager; hub: ChatHub; ports: StreetPorts; stop: () => void } {
   const rooms = new RoomManager();
   const sessions = new Set<Session>();
   const clashes = new ClashManager(store.db);
+  const byPid = (pid: string) => [...sessions].find((o) => o.playerId === pid);
+  // What the M11 street features may know about a player: where they are, by the server's own record.
+  const ports: StreetPorts = {
+    where(pid) {
+      const s = byPid(pid);
+      const p = s?.room?.findPlayer(pid);
+      if (!s?.room || !p) return null;
+      return { x: p.x, y: p.y, m: p.m, name: p.name, district: s.room.name.replace(/-\d+$/, '') };
+    },
+    send(pid, msg) {
+      const s = byPid(pid);
+      if (s) send(s, msg);
+    },
+    nearby(pid, radius) {
+      const me = byPid(pid);
+      const p = me?.room?.findPlayer(pid);
+      if (!me?.room || !p) return [];
+      const out: string[] = [];
+      for (const o of sessions) {
+        if (o === me || o.room !== me.room || !o.playerId) continue;
+        const q = o.room.findPlayer(o.playerId);
+        if (q && Math.hypot(q.x - p.x, q.y - p.y) <= radius) out.push(o.playerId);
+      }
+      return out;
+    },
+  };
+  const street = new StreetRealtime(store.db, ports);
+  clashes.onRanked = (a, b, winner) => street.boutResult(a, b, winner);
   const party = (s: Session): ClashParty => ({ pid: s.playerId!, name: s.room?.findPlayer(s.playerId!)?.name ?? 'Player', send: (m) => send(s, m) });
   const hub = new ChatHub(store.db, function* (): Iterable<ChatTarget> {
     for (const s of sessions) {
@@ -107,7 +138,8 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
       }
 
       if (msg.t === 'move' && s.room && s.memberId !== undefined) {
-        s.room.move(s.memberId, Number(msg.x), Number(msg.y), Number(msg.f) || 0, msg.m === 1 ? 1 : 0, Number(msg.h) || 0, now, msg.w === 1);
+        const ok = s.room.move(s.memberId, Number(msg.x), Number(msg.y), Number(msg.f) || 0, msg.m === 1 ? 1 : 0, Number(msg.h) || 0, now, msg.w === 1);
+        if (ok && s.playerId) street.moved(s.playerId, Number(msg.x), Number(msg.y), msg.w === 1, now);
         if (s.room.strikes(s.memberId) > MAX_STRIKES) {
           send(s, { t: 'err', code: 'kicked_speed' });
           socket.close(4001, 'speed');
@@ -142,6 +174,7 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
         if (r !== 'ok') send(s, { t: 'err', code: `clash_${r}` });
         return;
       }
+      if (s.playerId && s.room && (await street.handle(s.playerId, msg, now))) return;
       if (msg.t === 'clash_choice' && s.playerId) return clashes.choose(s.playerId, msg.id, msg.choice);
       if (msg.t === 'clash_result' && s.playerId) return clashes.result(s.playerId, msg.id, msg.log);
 
@@ -156,7 +189,10 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
     });
 
     socket.on('close', () => {
-      if (s.playerId) clashes.left(s.playerId);
+      if (s.playerId) {
+        clashes.left(s.playerId);
+        street.left(s.playerId);
+      }
       if (s.room && s.memberId !== undefined) s.room.leave(s.memberId);
       sessions.delete(s);
       rooms.prune();
@@ -183,9 +219,19 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
     for (const s of sessions) if (s.socket.readyState === s.socket.OPEN) s.socket.ping();
   }, 30_000);
 
+  street.startBout = async (a, b) => {
+    const sa = byPid(a);
+    const sb = byPid(b);
+    const pa = sa?.room?.findPlayer(a);
+    const pb = sb?.room?.findPlayer(b);
+    if (!sa || !sb || !pa || !pb || sa.room !== sb.room) return 'gone';
+    return clashes.bout(party(sa), party(sb), pa, pb);
+  };
+
   return {
     rooms,
     hub,
+    ports,
     stop: () => {
       clearInterval(timer);
       clearInterval(ping);

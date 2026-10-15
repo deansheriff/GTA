@@ -14,6 +14,7 @@ import { NewsService, feedsFromEnv, registerNews } from './news.ts';
 import { registerBrains } from './brains.ts';
 import { registerChallenges } from './challenges.ts';
 import { enforceRetention, registerCompliance } from './compliance.ts';
+import { registerStreetOnline } from './street_online.ts';
 
 /**
  * Naija Street Life API + realtime server. Deployed on the owner's Coolify behind Cloudflare
@@ -95,6 +96,7 @@ export async function buildApp(cfg: AppConfig): Promise<FastifyInstance> {
   // M5 online features (accounts/OTP, chat + moderation, gig board, profiles, polls/elections, admin).
   registerAuth(app, store.db, cfg.sms === undefined ? smsFromEnv(process.env) : cfg.sms);
   registerSocial(app, store.db, () => rt.hub);
+  registerStreetOnline(app, store.db, () => rt.ports);
   registerMarket(app, store.db);
   registerProfiles(app, store.db);
   registerCivic(app, store.db);

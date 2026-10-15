@@ -263,3 +263,33 @@ milestones, make no APK until the game is done, then do one release build.
     - Settings has a Close button, and Android back closes dialogs.
     - Street poles no longer trap the bus.
     - Traffic and people are solid.
+
+## M9 · Street systems ✅ (2026-10-15, D-016)
+- Fuel, damage and repairs, with crash feedback: dents, a loose bumper, smoke and "GBAM!".
+- Road Marshal, agbero and Task Force checkpoints, with impound.
+- Area heat and Task Force chases.
+- Passenger personalities on danfo runs.
+- Rain, floods, rain fares and no okadas in the rain.
+- Four radio stations, including live traffic reports for your route.
+- Pedestrian reactions.
+- Street reputation (prices, greetings, checkpoints).
+- 28 awards.
+
+## M10 · Hustles and owning things ✅
+- Night suya stand, KekeGo ride-hailing and okada deliveries.
+- Owambe crashing: bouncer, spraying and the jollof heist.
+- A daily Lagos Wahala event: fire drill, convoy or blackout.
+- Fishing, and selling the catch.
+- A fleet of up to 6 buses with hired drivers and daily returns.
+- A home that grows (face-me-I-face-you to duplex) with generators.
+- Outfits, phones and bus paint and slogans that other players see.
+
+## M11 · Online street life ✅
+- Danfo races and "who get road" duels.
+- Crews and weekly route control (+10% fares on held routes).
+- Co-op jobs (driver with a camera person or conductor).
+- Ranked street boxing with weekly champions, plus an offline Area Ladder.
+- A player-driven trading market.
+- Photo mode with filters.
+- The Lagos Gist feed, local and online.
+- Server tests: 38. Online end-to-end check: 26/26.

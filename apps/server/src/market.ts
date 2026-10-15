@@ -33,7 +33,7 @@ const NPC_GIGS = [
 
 type Gig = { id: string; poster: string | null; npc_name: string | null; title: string; description: string; skill: string; district: string; pay: number; slots: number; filled: number; status: string; expires_at: Date; poster_name: string | null };
 
-async function walletMove(db: Db, player: string, delta: number, reason: string, ref?: string): Promise<boolean> {
+export async function walletMove(db: Db, player: string, delta: number, reason: string, ref?: string): Promise<boolean> {
   await db.query('INSERT INTO wallets (player_id) VALUES ($1) ON CONFLICT DO NOTHING', [player]);
   const r = await db.query('UPDATE wallets SET balance = balance + $2 WHERE player_id = $1 AND balance + $2 >= 0 RETURNING balance', [player, delta]);
   if (r.rows.length === 0) return false;

@@ -27,7 +27,7 @@ func _begin(p: Dictionary) -> void:
 	_count = 0
 	_taps = 0
 	_left = _time
-	_msg.text = "Tunde holds the torch. KC is not allowed to film."
+	_msg.text = String(p.get("intro", "Tunde holds the torch. KC is not allowed to film."))
 	_update()
 
 

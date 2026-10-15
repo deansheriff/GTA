@@ -376,3 +376,49 @@ waves crashing on the shore with birds flying", plus four bug reports.
   - The crowd and the player are pushed out of vehicles and apart from each other
     (`world/bodies.gd`).
   - The demo measures the worst traffic overlap.
+
+## D-016 · Street life, ownership and online play (M9–M11) · 2026-10-15
+**Owner request:** the 23-item gameplay list (fuel to achievements).
+**Decision (engineering):** all 23 are built as game systems in `game/street/` (client) and
+`apps/server/src/street_online.ts` (server), with the saved state in the `Street` autoload and
+every line, price and award in `game/data/street.json`. That file's Pidgin is pending native-speaker
+review.
+
+**Story first.** Anything that could derail a mission waits while one is running: checkpoints,
+the Task Force, floods, running dry, damage slowing the bus, hustles and random crash wahala.
+The same applies during cut-scenes, mini-games, interiors and chases. Story autoplay still
+reaches an ending.
+
+**Fictional everything.**
+- The Road Marshals, the Motor Park Union, the Area Task Force, PetroNaija, Miracle FM,
+  Gbedu 98.1, KekeGo, the Zenko and Glowphone phones and all the goods are invented.
+- No real agency or brand names are used.
+
+**Money and fairness.**
+- Single-player money stays in the save.
+- Online money is the existing "market ₦" server wallet:
+  - co-op pay,
+  - crew registration (₦5,000),
+  - trading.
+- The server never trusts a client's position or result:
+  - **Races:** the finish order comes from server positions. Warping is a disqualification.
+  - **Co-op:** both players are paid only if the server saw them travel together for at least 70%
+    of the ride.
+  - **Crew route points:** count only when the server sees you, driving, at the route's
+    destination. One run every 2 minutes.
+  - **Ranked bouts:** re-scored like clashes. Elo, K = 32.
+  - **Trading:** you trade in the district the server has you in. 3% levy on sales; prices drift
+    back 4% an hour.
+  - **Gist posts:** fixed templates only, plus a short moderated detail. One post every 20 s,
+    40 a day. Blocks are respected.
+
+**Visible style.**
+- Headwear, crew tag, bus paint and slogan travel in the player's look.
+- A new `look` realtime message re-introduces you to nearby players.
+- Painted hero sheets can't be recoloured safely except Tunde's red shirt
+  (`tools/art/hue_stats.mjs`), so outfits show as headwear for everyone.
+
+**Server-side game facts.** `tools/export_game_data.mjs` generates `apps/server/src/game_data.ts`
+(landmarks, routes). Re-run it after map or route changes.
+
+**Also fixed.** "New game" now really resets: autoloads used to survive the scene reload.
