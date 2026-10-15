@@ -221,3 +221,57 @@ function groove(bpm, bars, chords, bright, file, calm = false) {
 }
 groove(112, 8, [220, 220, 196, 247], 0.6, 'music/day.wav'); // A A G B — bright street groove
 groove(88, 8, [165, 147, 165, 196], 0.35, 'music/night.wav', true); // E D E G — night, softer
+
+// ---------- M9–M11 street systems (appended so the sounds above stay byte-identical) ----------
+{
+  // Task-force siren: a rising and falling two-tone wail.
+  const x = len(1.6);
+  let ph = 0;
+  for (let i = 0; i < x.length; i++) {
+    const t = i / SR; ph += (720 + 260 * Math.sin(2 * Math.PI * 1.25 * t)) / SR;
+    x[i] = (sq(ph) * 0.5 + saw(ph * 1.01) * 0.3) * 0.35 * env(i, x.length, 0.05, 0.2);
+  }
+  wav('sfx/siren.wav', lowpass(x, 3000));
+}
+{
+  // Splash: a burst of filtered noise with a falling plop.
+  const x = len(0.6);
+  for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = rand() * Math.exp(-t * 7) * 0.6 + Math.sin(2 * Math.PI * (300 - 250 * t) * t) * Math.exp(-t * 12) * 0.4; }
+  wav('sfx/splash.wav', lowpass(x, 2200));
+}
+{
+  // Thunder: a long low rumble with a crack at the start.
+  const x = len(2.6);
+  for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = rand() * (Math.exp(-t * 1.4) * 0.8 + (t < 0.08 ? 0.6 : 0)); }
+  wav('sfx/thunder.wav', lowpass(lowpass(x, 350), 300));
+}
+{
+  // Radio tuning static.
+  const x = len(0.4);
+  for (let i = 0; i < x.length; i++) { const t = i / SR; x[i] = rand() * 0.4 * (0.6 + 0.4 * Math.sin(2 * Math.PI * 23 * t)) * env(i, x.length, 0.01, 0.1); }
+  wav('sfx/static.wav', lowpass(x, 5000));
+}
+{
+  // Sizzle (suya on the grill).
+  const x = len(0.9);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * (0.25 + 0.15 * Math.sin(i * 0.013)) * env(i, x.length, 0.05, 0.3);
+  wav('sfx/sizzle.wav', x);
+}
+{
+  // Punch: a dull thump.
+  const x = len(0.25);
+  mix(x, kick(0.25), 0, 1);
+  mix(x, clap(0.06), 0, 0.5);
+  wav('sfx/punch.wav', lowpass(x, 1500));
+}
+{
+  // Rain: steady hiss with drips.
+  const x = len(3.0);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * 0.45;
+  lowpass(x, 2600);
+  for (let k = 0; k < 40; k++) mix(x, pluck(1800 + (k * 337) % 1500, 0.05, 0.9), (k * 0.0731) % 2.9, 0.08);
+  wav('amb/rain.wav', x);
+}
+// Radio stations: a brighter highlife loop and a quiet talk-show bed.
+groove(124, 8, [262, 220, 175, 196], 0.85, 'music/highlife.wav'); // C A F G — highlife classics
+groove(96, 8, [196, 196, 175, 175], 0.25, 'music/talk.wav', true); // a soft studio bed

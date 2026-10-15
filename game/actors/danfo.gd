@@ -23,7 +23,9 @@ var speed := 0.0 # px / s
 var _wedged_t := 0.0
 var max_road := 380.0
 var max_off := 150.0
+var limit := INF # fuel and damage cap the top speed (street/vehicle_care.gd)
 var _art: Sprite2D
+var _paint := Color(0, 0, 0, 0)
 
 
 func set_kind(k: String, tint := Color(0, 0, 0, 0)) -> void:
@@ -36,6 +38,14 @@ func set_kind(k: String, tint := Color(0, 0, 0, 0)) -> void:
 
 
 func _ready() -> void:
+	refresh_art()
+
+
+## (Re)build the painted art for the current kind: hustles swap the danfo for a keke or okada.
+func refresh_art() -> void:
+	if _art:
+		_art.queue_free()
+		_art = null
 	var t := Art.tex("vehicles/%s.png" % kind)
 	if t:
 		# Painted top-down danfo (front to the right), rotated freely with the heading.
@@ -48,6 +58,23 @@ func _ready() -> void:
 		if kind == "car" and BODY != KINDS["car"]["body"]:
 			_art.self_modulate = BODY.lightened(0.45) # vary the paint a little
 		add_child(_art)
+		if _paint.a > 0.0:
+			set_paint(_paint)
+	queue_redraw()
+
+
+## Custom paint for a danfo (M10): recolours the yellow body only (shaders/bus_paint.gdshader).
+func set_paint(c: Color) -> void:
+	_paint = c
+	if _art == null:
+		return
+	if c.a <= 0.0:
+		_art.material = null
+		return
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/bus_paint.gdshader")
+	m.set_shader_parameter("paint", c)
+	_art.material = m
 
 
 func _process(_delta: float) -> void:
@@ -58,7 +85,7 @@ func _process(_delta: float) -> void:
 func drive(delta: float, input: Vector2, world: MapData) -> String:
 	var m := MapData.shared()
 	var on_road := m.is_roadlike(m.surface_at(position))
-	var top_speed := max_road if on_road else max_off
+	var top_speed := minf(max_road if on_road else max_off, limit)
 	if input.length() > 0.15:
 		var want := input.angle()
 		var diff := wrapf(want - heading, -PI, PI)

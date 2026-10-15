@@ -57,6 +57,8 @@ var story: StoryHost
 var story_auto := false
 var online: OnlineApps
 var clash := StreetClash.new()
+var street: StreetHost # M9–M11 street systems (game/street/)
+var rented := false # riding a rented keke/okada (any hero may drive it)
 var _crash_quip_t := 0.0
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
@@ -169,6 +171,9 @@ func _ready() -> void:
 	online.setup(hud.phone, story)
 	add_child(clash)
 	clash.setup(self)
+	street = StreetHost.new()
+	add_child(street)
+	street.setup(self)
 	built = true
 	if _bake_dir != "":
 		_bake_aerial(_bake_dir)
@@ -372,6 +377,11 @@ func _in_outage(focus: Vector2) -> bool:
 	# A ward that elected the Transformer Fund suffers outages like the rich districts do.
 	var rich: bool = d.get("id", "") in RICH or (online != null and online.policy_in(String(d.get("id", ""))) == "transformer-fund")
 	for o in _outages:
+		if o.has("district"):
+			# A whole-district blackout (daily Lagos Wahala event): rich or not, everyone's dark.
+			if String(o["district"]) == String(d.get("id", "")) and t >= int(o["start"]) and t < int(o["end"]):
+				return true
+			continue
 		if t >= int(o["start"]) and t < int(o["end"]) and (not rich or o["rich"]):
 			return true
 	return false
@@ -398,7 +408,10 @@ func _update_lighting() -> void:
 
 
 func _enter_exit() -> void:
-	if mode != "driving" and _near_danfo() and Life.hero != "tunde":
+	if mode != "driving" and _near_danfo() and Street.impounded:
+		hud.toast("The bus is impounded. Pay the fee at the yard office first.")
+		return
+	if mode != "driving" and _near_danfo() and Life.hero != "tunde" and not rented:
 		hud.toast("Na Tunde get this bus. (Hail a keke from the phone.)")
 		return
 	if mode == "driving":
@@ -485,6 +498,9 @@ func _process(delta: float) -> void:
 		var ev: String = danfo.drive(dt, inp, map)
 		player.position = danfo.position
 		if ev == "crash":
+			if not rented:
+				street.care.hit(absf(danfo.speed) / 0.3, danfo.position + Vector2.from_angle(danfo.heading) * danfo.LENGTH * 0.5)
+				street.reactions.crashed(danfo.position)
 			# Only now and then a comment; most knocks are just a crunch (owner feedback).
 			if _crash_quip_t <= 0.0 and randf() < 0.35:
 				_crash_quip_t = 25.0
@@ -504,6 +520,7 @@ func _process(delta: float) -> void:
 	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null, danfo if mode == "walking" and not story.interior.active else null, on_foot)
 	if not story.interior.active:
 		clash.tick(dt)
+	street.tick(dt)
 	crowd.update(dt, focus)
 	if not story.interior.active:
 		Bodies.resolve(self)
@@ -512,8 +529,9 @@ func _process(delta: float) -> void:
 
 	_tick_day_night(focus)
 	story.tick(dt)
-	Sound.world(night, nepa_on, mode == "driving" and not story.interior.active, danfo.speed)
-	Sound.music("" if story.paused_by_story() and story.panels.visible else ("night" if night else "day"))
+	Sound.world(night, nepa_on, mode == "driving" and not story.interior.active, danfo.speed, street.weather.rain if Settings.get_value("weather", true) else 0.0)
+	var station := street.radio.track()
+	Sound.music("" if story.paused_by_story() and story.panels.visible else (station if station != "" else ("night" if night else "day")))
 	var chase_k := 1.0
 	if story.chase.active:
 		chase_k = story.chase.carry if story.chase.on == "watch" else 1.25
@@ -574,6 +592,10 @@ func _update_action(focus: Vector2) -> void:
 	elif sp != "":
 		_action = "mission"
 		hud.set_action(sp)
+	elif not street.prompt(focus).is_empty():
+		_action = "street"
+		_action_target = street.prompt(focus)
+		hud.set_action(_action_target["label"])
 	elif mode == "walking" and story.ambient_prompt(focus) != "":
 		_action = "talk"
 		hud.set_action(story.ambient_prompt(focus))
@@ -615,6 +637,8 @@ func _do_action() -> void:
 			story.talk()
 		"enter", "exit":
 			_enter_exit()
+		"street":
+			street.act(_action_target)
 		"drag":
 			clash.drag(int(_action_target["id"]))
 		"vendor":
@@ -622,7 +646,8 @@ func _do_action() -> void:
 			hud.open_shop(_action_target["label"], v["stock"])
 		"home":
 			var dur := Life.sleep()
-			hud.toast("You slept %d hours. Fresh like new money." % (dur / 60))
+			var note := street.life.after_sleep(dur)
+			hud.toast("You slept %d hours. %s" % [dur / 60, note if note != "" else "Fresh like new money."])
 			SaveGame.save_now()
 
 
@@ -740,7 +765,29 @@ func _look_to_wire(look: Dictionary) -> Dictionary:
 	for k in look.keys():
 		var v: Variant = look[k]
 		out[k] = "#" + (v as Color).to_html(false) if v is Color else String(v)
+	if street:
+		out.merge(street.life.style_look(), true) # outfit, cap, bus paint, slogan, crew tag
 	return out
+
+
+## Another player's style (M10): headwear and crew tag on them, paint and slogan on their bus.
+func _apply_remote_style(r: Dictionary, look: Dictionary) -> void:
+	var st := {}
+	for k in ["cap", "outfit", "crew"]:
+		if look.has(k):
+			st[k] = String(look[k])
+	(r["walker"] as Node2D).style = st
+	var d: Node2D = r["danfo"]
+	d.set_paint(Color(String(look["bus"])) if look.has("bus") else Color(0, 0, 0, 0))
+	var slogans: Array = Street.db.get("slogans", [])
+	var sl := int(String(look.get("sl", "-1")))
+	if not r.has("wear"):
+		var wr: Node2D = VehicleCare._Wear.new()
+		wr.remote = true
+		d.add_child(wr)
+		r["wear"] = wr
+	(r["wear"] as Node2D).slogan = slogans[sl] if sl >= 0 and sl < slogans.size() else ""
+	(r["wear"] as Node2D).queue_redraw()
 
 
 func _look_from_wire(look: Dictionary) -> Dictionary:
@@ -753,6 +800,7 @@ func _look_from_wire(look: Dictionary) -> Dictionary:
 
 func _on_met(id: int, name_: String, look: Dictionary) -> void:
 	if remotes.has(id):
+		_apply_remote_style(remotes[id], look) # re-introduced after a style change
 		return
 	var w: Node2D = WalkerScript.new()
 	w.look = _look_from_wire(look)
@@ -767,6 +815,7 @@ func _on_met(id: int, name_: String, look: Dictionary) -> void:
 	d.visible = false
 	streamer.add_child(d)
 	remotes[id] = { "walker": w, "danfo": d, "target": Vector2.INF, "code": 0, "mode": 0, "heading": 0.0 }
+	_apply_remote_style(remotes[id], look)
 	_push_state()
 
 
@@ -968,7 +1017,85 @@ func _run_demo() -> void:
 	await _measure("night")
 	_toggle_night()
 	await _demo_holdup()
+	await _demo_street()
 	get_tree().quit()
+
+
+## M9–M11 street systems on screen.
+func _demo_street() -> void:
+	traffic.target_count = 12
+	if mode != "driving":
+		player.position = danfo.position
+		_enter_exit()
+	# A battered bus: dents, the loose bumper, smoke.
+	Street.damage = 72.0
+	Street.fuel = 18.0
+	_teleport(map.road_nodes["yaba_c"] + Vector2(0, 40))
+	danfo.position = player.position
+	demo_input = Vector2(1, 0)
+	await _wait(1.5)
+	await _shot("13-bus-damaged")
+	street.care.hit(320.0, danfo.position + Vector2(60, 0))
+	await _wait(0.2)
+	await _shot("13b-gbam")
+	# A checkpoint on the road ahead.
+	Street.damage = 10.0
+	Settings.set_value("weather", true)
+	var cp_a := "yaba_c"
+	var cp_b: String = map.road_graph[cp_a][0]
+	var pb: Vector2 = map.road_nodes[cp_b]
+	danfo.position = traffic.lane_pos(cp_a, cp_b, maxf(0.0, (map.road_nodes[cp_a] as Vector2).distance_to(pb) - 520.0))
+	danfo.heading = (pb - danfo.position).angle()
+	street.checkpoints.clear()
+	street.checkpoints._place(pb, "marshal")
+	demo_input = Vector2.from_angle(danfo.heading)
+	for i in 240:
+		await get_tree().process_frame
+		if not street.checkpoints.active.is_empty() and street.checkpoints.active["state"] == "stopped":
+			break
+	await _wait(0.5)
+	await _shot("14-checkpoint")
+	demo_input = Vector2.ZERO
+	await _wait(2.0)
+	street.checkpoints.clear()
+	# Area heat: the Task Force comes.
+	Street.heat = 3.2
+	await _wait(3.5)
+	await _shot("15-task-force")
+	Street.heat = 0.0
+	await _wait(0.5)
+	# Rain and a flooded road.
+	street.weather.force_rain(60)
+	street.weather.flood = 1.0
+	if not street.weather.spots.is_empty():
+		danfo.position = street.weather.spots[0]
+	await _wait(9.0)
+	await _shot("16-rain-flood")
+	# Radio: the traffic report.
+	Street.radio = 2
+	street.radio.next_station()
+	street.radio._line_t = 0.0
+	await _wait(1.0)
+	await _shot("17-radio-traffic")
+	Street.radio = -1
+	# Phone apps.
+	for app in ["Garage", "Fleet", "Home", "Style", "Awards", "Gist"]:
+		hud.phone.open()
+		var a: Dictionary = (hud.phone._apps as Array).filter(func(x: Dictionary) -> bool: return x["name"] == app)[0]
+		hud.phone._title.text = app
+		(a["builder"] as Callable).call()
+		await _wait(0.5)
+		await _shot("18-app-" + app.to_lower())
+	hud.phone.visible = false
+	# The new mini-games (playing themselves).
+	for g in [["suya", { "orders": 4, "seconds": 30.0 }], ["fishing", { "casts": 1 }], ["heist", { "need": 3 }]]:
+		story._games[g[0]].autoplay = true
+		story.call("story_minigame", g[0], g[1]) # runs on while we take the picture
+		await _wait(1.8)
+		await _shot("19-game-" + g[0])
+		while story.paused_by_story():
+			await get_tree().process_frame
+	print("demo: street ok heat=%.1f fuel=%.0f damage=%.0f awards=%d" % [Street.heat, Street.fuel, Street.damage, Street.achieved.size()])
 
 
 ## Park in a lane with a clear road ahead and a car behind: honking, then the drivers drag you out.

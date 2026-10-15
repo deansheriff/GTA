@@ -23,6 +23,9 @@ const GAMES := {
 	"cue": preload("res://ui/minigames/light_cue.gd"),
 	"spray_dance": preload("res://ui/minigames/money_spray.gd"),
 	"fight": preload("res://ui/minigames/fist_fight.gd"),
+	"suya": preload("res://ui/minigames/suya_grill.gd"),
+	"fishing": preload("res://ui/minigames/fishing.gd"),
+	"heist": preload("res://ui/minigames/jollof_heist.gd"),
 }
 const INK := Color("#1d1611")
 const PAPER := Color("#f1e6c8")
@@ -317,6 +320,9 @@ func talk() -> void:
 	if not ambient.has(_talk_who):
 		return
 	Life.restore("social", 4.0)
+	# Street reputation (M9 #15): how they greet you depends on what you've been doing.
+	if main.street:
+		main.street.ticker("%s: \"%s\"" % [Story.who(_talk_who).get("name", _talk_who), main.street.life.greeting()], 4.0)
 	var online: OnlineApps = main.online
 	# Live chat (when the owner has switched it on) for the characters with a server persona.
 	if online and online.live_chat and Net.server != "" and _talk_who in ["mama-nkem", "sule", "barber", "mechanic", "teacher", "bayo", "kiosk"]:

@@ -131,6 +131,45 @@
       "price": 0,
       "effects": {},
       "line": "You are not opening this in public."
+    },
+    "fishing-net": {
+      "name": "Fishing net",
+      "price": 3500,
+      "effects": {},
+      "keep": true,
+      "line": "Cast wide, catch more."
+    },
+    "fish-tilapia": {
+      "name": "Tilapia (fresh)",
+      "price": 900,
+      "effects": {
+        "hunger": 18
+      },
+      "line": "Fresh from the lagoon. Pepper soup tonight?"
+    },
+    "fish-croaker": {
+      "name": "Croaker (fresh)",
+      "price": 1600,
+      "effects": {
+        "hunger": 18
+      },
+      "line": "Fresh from the lagoon. Pepper soup tonight?"
+    },
+    "fish-catfish": {
+      "name": "Catfish (fresh)",
+      "price": 2200,
+      "effects": {
+        "hunger": 18
+      },
+      "line": "Fresh from the lagoon. Pepper soup tonight?"
+    },
+    "fish-barracuda": {
+      "name": "Barracuda (fresh)",
+      "price": 4500,
+      "effects": {
+        "hunger": 18
+      },
+      "line": "Fresh from the lagoon. Pepper soup tonight?"
     }
   },
   "vendors": {
@@ -203,7 +242,8 @@
     "fisher-hut": {
       "title": "Fisherman's wife",
       "stock": [
-        "fried-fish"
+        "fried-fish",
+        "fishing-net"
       ]
     },
     "two-storey": {

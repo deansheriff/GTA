@@ -137,11 +137,12 @@ func buy(id: String, keep := false) -> bool:
 		return false
 	var price := int(it["price"])
 	# Haggling skill shaves a little off (market banter is a skill).
-	price = int(round(price * (1.0 - 0.02 * level("haggling")) * price_factor))
+	# Street reputation (M9): respected people pay a little less, troublemakers a "wahala tax".
+	price = int(round(price * (1.0 - 0.02 * level("haggling")) * price_factor * Street.price_k()))
 	if not spend(price, "Bought %s" % it["name"]):
 		return false
 	add_xp("haggling", 2)
-	if keep or not it.has("effects"):
+	if keep or not it.has("effects") or it.get("keep", false):
 		add_item(id)
 	else:
 		use_effects(it)
@@ -219,6 +220,21 @@ func to_dict() -> Dictionary:
 		"hero": hero, "needs": needs, "money": money, "ledger": ledger.slice(0, 30), "inventory": inventory,
 		"skills_xp": skills_xp, "flags": flags, "relationships": relationships, "home": home, "stats": stats,
 	}
+
+
+## New game: everything back to how Tunde started.
+func reset() -> void:
+	hero = "tunde"
+	needs = { "hunger": 80.0, "energy": 85.0, "fun": 60.0, "social": 60.0, "hygiene": 75.0 }
+	money = 15000
+	ledger = []
+	inventory = {}
+	skills_xp = {}
+	flags = {}
+	relationships = { "tunde-ngozi": 50, "tunde-kc": 45, "ngozi-kc": 60 }
+	home = "tunde-depot"
+	stats = { "bp": 20.0, "aura": 40.0, "hype": 100.0, "battery": 60.0 }
+	changed.emit()
 
 
 func from_dict(d: Dictionary) -> void:

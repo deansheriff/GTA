@@ -3,7 +3,7 @@ extends Node
 ## licences are needed; licensed music can replace the loops later under the same names).
 ## Three buses (Music, SFX, Ambience) with volumes from Settings prefs.
 
-const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify"]
+const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify", "siren", "splash", "thunder", "static", "sizzle", "punch"]
 
 var _sfx := {} # name -> AudioStream
 var _pool: Array[AudioStreamPlayer] = []
@@ -32,7 +32,7 @@ func _ready() -> void:
 	_music = AudioStreamPlayer.new()
 	_music.bus = "Music"
 	add_child(_music)
-	for n in ["generator", "street"]:
+	for n in ["generator", "street", "rain"]:
 		var a := AudioStreamPlayer.new()
 		a.bus = "Ambience"
 		a.stream = _load("res://audio/amb/%s.wav" % n, true)
@@ -94,9 +94,10 @@ func music(name: String) -> void:
 
 
 ## Called every frame by the game: the generator hum during blackouts, street murmur by day,
-## and the danfo engine pitched by speed.
-func world(night: bool, nepa_on: bool, driving: bool, speed: float) -> void:
+## rain, and the danfo engine pitched by speed.
+func world(night: bool, nepa_on: bool, driving: bool, speed: float, rain := 0.0) -> void:
 	_fade(_amb["generator"], 0.6 if not nepa_on else 0.0)
+	_fade(_amb["rain"], rain * 0.7)
 	_fade(_amb["street"], 0.0 if night else 0.45)
 	if driving:
 		if not _engine.playing:

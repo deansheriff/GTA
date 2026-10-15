@@ -133,7 +133,9 @@ func set_state(_mode: String, _near_danfo: bool, _night: bool, nepa_on: bool, fp
 ## Context action (bottom right): "" hides it.
 func set_action(text: String) -> void:
 	_action.visible = text != ""
-	_action.text = text
+	if _action.text != text:
+		_action.text = text
+		HudLayout.pin_bottom_right(_action, 16, 16) # keep it on screen as the text changes width
 
 
 func set_job(text: String) -> void:

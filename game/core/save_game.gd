@@ -90,6 +90,12 @@ func apply(d: Dictionary) -> void:
 func wipe() -> void:
 	if FileAccess.file_exists(PATH):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
+	# Autoloads survive the scene reload, so put every system back to a fresh start too.
+	Clock.reset()
+	Life.reset()
+	var extras: Dictionary = {}
+	for k in extra_restorers:
+		(extra_restorers[k] as Callable).call(extras.get(k, {}))
 
 
 # ---------- cloud ----------

@@ -110,6 +110,14 @@ export class Room {
     return true;
   }
 
+  /** A player changed their style: everyone nearby is re-introduced to them with the new look. */
+  setLook(id: number, look: unknown): void {
+    const p = this.members.get(id);
+    if (!p) return;
+    p.look = sanitizeLook(look);
+    for (const other of this.members.values()) other.seen.delete(id);
+  }
+
   /** Server-side position of an account in this room (for clash checks). `stillMs`: time since it last moved. */
   findPlayer(playerId: string, now = Date.now()): { id: number; x: number; y: number; m: Mode; name: string; stillMs: number } | null {
     for (const p of this.members.values()) {
@@ -195,7 +203,8 @@ export function sanitizeName(name: unknown): string {
 export function sanitizeLook(look: unknown): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   if (!look || typeof look !== 'object') return out;
-  const allowed = ['skin', 'top', 'bottom', 'hair', 'hair_col', 'extra'];
+  // Style (M10): outfit id, cap colour, bus paint, slogan index (from a fixed list), crew tag (M11).
+  const allowed = ['skin', 'top', 'bottom', 'hair', 'hair_col', 'extra', 'outfit', 'cap', 'bus', 'sl', 'crew'];
   for (const k of allowed) {
     const v = (look as Record<string, unknown>)[k];
     if (typeof v === 'string' && v.length <= 16 && /^[#a-zA-Z0-9_]+$/.test(v)) out[k] = v;

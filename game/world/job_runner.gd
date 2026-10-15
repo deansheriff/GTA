@@ -6,6 +6,7 @@ extends Node
 signal offers_changed
 signal job_changed(active: Dictionary)
 signal message(text: String)
+signal danfo_done(job: Dictionary, fares: int) # a danfo run finished (street/passengers.gd, crews)
 
 var map: MapData
 var db := {}
@@ -122,11 +123,13 @@ func _tick_danfo(delta: float, focus: Vector2, mode: String, stuck: bool) -> voi
 			else:
 				active["patience"] = minf(100.0, float(active["patience"]) + delta * 2.0)
 			if mode == "driving" and focus.distance_to(end_pos(active)) < 240.0:
-				var fares := int(active["passengers"]) * int(active["fare"])
+				var fares := int(int(active["passengers"]) * int(active["fare"]) * Street.fare_k)
 				var agbero := int(fares * 0.1)
 				Life.earn(fares - agbero, "Danfo fares: %s" % active["name"])
 				Life.add_xp("driving", 25 + int(active["passengers"]) * 2)
-				message.emit("Fares: ₦%s. Agbero took ₦%s \"for the boys\". Baba God dey!" % [Life.fmt_naira(fares), Life.fmt_naira(agbero)])
+				message.emit("Fares: ₦%s%s. Agbero took ₦%s \"for the boys\". Baba God dey!" % [Life.fmt_naira(fares), " (rain fares!)" if Street.fare_k > 1.0 else "", Life.fmt_naira(agbero)])
+				Street.count("agbero_paid")
+				danfo_done.emit(active.duplicate(), fares)
 				active = {}
 				job_changed.emit(active)
 

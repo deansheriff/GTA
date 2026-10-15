@@ -18,6 +18,16 @@ var target := Vector2.INF
 var idle_t := 0.0
 var _drawn_key := ""
 var display_name := ""
+## Style (M10): headwear colour, outfit id and crew tag ({cap, outfit, crew}); others see it.
+var style := {}:
+	set(v):
+		style = v
+		queue_redraw()
+## Shirt recolour for Tunde's painted sheet (shaders/outfit.gdshader); alpha 0 = as painted.
+var outfit_tint := Color(0, 0, 0, 0):
+	set(v):
+		outfit_tint = v
+		_apply_tint()
 var _spr: Sprite2D
 var _sheet := "" # "hero" (4x3 walk: down, up, right) or "ped" (painted townsfolk)
 var _ped_index := 0
@@ -74,7 +84,20 @@ func _make_sprite(t: Texture2D, cols: int, rows: int, frame_h: float) -> void:
 	_base_y = -(frame_h * 0.5 - 2.0) * sc
 	_spr.position = Vector2(0, _base_y)
 	add_child(_spr)
+	_apply_tint()
 	queue_redraw()
+
+
+func _apply_tint() -> void:
+	if _spr == null:
+		return
+	if outfit_tint.a <= 0.0:
+		_spr.material = null
+		return
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/outfit.gdshader")
+	m.set_shader_parameter("tint", outfit_tint)
+	_spr.material = m
 
 
 func _update_sprite() -> void:
@@ -191,6 +214,7 @@ func _draw() -> void:
 
 	Ink.shadow(self, Vector2(2, 0), Vector2(11, 4), 0.35)
 	if _spr:
+		_draw_headwear()
 		_draw_name()
 		return
 	# Legs.
@@ -251,5 +275,25 @@ func _draw_name() -> void:
 		return
 	var font := ThemeDB.fallback_font
 	var y := -SPRITE_H - 6.0 if _spr else -56.0
-	draw_string_outline(font, Vector2(-60, y), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, 4, Ink.COLOR)
-	draw_string(font, Vector2(-60, y), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color("#f1e6c8"))
+	var text := display_name
+	if String(style.get("crew", "")) != "":
+		text = "[%s] %s" % [style["crew"], display_name]
+	draw_string_outline(font, Vector2(-80, y), text, HORIZONTAL_ALIGNMENT_CENTER, 160, 13, 4, Ink.COLOR)
+	draw_string(font, Vector2(-80, y), text, HORIZONTAL_ALIGNMENT_CENTER, 160, 13, Color("#f1e6c8") if not style.has("crew") else Color("#ffd27a"))
+
+
+## Headwear on painted people: a cap, a fila or a gele, by outfit.
+func _draw_headwear() -> void:
+	if not style.has("cap"):
+		return
+	var c := Color(String(style["cap"]))
+	var top := Vector2(0, -SPRITE_H + 9.0 + (-2.0 if velocity.length() > 1.0 and int(anim_t) % 2 == 1 else 0.0))
+	match String(style.get("outfit", "")):
+		"owambe":
+			Ink.ellipse(self, top + Vector2(0, -3), Vector2(13, 6), c, 1.6, -0.2)
+			Ink.ellipse(self, top + Vector2(6, -8), Vector2(6, 4), c.lightened(0.2), 1.2, 0.5)
+		"agbada", "ankara":
+			Ink.poly(self, PackedVector2Array([top + Vector2(-8, 2), top + Vector2(8, 2), top + Vector2(6, -9), top + Vector2(-5, -10)]), c, 1.4)
+		_:
+			Ink.poly(self, PackedVector2Array([top + Vector2(-8, 1), top + Vector2(8, 1), top + Vector2(7, -6), top + Vector2(-7, -6)]), c, 1.4)
+			Ink.poly(self, PackedVector2Array([top + Vector2(2, 1), top + Vector2(13, 2), top + Vector2(13, 4), top + Vector2(2, 3)]), c.darkened(0.2), 1.0)

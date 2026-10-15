@@ -65,7 +65,12 @@ func tick(dt: float) -> void:
 			Sound.sfx("crash")
 			if not Settings.get_value("reduced_motion", false):
 				main._shake(0.12)
+			if not main.rented:
+				main.street.care.hit(impact, (d.position + other.position) * 0.5)
+			main.street.reactions.crashed(d.position)
 		if impact > IMPACT:
+			if not _story_blocks() and not main.story.mission_running():
+				Street.add_heat(0.25)
 			_maybe_npc_clash(v)
 	# Other players: their vehicles are solid too, and a hard hit starts an online clash.
 	for id in main.remotes:
@@ -109,7 +114,7 @@ func _busy_elsewhere() -> bool:
 func _maybe_npc_clash(v: Dictionary) -> void:
 	# Most crashes are just a crunch: only sometimes, and never twice in a minute, does the driver
 	# come out, and never in the middle of a mission.
-	if _busy or _npc_cd > 0.0 or main.story.mission_running() or _story_blocks():
+	if _busy or _npc_cd > 0.0 or main.story.mission_running() or _story_blocks() or main.demo:
 		return
 	_npc_cd = NPC_COOLDOWN * 0.3
 	if _rng.randf() > NPC_CHANCE:
@@ -128,12 +133,15 @@ func _npc_clash(v: Dictionary) -> void:
 	driver.say(line, 6.0)
 	var choice: String = await _ask("Wahala!", "The other driver jumps out: \"%s\"" % line, 0)
 	if choice == "fight":
+		main.street.reactions.crowd_to(main.danfo.position)
 		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": "Angry driver" })
 		_apply_fight(_score(res) > 50, _score(res) == 50, "the angry driver")
 	elif _rng.randf() < 0.65:
 		driver.say("Okay. Make e no happen again.", 4.0)
 		main.hud.toast("You apologised. He accepted. Peace.")
 		_bp(-5.0)
+		Street.count("apologies")
+		Street.add_rep(1.0)
 	else:
 		driver.say("Sorry no go fix my bumper! ₦1,000.", 5.0)
 		var pay: String = await _ask("He wants ₦1,000 for the bumper", "Pay him, or just keep apologising?", 1)
@@ -239,6 +247,8 @@ func _drag_out_by_npcs() -> void:
 			dr.velocity = Vector2.ZERO
 			dr.say(DRAG_LINES[_rng.randi() % DRAG_LINES.size()], 3.0)
 		var who := "Angry drivers" if drivers.size() > 1 else "Angry driver"
+		main.street.reactions.crowd_to(main.player.position)
+		Street.add_heat(0.5)
 		var res: Dictionary = await main.story.story_minigame("fight", { "opponent": who, "intro": "You blocked the road and they dragged you out of the bus!" })
 		if _score(res) > 50:
 			main.hud.toast("You fought them off! They go back to their cars, grumbling.", true)
@@ -302,6 +312,13 @@ func _bp(delta: float) -> void:
 
 
 func _apply_fight(won: bool, draw: bool, who: String) -> void:
+	Street.add_heat(1.0 if won else 0.5)
+	if won:
+		Street.count("fights_won")
+		Street.add_rep(1.0)
+		Street.post_gist("fight", "%s won a street fight against %s in %s!" % [Street._me(), who, main._district])
+	elif not draw:
+		Street.post_gist("fight", "%s lost a street fight in %s. E pain am." % [Street._me(), main._district])
 	if draw:
 		main.hud.toast("A draw. You and %s shake hands, both tired." % who)
 		Life.restore("energy", -8.0)
@@ -391,6 +408,7 @@ func _on_clash_fight(m: Dictionary) -> void:
 	elif m.get("you") == "peace":
 		intro = "You apologised, but %s wants a fight. Defend yourself!" % name_
 	main.hud.toast(intro)
+	main.street.reactions.crowd_to(main.player.position if main.mode == "walking" else main.danfo.position)
 	var res: Dictionary = await main.story.story_minigame("fight", { "opponent": name_, "seq": m["seq"], "windows": m["windows"], "intro": intro })
 	Net.send_msg({ "t": "clash_result", "id": m["id"], "log": res.get("log", []) })
 
@@ -404,6 +422,8 @@ func _on_clash_end(m: Dictionary) -> void:
 	_busy = false
 	if m.get("outcome") == "peace":
 		main.hud.toast("Una settle am. Peace.")
+		Street.count("apologies")
+		Street.add_rep(1.0)
 		Life.restore("social", 5.0)
 		return
 	var winner = m.get("winner")

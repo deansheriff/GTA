@@ -83,5 +83,9 @@ func to_dict() -> Dictionary:
 	return { "minutes": minutes }
 
 
+func reset() -> void:
+	minutes = 7 * 60
+
+
 func from_dict(d: Dictionary) -> void:
 	minutes = int(d.get("minutes", minutes))

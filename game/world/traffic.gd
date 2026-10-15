@@ -20,6 +20,9 @@ var _rng := RandomNumberGenerator.new()
 ## Hold-ups: how long the longest-waiting vehicle has been stuck behind the player's danfo
 ## (directly or further back in the queue), and those vehicles (street_clash.gd reacts).
 var holdup_t := 0.0
+## Rain (street/weather.gd): everyone drives slower and okadas get off the road.
+var speed_k := 1.0
+var no_okada := false
 var held: Array = []
 
 
@@ -35,7 +38,8 @@ func setup(m: MapData, p: Node2D, mat: Material) -> void:
 func update(delta: float, focus: Vector2, player_vehicle: Node2D, parked: Node2D = null, people: Array = []) -> void:
 	# Despawn far vehicles, spawn new ones in a ring around the focus.
 	for v in vehicles.duplicate():
-		if (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
+		var gone_okada: bool = no_okada and v["kind"] == "okada" and (v["node"] as Node2D).position.distance_to(focus) > 700.0
+		if gone_okada or (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
 			(v["node"] as Node).queue_free()
 			vehicles.erase(v)
 	var tries := 0
@@ -149,7 +153,10 @@ func _try_spawn(focus: Vector2) -> void:
 		if (o["node"] as Node2D).position.distance_to(pos) < 200.0:
 			return # never spawn on top of another vehicle
 	var roll := _rng.randf()
-	spawn_on(a, b, t, "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada")))
+	var kind := "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada"))
+	if kind == "okada" and no_okada:
+		kind = "keke"
+	spawn_on(a, b, t, kind)
 
 
 ## A vehicle on edge a -> b, t px along it (demo and tests use this directly).
@@ -187,7 +194,7 @@ func _place(v: Dictionary) -> void:
 
 func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D = null, people: Array = []) -> void:
 	var n: Node2D = v["node"]
-	var want: float = BASE_SPEED * float(v["cls"]) * (1.15 if v["kind"] == "okada" else 1.0)
+	var want: float = BASE_SPEED * float(v["cls"]) * (1.15 if v["kind"] == "okada" else 1.0) * speed_k
 	var waiting_story := float(v["stop_t"]) > 0.0
 	if waiting_story:
 		v["stop_t"] = float(v["stop_t"]) - delta

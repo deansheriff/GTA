@@ -14,5 +14,6 @@ static func pin_bottom_right(c: Control, right: float, bottom: float) -> void:
 	c.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	c.offset_right = -right
 	c.offset_bottom = -bottom
-	c.offset_left = -right - c.custom_minimum_size.x
-	c.offset_top = -bottom - c.custom_minimum_size.y
+	var m := c.get_combined_minimum_size()
+	c.offset_left = -right - maxf(c.custom_minimum_size.x, m.x)
+	c.offset_top = -bottom - maxf(c.custom_minimum_size.y, m.y)

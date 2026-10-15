@@ -23,6 +23,7 @@ SaveGame="*res://core/save_game.gd"
 Story="*res://core/story.gd"
 Telemetry="*res://core/telemetry.gd"
 Sound="*res://core/sound.gd"
+Street="*res://core/street.gd"
 
 [display]
 

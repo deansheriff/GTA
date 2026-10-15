@@ -15,6 +15,7 @@ import { ClashManager, type ClashParty } from './clash.ts';
  *   {"t":"chat","text"}                      street chat (moderated, see social.ts)
  *   {"t":"dm","to":pid,"text"}               direct message
  *   {"t":"bump","pid"}                        my vehicle hit this player (server checks distance)
+ *   {"t":"look","look"}                       style changed (outfit, cap, bus paint, slogan, crew tag)
  *   {"t":"drag","pid"}                        on foot, drag this player out of their stopped vehicle and fight
  *   {"t":"clash_choice","id","choice"}        "fight" | "peace"
  *   {"t":"clash_result","id","log"}           fist-fight input log [{move,t}]
@@ -37,6 +38,7 @@ interface Session {
   socket: WebSocket;
   room?: Room;
   memberId?: number;
+  lookAt?: number;
   playerId?: string;
   msgWindowStart: number;
   msgCount: number;
@@ -120,6 +122,12 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
         if (!other || !me || !them) return send(s, { t: 'err', code: 'clash_gone' });
         const r = await clashes.report(party(s), party(other), me, them);
         if (r !== 'ok') send(s, { t: 'err', code: `clash_${r}` });
+        return;
+      }
+      if (msg.t === 'look' && s.room && s.memberId !== undefined) {
+        if (now - (s.lookAt ?? 0) < 2000) return send(s, { t: 'err', code: 'look_too_fast' });
+        s.lookAt = now;
+        s.room.setLook(s.memberId, msg.look);
         return;
       }
       if (msg.t === 'drag' && s.room && s.playerId && typeof msg.pid === 'string') {

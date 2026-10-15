@@ -156,6 +156,13 @@ func send_move(pos: Vector2, facing: int, mode: int, heading_deg: float) -> void
 	_send(msg)
 
 
+## Style changed (M10): the server re-introduces us to everyone nearby with the new look.
+func send_look(look: Dictionary) -> void:
+	if _pending_hello.has("look"):
+		_pending_hello["look"] = look # reconnects say hello with the current style
+	send_msg({ "t": "look", "look": look })
+
+
 ## Any other realtime message (clash bump/choice/result).
 func send_msg(msg: Dictionary) -> void:
 	if _state == "online" and _ws:

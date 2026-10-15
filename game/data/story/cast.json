@@ -150,6 +150,30 @@
       ],
       "colour": "#84509a"
     },
+    "marshal": {
+      "name": "Road Marshal",
+      "portrait": "portraits/passenger.png",
+      "ped": 7,
+      "colour": "#d8701c"
+    },
+    "agbero": {
+      "name": "Agbero",
+      "portrait": "portraits/passenger.png",
+      "ped": 3,
+      "colour": "#8a3a2a"
+    },
+    "taskforce": {
+      "name": "Task Force",
+      "portrait": "portraits/passenger.png",
+      "ped": 11,
+      "colour": "#2f5e3a"
+    },
+    "fisherman": {
+      "name": "Baba Ejá (fisherman)",
+      "portrait": "portraits/passenger.png",
+      "ped": 4,
+      "colour": "#2f6f99"
+    },
     "angry-driver": {
       "name": "Angry driver",
       "portrait": "portraits/passenger.png",
