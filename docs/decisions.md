@@ -324,3 +324,22 @@ apologise… this should not work against other online players who still choose 
   - Moving figures are new painted cut-outs: `spec-title.json`, about $0.04, generated with our
     own splash as the only reference.
   - The keke's grille badge was painted out (`tools/art/title_sprites.mjs`).
+- **Follow-up, same day (owner feedback):**
+  - **Collisions are mostly quiet.**
+    - A hard hit brings the other driver out only half the time, at most once a minute, and
+      never mid-mission.
+    - Wall-crash quips are occasional, not on every bump.
+  - **Blocking the road gets you beaten.** If you stop in a lane with a clear road ahead
+    (queuing in traffic doesn't count), the queue behind you starts honking after 4 s.
+    - After 9 s, up to two drivers get out, walk to your door and drag you out into a forced fight.
+    - This happens in story missions too. The exceptions are cut-scenes, mini-games, interiors,
+      chases and Tunde's own Wahala Mode.
+    - Driving off before they reach you means you escape.
+    - A loss costs energy, hygiene and BP; a win gives fun.
+  - **Players can drag players out.**
+    - On foot next to another player's vehicle that has been still for at least 1.5 s, the action
+      button reads "Drag NAME out!".
+    - The server checks that you're on foot, they're driving, the vehicle has stopped, and you're
+      within 170 px. The fight then starts straight away, with no choice card.
+    - The same cooldowns, hourly cap, blocks and logging apply.
+  - **Traffic steers around a parked danfo** instead of driving through it.

@@ -15,6 +15,7 @@ import { ClashManager, type ClashParty } from './clash.ts';
  *   {"t":"chat","text"}                      street chat (moderated, see social.ts)
  *   {"t":"dm","to":pid,"text"}               direct message
  *   {"t":"bump","pid"}                        my vehicle hit this player (server checks distance)
+ *   {"t":"drag","pid"}                        on foot, drag this player out of their stopped vehicle and fight
  *   {"t":"clash_choice","id","choice"}        "fight" | "peace"
  *   {"t":"clash_result","id","log"}           fist-fight input log [{move,t}]
  * server → client
@@ -28,6 +29,8 @@ import { ClashManager, type ClashParty } from './clash.ts';
 const MAX_MSG_BYTES = 2048;
 const MAX_MSGS_PER_SEC = 30;
 const MAX_STRIKES = 40;
+/** A vehicle must have stood still this long before someone on foot can drag its driver out. */
+const DRAG_STILL_MS = 1500;
 const DISTRICTS = new Set(['yaba', 'ikeja', 'agbado-ketu', 'oshodi', 'mushin', 'surulere', 'lagos-island', 'ikoyi', 'victoria-island', 'lekki']);
 
 interface Session {
@@ -116,6 +119,18 @@ export function registerRealtime(app: FastifyInstance, store: Store): { rooms: R
         const them = other ? s.room.findPlayer(other.playerId!) : null;
         if (!other || !me || !them) return send(s, { t: 'err', code: 'clash_gone' });
         const r = await clashes.report(party(s), party(other), me, them);
+        if (r !== 'ok') send(s, { t: 'err', code: `clash_${r}` });
+        return;
+      }
+      if (msg.t === 'drag' && s.room && s.playerId && typeof msg.pid === 'string') {
+        const other = [...sessions].find((o) => o.playerId === msg.pid && o.room === s.room);
+        const me = s.room.findPlayer(s.playerId, now);
+        const them = other ? s.room.findPlayer(other.playerId!, now) : null;
+        if (!other || !me || !them) return send(s, { t: 'err', code: 'clash_gone' });
+        if (me.m !== 0) return send(s, { t: 'err', code: 'drag_get_out_first' });
+        if (them.m !== 1) return send(s, { t: 'err', code: 'drag_not_driving' });
+        if (them.stillMs < DRAG_STILL_MS) return send(s, { t: 'err', code: 'drag_moving' });
+        const r = await clashes.drag(party(s), party(other), me, them, now);
         if (r !== 'ok') send(s, { t: 'err', code: `clash_${r}` });
         return;
       }

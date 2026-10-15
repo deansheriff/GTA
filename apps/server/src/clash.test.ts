@@ -103,3 +103,49 @@ test('both apologise → peace; players too far apart cannot clash', async () =>
   for (const s of [far.a, far.b]) s.close();
   await far.app.close();
 });
+
+async function moveTo(ws: WebSocket, x: number, y: number, m: 0 | 1) {
+  ws.send(JSON.stringify({ t: 'move', x, y, f: 0, m, h: 0 }));
+  await new Promise((r) => setTimeout(r, 60));
+}
+
+test('a player on foot can drag a stopped driver out: the fight starts at once', async () => {
+  const { app, a, b, pa, pb } = await twoPlayers(5100);
+  await moveTo(b, 5110, 5000, 1); // the rival parks their bus
+  await moveTo(a, 5020, 5000, 0); // Tunde walks up to it
+  // Too soon: the bus only just stopped.
+  const early = waitFor(a, (m) => m.t === 'err');
+  a.send(JSON.stringify({ t: 'drag', pid: pb }));
+  assert.equal((await early).code, 'drag_moving');
+  await new Promise((r) => setTimeout(r, 1600));
+  const fa = waitFor(a, (m) => m.t === 'clash_fight');
+  const fb = waitFor(b, (m) => m.t === 'clash_fight');
+  a.send(JSON.stringify({ t: 'drag', pid: pb }));
+  const [xa, xb] = await Promise.all([fa, fb]);
+  assert.equal(xb.dragged, true);
+  assert.equal(xb.by, pa, 'the victim knows who dragged them out');
+  assert.equal(xb.you, 'peace');
+  assert.equal(xa.you, 'fight');
+  assert.deepEqual(xa.seq, xb.seq);
+  const end = waitFor(b, (m) => m.t === 'clash_end');
+  a.send(JSON.stringify({ t: 'clash_result', id: xa.id, log: [] }));
+  b.send(JSON.stringify({ t: 'clash_result', id: xa.id, log: xb.seq.map((m: string) => ({ move: m, t: 0.5 })) }));
+  assert.equal((await end).winner, pb, 'the dragged-out driver can still win');
+  for (const s of [a, b]) s.close();
+  await app.close();
+});
+
+test('only a stopped driver can be dragged out, and only by someone on foot', async () => {
+  const { app, a, b, pb } = await twoPlayers(5100);
+  await new Promise((r) => setTimeout(r, 1600));
+  const notDriving = waitFor(a, (m) => m.t === 'err');
+  a.send(JSON.stringify({ t: 'drag', pid: pb }));
+  assert.equal((await notDriving).code, 'drag_not_driving');
+  await moveTo(b, 5100, 5000, 1);
+  await moveTo(a, 5000, 5000, 1);
+  const inCar = waitFor(a, (m) => m.t === 'err');
+  a.send(JSON.stringify({ t: 'drag', pid: pb }));
+  assert.equal((await inCar).code, 'drag_get_out_first');
+  for (const s of [a, b]) s.close();
+  await app.close();
+});

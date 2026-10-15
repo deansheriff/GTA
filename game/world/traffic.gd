@@ -17,7 +17,10 @@ var painted_mat: Material
 var target_count := 12
 var vehicles: Array = [] # [{node, from, to, t, len, lane, speed, stop_t, cls_speed}]
 var _rng := RandomNumberGenerator.new()
-## Set when the player rammed traffic this frame (for a toast).
+## Hold-ups: how long the longest-waiting vehicle has been stuck behind the player's danfo
+## (directly or further back in the queue), and those vehicles (street_clash.gd reacts).
+var holdup_t := 0.0
+var held: Array = []
 
 
 func setup(m: MapData, p: Node2D, mat: Material) -> void:
@@ -27,7 +30,9 @@ func setup(m: MapData, p: Node2D, mat: Material) -> void:
 	_rng.seed = 2026
 
 
-func update(delta: float, focus: Vector2, player_vehicle: Node2D) -> void:
+## player_vehicle: the danfo while you drive it (traffic queues behind it). parked: the danfo when
+## you've left it; traffic swerves around it instead of driving through it.
+func update(delta: float, focus: Vector2, player_vehicle: Node2D, parked: Node2D = null) -> void:
 	# Despawn far vehicles, spawn new ones in a ring around the focus.
 	for v in vehicles.duplicate():
 		if (v["node"] as Node2D).position.distance_to(focus) > (DESPAWN * 2.0 if v.get("jam", false) else DESPAWN):
@@ -37,8 +42,19 @@ func update(delta: float, focus: Vector2, player_vehicle: Node2D) -> void:
 	while vehicles.size() < target_count and tries < 6:
 		tries += 1
 		_try_spawn(focus)
+	holdup_t = 0.0
+	held.clear()
 	for v in vehicles:
-		_drive(v, delta, player_vehicle)
+		_drive(v, delta, player_vehicle, parked)
+		if v.get("held", false):
+			held.append(v)
+			holdup_t = maxf(holdup_t, float(v["held_t"]))
+
+
+## The hold-up was dealt with (the drivers got out): everyone's patience starts again.
+func reset_holdup() -> void:
+	for v in vehicles:
+		v["held_t"] = 0.0
 
 
 ## Story go-slow (mission 1.1): a solid queue of stopped vehicles on the road nearest `pos`,
@@ -133,7 +149,12 @@ func _try_spawn(focus: Vector2) -> void:
 		if (o["node"] as Node2D).position.distance_to(pos) < 200.0:
 			return # never spawn on top of another vehicle
 	var roll := _rng.randf()
-	var kind := "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada"))
+	spawn_on(a, b, t, "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada")))
+
+
+## A vehicle on edge a -> b, t px along it (demo and tests use this directly).
+func spawn_on(a: String, b: String, t: float, kind: String) -> Dictionary:
+	var len: float = (map.road_nodes[a] as Vector2).distance_to(map.road_nodes[b])
 	var n: Node2D = VehicleScript.new()
 	n.set_kind(kind, CAR_COLOURS[_rng.randi() % CAR_COLOURS.size()] if kind == "car" else Color(0, 0, 0, 0))
 	n.material = painted_mat
@@ -141,6 +162,14 @@ func _try_spawn(focus: Vector2) -> void:
 	var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _lane(a, b), "speed": 0.0, "stop_t": 0.0, "cls": _edge_speed(a, b), "kind": kind }
 	_place(v)
 	vehicles.append(v)
+	return v
+
+
+## Where a vehicle in the lane of edge a -> b sits, t px along it.
+func lane_pos(a: String, b: String, t: float) -> Vector2:
+	var pa: Vector2 = map.road_nodes[a]
+	var dir := ((map.road_nodes[b] as Vector2) - pa).normalized()
+	return pa + dir * t + Vector2(-dir.y, dir.x) * _lane(a, b)
 
 
 func _place(v: Dictionary) -> void:
@@ -149,19 +178,21 @@ func _place(v: Dictionary) -> void:
 	var dir := (pb - pa).normalized()
 	var right := Vector2(-dir.y, dir.x) # y points down, so this is the driver's right
 	var n: Node2D = v["node"]
-	n.position = pa + dir * float(v["t"]) + right * float(v["lane"])
+	n.position = pa + dir * float(v["t"]) + right * (float(v["lane"]) - float(v.get("swerve", 0.0)))
 	var h := dir.angle()
 	if absf(angle_difference(n.heading, h)) > 0.01:
 		n.heading = h
 		n.queue_redraw() # code-drawn vehicles only re-draw when they turn
 
 
-func _drive(v: Dictionary, delta: float, player_vehicle: Node2D) -> void:
+func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D = null) -> void:
 	var n: Node2D = v["node"]
 	var want: float = BASE_SPEED * float(v["cls"]) * (1.15 if v["kind"] == "okada" else 1.0)
-	if float(v["stop_t"]) > 0.0:
+	var waiting_story := float(v["stop_t"]) > 0.0
+	if waiting_story:
 		v["stop_t"] = float(v["stop_t"]) - delta
 		want = 0.0
+	var held := false
 	# Queue behind anything ahead in the same lane, including the player's danfo.
 	var fwd := Vector2.from_angle(n.heading)
 	for o in vehicles:
@@ -172,10 +203,23 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D) -> void:
 		if to.length() < 260.0 and to.dot(fwd) > 20.0 and absf(to.cross(fwd)) < 34.0:
 			# Keep a car length of gap: stop dead inside 150 px (device test showed queues piling up).
 			want = 0.0 if to.length() < 150.0 else minf(want, float(o["speed"]) * 0.9)
+			held = held or (o.get("held", false) and to.length() < 200.0)
 	if player_vehicle:
 		var tp := player_vehicle.position - n.position
 		if tp.length() < 240.0 and tp.dot(fwd) > 10.0 and absf(tp.cross(fwd)) < 40.0:
 			want = 0.0
+			held = true
+	# A parked danfo in the lane: pull out around it (toward the middle of the road).
+	var swerve := 0.0
+	if parked:
+		var tq := parked.position - n.position
+		if tq.dot(fwd) > -110.0 and tq.dot(fwd) < 220.0 and absf(tq.cross(fwd)) < 60.0:
+			swerve = 70.0
+			want = minf(want, BASE_SPEED * 0.45)
+	v["swerve"] = move_toward(float(v.get("swerve", 0.0)), swerve, 90.0 * delta)
+	held = held and not waiting_story and absf(player_vehicle.speed if player_vehicle else 99.0) < 25.0
+	v["held"] = held
+	v["held_t"] = float(v.get("held_t", 0.0)) + delta if held else 0.0
 	v["speed"] = move_toward(float(v["speed"]), want, 420.0 * delta)
 	var old_t := float(v["t"])
 	var old_edge: Array = [v["from"], v["to"], v["len"], v["lane"], v["cls"]]

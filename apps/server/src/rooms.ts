@@ -37,6 +37,7 @@ interface Member extends PublicInfo {
   h: number;
   lastMoveAt: number;
   lastWarpAt: number;
+  stillSince: number; // last time the player actually changed position (drag-outs need a stopped vehicle)
   version: number; // increments on every accepted move
   seen: Map<number, number>; // other member id -> version last sent to this member
   strikes: number;
@@ -72,7 +73,7 @@ export class Room {
     this.members.set(id, {
       id, playerId, name: sanitizeName(name), look: sanitizeLook(look),
       x: clamp(x, 0, WORLD.w), y: clamp(y, 0, WORLD.h), f: 0, m: 0, h: 0,
-      lastMoveAt: now, lastWarpAt: 0, version: 1, seen: new Map(), strikes: 0,
+      lastMoveAt: now, lastWarpAt: 0, stillSince: now, version: 1, seen: new Map(), strikes: 0,
     });
     return id;
   }
@@ -98,6 +99,7 @@ export class Room {
       p.strikes++;
       return false;
     }
+    if (dist > 6) p.stillSince = now;
     p.x = clamp(Math.round(x), 0, WORLD.w);
     p.y = clamp(Math.round(y), 0, WORLD.h);
     p.f = clamp(Math.round(f), 0, 3);
@@ -108,9 +110,11 @@ export class Room {
     return true;
   }
 
-  /** Server-side position of an account in this room (for clash distance checks). */
-  findPlayer(playerId: string): { id: number; x: number; y: number; m: Mode; name: string } | null {
-    for (const p of this.members.values()) if (p.playerId === playerId) return { id: p.id, x: p.x, y: p.y, m: p.m, name: p.name };
+  /** Server-side position of an account in this room (for clash checks). `stillMs`: time since it last moved. */
+  findPlayer(playerId: string, now = Date.now()): { id: number; x: number; y: number; m: Mode; name: string; stillMs: number } | null {
+    for (const p of this.members.values()) {
+      if (p.playerId === playerId) return { id: p.id, x: p.x, y: p.y, m: p.m, name: p.name, stillMs: now - p.stillSince };
+    }
     return null;
   }
 

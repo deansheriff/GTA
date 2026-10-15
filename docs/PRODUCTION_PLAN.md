@@ -252,3 +252,8 @@ milestones, make no APK until the game is done, then do one release build.
   - **Street wahala (D-014):** crash hard into traffic and the other driver gets out: Fight (a
     fist-fight mini-game) or Apologise. Online, the server decides, and an apology doesn't
     stop a player who chooses to fight.
+  - **Follow-up (D-014):**
+    - Collisions are mostly quiet now.
+    - Blocking the road brings the drivers behind you out to drag you out and beat you, in story
+      mode too.
+    - Online players can drag stopped drivers out of their vehicles.

@@ -8,6 +8,9 @@ import type { Db } from './db.ts';
  *
  * Fair and cheat-resistant: the server checks the collision against its own positions, creates
  * one move sequence for both fighters, and re-scores each player's input log (as in challenges).
+ * Drag-outs (owner request, 2026-10-15): a player on foot can drag another player out of a STOPPED
+ * vehicle and start a fight straight away: there is no choice phase, because dragging someone out
+ * is already choosing to fight.
  * Slapstick only (Story Bible): no blood, no money changes hands, small cosmetic effects.
  * Abuse limits: per-pair cooldown, hourly cap per player, blocks respected, every clash logged.
  */
@@ -17,6 +20,7 @@ const FIGHT_MS = 25_000;
 const PAIR_COOLDOWN_MS = 3 * 60_000;
 const HOURLY_CAP = 8;
 const CONTACT_PX = 220;
+const DRAG_PX = 170;
 
 export interface ClashParty {
   pid: string;
@@ -32,6 +36,7 @@ interface Clash {
   seq: string[];
   logs: Record<string, unknown>;
   stage: 'choose' | 'fight' | 'done';
+  dragged: boolean;
   timer?: NodeJS.Timeout;
   started: number;
 }
@@ -82,8 +87,31 @@ export class ClashManager {
    * Returns an error code or "ok".
    */
   async report(a: ClashParty, b: ClashParty, posA: { x: number; y: number }, posB: { x: number; y: number }, now = Date.now()): Promise<string> {
+    const r = await this.precheck(a, b, posA, posB, CONTACT_PX, now);
+    if (typeof r === 'string') return r;
+    for (const [me, other] of [[a, b], [b, a]] as const) me.send({ t: 'clash', id: r.id, pid: other.pid, name: other.name, ms: CHOICE_MS });
+    // No answer in time counts as peace (nobody can be forced to click).
+    r.timer = setTimeout(() => void this.decide(r), CHOICE_MS + 500);
+    return 'ok';
+  }
+
+  /**
+   * `a` (on foot) drags `b` out of their stopped vehicle: the fight starts at once. The caller
+   * checks modes and that b's vehicle is stopped (realtime.ts); this checks distance and limits.
+   */
+  async drag(a: ClashParty, b: ClashParty, posA: { x: number; y: number }, posB: { x: number; y: number }, now = Date.now()): Promise<string> {
+    const r = await this.precheck(a, b, posA, posB, DRAG_PX, now);
+    if (typeof r === 'string') return r;
+    r.dragged = true;
+    r.choice[a.pid] = 'fight';
+    r.choice[b.pid] = 'peace';
+    await this.decide(r);
+    return 'ok';
+  }
+
+  private async precheck(a: ClashParty, b: ClashParty, posA: { x: number; y: number }, posB: { x: number; y: number }, reach: number, now: number): Promise<string | Clash> {
     if (a.pid === b.pid) return 'self';
-    if (Math.hypot(posA.x - posB.x, posA.y - posB.y) > CONTACT_PX) return 'too_far';
+    if (Math.hypot(posA.x - posB.x, posA.y - posB.y) > reach) return 'too_far';
     if (this.busy(a.pid) || this.busy(b.pid)) return 'busy';
     const key = this.pairKey(a.pid, b.pid);
     if (now - (this.pairAt.get(key) ?? 0) < PAIR_COOLDOWN_MS) return 'cooldown';
@@ -94,12 +122,9 @@ export class ClashManager {
     mine.push(now);
     this.recent.set(a.pid, mine);
     this.pairAt.set(key, now);
-    const c: Clash = { id: randomBytes(8).toString('hex'), a, b, choice: {}, seq: [], logs: {}, stage: 'choose', started: now };
+    const c: Clash = { id: randomBytes(8).toString('hex'), a, b, choice: {}, seq: [], logs: {}, stage: 'choose', started: now, dragged: false };
     this.active.set(c.id, c);
-    for (const [me, other] of [[a, b], [b, a]] as const) me.send({ t: 'clash', id: c.id, pid: other.pid, name: other.name, ms: CHOICE_MS });
-    // No answer in time counts as peace (nobody can be forced to click).
-    c.timer = setTimeout(() => void this.decide(c), CHOICE_MS + 500);
-    return 'ok';
+    return c;
   }
 
   choose(pid: string, id: unknown, choice: unknown): void {
@@ -126,7 +151,11 @@ export class ClashManager {
     const f = makeFight(c.id);
     c.seq = f.seq;
     for (const [me, other] of [[c.a, c.b], [c.b, c.a]] as const) {
-      me.send({ t: 'clash_fight', id: c.id, name: other.name, seq: f.seq, windows: f.windows, you: c.choice[me.pid] ?? 'peace', them: c.choice[other.pid] ?? 'peace' });
+      me.send({
+        t: 'clash_fight', id: c.id, pid: other.pid, name: other.name, seq: f.seq, windows: f.windows,
+        you: c.choice[me.pid] ?? 'peace', them: c.choice[other.pid] ?? 'peace',
+        ...(c.dragged ? { dragged: true, by: c.a.pid } : {}),
+      });
     }
     c.timer = setTimeout(() => void this.finish(c), FIGHT_MS);
   }

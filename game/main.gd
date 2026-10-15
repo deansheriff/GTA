@@ -57,6 +57,7 @@ var story: StoryHost
 var story_auto := false
 var online: OnlineApps
 var clash := StreetClash.new()
+var _crash_quip_t := 0.0
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
 
@@ -454,6 +455,7 @@ func _process(delta: float) -> void:
 	if not built:
 		return
 	var dt := minf(delta, 0.05)
+	_crash_quip_t -= dt
 	var inp := _input_vector()
 	if story.abilities.in_wahala() or story.paused_by_story():
 		inp = Vector2.ZERO
@@ -472,7 +474,10 @@ func _process(delta: float) -> void:
 		var ev: String = danfo.drive(dt, inp, map)
 		player.position = danfo.position
 		if ev == "crash":
-			hud.toast("Ehn! Who put wall there?")
+			# Only now and then a comment; most knocks are just a crunch (owner feedback).
+			if _crash_quip_t <= 0.0 and randf() < 0.35:
+				_crash_quip_t = 25.0
+				hud.toast(["Ehn! Who put wall there?", "Gbam! Easy, driver.", "The bus don chop wall."][randi() % 3])
 			Sound.sfx("crash")
 			if Life.hero == "tunde":
 				Life.stats["bp"] = minf(100.0, float(Life.stats.get("bp", 20.0)) + 4.0)
@@ -482,7 +487,7 @@ func _process(delta: float) -> void:
 	var view := _view_rect()
 	streamer.update_view(view, dt)
 	lights.sync(get_viewport().get_camera_2d(), get_viewport_rect().size)
-	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null)
+	traffic.update(dt * story.abilities.traffic_scale(), focus, danfo if mode == "driving" and not story.abilities.ghost() else null, danfo if mode == "walking" and not story.interior.active else null)
 	if not story.interior.active:
 		clash.tick(dt)
 	crowd.update(dt, focus)
@@ -556,6 +561,10 @@ func _update_action(focus: Vector2) -> void:
 	elif mode == "walking" and story.ambient_prompt(focus) != "":
 		_action = "talk"
 		hud.set_action(story.ambient_prompt(focus))
+	elif mode == "walking" and clash.drag_target(focus) >= 0:
+		_action = "drag"
+		_action_target = { "id": clash.drag_target(focus) }
+		hud.set_action("Drag %s out!" % (remotes[_action_target["id"]]["walker"] as Node2D).get("display_name"))
 	elif mode == "driving":
 		_action = "exit"
 		hud.set_action("Comot from danfo")
@@ -590,6 +599,8 @@ func _do_action() -> void:
 			story.talk()
 		"enter", "exit":
 			_enter_exit()
+		"drag":
+			clash.drag(int(_action_target["id"]))
 		"vendor":
 			var v: Dictionary = Life.items_db["vendors"][_action_target["vendor"]]
 			hud.open_shop(_action_target["label"], v["stock"])
@@ -743,6 +754,8 @@ func _on_moved(id: int, pos: Vector2, code: int, mode_: int, heading_deg: float)
 	if r["target"] == Vector2.INF:
 		(r["walker"] as Node2D).position = pos
 		(r["danfo"] as Node2D).position = pos
+	if r["target"] == Vector2.INF or pos.distance_to(r["target"]) > 6.0 or mode_ != r["mode"]:
+		r["moved_at"] = Time.get_ticks_msec() # drag-outs need a vehicle that has stopped
 	r["target"] = pos
 	r["code"] = code
 	r["mode"] = mode_
@@ -926,4 +939,33 @@ func _run_demo() -> void:
 	await _shot("08-nepa-off")
 	_set_nepa(true)
 	await _measure("night")
+	_toggle_night()
+	await _demo_holdup()
 	get_tree().quit()
+
+
+## Park in a lane with a clear road ahead and a car behind: honking, then the drivers drag you out.
+func _demo_holdup() -> void:
+	var a := "yaba_s"
+	var b := "tmb_mid"
+	for v in traffic.vehicles:
+		(v["node"] as Node).queue_free()
+	traffic.vehicles.clear()
+	traffic.target_count = 0
+	danfo.position = traffic.lane_pos(a, b, 700.0)
+	danfo.heading = ((map.road_nodes[b] as Vector2) - map.road_nodes[a]).angle()
+	danfo.speed = 0.0
+	if mode != "driving":
+		player.position = danfo.position
+		_enter_exit()
+	traffic.spawn_on(a, b, 300.0, "car")
+	traffic.spawn_on(a, b, 60.0, "danfo")
+	await _wait(6.0)
+	await _shot("09-holdup-honking")
+	await _wait(4.5)
+	await _shot("10-holdup-drivers-coming")
+	await _wait(3.0)
+	await _shot("11-holdup-dragged-out")
+	await _wait(14.0)
+	print("demo: holdup mode=%s energy=%.0f" % [mode, Life.needs["energy"]])
+	await _shot("12-holdup-after")
