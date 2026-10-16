@@ -1,0 +1,46 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2.5-flare",
+  "quality": "medium",
+  "stylePrefix": "Original game art for Naija Street Life, a 2D Nigerian street-life game. STYLE: hand-painted gouache and watercolour texture with confident dark brown-black ink outlines, muted earthy slightly desaturated palette with warm accents, weathered and lived-in contemporary Lagos, soft painted shading lit from the top-left. Match the painting style, palette and line quality of the reference image if one is attached, but do NOT copy its composition.",
+  "styleSuffix": "No text, no letters, no numbers, no logos, no watermark, no border, no UI. No brand names, no logos, no badges, no real company liveries.",
+  "assets": [
+    {
+      "name": "veh-sheet-2",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/veh-danfo-topdown.png"
+      ],
+      "prompt": "A sprite sheet of EIGHT Lagos road vehicles on a fully transparent background, a strict grid of 4 columns by 2 rows, one vehicle per cell centred with empty gaps. Every vehicle is seen from DIRECTLY ABOVE (true top-down plan view, like the second reference image), pointing to the RIGHT (front of the vehicle on the right). (1) a weathered box lorry truck with a tarpaulin, (2) a fuel tanker truck with a cylindrical tank, (3) a long city bus in faded white and blue, (4) a black SUV, (5) a pickup truck with sacks in the back, (6) a yellow and black chequered-stripe taxi sedan, (7) a green and yellow keke tricycle taxi with a canvas roof, (8) an okada motorcycle with its rider in a red helmet. Plain, unbranded, dusty and lived-in."
+    },
+    {
+      "name": "chr-street-life",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/chr-pedestrians-a.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 2 rows, one subject per cell centred with empty gaps, seen from a high top-down three-quarter camera like the people in the second reference image. Lagos street life: (1) a white goat with brown patches walking to the right, (2) a black goat walking to the right, (3) a brown hen pecking, facing right, (4) a hen with three small chicks, (5) a thin stray dog trotting to the right, (6) a tabby cat sitting, (7) a clothes line on two poles with colourful ankara clothes and towels hanging, (8) a charcoal suya grill on a stand with skewers and a wisp of smoke. No ground, no shadows, no labels."
+    },
+    {
+      "name": "bld-sheet-2",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/style-anchor-yaba.png",
+        "art-src/raw/bld-two-storey.png"
+      ],
+      "prompt": "A sprite sheet of FOUR Lagos buildings on a fully transparent background, a strict grid of 2 columns by 2 rows, one building per cell centred with empty gaps, each drawn exactly like the building in the second reference image: high top-down three-quarter view showing the corrugated roof from above and the front (south) wall, front wall facing the viewer. (1) a small hair salon with a blank signboard, plastic chairs outside and hair-dryer hoods visible through the window, (2) a small chemist shop with shelves of medicine boxes behind a counter window and a blank signboard, (3) a bukka eatery with wooden benches, a big cooking pot and a blank board, (4) a three-storey block of flats with balconies, laundry hanging and water tanks on the roof. Blank signboards (no writing)."
+    },
+    {
+      "name": "chr-hero-fight",
+      "size": "1536x1024",
+      "refs": [
+        "art-src/raw/chr-tunde-walk-v2.png",
+        "art-src/raw/chr-ngozi-walk.png",
+        "art-src/raw/chr-kc-walk.png"
+      ],
+      "prompt": "A sprite sheet on a fully transparent background, a strict grid of 4 columns by 3 rows, one full-body pose per cell centred with empty gaps, same scale and feet baseline, seen from a high top-down three-quarter camera. The three characters are EXACTLY the people in the three reference images (same face, clothes, colours and proportions): row 1 the man in the red shirt (Tunde), row 2 the woman in the orange ankara (Aunty Boss), row 3 the young man (KC). For each character, left to right: (1) fists up in a boxing guard facing right, (2) throwing a punch to the right with the arm fully extended, (3) ducking low under a swing, (4) knocked down lying flat on the back, dizzy. Slapstick comedy, no blood, no injuries. No ground, no shadows, no labels."
+    }
+  ]
+}

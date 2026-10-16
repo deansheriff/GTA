@@ -25,10 +25,14 @@ var _needs_bars := {}
 var phone: Control
 var pos_game: Control
 var _action: Button
-var _toast: Label
-var _toast_t := 0.0
 var _settings_panel: Control
 var _theme := Theme.new()
+var toasts: ToastStack
+var celebrate: Celebrate
+var pause: PauseMenu
+var _money_shown := -1.0
+var _money_flash: Label
+var _phone_btn: Button
 
 
 func _ready() -> void:
@@ -60,14 +64,19 @@ func _ready() -> void:
 	root.add_child(online)
 	_online_label = online.get_meta("label")
 
-	var col := VBoxContainer.new()
-	col.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+	# Top-right row (M13): Pause, Phone, Settings sit under the status pills, well clear of the
+	# ability buttons and the action button in the bottom-right corner.
+	var col := HBoxContainer.new()
+	col.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	col.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	col.position = Vector2(-12, -90)
-	col.add_theme_constant_override("separation", 10)
+	col.offset_right = -12
+	col.offset_top = 96
+	col.add_theme_constant_override("separation", 8)
 	root.add_child(col)
-	col.add_child(_button("Phone", func() -> void: if phone: phone.open()))
-	col.add_child(_button("Settings", func() -> void: _show_settings(root)))
+	col.add_child(_icon_button("II", "", func() -> void: if pause: pause.open()))
+	_phone_btn = _icon_button("Phone", "ui/app-chat.png", func() -> void: if phone: phone.open())
+	col.add_child(_phone_btn)
+	col.add_child(_icon_button("", "ui/app-settings.png", func() -> void: _show_settings(root)))
 	if "--dev" in OS.get_cmdline_user_args() or "--demo" in OS.get_cmdline_user_args():
 		col.add_child(_button("Night", func() -> void: toggle_night.emit()))
 		col.add_child(_button("NEPA", func() -> void: toggle_nepa.emit()))
@@ -76,7 +85,7 @@ func _ready() -> void:
 	job.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	job.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	job.offset_right = -12
-	job.offset_top = 98
+	job.offset_top = 160
 	job.visible = false
 	root.add_child(job)
 	_job_label = job.get_meta("label")
@@ -106,24 +115,59 @@ func _ready() -> void:
 		hint.position = Vector2(12, -12)
 		root.add_child(hint)
 
-	_toast = Label.new()
-	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_toast.position = Vector2(0, 150)
-	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_toast.add_theme_font_size_override("font_size", 40)
-	_toast.add_theme_color_override("font_color", DANFO)
-	_toast.add_theme_color_override("font_outline_color", INK)
-	_toast.add_theme_constant_override("outline_size", 10)
-	_toast.visible = false
-	root.add_child(_toast)
+	toasts = ToastStack.new()
+	root.add_child(toasts)
+	toasts.attach_banner(root)
+	celebrate = Celebrate.new()
+	root.add_child(celebrate)
+	pause = PauseMenu.new()
+	add_child(pause)
+	pause.use_theme(_theme)
+	pause.open_settings.connect(func(r: Control) -> void: _show_settings(r))
+	# Money changes: the counter rolls and a "+₦…" floats off it.
+	_money_flash = Label.new()
+	_money_flash.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_money_flash.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_money_flash.offset_right = -24
+	_money_flash.offset_top = 40
+	_money_flash.add_theme_font_override("font", UiStyle.display())
+	_money_flash.add_theme_font_size_override("font_size", 20)
+	_money_flash.add_theme_color_override("font_outline_color", INK)
+	_money_flash.add_theme_constant_override("outline_size", 6)
+	_money_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_money_flash.visible = false
+	root.add_child(_money_flash)
+	Life.money_changed.connect(_on_money)
+	root.resized.connect(func() -> void: UiStyle.fit_safe_area(root))
+	UiStyle.fit_safe_area.call_deferred(root)
 
 	Settings.changed.connect(func(_s: Dictionary) -> void: _apply_ui_scale(root))
 	_apply_ui_scale(root)
 
 
 func set_state(_mode: String, _near_danfo: bool, _night: bool, nepa_on: bool, fps: int) -> void:
-	_stats_label.text = "%s   ₦%s   %s   %s%s" % [Clock.label(), Life.fmt_naira(Life.money), Life.mood_label(), "" if nepa_on else "No light   ", ("%d fps" % fps) if "--demo" in OS.get_cmdline_user_args() else ""]
+	if _money_shown < 0.0:
+		_money_shown = Life.money
+	if phone and _phone_btn:
+		var n: int = phone.badge_total()
+		_phone_btn.text = "Phone" if n == 0 else "Phone (%d)" % n
+	_stats_label.text = "%s   ₦%s   %s   %s%s" % [Clock.label(), Life.fmt_naira(int(round(_money_shown))), Life.mood_label(), "" if nepa_on else "No light   ", ("%d fps" % fps) if "--demo" in OS.get_cmdline_user_args() else ""]
+
+
+## The wallet counter rolls to the new amount; the change floats up next to it in green or red.
+func _on_money(amount: int, delta: int, _reason: String) -> void:
+	if delta == 0:
+		return
+	var tw := create_tween()
+	tw.tween_property(self, "_money_shown", float(amount), 0.6).set_trans(Tween.TRANS_SINE)
+	_money_flash.text = "%s₦%s" % ["+" if delta > 0 else "−", Life.fmt_naira(absi(delta))]
+	_money_flash.add_theme_color_override("font_color", Color("#9fd38a") if delta > 0 else Color("#ff8a70"))
+	_money_flash.visible = true
+	_money_flash.modulate.a = 1.0
+	_money_flash.offset_top = 46
+	var ft := create_tween()
+	ft.tween_property(_money_flash, "offset_top", 22.0, 1.0)
+	ft.parallel().tween_property(_money_flash, "modulate:a", 0.0, 1.0).set_delay(0.5)
 	for n in _needs_bars:
 		var pb: ProgressBar = _needs_bars[n]
 		pb.value = Life.needs[n]
@@ -224,18 +268,13 @@ func set_online(text: String) -> void:
 	_online_label.text = text
 
 
+## Something worth a banner: awards, a new bus, a new house… (ui/celebrate.gd)
+func celebrate_moment(kicker: String, title: String) -> void:
+	celebrate.show_moment(kicker, title)
+
+
 func toast(text: String, big := false) -> void:
-	_toast.text = text
-	_toast.add_theme_font_size_override("font_size", 52 if big else 26)
-	_toast.visible = true
-	_toast_t = 2.4
-
-
-func _process(delta: float) -> void:
-	if _toast_t > 0.0:
-		_toast_t -= delta
-		if _toast_t <= 0.0:
-			_toast.visible = false
+	toasts.show_toast(text, big)
 
 
 # ---------- dialogs ----------
@@ -364,6 +403,7 @@ func _show_settings(root: Control) -> void:
 # ---------- building blocks ----------
 
 func _build_theme() -> void:
+	UiStyle.apply(_theme)
 	_theme.default_font_size = 18
 	_theme.set_stylebox("normal", "Button", _box(Color(0.11, 0.09, 0.07, 0.86), DANFO.darkened(0.15)))
 	_theme.set_stylebox("hover", "Button", _box(Color(0.18, 0.15, 0.11, 0.9), DANFO))
@@ -391,8 +431,20 @@ func _box(bg: Color, border: Color, radius := 12) -> StyleBoxFlat:
 func _button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(48, 48)
+	b.custom_minimum_size = Vector2(56, 56) # thumb-sized (M13)
 	b.pressed.connect(cb)
+	return b
+
+
+## A compact square-ish button with a painted icon (and optional text).
+func _icon_button(text: String, icon_path: String, cb: Callable) -> Button:
+	var b := _button(text, cb)
+	b.custom_minimum_size = Vector2(60, 56)
+	var t: Texture2D = Art.tex(icon_path) if icon_path != "" else null
+	if t:
+		b.icon = t
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 34)
 	return b
 
 
@@ -530,6 +582,9 @@ func _apply_ui_scale(root: Control) -> void:
 
 ## Android back button / Escape: close the top-most closable dialog. Returns false if none was open.
 func close_top_dialog() -> bool:
+	if pause and pause.visible:
+		pause.close()
+		return true
 	var open := get_tree().get_nodes_in_group("closable_dialog")
 	for i in range(open.size() - 1, -1, -1):
 		var d: Node = open[i]

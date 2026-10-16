@@ -22,14 +22,71 @@ func setup(s: Layout.BuildingSpec) -> void:
 		add_child(_art)
 
 
+## Painted variants (M13) of the same footprint, chosen per building so streets don't repeat:
+## a third of canteens are bukkas; POS shops and provision stores that don't sell to you are
+## salons and chemists; a third of two-storeys are blocks of flats.
+static func look_of(s: Layout.BuildingSpec) -> String:
+	match s.art:
+		"canteen":
+			return "bukka" if s.seed % 3 == 0 and Art.tex("buildings/bukka.png") else s.art
+		"pos-shop":
+			return "salon" if s.seed % 2 == 1 and Art.tex("buildings/salon.png") else s.art
+		"provision-store":
+			return "chemist" if s.seed % 2 == 1 and Art.tex("buildings/chemist.png") else s.art
+		"two-storey":
+			return "flats" if s.seed % 3 == 0 and s.landmark == "" and Art.tex("buildings/flats.png") else s.art
+	return s.art
+
+
+const SIGNS := {
+	"bukka": ["Iya Basira Bukka", "Correct Amala Spot", "Mama Put Delight"],
+	"canteen": ["Mama Nkem Kitchen", "Belle Full Canteen", "Sweet Soup Spot"],
+	"salon": ["Blessed Hands Salon", "Glamour Touch Unisex", "Fine Girl Hair Palace"],
+	"chemist": ["Divine Favour Chemist", "Good Health Medicine Store", "Healing Hands Chemist"],
+	"pos-shop": ["God's Time POS & Recharge", "Konnect Phone Centre", "No Network No Wahala POS"],
+	"provision-store": ["Ola & Sons Provisions", "Everyday Supermart", "Mama Nkem Provisions"],
+}
+const BOARD_COLOURS := [Color("#2f6f99"), Color("#a8382c"), Color("#2f8a52"), Color("#76418a"), Color("#c8862a")]
+
+
+## The roadside signboard: the landmark's name, or a fictional shop name for this kind of shop.
+func sign_name() -> String:
+	if spec.sign_text != "":
+		return spec.sign_text
+	var names: Array = SIGNS.get(look_of(spec), [])
+	return names[spec.seed % names.size()] if not names.is_empty() and spec.seed % 3 != 2 else ""
+
+
 static func _art_for(s: Layout.BuildingSpec) -> String:
 	if s.art != "":
-		return "buildings/%s.png" % s.art
+		return "buildings/%s.png" % look_of(s)
 	if s.size.x >= 5 or s.height >= 96:
 		return "buildings/two-storey.png"
 	if s.size.x == 4:
 		return "buildings/bungalow.png" if s.seed % 2 == 0 else "buildings/two-storey.png"
 	return ["buildings/canteen.png", "buildings/pos-shop.png", "buildings/provision-store.png"][s.seed % 3]
+
+
+## A painted board on a pole at the front-left corner, as shops put up by the road.
+func _draw_roadside_sign(r: RandomNumberGenerator) -> void:
+	var text := sign_name()
+	if text == "":
+		return
+	var font := ThemeDB.fallback_font
+	var fs := 12
+	var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var bw := tw + 18.0
+	var base := Vector2(-6, 18)
+	var top := base + Vector2(0, -58)
+	draw_line(base, top, Color("#3a2a1c"), 3.0)
+	draw_line(base + Vector2(bw - 6.0, 0), top + Vector2(bw - 6.0, 0), Color("#3a2a1c"), 3.0)
+	var board := Rect2(top + Vector2(-6, -24), Vector2(bw, 26))
+	var col: Color = BOARD_COLOURS[spec.seed % BOARD_COLOURS.size()]
+	draw_rect(Rect2(board.position + Vector2(3, 3), board.size), Color(0, 0, 0, 0.25))
+	draw_rect(board, col.darkened(0.15))
+	draw_rect(board, Ink.COLOR, false, 2.0)
+	draw_string(font, board.position + Vector2(9, 18), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("#f1e6c8"))
+	r.randf() # keep the rest of the drawing's random sequence stable
 
 
 func _draw() -> void:
@@ -41,6 +98,7 @@ func _draw() -> void:
 	if _art:
 		# Soft contact shadow along the front and right side; the painting carries its own shading.
 		Ink.shadow(self, Vector2(w * 0.5, 4), Vector2(w * 0.56, 16), 0.32)
+		_draw_roadside_sign(r)
 		return
 	# Ground shadow falling to the bottom-right.
 	draw_colored_polygon(PackedVector2Array([

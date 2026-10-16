@@ -165,7 +165,7 @@ func _npc_clash(v: Dictionary) -> void:
 ## Who climbs out matches what they drive (characters/drivers-a.png): a danfo driver, conductor
 ## or truck driver; a taxi man, office worker or woman driver from a car; a keke driver; an okada
 ## rider with his helmet.
-const DRIVER_LOOKS := { "danfo": [0, 1, 3], "car": [2, 4, 5], "keke": [6], "okada": [7] }
+const DRIVER_LOOKS := { "danfo": [0, 1, 3], "car": [2, 4, 5], "taxi": [2], "suv": [4, 5], "pickup": [3, 0], "truck": [3], "tanker": [3], "bus": [0, 2], "keke": [6], "okada": [7] }
 
 
 func _spawn_driver(veh: Node2D) -> Node2D:

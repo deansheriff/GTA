@@ -13,6 +13,10 @@ var has_save := false
 var _root: Control
 var _menu: VBoxContainer
 var _loading: Label
+var _tip: Label
+var _tip_t := 0.0
+var _tip_i := 0
+const TIPS := ["Tip: argue with the marshals only when your street reputation is good.", "Tip: park off the lane, or the drivers behind you will get out.", "Tip: rain means higher fares, but the low roads flood.", "Tip: a generator saves your sleep when NEPA takes light.", "Tip: crews that hold a route earn 10% more on every run.", "Tip: the Traffic Gist station warns you about checkpoints on your route.", "Tip: hide off the main roads to cool your Area heat.", "Tip: Mallam's suya stand pays well after 7pm."]
 var _scene: Control
 
 
@@ -21,6 +25,8 @@ func _ready() -> void:
 	_root = Control.new()
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_root)
+	_root.theme = Theme.new()
+	UiStyle.apply(_root.theme)
 	var bg := ColorRect.new()
 	bg.color = Color("#0d0a07")
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -39,6 +45,7 @@ func _ready() -> void:
 		l.text = t[0]
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		l.add_theme_font_size_override("font_size", t[1])
+		l.add_theme_font_override("font", UiStyle.display())
 		l.add_theme_color_override("font_color", t[2])
 		l.add_theme_color_override("font_outline_color", INK)
 		l.add_theme_constant_override("outline_size", 18)
@@ -59,12 +66,24 @@ func _ready() -> void:
 	_loading.add_theme_color_override("font_outline_color", INK)
 	_loading.add_theme_constant_override("outline_size", 10)
 	menu.add_child(_loading)
+	_tip = Label.new()
+	_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tip.custom_minimum_size = Vector2(620, 0)
+	_tip.add_theme_font_size_override("font_size", 17)
+	_tip.add_theme_color_override("font_color", PAPER)
+	_tip.add_theme_color_override("font_outline_color", INK)
+	_tip.add_theme_constant_override("outline_size", 7)
+	_tip.text = TIPS[randi() % TIPS.size()]
+	menu.add_child(_tip)
 
 
 ## Called once the world is built: swap "Loading…" for the menu.
 func set_ready(saved: bool) -> void:
 	has_save = saved
 	_loading.queue_free()
+	_tip.queue_free()
+	_tip = null
 	_build_menu(_menu)
 
 
@@ -144,3 +163,13 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 func set_map(m: MapData) -> void:
 	if _scene and _scene.has_method("set_map"):
 		_scene.set_map(m)
+
+
+func _process(delta: float) -> void:
+	if _tip == null:
+		return
+	_tip_t += delta
+	if _tip_t > 4.0:
+		_tip_t = 0.0
+		_tip_i += 1
+		_tip.text = TIPS[(_tip_i + int(Time.get_ticks_msec())) % TIPS.size()]

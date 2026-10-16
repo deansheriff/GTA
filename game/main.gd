@@ -63,6 +63,8 @@ var _crash_quip_t := 0.0
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
 var _bake_dir := ""
+var _grade: ColorRect
+var zoom_base := 1.0 # the player's chosen zoom (pinch / wheel); speed pulls the camera back from it
 
 
 func _ready() -> void:
@@ -305,6 +307,17 @@ func _build_camera() -> void:
 	tr.texture = vt
 	vignette.add_child(tr)
 	add_child(vignette)
+	# Time-of-day colour grade (M13), above the world and the night lighting, under the HUD.
+	var grade_layer := CanvasLayer.new()
+	grade_layer.layer = 6
+	_grade = ColorRect.new()
+	_grade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_grade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var gm := ShaderMaterial.new()
+	gm.shader = preload("res://shaders/grade.gdshader")
+	_grade.material = gm
+	grade_layer.add_child(_grade)
+	add_child(grade_layer)
 
 
 # ---------- settings ----------
@@ -452,7 +465,8 @@ func _input_vector() -> Vector2:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ESCAPE and hud:
-		hud.close_top_dialog()
+		if not hud.close_top_dialog() and built:
+			hud.pause.open()
 		return
 	if not built:
 		return
@@ -462,15 +476,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		story.on_ability("horn")
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			camera.zoom = (camera.zoom * 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
+			zoom_base = clampf(zoom_base * 1.1, 0.35, 2.0)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			camera.zoom = (camera.zoom / 1.1).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
+			zoom_base = clampf(zoom_base / 1.1, 0.35, 2.0)
 		elif event.button_index == MOUSE_BUTTON_LEFT and story and story.interior.active:
 			story.interior.tap(event.position)
 		elif event.button_index == MOUSE_BUTTON_LEFT and mode == "walking":
 			_walk_to(get_global_mouse_position())
 	elif event is InputEventMagnifyGesture:
-		camera.zoom = (camera.zoom * event.factor).clamp(Vector2(0.35, 0.35), Vector2(2, 2))
+		zoom_base = clampf(zoom_base * event.factor, 0.35, 2.0)
 
 
 # ---------- loop ----------
@@ -480,6 +494,11 @@ func _process(delta: float) -> void:
 		return
 	var dt := minf(delta, 0.05)
 	_crash_quip_t -= dt
+	_update_grade()
+	# Camera feel: pull back as the bus picks up speed so you can see what's coming.
+	var speed_k := clampf(absf(danfo.speed) / 380.0, 0.0, 1.0) if mode == "driving" and not story.interior.active else 0.0
+	var want_zoom := zoom_base * (1.0 - 0.2 * speed_k)
+	camera.zoom = camera.zoom.lerp(Vector2(want_zoom, want_zoom), minf(1.0, dt * 1.6))
 	var inp := _input_vector()
 	if story.abilities.in_wahala() or story.paused_by_story():
 		inp = Vector2.ZERO
@@ -689,6 +708,9 @@ func _notification(what: int) -> void:
 	# Android back: close the top dialog, phone or map first; only quit when nothing is open.
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		if hud and hud.close_top_dialog():
+			return
+		if hud and built:
+			hud.pause.open() # nothing open: pause (Save & quit lives there)
 			return
 		if not demo:
 			SaveGame.save_now()
@@ -1134,6 +1156,38 @@ func _demo_street() -> void:
 	while story.paused_by_story():
 		await get_tree().process_frame
 	story._games["fight"].autoplay = false
+	# M13 polish: messages, an unlock banner, the pause menu, street life, rain puddles.
+	if mode == "driving":
+		danfo.speed = 0.0
+		_enter_exit()
+	_teleport(map.landmarks["oshodi-market"]["pos"] + Vector2(160, 160))
+	for i in 12:
+		street.fauna._spawn_t = 0.0
+		street.fauna.tick(0.016)
+	await _wait(3.0)
+	hud.toast("Fares: ₦8,400. Agbero took ₦840 \"for the boys\".")
+	hud.toast("Fuel light don on. 11% left.")
+	hud.toast("Task Force! Come down from that bus!")
+	await _wait(0.4)
+	await _shot("23-toasts-street-life")
+	hud.celebrate_moment("AWARD UNLOCKED", "Survived Third Mainland at 5pm")
+	await _wait(0.9)
+	await _shot("24-celebrate")
+	await _wait(3.5)
+	street.weather.force_rain(30)
+	street.fauna.wet = 1.0
+	await _wait(5.0)
+	await _shot("25-rain-puddles")
+	hud.pause.open()
+	await get_tree().create_timer(0.5, true, false, true).timeout
+	await _shot("26-pause")
+	hud.pause.close()
+	hud.phone.set_badge("Fleet", 1)
+	hud.phone.set_badge("Awards", 2)
+	hud.phone.open()
+	await _wait(0.5)
+	await _shot("27-phone-home")
+	hud.phone.visible = false
 	print("demo: street ok heat=%.1f fuel=%.0f damage=%.0f awards=%d" % [Street.heat, Street.fuel, Street.damage, Street.achieved.size()])
 
 
@@ -1269,3 +1323,32 @@ func _bake_aerial(dir: String) -> void:
 	print("bake: aerial %s, %d tiles, shore %dx%d" % [out_size, tiles.x * tiles.y, map.cols, map.rows])
 	Settings.set_value("weather", had_weather)
 	get_tree().quit()
+
+
+## Morning cool, midday clean, golden late afternoon; nothing at night (the lights take over).
+func _update_grade() -> void:
+	if _grade == null:
+		return
+	var on: bool = Settings.get_value("effects", "low") != "off"
+	_grade.visible = on
+	if not on:
+		return
+	var h := Clock.hour() + Clock.minute() / 60.0
+	var tint := Vector3(1, 1, 1)
+	var sat := 1.06
+	var strength := 1.0
+	if h < 6.0 or h >= 20.0:
+		strength = 0.0
+	elif h < 9.0:
+		tint = Vector3(0.97, 1.0, 1.04).lerp(Vector3(1, 1, 1), (h - 6.0) / 3.0)
+	elif h >= 16.0:
+		var k := clampf((h - 16.0) / 2.5, 0.0, 1.0)
+		tint = Vector3(1, 1, 1).lerp(Vector3(1.08, 0.99, 0.86), k)
+		sat = lerpf(1.06, 1.12, k)
+		strength = 1.0 - clampf((h - 19.0) / 1.0, 0.0, 1.0)
+	var m := _grade.material as ShaderMaterial
+	m.set_shader_parameter("tint", tint)
+	m.set_shader_parameter("saturation", sat)
+	m.set_shader_parameter("contrast", 1.04)
+	m.set_shader_parameter("strength", strength)
+	_grade.visible = strength > 0.01

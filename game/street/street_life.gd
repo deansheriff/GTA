@@ -350,6 +350,7 @@ func buy_bus(slogan: String, colour: String) -> String:
 	Street.fleet.append({ "id": "bus-%d" % Time.get_ticks_msec(), "name": "Bus %d" % (Street.fleet.size() + 2), "slogan": slogan, "colour": colour, "driver": {}, "route": "", "condition": 100.0, "earned": 0 })
 	Street.record("buses_owned", Street.fleet.size() + 1)
 	Street.post_gist("fleet", "%s just bought another danfo: \"%s\"." % [Street._me(), slogan])
+	main.hud.celebrate_moment("NEW BUS IN THE FLEET", "\"%s\"" % slogan)
 	Street.changed.emit()
 	return "New bus! Hire a driver and give it a route."
 
@@ -424,6 +425,7 @@ func fleet_payout() -> void:
 		Life.spend(mini(-total, Life.money), "Fleet costs")
 	fleet_report = "Day %d fleet report: ₦%s total.\n%s" % [Clock.day(), Life.fmt_naira(total), "\n".join(PackedStringArray(notes))]
 	main.hud.toast("Fleet returns: ₦%s. (Phone > Fleet)" % Life.fmt_naira(total))
+	main.hud.phone.set_badge("Fleet", 1)
 	Street.changed.emit()
 
 
@@ -440,6 +442,7 @@ func upgrade_home() -> String:
 	if Street.home_tier >= 3:
 		Street.count("duplex")
 	Street.post_gist("home", "%s moved into a %s!" % [Street._me(), next["name"]])
+	main.hud.celebrate_moment("NEW HOUSE", next["name"])
 	Street.changed.emit()
 	return "Welcome to your %s! %s" % [next["name"], next["note"]]
 
@@ -452,6 +455,7 @@ func buy_generator(tier: int) -> String:
 		return "Money no reach."
 	Street.generator = tier
 	Street.count("generator")
+	main.hud.celebrate_moment("NEPA, DO YOUR WORST", gens[tier]["name"])
 	Street.changed.emit()
 	return "%s installed. NEPA, do your worst." % gens[tier]["name"]
 

@@ -16,6 +16,10 @@ const APP_ICON := { "Map": "map", "Hustle": "hustle", "Bank": "bank", "Me": "me"
 var _screen: VBoxContainer
 var _title: Label
 var _apps := [] # [{name, builder: Callable}]
+## Home screen (M13): wallpaper, a dock of the four everyday apps, and badges on apps with news.
+const DOCK := ["Map", "Hustle", "Bank", "Gist"]
+var badges := {} # app name -> count
+var _dock: HBoxContainer
 
 
 func setup(job_runner: JobRunner) -> void:
@@ -44,6 +48,19 @@ func setup(job_runner: JobRunner) -> void:
 	body.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	body.position = Vector2(-24, -280)
 	add_child(body)
+	# Wallpaper: the island from the air (the title bake), dimmed so text stays readable.
+	var aerial: Texture2D = load("res://art/title/aerial.jpg") if ResourceLoader.exists("res://art/title/aerial.jpg") else null
+	if aerial:
+		var crop := AtlasTexture.new()
+		crop.atlas = aerial
+		crop.region = Rect2(aerial.get_width() * 0.42, aerial.get_height() * 0.38, aerial.get_width() * 0.26, aerial.get_height() * 0.5)
+		var wall := TextureRect.new()
+		wall.texture = crop
+		wall.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		wall.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		wall.modulate = Color(0.42, 0.4, 0.38)
+		wall.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		body.add_child(wall)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 10)
 	body.add_child(v)
@@ -72,6 +89,18 @@ func setup(job_runner: JobRunner) -> void:
 	_screen.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_screen.add_theme_constant_override("separation", 8)
 	scroll.add_child(_screen)
+	_dock = HBoxContainer.new()
+	_dock.alignment = BoxContainer.ALIGNMENT_CENTER
+	_dock.add_theme_constant_override("separation", 10)
+	var dock_bg := PanelContainer.new()
+	var dsb := StyleBoxFlat.new()
+	dsb.bg_color = Color(0.95, 0.9, 0.79, 0.18)
+	dsb.set_corner_radius_all(18)
+	dsb.content_margin_top = 6
+	dsb.content_margin_bottom = 6
+	dock_bg.add_theme_stylebox_override("panel", dsb)
+	dock_bg.add_child(_dock)
+	v.add_child(dock_bg)
 	add_app("Map", func() -> void:
 		visible = false
 		open_map.emit())
@@ -89,6 +118,23 @@ func add_app(app_name: String, builder: Callable) -> void:
 	_apps.append({ "name": app_name, "builder": builder })
 
 
+## A small red count on an app's icon (fleet report, new award, crew news…). 0 clears it.
+func set_badge(app_name: String, n: int) -> void:
+	if n <= 0:
+		badges.erase(app_name)
+	else:
+		badges[app_name] = n
+	if visible and _title.text.begins_with("Naija Street Life"):
+		show_home()
+
+
+func badge_total() -> int:
+	var t := 0
+	for k in badges:
+		t += int(badges[k])
+	return t
+
+
 func open() -> void:
 	visible = true
 	Sound.sfx("tap")
@@ -102,27 +148,60 @@ func show_home() -> void:
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
 	_screen.add_child(grid)
+	(_dock.get_parent() as Control).visible = true
+	for c in _dock.get_children():
+		c.queue_free()
 	for a in _apps:
-		var b := Button.new()
-		b.text = a["name"]
-		b.custom_minimum_size = Vector2(84, 92)
-		var icon: Texture2D = Art.tex("ui/app-%s.png" % APP_ICON.get(a["name"], "story"))
-		if icon:
-			b.icon = icon
-			b.expand_icon = true
-			b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-			b.add_theme_constant_override("icon_max_width", 52)
-		var cb: Callable = a["builder"]
-		var nm: String = a["name"]
-		b.pressed.connect(func() -> void:
-			_title.text = nm
-			cb.call())
-		grid.add_child(b)
+		if a["name"] in DOCK:
+			_dock.add_child(_app_button(a, Vector2(76, 76)))
+		else:
+			grid.add_child(_app_button(a, Vector2(84, 92)))
+
+
+func _app_button(a: Dictionary, size: Vector2) -> Button:
+	var b := Button.new()
+	b.text = a["name"]
+	b.custom_minimum_size = size
+	var icon: Texture2D = Art.tex("ui/app-%s.png" % APP_ICON.get(a["name"], "story"))
+	if icon:
+		b.icon = icon
+		b.expand_icon = true
+		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		b.add_theme_constant_override("icon_max_width", 52 if size.y > 80 else 44)
+	var cb: Callable = a["builder"]
+	var nm: String = a["name"]
+	b.pressed.connect(func() -> void:
+		set_badge(nm, 0)
+		_title.text = nm
+		(_dock.get_parent() as Control).visible = false
+		cb.call())
+	var n := int(badges.get(nm, 0))
+	if n > 0:
+		var dot := Label.new()
+		dot.text = str(n) if n < 10 else "9+"
+		dot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		dot.custom_minimum_size = Vector2(24, 24)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("#c8432f")
+		sb.set_corner_radius_all(12)
+		sb.border_color = INK
+		sb.set_border_width_all(2)
+		dot.add_theme_stylebox_override("normal", sb)
+		dot.add_theme_color_override("font_color", Color.WHITE)
+		dot.add_theme_font_size_override("font_size", 13)
+		dot.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+		dot.offset_left = -26
+		dot.offset_top = 2
+		b.add_child(dot)
+	return b
 
 
 func _clear(title: String) -> void:
 	_title.text = title
+	if _dock:
+		(_dock.get_parent() as Control).visible = title.begins_with("Naija Street Life")
 	for c in _screen.get_children():
 		c.queue_free()
 

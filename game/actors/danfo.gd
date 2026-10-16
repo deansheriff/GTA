@@ -10,6 +10,13 @@ const KINDS := {
 	"car": { "len": 104.0, "wid": 50.0, "h": 30.0, "body": Color("#2f6f99"), "stripe": false },
 	"keke": { "len": 64.0, "wid": 40.0, "h": 34.0, "body": Color("#3f8a3a"), "stripe": false },
 	"okada": { "len": 46.0, "wid": 16.0, "h": 22.0, "body": Color("#a8382c"), "stripe": false },
+	# M13: more of the road (painted top-down art in art/vehicles/).
+	"taxi": { "len": 106.0, "wid": 50.0, "h": 30.0, "body": Color("#e0b21c"), "stripe": false },
+	"suv": { "len": 112.0, "wid": 54.0, "h": 38.0, "body": Color("#1d1d1d"), "stripe": false },
+	"pickup": { "len": 126.0, "wid": 54.0, "h": 34.0, "body": Color("#2f6f99"), "stripe": false },
+	"truck": { "len": 176.0, "wid": 64.0, "h": 58.0, "body": Color("#2f6f99"), "stripe": false },
+	"tanker": { "len": 180.0, "wid": 64.0, "h": 58.0, "body": Color("#c8432f"), "stripe": false },
+	"bus": { "len": 214.0, "wid": 66.0, "h": 56.0, "body": Color("#efe8d6"), "stripe": false },
 }
 
 var kind := "danfo"

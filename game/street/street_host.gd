@@ -22,6 +22,8 @@ var hustles: Hustles
 var life: StreetLife
 var online: StreetOnline
 var fights: FightStage
+var lamps: VehicleLights
+var fauna: StreetLifeFx
 var points: Array = [] # service points: {pos, kind, label, ...}
 var _hud: Control
 var _fuel_bar: ProgressBar
@@ -49,14 +51,17 @@ func setup(m: Node2D) -> void:
 	life = StreetLife.new()
 	online = StreetOnline.new()
 	fights = FightStage.new()
-	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online, fights]:
+	lamps = VehicleLights.new()
+	fauna = StreetLifeFx.new()
+	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online, fights, lamps, fauna]:
 		add_child(mod)
 		mod.setup(self)
 	points = care.build_points(main.map) + life.build_points(main.map) + hustles.build_points(main.map)
 	_build_hud()
 	Street.unlocked.connect(func(_id: String, title: String) -> void:
-		Sound.sfx("success")
-		main.hud.toast("Award: %s" % title))
+		main.hud.celebrate_moment("AWARD UNLOCKED", title)
+		main.hud.phone.set_badge("Awards", int(main.hud.phone.badges.get("Awards", 0)) + 1))
+	Street.gist_posted.connect(func(_e: Dictionary) -> void: main.hud.phone.set_badge("Gist", int(main.hud.phone.badges.get("Gist", 0)) + 1))
 	main.jobs.job_changed.connect(passengers.on_job_changed)
 
 
@@ -77,6 +82,8 @@ func tick(dt: float) -> void:
 	hustles.tick(dt)
 	life.tick(dt)
 	online.tick(dt)
+	lamps.tick(dt)
+	fauna.tick(dt)
 	_tick_awards()
 	_update_hud(dt)
 
@@ -200,6 +207,8 @@ func _build_hud() -> void:
 	_bus_bar = _bar("Bus", Color("#2f8a52"))
 	_heat_label = _small_label("")
 	_heat_label.add_theme_color_override("font_color", Color("#ff7a5c"))
+	_heat_label.add_theme_font_override("font", UiStyle.display())
+	_heat_label.add_theme_font_size_override("font_size", 17)
 	_hud.add_child(_heat_label)
 	_ticker = _small_label("")
 	_ticker.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
@@ -273,3 +282,30 @@ func _update_hud(dt: float) -> void:
 	_radio_btn.text = "Radio: %s" % radio.station_short()
 	_ticker_t -= dt
 	_ticker.visible = _ticker_t > 0.0 and not main.story.paused_by_story()
+	# A chase makes the heat display pulse.
+	_heat_label.modulate.a = 0.55 + 0.45 * absf(sin(Time.get_ticks_msec() / 220.0)) if not heat.vans.is_empty() else 1.0
+	_marks_t -= dt
+	if _marks_t <= 0.0:
+		_marks_t = 0.5
+		_update_marks()
+
+
+var _marks_t := 0.0
+
+
+## Hazards and events on the minimap.
+func _update_marks() -> void:
+	var marks := []
+	if not checkpoints.active.is_empty():
+		marks.append({ "pos": checkpoints.active["pos"], "kind": "checkpoint" })
+	for v: Dictionary in heat.vans:
+		marks.append({ "pos": (v["node"] as Node2D).position, "kind": "van" })
+	if weather.flood > 0.3:
+		for s: Vector2 in weather.spots:
+			marks.append({ "pos": s, "kind": "flood" })
+	var ev := life.daily_event()
+	if not ev.is_empty() and life._event_hours(ev) and Street.daily.get("stage") in ["new", "runs"] and main.map.landmarks.has(ev["where"]):
+		marks.append({ "pos": main.map.landmarks[ev["where"]]["pos"], "kind": "event" })
+	main.hud.minimap.marks = marks
+	if main.hud.map_screen.get("marks") != null:
+		main.hud.map_screen.marks = marks

@@ -77,6 +77,39 @@ func add_light(pos: Vector2, radius: float, energy: float, generator: bool) -> i
 	return h
 
 
+## A light that moves (vehicle headlights and tail lights, M13): any texture and colour, always
+## on whatever NEPA is doing (they run on the vehicle's battery). Place it with move_light().
+func add_moving_light(tex: Texture2D, col: Color) -> int:
+	var s := Sprite2D.new()
+	s.texture = tex
+	s.modulate = col
+	var m := CanvasItemMaterial.new()
+	m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	s.material = m
+	_vp.add_child(s)
+	var h := _next
+	_next += 1
+	_lights[h] = { "sprite": s, "generator": false, "always": true }
+	return h
+
+
+func move_light(h: int, pos: Vector2, rot: float, scale: Vector2) -> void:
+	if not _lights.has(h):
+		return
+	var s: Sprite2D = _lights[h]["sprite"]
+	s.position = pos
+	s.rotation = rot
+	s.scale = scale
+
+
+func is_night() -> bool:
+	return _night and darkness > 0.05
+
+
+func radial_texture() -> Texture2D:
+	return _tex
+
+
 func remove_light(h: int) -> void:
 	if _lights.has(h):
 		(_lights[h]["sprite"] as Node).queue_free()
@@ -102,7 +135,7 @@ func _refresh() -> void:
 	mat.set_shader_parameter("dark", Color.WHITE.lerp(base, darkness))
 	mat.set_shader_parameter("use_lights", _enabled)
 	for h in _lights:
-		(_lights[h]["sprite"] as Sprite2D).visible = _lit(_lights[h]["generator"])
+		(_lights[h]["sprite"] as Sprite2D).visible = _lights[h].get("always", false) or _lit(_lights[h]["generator"])
 
 
 ## Keep the light buffer aligned with the game camera.

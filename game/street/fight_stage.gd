@@ -18,6 +18,12 @@ var _me_home := Vector2.ZERO
 var _them_home := Vector2.ZERO
 var _me_was_visible := true
 var _active := false
+## Painted fight poses for the heroes (art/characters/hero-fight.png): rows Tunde, Aunty Boss, KC;
+## columns guard, punch, duck, knocked down. Facing right in the art.
+const POSE_ROW := { "tunde": 0, "ngozi": 1, "kc": 2 }
+enum Pose { GUARD, PUNCH, DUCK, DOWN }
+var _pose: Sprite2D
+var _pose_t := 0.0
 
 
 func setup(h: StreetHost) -> void:
@@ -59,6 +65,7 @@ func begin(params: Dictionary) -> void:
 	_me_home = me.position
 	_them_home = them.position
 	_face()
+	_start_poses()
 	# Close in: a fight camera between the two.
 	_cam = Camera2D.new()
 	# Frame the fighters in the upper part of the screen: the buttons sit along the bottom.
@@ -94,6 +101,49 @@ func _open_ground(near: Vector2) -> Vector2:
 	return near
 
 
+func _start_poses() -> void:
+	var t := Art.tex("characters/hero-fight.png")
+	var info := Art.sheet_info("characters/hero-fight.png")
+	if t == null or info.is_empty() or not POSE_ROW.has(Life.hero):
+		return
+	_pose = Sprite2D.new()
+	_pose.texture = t
+	_pose.hframes = int(info["cols"])
+	_pose.vframes = int(info["rows"])
+	var sc := 72.0 / float(info["frameH"]) # a touch bigger than walking: it's a fight
+	_pose.scale = Vector2(sc, sc)
+	_pose.position = Vector2(0, -(float(info["frameH"]) * 0.5 - 2.0) * sc)
+	_pose.flip_h = them.position.x < me.position.x
+	me.add_child(_pose)
+	var spr: Variant = me.get("_spr")
+	if spr is Sprite2D:
+		(spr as Sprite2D).visible = false
+	_set_pose(Pose.GUARD)
+
+
+func _set_pose(p: int, hold := 0.0) -> void:
+	if _pose == null:
+		return
+	_pose.frame = int(POSE_ROW[Life.hero]) * _pose.hframes + p
+	_pose_t = hold
+
+
+func _end_poses() -> void:
+	if _pose:
+		_pose.queue_free()
+		_pose = null
+	var spr: Variant = me.get("_spr")
+	if spr is Sprite2D:
+		(spr as Sprite2D).visible = true
+
+
+func _process(delta: float) -> void:
+	if _pose and _pose_t > 0.0:
+		_pose_t -= delta
+		if _pose_t <= 0.0:
+			_set_pose(Pose.GUARD)
+
+
 func _face() -> void:
 	if me.get("flip") != null:
 		me.facing = "side"
@@ -116,16 +166,19 @@ func exchange(kind: String, _move: String) -> void:
 	var head_them := them.position + Vector2(0, -70)
 	match kind:
 		"hit":
+			_set_pose(Pose.PUNCH, 0.3)
 			_lunge(me, toward * 22.0)
 			_knock(them, toward * 16.0)
 			host.fx.pop(["POW!", "GBOSA!", "KPAK!", "BAM!"][randi() % 4], head_them, Color("#e0a91c"), 34, 0.7)
 			Sound.sfx("punch", randf_range(0.9, 1.1))
 		"duck":
+			_set_pose(Pose.DUCK, 0.35)
 			_lunge(them, -toward * 22.0)
 			_duck(me)
 			host.fx.pop("WHOOSH", head_me + Vector2(0, -10), Color("#9fd38a"), 26, 0.6)
 			Sound.sfx("whoosh", 1.3)
 		"block":
+			_set_pose(Pose.GUARD)
 			_lunge(them, -toward * 18.0)
 			_knock(me, -toward * 5.0)
 			host.fx.pop("BLOCK!", head_me, Color("#9fc4cf"), 28, 0.6)
@@ -175,10 +228,13 @@ func finish(result: Dictionary) -> void:
 	var won := score > 50
 	var draw := score == 50
 	var loser: Node2D = them if won else me
+	if _pose:
+		_set_pose(Pose.DOWN if not won and not draw else Pose.PUNCH)
 	var winner: Node2D = me if won else them
 	if not draw:
-		var tw := create_tween()
-		tw.tween_property(loser, "rotation", (PI / 2.0) * (1.0 if loser.position.x > winner.position.x else -1.0), 0.25).set_trans(Tween.TRANS_BOUNCE)
+		if not (loser == me and _pose): # the painted pose already lies on the ground
+			var tw := create_tween()
+			tw.tween_property(loser, "rotation", (PI / 2.0) * (1.0 if loser.position.x > winner.position.x else -1.0), 0.25).set_trans(Tween.TRANS_BOUNCE)
 		var hop := create_tween()
 		hop.tween_property(winner, "position", winner.position + Vector2(0, -14), 0.12)
 		hop.tween_property(winner, "position", winner.position, 0.12)
@@ -186,6 +242,7 @@ func finish(result: Dictionary) -> void:
 		Sound.sfx("crash", 0.7)
 	await get_tree().create_timer(1.6).timeout
 	me.rotation = 0.0
+	_end_poses()
 	if is_instance_valid(them):
 		them.rotation = 0.0
 	if main.mode == "driving":

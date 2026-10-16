@@ -128,6 +128,7 @@ func _on_msg(m: Dictionary) -> void:
 				lines.append("%s %s" % ["%d." % int(r["place"]) if int(r["place"]) > 0 else "DNF", r["name"]])
 				if String(r["pid"]) == Net.my_pid and int(r["place"]) == 1:
 					Street.count("races_won")
+					main.hud.celebrate_moment("WHO GET ROAD? YOU!", "Won the race to %s" % m["to"])
 					Street.add_rep(2.0)
 					Street.post_gist("race", "%s won a danfo race to %s!" % [Street._me(), m["to"]])
 			main.hud.toast("Race results: " + ", ".join(PackedStringArray(lines)))
@@ -232,6 +233,7 @@ func refresh_crew() -> void:
 		crew_tag = tag
 		if tag != "":
 			Street.count("crew_joined")
+			main.hud.celebrate_moment("WELCOME TO THE CREW", "[%s] %s" % [tag, crew.get("name", "")])
 		host.life.apply_style()
 	var r: Dictionary = await Net.api("GET", "/api/routes")
 	held_routes = r.get("data", {}).get("held", [])

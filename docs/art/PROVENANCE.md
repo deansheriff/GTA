@@ -11,7 +11,7 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 - The only reference image is our own generated `style-anchor-yaba`.
 - Every person depicted is a fictional character; no real people, brands or logos.
 
-**Spend:** $2.25 of the owner-approved $10 cap (91 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
+**Spend:** $2.41 of the owner-approved $10 cap (95 images). The full ledger, with token usage and prompts, is `art-src/spend-ledger.json`.
 
 | Asset | Provider / model | Size, quality | Cost (USD) | Generated |
 |---|---|---|---|---|
@@ -106,6 +106,10 @@ This file is rebuilt by `node tools/art/provenance.mjs`.
 | `chr-townsfolk-c` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.037 | 2026-10-15 14:57 |
 | `chr-townsfolk-d` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.037 | 2026-10-15 14:58 |
 | `ui-app-icons-2` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.025 | 2026-10-15 14:58 |
+| `veh-sheet-2` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.037 | 2026-10-16 07:14 |
+| `chr-street-life` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.036 | 2026-10-16 07:15 |
+| `bld-sheet-2` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.036 | 2026-10-16 07:15 |
+| `chr-hero-fight` | openai / gpt-image-2.5-flare | 1536x1024, medium | 0.049 | 2026-10-16 07:15 |
 
 ## Prompts
 

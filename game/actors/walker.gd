@@ -50,6 +50,7 @@ func use_hero_sheet(path: String) -> bool:
 
 ## Standing/loitering townsfolk face the viewer; side-walkers turn with their direction.
 var loiterer := false
+var _walk_mat: ShaderMaterial
 
 
 ## One of 32 painted townsfolk: 0-15 face the viewer (standing, loitering), 16-31 walk side-on.
@@ -80,6 +81,16 @@ func use_sheet(path: String, frame: int, standing := true) -> bool:
 	_make_sprite(t, int(info["cols"]), int(info["rows"]), float(info["frameH"]))
 	_spr.frame = _ped_index
 	_sheet = "ped"
+	# Legs move while they walk (shaders/walk.gdshader).
+	var cols := int(info["cols"])
+	var rows := int(info["rows"])
+	_walk_mat = ShaderMaterial.new()
+	_walk_mat.shader = preload("res://shaders/walk.gdshader")
+	var u0 := float(frame % cols) / cols
+	var v0 := float(frame / cols) / rows
+	_walk_mat.set_shader_parameter("frame_rect", Vector4(u0, v0, u0 + 1.0 / cols, v0 + 1.0 / rows))
+	_walk_mat.set_shader_parameter("side", 0.0 if standing else 1.0)
+	_spr.material = _walk_mat
 	return true
 
 
@@ -127,8 +138,11 @@ func _update_sprite() -> void:
 		# Side-walkers face their direction of travel; loiterers always face the viewer.
 		if not loiterer and absf(velocity.x) > 1.0:
 			_spr.flip_h = velocity.x < 0.0
-		# Painted townsfolk have one pose: a small step-bob sells the walk.
+		# Painted townsfolk have one pose: a step-bob plus the leg shader sell the walk.
 		_spr.position.y = _base_y - (absf(sin(anim_t * PI)) * 2.5 if moving else 0.0)
+		if _walk_mat:
+			_walk_mat.set_shader_parameter("phase", anim_t * PI)
+			_walk_mat.set_shader_parameter("amount", 1.0 if moving else 0.0)
 
 
 static func tunde() -> Dictionary:

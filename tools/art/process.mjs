@@ -57,6 +57,11 @@ const JOBS = [
   { src: 'chr-officials-a', kind: 'frames', cols: 4, rows: 2, out: 'characters/officials-a.png', frameH: 96, cut: 120 },
   { src: 'chr-townsfolk-c', kind: 'frames', cols: 4, rows: 2, out: 'characters/townsfolk-c.png', frameH: 96, cut: 120 },
   { src: 'chr-townsfolk-d', kind: 'frames', cols: 4, rows: 2, out: 'characters/townsfolk-d.png', frameH: 96, cut: 120 },
+  // M13 polish: more vehicles, street life, building types and hero fight poses.
+  { src: 'veh-sheet-2', kind: 'sheet', cols: 4, rows: 2, cut: 120, outs: ['vehicles/truck.png', 'vehicles/tanker.png', 'vehicles/bus.png', 'vehicles/suv.png', 'vehicles/pickup.png', 'vehicles/taxi.png', 'vehicles/keke.png', 'vehicles/okada.png'], widths: [270, 270, 320, 190, 230, 190, 120, 90] },
+  { src: 'chr-street-life', kind: 'sheet', cols: 4, rows: 2, cut: 120, outs: ['props/goat-white.png', 'props/goat-black.png', 'props/hen.png', 'props/hen-chicks.png', 'props/dog.png', 'props/cat.png', 'props/clothesline.png', 'props/suya-grill.png'], widths: [96, 96, 52, 80, 86, 48, 180, 92] },
+  { src: 'bld-sheet-2', kind: 'sheet', cols: 2, rows: 2, cut: 120, outs: ['buildings/salon.png', 'buildings/chemist.png', 'buildings/bukka.png', 'buildings/flats.png'], widths: [420, 420, 440, 520] },
+  { src: 'chr-hero-fight', kind: 'frames', cols: 4, rows: 3, out: 'characters/hero-fight.png', frameH: 100, cut: 120 },
   { src: 'ui-app-icons-2', kind: 'sheet', cols: 4, rows: 3, cut: 120, outs: ['ui/app-garage.png', 'ui/app-fleet.png', 'ui/app-home.png', 'ui/app-style.png', 'ui/app-awards.png', 'ui/app-gist.png', 'ui/app-race.png', 'ui/app-crew.png', 'ui/app-boxing.png', 'ui/app-market.png', 'ui/app-camera.png', 'ui/app-radio.png'], widths: Array(12).fill(128) },
 ];
 

@@ -422,3 +422,42 @@ reaches an ending.
 (landmarks, routes). Re-run it after map or route changes.
 
 **Also fixed.** "New game" now really resets: autoloads used to survive the scene reload.
+
+## D-017 · Graphics and UI polish (M13) · 2026-10-16
+**Owner request:** implement the proposed graphics and UI list.
+
+**Art** (`spec-m13-polish.json`, $0.16; total spend $2.41 of $10):
+- Six more vehicle types: taxi, SUV, pickup, box truck, fuel tanker and city bus.
+- Animals and street props: goats, hens, a dog, a cat, a clothesline and a suya grill.
+- Four building looks: salon, chemist, bukka and a block of flats.
+- Fight poses for the three heroes: guard, punch, duck and knocked down.
+
+**Graphics:**
+- **Walking:** townsfolk legs move (`shaders/walk.gdshader`).
+- **Fights:** the heroes use the painted fight poses.
+- **Night:** headlight beams and tail lights on vehicles near the camera
+  (`street/vehicle_lights.gd`).
+- **Street life** (`street/street_life_fx.gd`):
+  - animals that wander and scatter from vehicles,
+  - clotheslines, evening suya smoke and steam from food places,
+  - lane lines, zebra crossings, potholes that hold puddles after rain, and litter.
+- **Buildings:** fictional roadside signboards, and varied building looks on the same footprints.
+- **Shadows:** soft contact shadows.
+- **Colour:** a time-of-day colour grade (`shaders/grade.gdshader`, off when effects are off).
+- **Camera:** pulls back with speed.
+
+**UI:**
+- **Layout:** a top-right row of Pause, Phone and Settings, clear of the ability buttons, with
+  56 px touch targets.
+- **Fonts:** one type family with a display face (`ui/ui_style.gd`). These are variations of the
+  engine font; a licensed display font can replace it in one place.
+- **Messages:** stacked and colour-coded by kind (`ui/toast_stack.gd`), with a centred banner
+  for big moments.
+- **Money:** the counter rolls to the new amount, and the change floats up beside it.
+- **Celebrations:** an unlock ribbon with confetti (`ui/celebrate.gd`) for awards, buses,
+  houses, generators, crews and race wins.
+- **Phone:** a wallpaper, a dock of four apps and notification badges.
+- **Minimap:** shows checkpoints, Task Force vans, floods and today's event.
+- **Safe areas:** respected on phones with notches.
+- **Loading:** rotating tips while the city loads.
+- **Pause menu** (`ui/pause_menu.gd`): Android back pauses the game when nothing else is open.

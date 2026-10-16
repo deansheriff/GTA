@@ -293,3 +293,11 @@ milestones, make no APK until the game is done, then do one release build.
 - Photo mode with filters.
 - The Lagos Gist feed, local and online.
 - Server tests: 38. Online end-to-end check: 26/26.
+
+## M13 · Graphics and UI polish ✅ (2026-10-16, D-017)
+- Walking townsfolk, hero fight poses, more vehicles, buildings and street life.
+- Headlights at night, ground detail, signboards, soft shadows, a colour grade and a speed camera.
+- A new HUD layout, typography, stacked messages, a rolling money counter, unlock banners, a phone
+  home screen with a dock and badges, hazards on the minimap, safe areas, loading tips and a pause
+  menu.
+- Tests: 171.

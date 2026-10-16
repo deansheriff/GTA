@@ -13,6 +13,8 @@ var waypoint := Vector2.INF
 var route := PackedVector2Array()
 var others: Array[Vector2] = []
 var stars: Array[Vector2] = [] # story mission starts
+## Street hazards and events (M13): [{pos, kind}] kind = checkpoint | van | flood | event
+var marks: Array = []
 var _rect: TextureRect
 
 
@@ -78,6 +80,23 @@ func _draw_overlay(c: Control) -> void:
 		var lp := _to_local(o)
 		if _inside(lp):
 			c.draw_circle(lp, 3.5, Color("#2f6f99"))
+	var blink := int(Time.get_ticks_msec() / 250) % 2 == 0
+	for m: Dictionary in marks:
+		var lp := _to_local(m["pos"])
+		if not _inside(lp):
+			continue
+		match String(m["kind"]):
+			"checkpoint":
+				c.draw_rect(Rect2(lp - Vector2(5, 5), Vector2(10, 10)), Color("#e86a1c"))
+				c.draw_rect(Rect2(lp - Vector2(5, 5), Vector2(10, 10)), Color("#1d1611"), false, 1.5)
+			"van":
+				c.draw_circle(lp, 5.0, Color("#ff3a2a") if blink else Color("#3a6cff"))
+				c.draw_arc(lp, 5.0, 0, TAU, 12, Color("#1d1611"), 1.5, true)
+			"flood":
+				c.draw_circle(lp, 6.0, Color(0.35, 0.6, 0.85, 0.75))
+			"event":
+				c.draw_circle(lp, 7.0, Color("#e0a91c"))
+				c.draw_string(ThemeDB.fallback_font, lp + Vector2(-3, 5), "!", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("#1d1611"))
 	if waypoint != Vector2.INF:
 		var lp := _to_local(waypoint)
 		if not _inside(lp): # clamp to the rim as a direction hint

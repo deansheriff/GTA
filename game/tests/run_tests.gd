@@ -24,6 +24,7 @@ func _initialize() -> void:
 	await _test_clash()
 	_test_street()
 	_test_people()
+	_test_ui()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -495,3 +496,19 @@ func _test_people() -> void:
 	for sheet in ["characters/drivers-a.png", "characters/officials-a.png"]:
 		check(w.use_sheet(sheet, 7), "%s loads" % sheet)
 	w.free()
+
+
+## UI polish (M13): message kinds and the toast stack limit.
+func _test_ui() -> void:
+	var ts: Script = load("res://ui/toast_stack.gd")
+	check(ts.guess_kind("Fares: ₦8,400 for the run") == "money", "fares read as money in")
+	check(ts.guess_kind("Bought Suya for ₦1,200") == "spend", "purchases read as money out")
+	check(ts.guess_kind("Award: Roger that") == "award", "awards get the award style")
+	var stack: Control = ts.new()
+	root.add_child(stack)
+	for i in 5:
+		stack.show_toast("Message %d" % i)
+	check(stack.get_child_count() == 3 and stack.latest() == "Message 4", "at most three messages, newest on top")
+	root.remove_child(stack)
+	stack.free()
+	ts.call("release_fonts")

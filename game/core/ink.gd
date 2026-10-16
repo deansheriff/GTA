@@ -37,9 +37,26 @@ static func circle(ci: CanvasItem, center: Vector2, r: float, fill: Color, width
 
 
 ## Soft contact shadow cast to the bottom-right (sun from the top-left).
+static var _soft: GradientTexture2D
+
+
+## A soft contact shadow (M13: a feathered radial gradient instead of two hard ellipses),
+## nudged toward the bottom-right like the light from the top-left.
 static func shadow(ci: CanvasItem, center: Vector2, radii: Vector2, alpha: float = 0.32) -> void:
-	ci.draw_colored_polygon(ellipse_points(center + Vector2(radii.x * 0.18, radii.y * 0.25), radii, 20), Color(0.06, 0.04, 0.03, alpha))
-	ci.draw_colored_polygon(ellipse_points(center + Vector2(radii.x * 0.1, radii.y * 0.12), radii * 0.7, 20), Color(0.06, 0.04, 0.03, alpha * 0.6))
+	if _soft == null:
+		_soft = GradientTexture2D.new()
+		_soft.width = 64
+		_soft.height = 64
+		_soft.fill = GradientTexture2D.FILL_RADIAL
+		_soft.fill_from = Vector2(0.5, 0.5)
+		_soft.fill_to = Vector2(1.0, 0.5)
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+		g.colors = PackedColorArray([Color(0.06, 0.04, 0.03, 1.0), Color(0.06, 0.04, 0.03, 0.7), Color(0.06, 0.04, 0.03, 0.0)])
+		_soft.gradient = g
+	var c := center + Vector2(radii.x * 0.15, radii.y * 0.2)
+	var r := radii * 1.25
+	ci.draw_texture_rect(_soft, Rect2(c - r, r * 2.0), false, Color(1, 1, 1, alpha * 1.4))
 
 
 ## Deterministic random generator for stable per-object variation.

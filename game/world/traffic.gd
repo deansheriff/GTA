@@ -153,7 +153,12 @@ func _try_spawn(focus: Vector2) -> void:
 		if (o["node"] as Node2D).position.distance_to(pos) < 200.0:
 			return # never spawn on top of another vehicle
 	var roll := _rng.randf()
-	var kind := "danfo" if roll < 0.4 else ("car" if roll < 0.7 else ("keke" if roll < 0.88 else "okada"))
+	# Lagos traffic mix (M13): danfos everywhere, cars and taxis, the odd bus, trucks and tankers.
+	var kind := "danfo"
+	for k: Array in [["danfo", 0.32], ["car", 0.46], ["taxi", 0.55], ["suv", 0.62], ["pickup", 0.68], ["truck", 0.73], ["tanker", 0.76], ["bus", 0.81], ["keke", 0.92], ["okada", 1.01]]:
+		if roll < float(k[1]):
+			kind = k[0]
+			break
 	if kind == "okada" and no_okada:
 		kind = "keke"
 	spawn_on(a, b, t, kind)
@@ -207,9 +212,10 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D 
 			continue
 		var on: Node2D = o["node"]
 		var to := on.position - n.position
-		if to.length() < 260.0 and to.dot(fwd) > 20.0 and absf(to.cross(fwd)) < 34.0:
-			# Keep a car length of gap: stop dead inside 150 px (device test showed queues piling up).
-			want = 0.0 if to.length() < 150.0 else minf(want, float(o["speed"]) * 0.9)
+		var gap: float = (float(n.LENGTH) + float(on.LENGTH)) * 0.5 + 30.0 # long buses need more room
+		if to.length() < gap + 110.0 and to.dot(fwd) > 20.0 and absf(to.cross(fwd)) < 34.0:
+			# Keep a car length of gap: stop dead inside it (device test showed queues piling up).
+			want = 0.0 if to.length() < gap else minf(want, float(o["speed"]) * 0.9)
 			held = held or (o.get("held", false) and to.length() < 200.0)
 	if player_vehicle:
 		var tp := player_vehicle.position - n.position
