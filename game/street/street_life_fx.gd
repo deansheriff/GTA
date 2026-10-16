@@ -75,7 +75,7 @@ func tick(dt: float) -> void:
 		wet = minf(1.0, wet + dt * 0.2)
 	else:
 		wet = maxf(0.0, wet - dt / 240.0)
-	_decals.queue_redraw()
+	_decals.refresh()
 	# Animals.
 	_spawn_t -= dt
 	if _spawn_t <= 0.0:
@@ -129,6 +129,7 @@ func _spawn_animal(focus: Vector2) -> void:
 
 
 ## A goat, hen, dog or cat with a simple life: wander near home, peck, sit, flee from vehicles.
+## A plain Sprite2D that moves (no per-frame redraw: eight of them used to cost several fps).
 class _Animal extends Node2D:
 	var kind := "goat"
 	var tex: Texture2D
@@ -136,9 +137,19 @@ class _Animal extends Node2D:
 	var target := Vector2.INF
 	var idle := 0.0
 	var flee := 0.0
-	var flip := false
 	var _t := 0.0
 	var _squawk_cd := 0.0
+	var _spr: Sprite2D
+	var _k := 0.5
+
+	func _ready() -> void:
+		_k = { "goat": 0.55, "hen": 0.5, "dog": 0.5, "cat": 0.55 }.get(kind, 0.5) as float
+		_spr = Sprite2D.new()
+		_spr.texture = tex
+		_spr.scale = Vector2(_k, _k)
+		_spr.offset = Vector2(0, -tex.get_height() * 0.5 + 4.0)
+		add_child(_spr)
+		queue_redraw() # the shadow, once
 
 	func _speed() -> float:
 		return { "goat": 34.0, "hen": 22.0, "dog": 62.0, "cat": 0.0 }.get(kind, 30.0)
@@ -148,10 +159,8 @@ class _Animal extends Node2D:
 		_squawk_cd -= dt
 		# Vehicles: get out of the way (and complain).
 		for v: Node2D in vehicles:
-			var d := position.distance_to(v.position)
-			if d < 130.0 and absf(float(v.speed)) > 60.0 and kind != "cat":
-				var away := (position - v.position).normalized()
-				target = position + away * 160.0
+			if absf(float(v.speed)) > 60.0 and kind != "cat" and position.distance_squared_to(v.position) < 130.0 * 130.0:
+				target = position + (position - v.position).normalized() * 160.0
 				flee = 1.2
 				if _squawk_cd <= 0.0 and kind in ["hen", "goat"]:
 					_squawk_cd = 4.0
@@ -176,24 +185,17 @@ class _Animal extends Node2D:
 					target = Vector2.INF
 				else:
 					if absf(to.x) > 1.0:
-						flip = to.x < 0.0
+						_spr.flip_h = to.x < 0.0
 					position = nxt
-		queue_redraw()
-
-	func _draw() -> void:
-		if tex == null:
-			return
 		var moving := target != Vector2.INF
 		var bob := -absf(sin(_t * 9.0)) * 2.0 if moving else 0.0
 		if kind == "hen" and not moving:
 			bob = -absf(sin(_t * 3.0)) * 1.5 # pecking
-		var h := float(tex.get_height())
-		var w := float(tex.get_width())
-		var k := { "goat": 0.55, "hen": 0.5, "dog": 0.5, "cat": 0.55 }.get(kind, 0.5) as float
-		Ink.shadow(self, Vector2.ZERO, Vector2(w * k * 0.35, 5.0), 0.25)
-		draw_set_transform(Vector2(0, bob), 0.0, Vector2(-k if flip else k, k))
-		draw_texture(tex, Vector2(-w * 0.5, -h + 4.0))
-		draw_set_transform(Vector2.ZERO)
+		_spr.position.y = bob
+
+	func _draw() -> void:
+		if tex:
+			Ink.shadow(self, Vector2.ZERO, Vector2(tex.get_width() * _k * 0.35, 5.0), 0.25)
 
 
 ## Ground detail, drawn just above the terrain: lane lines, zebra crossings, potholes/puddles,
@@ -205,8 +207,21 @@ class _Ground extends Node2D:
 	var holes: Array = [] # [pos, radius]
 	var litter: Array = [] # [pos, colour, seed]
 
+	var _drawn := Rect2() # the area drawn last time (twice the screen)
+	var _wet_drawn := -1.0
+
 	func _ready() -> void:
 		z_index = -95
+
+	## Redraw only when the camera nears the edge of what was drawn, or the puddles change.
+	func refresh() -> void:
+		var view: Rect2 = fx.main._view_rect()
+		var wet_step := snappedf(fx.wet, 0.1)
+		if _drawn.encloses(view) and wet_step == _wet_drawn:
+			return
+		_drawn = view.grow(maxf(view.size.x, view.size.y) * 0.5)
+		_wet_drawn = wet_step
+		queue_redraw()
 
 	func build(m: MapData) -> void:
 		var r := RandomNumberGenerator.new()
@@ -238,8 +253,7 @@ class _Ground extends Node2D:
 					litter.append([p.pos + Vector2(r.randf_range(-70, 70), r.randf_range(10, 60)), [Color("#e8e2d0"), Color("#2f6f99"), Color("#c8432f"), Color("#3a3a3a")][k], r.randi()])
 
 	func _draw() -> void:
-		var view: Rect2 = fx.main._view_rect().grow(80.0)
-		var t := Time.get_ticks_msec() / 1000.0
+		var view: Rect2 = _drawn
 		# Lane lines: dashed, a little worn.
 		for s: Array in segs:
 			var a: Vector2 = s[0]
@@ -283,7 +297,6 @@ class _Ground extends Node2D:
 			if not view.has_point(p):
 				continue
 			var sd: int = l[2]
-			var sway := Vector2(sin(t * 0.8 + sd) * 3.0, cos(t * 0.6 + sd) * 1.5)
-			draw_set_transform(p + sway, float(sd % 6), Vector2.ONE)
+			draw_set_transform(p, float(sd % 6), Vector2.ONE)
 			draw_rect(Rect2(-4, -2.5, 8, 5), l[1])
 			draw_set_transform(Vector2.ZERO)

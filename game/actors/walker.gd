@@ -81,17 +81,24 @@ func use_sheet(path: String, frame: int, standing := true) -> bool:
 	_make_sprite(t, int(info["cols"]), int(info["rows"]), float(info["frameH"]))
 	_spr.frame = _ped_index
 	_sheet = "ped"
-	# Legs move while they walk (shaders/walk.gdshader).
-	var cols := int(info["cols"])
-	var rows := int(info["rows"])
-	_walk_mat = ShaderMaterial.new()
-	_walk_mat.shader = preload("res://shaders/walk.gdshader")
-	var u0 := float(frame % cols) / cols
-	var v0 := float(frame / cols) / rows
-	_walk_mat.set_shader_parameter("frame_rect", Vector4(u0, v0, u0 + 1.0 / cols, v0 + 1.0 / rows))
-	_walk_mat.set_shader_parameter("side", 0.0 if standing else 1.0)
-	_spr.material = _walk_mat
+	# Legs move while they walk (shaders/walk.gdshader, a shared material: see walk_material()).
+	_walk_mat = walk_material(not standing, get_instance_id()) if int(info["cols"]) == 4 and int(info["rows"]) == 2 else null
 	return true
+
+
+static var _walk_mats := {}
+
+
+## Four phase groups per view, shared by the whole crowd.
+static func walk_material(side_view: bool, id: int) -> ShaderMaterial:
+	var key := "%s%d" % [side_view, id % 4]
+	if not _walk_mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://shaders/walk.gdshader")
+		m.set_shader_parameter("side", 1.0 if side_view else 0.0)
+		m.set_shader_parameter("phase_offset", float(id % 4) * 1.57)
+		_walk_mats[key] = m
+	return _walk_mats[key]
 
 
 func _make_sprite(t: Texture2D, cols: int, rows: int, frame_h: float) -> void:
@@ -141,8 +148,10 @@ func _update_sprite() -> void:
 		# Painted townsfolk have one pose: a step-bob plus the leg shader sell the walk.
 		_spr.position.y = _base_y - (absf(sin(anim_t * PI)) * 2.5 if moving else 0.0)
 		if _walk_mat:
-			_walk_mat.set_shader_parameter("phase", anim_t * PI)
-			_walk_mat.set_shader_parameter("amount", 1.0 if moving else 0.0)
+			# Only while walking; standing people draw plain (and cheaper).
+			var want: Material = _walk_mat if moving else null
+			if _spr.material != want:
+				_spr.material = want
 
 
 static func tunde() -> Dictionary:

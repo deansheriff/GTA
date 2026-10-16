@@ -63,6 +63,7 @@ var _crash_quip_t := 0.0
 var built := false # the world builds in stages (device test: one long _ready tripped Android's ANR)
 var _title: CanvasLayer
 var _bake_dir := ""
+var _probe := false
 var _grade: ColorRect
 var zoom_base := 1.0 # the player's chosen zoom (pinch / wheel); speed pulls the camera back from it
 
@@ -80,6 +81,9 @@ func _ready() -> void:
 			Settings.use_preset(a.trim_prefix("--preset="))
 		elif a.begins_with("--server="):
 			Net.server = a.trim_prefix("--server=")
+		elif a == "--perf-probe":
+			demo = true
+			_probe = true
 		elif a.begins_with("--bake-aerial="):
 			demo = true
 			_bake_dir = a.trim_prefix("--bake-aerial=")
@@ -177,7 +181,9 @@ func _ready() -> void:
 	add_child(street)
 	street.setup(self)
 	built = true
-	if _bake_dir != "":
+	if _probe:
+		_perf_probe()
+	elif _bake_dir != "":
 		_bake_aerial(_bake_dir)
 	elif story_auto:
 		_run_story_demo()
@@ -1188,6 +1194,22 @@ func _demo_street() -> void:
 	await _wait(0.5)
 	await _shot("27-phone-home")
 	hud.phone.visible = false
+	# Your fleet on the road.
+	Street.fleet = [{ "id": "bus-demo", "name": "Bus 2", "slogan": "No Food For Lazy Man", "colour": "#2f6f99", "driver": { "name": "Kunle", "honesty": 0.8, "skill": 0.7, "wage": 2000 }, "route": "osh-oba", "condition": 100.0, "earned": 0 }]
+	var fb := {}
+	for i in 40:
+		var nv: Dictionary = traffic.spawn_on("yaba_c", map.road_graph["yaba_c"][0], 120.0, "danfo")
+		if nv.has("fleet"):
+			fb = nv
+			break
+		(nv["node"] as Node).queue_free()
+		traffic.vehicles.erase(nv)
+	if not fb.is_empty():
+		_teleport((fb["node"] as Node2D).position + Vector2(0, 160))
+		await _wait(1.0)
+		await _shot("28-fleet-bus")
+	print("demo: fleet bus on the road = %s" % (not fb.is_empty()))
+	Street.fleet = []
 	print("demo: street ok heat=%.1f fuel=%.0f damage=%.0f awards=%d" % [Street.heat, Street.fuel, Street.damage, Street.achieved.size()])
 
 
@@ -1352,3 +1374,28 @@ func _update_grade() -> void:
 	m.set_shader_parameter("contrast", 1.04)
 	m.set_shader_parameter("strength", strength)
 	_grade.visible = strength > 0.01
+
+
+## Dev: where does the frame time go at the Oshodi depot? Measures with each new system off.
+func _perf_probe() -> void:
+	Clock.minutes = 1440 + 10 * 60
+	_teleport(map.landmarks["tunde-depot"]["pos"] + Vector2(-40, 90))
+	await _wait(4.0)
+	await _measure("probe all on")
+	street.fauna._decals.visible = false
+	await _measure("probe no ground detail")
+	street.fauna._decals.visible = true
+	for a in street.fauna.animals:
+		a.visible = false
+	await _measure("probe no animals")
+	for a in street.fauna.animals:
+		a.visible = true
+	for p in crowd.people:
+		var spr: Variant = p.get("_spr")
+		if spr is Sprite2D:
+			(spr as Sprite2D).material = null
+	await _measure("probe no walk shader")
+	_grade.visible = false
+	street.fx.visible = false
+	await _measure("probe no grade, no fx")
+	get_tree().quit()

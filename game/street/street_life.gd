@@ -24,6 +24,7 @@ func setup(h: StreetHost) -> void:
 	apps = StreetApps.new()
 	apps.setup(h, self)
 	apply_style()
+	main.traffic.on_spawn = _maybe_fleet_bus
 
 
 func _lm(id: String) -> Vector2:
@@ -427,6 +428,63 @@ func fleet_payout() -> void:
 	main.hud.toast("Fleet returns: ₦%s. (Phone > Fleet)" % Life.fmt_naira(total))
 	main.hud.phone.set_badge("Fleet", 1)
 	Street.changed.emit()
+
+
+## Your fleet on the road: now and then a danfo in traffic is one of yours, in your paint with
+## its slogan and its driver's name on top. Get close and he hoots and waves.
+func _maybe_fleet_bus(v: Dictionary) -> void:
+	if v["kind"] != "danfo" or Street.fleet.is_empty() or _rng.randf() > 0.3:
+		return
+	var on_road := {}
+	for o in main.traffic.vehicles:
+		if o.has("fleet"):
+			on_road[o["fleet"]] = true
+	var free := Street.fleet.filter(func(b: Dictionary) -> bool: return not b.get("driver", {}).is_empty() and not on_road.has(b["id"]))
+	if free.is_empty():
+		return
+	var bus: Dictionary = free[_rng.randi() % free.size()]
+	v["fleet"] = bus["id"]
+	var n: Node2D = v["node"]
+	var col := String(bus.get("colour", ""))
+	if col == "":
+		col = String(Street.paint.get("colour", ""))
+	n.set_paint(Color(col) if col != "" else Color(0, 0, 0, 0))
+	var wr: Node2D = VehicleCare._Wear.new()
+	wr.remote = true
+	wr.slogan = String(bus.get("slogan", ""))
+	n.add_child(wr)
+	var tag := _FleetTag.new()
+	tag.text = "%s · %s" % [bus["name"], bus["driver"].get("name", "")]
+	n.add_child(tag)
+
+
+## The little name plate over one of your buses; a hoot and a wave when you pass close.
+class _FleetTag extends Node2D:
+	var text := ""
+	var _waved := false
+
+	func _ready() -> void:
+		z_index = 3
+
+	func _process(_d: float) -> void:
+		var main: Node = get_tree().current_scene
+		if main == null or main.get("player") == null:
+			return
+		var me: Vector2 = main.danfo.position if main.mode == "driving" else main.player.position
+		var near := (get_parent() as Node2D).position.distance_to(me) < 260.0
+		if near and not _waved:
+			_waved = true
+			Sound.sfx("horn", 1.15)
+			main.street.fx.pop("Oga mi!", (get_parent() as Node2D).position + Vector2(0, -80), Color("#9fd38a"), 24, 1.2)
+		elif not near and (get_parent() as Node2D).position.distance_to(me) > 600.0:
+			_waved = false
+
+	func _draw() -> void:
+		var font := ThemeDB.fallback_font
+		var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var at := Vector2(-w * 0.5, -58)
+		draw_rect(Rect2(at + Vector2(-6, -13), Vector2(w + 12, 18)), Color(0.18, 0.54, 0.32, 0.9))
+		draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("#f1e6c8"))
 
 
 # ---------- home (#13) ----------

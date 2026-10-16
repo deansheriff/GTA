@@ -23,6 +23,8 @@ var holdup_t := 0.0
 ## Rain (street/weather.gd): everyone drives slower and okadas get off the road.
 var speed_k := 1.0
 var no_okada := false
+## Called with each newly spawned traffic vehicle (street_life.gd dresses some danfos as your fleet).
+var on_spawn := Callable()
 var held: Array = []
 
 
@@ -174,6 +176,8 @@ func spawn_on(a: String, b: String, t: float, kind: String) -> Dictionary:
 	var v := { "node": n, "from": a, "to": b, "t": t, "len": len, "lane": _lane(a, b), "speed": 0.0, "stop_t": 0.0, "cls": _edge_speed(a, b), "kind": kind }
 	_place(v)
 	vehicles.append(v)
+	if on_spawn.is_valid():
+		on_spawn.call(v)
 	return v
 
 

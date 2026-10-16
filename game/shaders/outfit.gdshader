@@ -16,6 +16,14 @@ vec3 rgb2hsv(vec3 c) {
 	return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + 1e-10)), d / (q.x + 1e-10), q.x);
 }
 
+// In a canvas shader the incoming COLOR is already texture × modulate, so keep the modulate
+// from the vertex stage and multiply by that alone.
+varying vec4 modulate;
+
+void vertex() {
+	modulate = COLOR;
+}
+
 void fragment() {
 	vec4 c = texture(TEXTURE, UV);
 	if (tint.a > 0.0) {
@@ -24,5 +32,5 @@ void fragment() {
 		float m = (1.0 - smoothstep(hue_width * 0.6, hue_width, dh)) * smoothstep(min_sat - 0.1, min_sat, hsv.y);
 		c.rgb = mix(c.rgb, tint.rgb * (0.3 + 0.9 * hsv.z), m);
 	}
-	COLOR = c * COLOR;
+	COLOR = c * modulate;
 }
