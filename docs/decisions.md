@@ -505,3 +505,34 @@ steal cars… choice of control… control sensitivity."
 
 **Art fix:** `veh-sheet-2` didn't fit a grid. It's re-cut by measured boxes
 (`tools/art/crop_vehicles2.mjs`), and the SUV is made from the car art, darkened.
+
+
+## D-019 · A 3D prototype of one district, with Meshy models · 2026-10-17
+**Owner request:** "Can we make this into a 3D game with glossy graphics?… Let's use meshy to
+build a 3D prototype of one district."
+
+**What it is:** a drivable 3D Yaba (`game/proto3d/district3d.tscn`), built from the same map
+data as the 2D game. It doesn't replace the 2D game: open it from the title screen
+("3D prototype (Yaba)") or with `-- --proto3d`; "Back to the 2D game" or Esc returns.
+- Ground: one MultiMesh per surface type (road, walkway, grass, water), using the game's
+  painted ground textures, with lane lines drawn along the road graph.
+- Buildings: each footprint gets a solid collision box and a row of Meshy shop houses or
+  bungalows at their natural proportions. Without the models it falls back to boxes with roofs.
+- The player drives the Meshy danfo (arcade handling, chase camera). Traffic alternates danfos
+  and kekes on the road graph, and Tunde models stand on walkways.
+- Look: procedural sky, filmic tonemap, glow, sun shadows, glossy car paint. It runs at 60 fps
+  on the Compatibility renderer on the dev PC.
+
+**Models:** five Meshy models (see docs/art/PROVENANCE.md). Free-plan models are CC BY 4.0,
+so they're credited on the credits screen. They're slimmed for phones with
+`tools/art/glb_slim.mjs` (6–12k triangles, 1024 px textures, under 1 MB each).
+
+**Not done yet:**
+- Not tested on a phone.
+- Tunde isn't rigged (he stands still). Rigging needs a model in an A-pose.
+- Only one district; outside it is open land behind invisible walls.
+- None of the 2D game's systems (story, hustles, online) run in 3D.
+
+**Going fully 3D would mean** porting each of those systems and the camera and controls, and
+making many more models. Meshy text-to-3D retires on 31 October (it moves to Meshy's Agent),
+and the free plan allows 10 downloads a month.

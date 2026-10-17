@@ -13,3 +13,4 @@ build/
 *.apk
 *.aab
 *.keystore
+art-src/meshy/

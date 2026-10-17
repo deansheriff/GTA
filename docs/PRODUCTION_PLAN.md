@@ -307,3 +307,8 @@ milestones, make no APK until the game is done, then do one release build.
 - Carjacking: the driver may fight back, and the car is flagged stolen.
 - Mushin chop shop: sell or respray.
 - Three control schemes (joystick, steering buttons, tilt), each with sensitivity sliders.
+
+## M15 · 3D prototype of one district 🧪 (2026-10-17, D-019)
+- Drivable 3D Yaba from the map data, opened from the title screen.
+- Five Meshy models (CC BY 4.0, credited): danfo, Tunde, shop, bungalow and keke.
+- Not yet tested on a phone. A full 3D port is a separate decision.

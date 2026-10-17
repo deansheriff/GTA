@@ -119,3 +119,21 @@ Every asset prompt is wrapped with the shared style prefix and suffix in the spe
 ## Edits after generation
 - `panel-splash` and `ui-app-icon`: the generator painted a real car maker's badge on the danfo's
   grille. It was painted out (grille cloned over it) so the game shows no real brands.
+
+## 3D models (Meshy, 3D prototype only)
+
+Made by the owner's Meshy account (meshy.ai, free plan, Meshy 6 Lite text-to-3D and AI texturing)
+on 2026-10-17. Free-plan models are licensed **CC BY 4.0**, so the credits screen says
+"3D models made with Meshy (meshy.ai)". Raw downloads are kept out of git in `art-src/meshy/`;
+the game ships slimmed copies made with `tools/art/glb_slim.mjs` (simplified mesh, textures
+resized to 1024 px JPEG).
+
+| Asset | Game file | Triangles (raw → game) | Prompt (short) |
+|---|---|---|---|
+| Danfo bus | `game/art3d/danfo.glb` | 207,942 → 12,000 | weathered yellow Lagos minibus, black stripes, roof rack, unbranded |
+| Tunde | `game/art3d/tunde.glb` | 92,266 → 6,000 | young Lagos danfo driver, red shirt, jeans (not rigged) |
+| Shop building | `game/art3d/shop.glb` | 163,336 → 9,000 | small two-storey Lagos shop house, shutters, balcony, unbranded |
+| Bungalow | `game/art3d/bungalow.glb` | 129,756 → 9,000 | single-storey Lagos bungalow, zinc roof, veranda, burglar bars |
+| Keke | `game/art3d/keke.glb` | 290,476 → 6,000 | green and yellow keke napep tricycle, canvas roof, unbranded |
+
+All prompts asked for no text, logos or brands.
