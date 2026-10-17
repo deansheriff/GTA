@@ -25,6 +25,8 @@ var speed_k := 1.0
 var no_okada := false
 ## Called with each newly spawned traffic vehicle (street_life.gd dresses some danfos as your fleet).
 var on_spawn := Callable()
+## Extra solid vehicles traffic must not drive into (your parked cars).
+var solids: Array = []
 var held: Array = []
 
 
@@ -264,7 +266,7 @@ func _drive(v: Dictionary, delta: float, player_vehicle: Node2D, parked: Node2D 
 	# Solid vehicles (owner: "vehicles pass through each other"): a move that creates or deepens an
 	# overlap with any vehicle (or the player's, parked or driven) is undone. Moving apart is
 	# always allowed, so nothing ever locks inside another; gridlocks clear by backing up.
-	var blocked := n.position != old_pos and _blocked(v, old_pos, old_heading, [player_vehicle, parked])
+	var blocked := n.position != old_pos and _blocked(v, old_pos, old_heading, [player_vehicle, parked] + solids)
 	if blocked:
 		v["from"] = old_edge[0]
 		v["to"] = old_edge[1]

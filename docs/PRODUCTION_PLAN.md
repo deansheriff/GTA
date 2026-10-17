@@ -301,3 +301,9 @@ milestones, make no APK until the game is done, then do one release build.
   home screen with a dock and badges, hazards on the minimap, safe areas, loading tips and a pause
   menu.
 - Tests: 171.
+
+## M14 · Garage, car theft, controls ✅ (2026-10-17, D-018)
+- Parked cars persist, with a home garage that holds 1 to 5 cars.
+- Carjacking: the driver may fight back, and the car is flagged stolen.
+- Mushin chop shop: sell or respray.
+- Three control schemes (joystick, steering buttons, tilt), each with sensitivity sliders.

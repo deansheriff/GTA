@@ -34,6 +34,12 @@ var radio := 0 # station index, -1 = off
 var gist_log: Array = [] # newest first: {t, kind, text}
 var daily := {} # {day, id, stage, done}
 var fleet_day := -1
+# Vehicles (M14): what you're driving (the main vehicle node always wears this), cars parked
+# around town (Baba God Dey is either `current` or parked), and the cars in your home garage.
+const BABA := { "id": "baba", "kind": "danfo", "colour": "", "stolen": false, "fuel": 85.0, "damage": 0.0, "name": "Baba God Dey" }
+var current := BABA.duplicate()
+var parked: Array = [] # [{spec, x, y, h}]
+var garage: Array = [] # [spec]
 # Live (not saved): fares go up in the rain; crews that hold a route get a bonus.
 var fare_k := 1.0
 
@@ -181,7 +187,7 @@ func to_dict() -> Dictionary:
 		"fuel": fuel, "damage": damage, "paint": paint, "impounded": impounded, "heat": heat, "rep": rep,
 		"counters": counters, "achieved": achieved, "fleet": fleet, "home_tier": home_tier,
 		"generator": generator, "gen_fuel": gen_fuel, "outfit": outfit, "outfits_owned": outfits_owned,
-		"phone": phone, "radio": radio, "gist_log": gist_log.slice(0, 30), "daily": daily, "fleet_day": fleet_day,
+		"phone": phone, "radio": radio, "current": current, "parked": parked, "garage": garage, "gist_log": gist_log.slice(0, 30), "daily": daily, "fleet_day": fleet_day,
 	}
 
 
@@ -205,7 +211,19 @@ func from_dict(d: Dictionary) -> void:
 	gist_log = d.get("gist_log", [])
 	daily = d.get("daily", {})
 	fleet_day = int(d.get("fleet_day", -1))
+	current = d.get("current", BABA.duplicate())
+	parked = d.get("parked", [])
+	garage = d.get("garage", [])
 	changed.emit()
+
+
+func driving_baba() -> bool:
+	return String(current.get("id", "baba")) == "baba"
+
+
+func garage_slots() -> int:
+	var slots: Array = db.get("vehicles", {}).get("garage_slots", [1, 2, 3, 5])
+	return int(slots[clampi(home_tier, 0, slots.size() - 1)])
 
 
 ## New game: everything back to the start.

@@ -94,6 +94,12 @@ func _draw_overlay(c: Control) -> void:
 				c.draw_arc(lp, 5.0, 0, TAU, 12, Color("#1d1611"), 1.5, true)
 			"flood":
 				c.draw_circle(lp, 6.0, Color(0.35, 0.6, 0.85, 0.75))
+			"bus":
+				c.draw_rect(Rect2(lp - Vector2(6, 4), Vector2(12, 8)), Color("#e0a91c"))
+				c.draw_rect(Rect2(lp - Vector2(6, 4), Vector2(12, 8)), Color("#1d1611"), false, 1.5)
+			"garage":
+				c.draw_rect(Rect2(lp - Vector2(5, 5), Vector2(10, 10)), Color("#2f8a52"))
+				c.draw_string(ThemeDB.fallback_font, lp + Vector2(-4, 4), "G", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("#f1e6c8"))
 			"event":
 				c.draw_circle(lp, 7.0, Color("#e0a91c"))
 				c.draw_string(ThemeDB.fallback_font, lp + Vector2(-3, 5), "!", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("#1d1611"))

@@ -20,6 +20,8 @@ static func resolve(main: Node2D) -> void:
 	for v in main.traffic.vehicles:
 		vehicles.append(v["node"])
 	vehicles.append(main.danfo)
+	if main.street:
+		vehicles.append_array(main.street.garage.nodes)
 	for id in main.remotes:
 		var r: Dictionary = main.remotes[id]
 		if r["mode"] == 1 and (r["danfo"] as Node2D).visible:

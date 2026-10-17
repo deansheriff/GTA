@@ -461,3 +461,47 @@ reaches an ending.
 - **Safe areas:** respected on phones with notches.
 - **Loading:** rotating tips while the city loads.
 - **Pause menu** (`ui/pause_menu.gd`): Android back pauses the game when nothing else is open.
+
+## D-018 · Garage, car theft and control schemes (M14) · 2026-10-17
+**Owner request:** "a Garage where they can park their cars… the GTA mechanism where users can
+steal cars… choice of control… control sensitivity."
+
+**Vehicles** (`street/garage.gd`):
+- The main vehicle node wears whatever you drive (`Street.current`).
+- Every vehicle you leave stays parked where you left it, solid and saved. Baba God Dey is
+  always either what you're driving or parked somewhere, with a minimap marker.
+- Up to three abandoned stolen cars stay parked; older ones are towed.
+
+**Car theft:**
+- Walk up to a traffic vehicle moving slower than 140 px/s and take it ("CARJACK!"). Okadas
+  and kekes count too; your own fleet buses don't.
+- What happens next:
+  - The driver is dragged out.
+  - 30% of the time he fights for the car (12% for an okada or keke). Lose and he drives it away.
+  - Area heat +1.2, reputation −3, and a gist post.
+- The car is flagged stolen:
+  - At checkpoints, settling costs three times as much.
+  - If it's impounded, it's confiscated rather than towed to the yard.
+- Mushin chop shop: sell a stolen car (by type, minus damage) or respray it clean (₦3,000).
+
+**Garage:**
+- It's by your home and holds 1, 2, 3 or 5 cars depending on your house.
+- Drive in to park. On foot, take one out.
+- Baba God Dey parks outside, never in the garage.
+
+**Story first:**
+- A mission puts you back in Baba God Dey.
+- Danfo runs need the bus.
+- Other heroes can drive any car except Baba God Dey.
+- Car theft is disabled during missions, cut-scenes and rentals.
+
+**Controls** (`ui/controls.gd`, Settings → Controls):
+- **Joystick:** as before.
+- **Steering buttons:** ◀ ▶ on the left, GAS and BRAKE on the right. GAS and BRAKE work with
+  several fingers at once.
+- **Tilt to steer:** the accelerometer steers, with GAS and BRAKE.
+- **Sliders:** stick sensitivity, dead zone, steering sensitivity, tilt sensitivity and
+  pinch-zoom sensitivity.
+
+**Art fix:** `veh-sheet-2` didn't fit a grid. It's re-cut by measured boxes
+(`tools/art/crop_vehicles2.mjs`), and the SUV is made from the car art, darkened.

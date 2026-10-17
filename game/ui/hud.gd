@@ -33,6 +33,8 @@ var pause: PauseMenu
 var _money_shown := -1.0
 var _money_flash: Label
 var _phone_btn: Button
+var controls: Controls
+var touch_ui := false
 
 
 func _ready() -> void:
@@ -106,7 +108,10 @@ func _ready() -> void:
 	joystick.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	joystick.position = Vector2(20, -20)
 	joystick.visible = DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+	touch_ui = joystick.visible
 	root.add_child(joystick)
+	controls = Controls.new()
+	root.add_child(controls)
 
 	if not joystick.visible:
 		var hint := _panel_label("Click to walk · WASD/arrows move or drive · E enters the danfo · wheel zooms", 13)
@@ -368,6 +373,13 @@ func _show_settings(root: Control) -> void:
 		sl.value_changed.connect(func(v: float) -> void: Settings.set_pref(key, v))
 		row.add_child(sl)
 		card.add_child(row)
+	var ctl := Label.new()
+	ctl.text = "Controls"
+	ctl.add_theme_font_size_override("font_size", 20)
+	card.add_child(ctl)
+	card.add_child(_choice_pref("Driving controls", "control_scheme", Controls.SCHEMES))
+	for k in [["stick_sens", "Stick sensitivity", 0.5, 2.0, 1.0], ["dead_zone", "Stick dead zone", 0.05, 0.4, 0.15], ["steer_sens", "Steering sensitivity", 0.5, 1.8, 1.0], ["tilt_sens", "Tilt sensitivity", 0.5, 2.0, 1.0], ["zoom_sens", "Pinch-zoom sensitivity", 0.5, 2.0, 1.0]]:
+		card.add_child(_slider_pref(k[1], k[0], k[2], k[3], k[4]))
 	var acc := Label.new()
 	acc.text = "Accessibility"
 	acc.add_theme_font_size_override("font_size", 20)
@@ -558,6 +570,31 @@ func _choice(text: String, key: String, options: Array) -> HBoxContainer:
 	return row
 
 
+## A labelled slider for a numeric preference, showing its value (e.g. "1.3×").
+func _slider_pref(text: String, key: String, lo: float, hi: float, fallback: float) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var l := Label.new()
+	l.text = text
+	l.custom_minimum_size = Vector2(200, 0)
+	row.add_child(l)
+	var sl := HSlider.new()
+	sl.min_value = lo
+	sl.max_value = hi
+	sl.step = 0.05
+	sl.value = float(Settings.get_pref(key, fallback))
+	sl.custom_minimum_size = Vector2(180, 40)
+	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(sl)
+	var val := Label.new()
+	val.custom_minimum_size = Vector2(52, 0)
+	val.text = "%.2f" % sl.value
+	row.add_child(val)
+	sl.value_changed.connect(func(v: float) -> void:
+		Settings.set_pref(key, v)
+		val.text = "%.2f" % v)
+	return row
+
+
 func _choice_pref(text: String, key: String, options: Array) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	var l := Label.new()
@@ -567,7 +604,9 @@ func _choice_pref(text: String, key: String, options: Array) -> HBoxContainer:
 	var ob := OptionButton.new()
 	for i in options.size():
 		ob.add_item(String(options[i][1]), i)
-		if is_equal_approx(float(options[i][0]), float(Settings.get_pref(key, 1.0))):
+		var cur: Variant = Settings.get_pref(key, options[0][0])
+		var same: bool = (String(options[i][0]) == String(cur)) if options[i][0] is String else is_equal_approx(float(options[i][0]), float(cur))
+		if same:
 			ob.select(i)
 	ob.item_selected.connect(func(i: int) -> void: Settings.set_pref(key, options[i][0]))
 	row.add_child(ob)

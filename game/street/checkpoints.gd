@@ -115,6 +115,11 @@ func _stop() -> void:
 	var line: String = lines[_rng.randi() % lines.size()]
 	(active["npcs"][0] as Node2D).say(line, 4.0)
 	var roger := int(ceil(int(info["roger"]) * Street.price_k()))
+	if Street.current.get("stolen", false):
+		# They know the car isn't yours: everything costs three times as much.
+		roger *= 3
+		line = "This motor no be your own! Where the papers?"
+		(active["npcs"][0] as Node2D).say(line, 4.0)
 	var choice := await host.ask("%s checkpoint" % info["name"], "\"%s\"" % line, [
 		["roger", "Roger them (₦%s)" % Life.fmt_naira(roger), Life.can_afford(roger)],
 		["argue", "Argue"],

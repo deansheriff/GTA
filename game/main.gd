@@ -430,7 +430,7 @@ func _enter_exit() -> void:
 	if mode != "driving" and _near_danfo() and Street.impounded:
 		hud.toast("The bus is impounded. Pay the fee at the yard office first.")
 		return
-	if mode != "driving" and _near_danfo() and Life.hero != "tunde" and not rented:
+	if mode != "driving" and _near_danfo() and Life.hero != "tunde" and not rented and Street.driving_baba():
 		hud.toast("Na Tunde get this bus. (Hail a keke from the phone.)")
 		return
 	if mode == "driving":
@@ -465,8 +465,12 @@ func _input_vector() -> Vector2:
 	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN): v.y += 1
 	v += hud.joystick.value
 	if demo_input != Vector2.ZERO:
-		v = demo_input
-	return v.limit_length(1.0) if v.length() > 0.15 else Vector2.ZERO
+		return demo_input.limit_length(1.0)
+	# Steering schemes (Settings → Controls) drive with pads or tilt instead of the stick.
+	if mode == "driving" and Controls.scheme() != "stick" and not story.interior.active:
+		return hud.controls.drive_vector(danfo.heading)
+	var dead := clampf(Controls.pref("dead_zone", 0.15), 0.05, 0.4)
+	return v.limit_length(1.0) if v.length() > dead else Vector2.ZERO
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -490,7 +494,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_LEFT and mode == "walking":
 			_walk_to(get_global_mouse_position())
 	elif event is InputEventMagnifyGesture:
-		zoom_base = clampf(zoom_base * event.factor, 0.35, 2.0)
+		zoom_base = clampf(zoom_base * pow(event.factor, Controls.pref("zoom_sens", 1.0)), 0.35, 2.0)
 
 
 # ---------- loop ----------
@@ -501,6 +505,10 @@ func _process(delta: float) -> void:
 	var dt := minf(delta, 0.05)
 	_crash_quip_t -= dt
 	_update_grade()
+	danfo.turn_k = clampf(Controls.pref("steer_sens", 1.0), 0.5, 1.8)
+	var steering_ui := mode == "driving" and Controls.scheme() != "stick" and not story.interior.active
+	hud.controls.driving = steering_ui
+	hud.joystick.visible = hud.touch_ui and not steering_ui
 	# Camera feel: pull back as the bus picks up speed so you can see what's coming.
 	var speed_k := clampf(absf(danfo.speed) / 380.0, 0.0, 1.0) if mode == "driving" and not story.interior.active else 0.0
 	var want_zoom := zoom_base * (1.0 - 0.2 * speed_k)
@@ -633,7 +641,7 @@ func _update_action(focus: Vector2) -> void:
 		hud.set_action("Comot from danfo")
 	elif _near_danfo():
 		_action = "enter"
-		hud.set_action("Enter Baba God Dey")
+		hud.set_action("Enter " + String(Street.current.get("name", "Baba God Dey")))
 	else:
 		var p := interactions.nearest(focus, Life.home)
 		if p.is_empty():
@@ -1210,6 +1218,7 @@ func _demo_street() -> void:
 		await _shot("28-fleet-bus")
 	print("demo: fleet bus on the road = %s" % (not fb.is_empty()))
 	Street.fleet = []
+	await _demo_garage()
 	print("demo: street ok heat=%.1f fuel=%.0f damage=%.0f awards=%d" % [Street.heat, Street.fuel, Street.damage, Street.achieved.size()])
 
 
@@ -1399,3 +1408,69 @@ func _perf_probe() -> void:
 	street.fx.visible = false
 	await _measure("probe no grade, no fx")
 	get_tree().quit()
+
+
+## M14: steal a car, park it, take it out, chop it; steering controls; the controls settings.
+func _demo_garage() -> void:
+	var g: GarageSys = street.garage
+	Street.heat = 0.0
+	if mode == "driving":
+		danfo.speed = 0.0
+		_enter_exit()
+	# A car to steal, right beside us.
+	var a := "yaba_c"
+	var b: String = map.road_graph[a][0]
+	var v: Dictionary = traffic.spawn_on(a, b, 260.0, "suv")
+	v["stop_t"] = 30.0
+	_teleport((v["node"] as Node2D).position + Vector2(0, 60))
+	await _wait(0.6)
+	var p := g.prompt(player.position)
+	print("demo: steal prompt = %s" % p.get("label", "none"))
+	if p.get("kind") == "steal":
+		story._games["fight"].autoplay = true # if the driver fights for it, win (so the demo keeps the car)
+		g.act(p)
+		await _wait(0.5)
+		await _shot("29-carjack")
+		while story.paused_by_story():
+			await get_tree().process_frame
+	story._games["fight"].autoplay = false
+	print("demo: driving %s (stolen %s), heat %.1f" % [Street.current.get("kind"), Street.current.get("stolen"), Street.heat])
+	# Steering buttons on screen.
+	Settings.set_pref("control_scheme", "buttons")
+	hud.touch_ui = true
+	await _wait(0.5)
+	await _shot("30-steering-controls")
+	Settings.set_pref("control_scheme", "stick")
+	hud.touch_ui = false
+	# Drive it home and park it.
+	if mode != "driving" and _near_danfo():
+		_enter_exit()
+	danfo.position = g.garage_pos + Vector2(60, 0)
+	await _wait(0.4)
+	p = g.prompt(danfo.position)
+	print("demo: at the garage = %s" % p.get("label", "none"))
+	if p.get("kind") == "garage_park":
+		g.act(p)
+	await _wait(0.6)
+	print("demo: garage now holds %d, driving %s" % [Street.garage.size(), Street.current.get("id")])
+	await _shot("31-garage-parked")
+	# Take it out again, then sell it at the chop shop.
+	player.position = g.garage_pos
+	street.demo_pick = "take0"
+	g.act({ "kind": "garage_open" })
+	await _wait(1.6)
+	street.demo_pick = ""
+	print("demo: took out %s, garage holds %d" % [Street.current.get("kind"), Street.garage.size()])
+	if Street.current.get("stolen", false):
+		danfo.position = map.landmarks["mushin-mechanic"]["pos"] + Vector2(100, 0)
+		street.demo_pick = "sell"
+		await g.call("_chop_shop")
+		street.demo_pick = ""
+	print("demo: after the chop shop driving %s, money %d" % [Street.current.get("id"), Life.money])
+	hud._show_settings(hud._root)
+	await _wait(0.3)
+	var sc: ScrollContainer = hud._settings_panel.find_children("*", "ScrollContainer", true, false)[0]
+	sc.scroll_vertical = 900
+	await _wait(0.3)
+	await _shot("32-settings-controls")
+	hud.close_top_dialog()

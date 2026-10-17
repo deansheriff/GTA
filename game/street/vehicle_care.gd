@@ -26,6 +26,8 @@ func setup(h: StreetHost) -> void:
 
 
 func apply_paint() -> void:
+	if not Street.driving_baba():
+		return # your paint and slogan are on Baba God Dey only
 	var c := String(Street.paint.get("colour", ""))
 	main.danfo.set_paint(Color(c) if c != "" else Color(0, 0, 0, 0))
 	wear.slogan = String(Street.paint.get("slogan", ""))

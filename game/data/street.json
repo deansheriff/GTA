@@ -10,123 +10,764 @@
     "mechanic_callout": 2500
   },
   "checkpoints": {
-    "marshal": { "name": "Road Marshals", "roger": 500, "fine": 2000, "lines": ["Park! Park well! Where your papers?", "Oga, wetin you carry for back?", "Your tyre don old o. Make we settle am."] },
-    "agbero": { "name": "Motor Park Union boys", "roger": 300, "fine": 1000, "lines": ["Owo ticket! Drop something for the boys!", "Driver, today na ₦300. Market don change.", "You no go pay? You wan try us?"] },
-    "task": { "name": "Area Task Force", "roger": 1500, "fine": 5000, "lines": ["Task Force! Come down from that bus!", "You fit the description o.", "Na you dey cause wahala for this area?"] }
+    "marshal": {
+      "name": "Road Marshals",
+      "roger": 500,
+      "fine": 2000,
+      "lines": [
+        "Park! Park well! Where your papers?",
+        "Oga, wetin you carry for back?",
+        "Your tyre don old o. Make we settle am."
+      ]
+    },
+    "agbero": {
+      "name": "Motor Park Union boys",
+      "roger": 300,
+      "fine": 1000,
+      "lines": [
+        "Owo ticket! Drop something for the boys!",
+        "Driver, today na ₦300. Market don change.",
+        "You no go pay? You wan try us?"
+      ]
+    },
+    "task": {
+      "name": "Area Task Force",
+      "roger": 1500,
+      "fine": 5000,
+      "lines": [
+        "Task Force! Come down from that bus!",
+        "You fit the description o.",
+        "Na you dey cause wahala for this area?"
+      ]
+    }
   },
-  "impound": { "fee": 10000, "yard": "ward-stadium", "name": "Task Force impound yard" },
-  "taskforce_lines": ["Stop there! Task Force!", "Oya park! Park!", "You no fit run forever!"],
+  "impound": {
+    "fee": 10000,
+    "yard": "ward-stadium",
+    "name": "Task Force impound yard"
+  },
+  "taskforce_lines": [
+    "Stop there! Task Force!",
+    "Oya park! Park!",
+    "You no fit run forever!"
+  ],
   "passengers": [
-    { "id": "preacher", "name": "The Preacher", "weight": 3, "lines": ["Brethren! This bus shall not break down, in Jesus name!", "Driver, your hand go dey steady today. Amen?", "Who get small offering for the work of God?"] },
-    { "id": "phone", "name": "The Phone-shouter", "weight": 3, "lines": ["HELLO?! I SAY I DEY BUS! BUS!", "Tell am say I don reach Oshodi! I never reach o, but tell am!", "Network! This network no get sense!"] },
-    { "id": "nochange", "name": "No-change man", "weight": 3, "lines": ["Driver, I get only ₦1,000. You get change?", "Make I pay you when I reach house?"] },
-    { "id": "dropme", "name": "Drop-me-here", "weight": 3, "lines": ["Driver, drop me here! Right here!", "Owa o! Owa! Stop!"] },
-    { "id": "mama", "name": "Market Mama", "weight": 2, "lines": ["My son, help me with this basket o.", "Take puff-puff, you dey drive well."] },
-    { "id": "bigman", "name": "Big Man in agbada", "weight": 1, "lines": ["Drive smooth. If I no spill my zobo, I go bless you.", "Young man, how much be your bus? I fit buy am."] },
-    { "id": "student", "name": "Student", "weight": 2, "lines": ["Driver, abeg student fare.", "You hear the gist? Them say NEPA go bring light 24 hours. Lie!"] },
-    { "id": "thief", "name": "Quiet guy in the back", "weight": 1, "lines": ["…", "(He keeps looking at everybody's bags.)"] }
+    {
+      "id": "preacher",
+      "name": "The Preacher",
+      "weight": 3,
+      "lines": [
+        "Brethren! This bus shall not break down, in Jesus name!",
+        "Driver, your hand go dey steady today. Amen?",
+        "Who get small offering for the work of God?"
+      ]
+    },
+    {
+      "id": "phone",
+      "name": "The Phone-shouter",
+      "weight": 3,
+      "lines": [
+        "HELLO?! I SAY I DEY BUS! BUS!",
+        "Tell am say I don reach Oshodi! I never reach o, but tell am!",
+        "Network! This network no get sense!"
+      ]
+    },
+    {
+      "id": "nochange",
+      "name": "No-change man",
+      "weight": 3,
+      "lines": [
+        "Driver, I get only ₦1,000. You get change?",
+        "Make I pay you when I reach house?"
+      ]
+    },
+    {
+      "id": "dropme",
+      "name": "Drop-me-here",
+      "weight": 3,
+      "lines": [
+        "Driver, drop me here! Right here!",
+        "Owa o! Owa! Stop!"
+      ]
+    },
+    {
+      "id": "mama",
+      "name": "Market Mama",
+      "weight": 2,
+      "lines": [
+        "My son, help me with this basket o.",
+        "Take puff-puff, you dey drive well."
+      ]
+    },
+    {
+      "id": "bigman",
+      "name": "Big Man in agbada",
+      "weight": 1,
+      "lines": [
+        "Drive smooth. If I no spill my zobo, I go bless you.",
+        "Young man, how much be your bus? I fit buy am."
+      ]
+    },
+    {
+      "id": "student",
+      "name": "Student",
+      "weight": 2,
+      "lines": [
+        "Driver, abeg student fare.",
+        "You hear the gist? Them say NEPA go bring light 24 hours. Lie!"
+      ]
+    },
+    {
+      "id": "thief",
+      "name": "Quiet guy in the back",
+      "weight": 1,
+      "lines": [
+        "…",
+        "(He keeps looking at everybody's bags.)"
+      ]
+    }
   ],
   "radio": {
     "stations": [
-      { "id": "gbedu", "name": "Gbedu 98.1", "music": "day", "lines": ["Gbedu 98.1: the hottest street jams for your danfo!", "Shout out to every conductor wey dey shout 'Oshodi Oke!'", "Request line: Mama Nkem says hello to her customers in Oshodi."] },
-      { "id": "highlife", "name": "Highlife Classics 89.5", "music": "highlife", "lines": ["Highlife Classics: sweet guitar for sweet people.", "This one na for the old souls. Dance small.", "Coming up: more highlife, no politics."] },
-      { "id": "talk", "name": "Miracle FM 101.5 · Talk", "music": "talk", "lines": ["Caller: 'NEPA took light during my wedding. I want a refund from the sky.'", "Host: 'Today's topic: should danfo drivers have their own radio station? Call in!'", "Caller: 'The agbero collected ₦300 from my shadow.'", "Host: 'If your landlord increased rent again, press 1. Everybody pressed 1.'", "Caller: 'I bought fuel for ₦90 a litre in my dream. I woke up crying.'"] },
-      { "id": "traffic", "name": "Traffic Gist 92.3", "music": "talk", "lines": [] }
+      {
+        "id": "gbedu",
+        "name": "Gbedu 98.1",
+        "music": "day",
+        "lines": [
+          "Gbedu 98.1: the hottest street jams for your danfo!",
+          "Shout out to every conductor wey dey shout 'Oshodi Oke!'",
+          "Request line: Mama Nkem says hello to her customers in Oshodi."
+        ]
+      },
+      {
+        "id": "highlife",
+        "name": "Highlife Classics 89.5",
+        "music": "highlife",
+        "lines": [
+          "Highlife Classics: sweet guitar for sweet people.",
+          "This one na for the old souls. Dance small.",
+          "Coming up: more highlife, no politics."
+        ]
+      },
+      {
+        "id": "talk",
+        "name": "Miracle FM 101.5 · Talk",
+        "music": "talk",
+        "lines": [
+          "Caller: 'NEPA took light during my wedding. I want a refund from the sky.'",
+          "Host: 'Today's topic: should danfo drivers have their own radio station? Call in!'",
+          "Caller: 'The agbero collected ₦300 from my shadow.'",
+          "Host: 'If your landlord increased rent again, press 1. Everybody pressed 1.'",
+          "Caller: 'I bought fuel for ₦90 a litre in my dream. I woke up crying.'"
+        ]
+      },
+      {
+        "id": "traffic",
+        "name": "Traffic Gist 92.3",
+        "music": "talk",
+        "lines": []
+      }
     ]
   },
   "reactions": {
-    "near_miss": ["Ehn! Craze driver!", "You wan kill me?!", "Na road you dey drive or runway?", "Mumu driver!"],
-    "fight": ["Fight! Fight!", "Separate them!", "Film am! Film am!", "E don happen again!"],
-    "crash": ["Ah! E don jam!", "Wetin be this?!", "Na so! Na so!"],
-    "rain": ["Rain don come o!", "Run! Run!"]
+    "near_miss": [
+      "Ehn! Craze driver!",
+      "You wan kill me?!",
+      "Na road you dey drive or runway?",
+      "Mumu driver!"
+    ],
+    "fight": [
+      "Fight! Fight!",
+      "Separate them!",
+      "Film am! Film am!",
+      "E don happen again!"
+    ],
+    "crash": [
+      "Ah! E don jam!",
+      "Wetin be this?!",
+      "Na so! Na so!"
+    ],
+    "rain": [
+      "Rain don come o!",
+      "Run! Run!"
+    ]
   },
-  "slogans": ["God's Time Is Best", "No Food For Lazy Man", "Who Knows Tomorrow", "Baba God Dey", "Fear Women", "Monkey Dey Work, Baboon Dey Chop", "Still Standing", "No Condition Is Permanent", "Enjoy Your Life", "Shine Your Eye"],
+  "slogans": [
+    "God's Time Is Best",
+    "No Food For Lazy Man",
+    "Who Knows Tomorrow",
+    "Baba God Dey",
+    "Fear Women",
+    "Monkey Dey Work, Baboon Dey Chop",
+    "Still Standing",
+    "No Condition Is Permanent",
+    "Enjoy Your Life",
+    "Shine Your Eye"
+  ],
   "paints": [
-    { "id": "classic", "name": "Classic danfo yellow", "colour": "", "price": 0 },
-    { "id": "lagoon", "name": "Lagoon blue", "colour": "#2f6f99", "price": 8000 },
-    { "id": "jollof", "name": "Jollof red", "colour": "#c8432f", "price": 8000 },
-    { "id": "palm", "name": "Palm green", "colour": "#2f8a52", "price": 8000 },
-    { "id": "owambe", "name": "Owambe purple", "colour": "#76418a", "price": 12000 },
-    { "id": "gold", "name": "Big-man gold", "colour": "#d8b04a", "price": 25000 }
+    {
+      "id": "classic",
+      "name": "Classic danfo yellow",
+      "colour": "",
+      "price": 0
+    },
+    {
+      "id": "lagoon",
+      "name": "Lagoon blue",
+      "colour": "#2f6f99",
+      "price": 8000
+    },
+    {
+      "id": "jollof",
+      "name": "Jollof red",
+      "colour": "#c8432f",
+      "price": 8000
+    },
+    {
+      "id": "palm",
+      "name": "Palm green",
+      "colour": "#2f8a52",
+      "price": 8000
+    },
+    {
+      "id": "owambe",
+      "name": "Owambe purple",
+      "colour": "#76418a",
+      "price": 12000
+    },
+    {
+      "id": "gold",
+      "name": "Big-man gold",
+      "colour": "#d8b04a",
+      "price": 25000
+    }
   ],
   "fleet": {
     "bus_price": 150000,
     "max_buses": 5,
-    "driver_names": ["Kunle", "Emeka", "Musa", "Segun", "Chuks", "Bayo", "Tope", "Ifeanyi", "Sani", "Gbenga", "Uche", "Dele"],
+    "driver_names": [
+      "Kunle",
+      "Emeka",
+      "Musa",
+      "Segun",
+      "Chuks",
+      "Bayo",
+      "Tope",
+      "Ifeanyi",
+      "Sani",
+      "Gbenga",
+      "Uche",
+      "Dele"
+    ],
     "daily_base": 5500,
     "maintenance": 1500
   },
   "home": [
-    { "tier": 0, "name": "Face-me-I-face-you room", "price": 0, "sleep": 1.0, "hygiene": 0, "note": "One room, eight neighbours, one bathroom. Queue at 5am." },
-    { "tier": 1, "name": "Room and parlour", "price": 60000, "sleep": 1.15, "hygiene": 10, "note": "Your own parlour! Visitors can sit down now." },
-    { "tier": 2, "name": "Two-bedroom flat", "price": 220000, "sleep": 1.3, "hygiene": 20, "note": "Own toilet. Own kitchen. You are now a landlord's favourite tenant." },
-    { "tier": 3, "name": "Duplex", "price": 650000, "sleep": 1.5, "hygiene": 35, "note": "Upstairs and downstairs. The whole street knows your name." }
+    {
+      "tier": 0,
+      "name": "Face-me-I-face-you room",
+      "price": 0,
+      "sleep": 1.0,
+      "hygiene": 0,
+      "note": "One room, eight neighbours, one bathroom. Queue at 5am."
+    },
+    {
+      "tier": 1,
+      "name": "Room and parlour",
+      "price": 60000,
+      "sleep": 1.15,
+      "hygiene": 10,
+      "note": "Your own parlour! Visitors can sit down now."
+    },
+    {
+      "tier": 2,
+      "name": "Two-bedroom flat",
+      "price": 220000,
+      "sleep": 1.3,
+      "hygiene": 20,
+      "note": "Own toilet. Own kitchen. You are now a landlord's favourite tenant."
+    },
+    {
+      "tier": 3,
+      "name": "Duplex",
+      "price": 650000,
+      "sleep": 1.5,
+      "hygiene": 35,
+      "note": "Upstairs and downstairs. The whole street knows your name."
+    }
   ],
   "generators": [
-    { "tier": 0, "name": "No generator", "price": 0, "power": 0.0, "fuel_per_hour": 0.0 },
-    { "tier": 1, "name": "\"I-better-pass-my-neighbour\"", "price": 25000, "power": 0.5, "fuel_per_hour": 4.0 },
-    { "tier": 2, "name": "Big Sound-proof generator", "price": 120000, "power": 0.85, "fuel_per_hour": 6.0 },
-    { "tier": 3, "name": "Inverter and solar panels", "price": 380000, "power": 1.0, "fuel_per_hour": 0.0 }
+    {
+      "tier": 0,
+      "name": "No generator",
+      "price": 0,
+      "power": 0.0,
+      "fuel_per_hour": 0.0
+    },
+    {
+      "tier": 1,
+      "name": "\"I-better-pass-my-neighbour\"",
+      "price": 25000,
+      "power": 0.5,
+      "fuel_per_hour": 4.0
+    },
+    {
+      "tier": 2,
+      "name": "Big Sound-proof generator",
+      "price": 120000,
+      "power": 0.85,
+      "fuel_per_hour": 6.0
+    },
+    {
+      "tier": 3,
+      "name": "Inverter and solar panels",
+      "price": 380000,
+      "power": 1.0,
+      "fuel_per_hour": 0.0
+    }
   ],
   "outfits": [
-    { "id": "street", "name": "Street jeans and tee", "price": 0, "look": {} },
-    { "id": "ankara", "name": "Ankara shirt", "price": 6000, "look": { "shirt": "#c96f24" } },
-    { "id": "agbada", "name": "White agbada", "price": 25000, "look": { "shirt": "#efe8d6", "trousers": "#efe8d6" } },
-    { "id": "jersey", "name": "Eko Thunder FC jersey", "price": 8000, "look": { "shirt": "#2f8a52" } },
-    { "id": "conductor", "name": "Conductor's waistcoat", "price": 4000, "look": { "shirt": "#3a3a3a" } },
-    { "id": "owambe", "name": "Owambe aso-ebi (purple)", "price": 18000, "look": { "shirt": "#76418a" } }
+    {
+      "id": "street",
+      "name": "Street jeans and tee",
+      "price": 0,
+      "look": {}
+    },
+    {
+      "id": "ankara",
+      "name": "Ankara shirt",
+      "price": 6000,
+      "look": {
+        "shirt": "#c96f24"
+      }
+    },
+    {
+      "id": "agbada",
+      "name": "White agbada",
+      "price": 25000,
+      "look": {
+        "shirt": "#efe8d6",
+        "trousers": "#efe8d6"
+      }
+    },
+    {
+      "id": "jersey",
+      "name": "Eko Thunder FC jersey",
+      "price": 8000,
+      "look": {
+        "shirt": "#2f8a52"
+      }
+    },
+    {
+      "id": "conductor",
+      "name": "Conductor's waistcoat",
+      "price": 4000,
+      "look": {
+        "shirt": "#3a3a3a"
+      }
+    },
+    {
+      "id": "owambe",
+      "name": "Owambe aso-ebi (purple)",
+      "price": 18000,
+      "look": {
+        "shirt": "#76418a"
+      }
+    }
   ],
   "phones": [
-    { "id": "basic", "name": "Torchlight phone", "price": 0, "battery": 1.0, "skin": "#2a2018" },
-    { "id": "mid", "name": "Zenko 5", "price": 45000, "battery": 1.4, "skin": "#1f3a52" },
-    { "id": "flagship", "name": "Glowphone Pro", "price": 220000, "battery": 2.0, "skin": "#3a2a4a" }
+    {
+      "id": "basic",
+      "name": "Torchlight phone",
+      "price": 0,
+      "battery": 1.0,
+      "skin": "#2a2018"
+    },
+    {
+      "id": "mid",
+      "name": "Zenko 5",
+      "price": 45000,
+      "battery": 1.4,
+      "skin": "#1f3a52"
+    },
+    {
+      "id": "flagship",
+      "name": "Glowphone Pro",
+      "price": 220000,
+      "battery": 2.0,
+      "skin": "#3a2a4a"
+    }
   ],
   "fish": {
     "kinds": [
-      { "id": "tilapia", "name": "Tilapia", "price": 900, "weight": 5 },
-      { "id": "croaker", "name": "Croaker", "price": 1600, "weight": 3 },
-      { "id": "catfish", "name": "Catfish", "price": 2200, "weight": 2 },
-      { "id": "barracuda", "name": "Barracuda", "price": 4500, "weight": 1 }
+      {
+        "id": "tilapia",
+        "name": "Tilapia",
+        "price": 900,
+        "weight": 5
+      },
+      {
+        "id": "croaker",
+        "name": "Croaker",
+        "price": 1600,
+        "weight": 3
+      },
+      {
+        "id": "catfish",
+        "name": "Catfish",
+        "price": 2200,
+        "weight": 2
+      },
+      {
+        "id": "barracuda",
+        "name": "Barracuda",
+        "price": 4500,
+        "weight": 1
+      }
     ],
     "net_price": 3500,
     "canoe_rent": 1000
   },
   "daily_events": [
-    { "id": "fire-drill", "name": "Market fire drill", "where": "oshodi-market", "hours": [9, 14], "text": "Oshodi market fire drill! Carry water buckets to the stalls before the smoke spreads.", "reward": 6000 },
-    { "id": "convoy", "name": "Celebrity convoy", "where": "lekki-event-centre", "hours": [15, 19], "text": "A celebrity convoy is coming to Lekki! Get there, film it, and don't get in the siren's way.", "reward": 5000 },
-    { "id": "blackout", "name": "District blackout", "where": "elddc-substation", "hours": [18, 23], "text": "NEPA has taken light in a whole district! Carry diesel to three shops so their generators run.", "reward": 7000 }
+    {
+      "id": "fire-drill",
+      "name": "Market fire drill",
+      "where": "oshodi-market",
+      "hours": [
+        9,
+        14
+      ],
+      "text": "Oshodi market fire drill! Carry water buckets to the stalls before the smoke spreads.",
+      "reward": 6000
+    },
+    {
+      "id": "convoy",
+      "name": "Celebrity convoy",
+      "where": "lekki-event-centre",
+      "hours": [
+        15,
+        19
+      ],
+      "text": "A celebrity convoy is coming to Lekki! Get there, film it, and don't get in the siren's way.",
+      "reward": 5000
+    },
+    {
+      "id": "blackout",
+      "name": "District blackout",
+      "where": "elddc-substation",
+      "hours": [
+        18,
+        23
+      ],
+      "text": "NEPA has taken light in a whole district! Carry diesel to three shops so their generators run.",
+      "reward": 7000
+    }
   ],
-  "suya": { "price": 1200, "customers": 8 },
-  "keke": { "fare": 600, "rent": 1500 },
-  "okada": { "pay": 1800, "rent": 1000, "minutes": 40 },
+  "suya": {
+    "price": 1200,
+    "customers": 8
+  },
+  "keke": {
+    "fare": 600,
+    "rent": 1500
+  },
+  "okada": {
+    "pay": 1800,
+    "rent": 1000,
+    "minutes": 40
+  },
   "achievements": [
-    { "id": "third-mainland-5pm", "title": "Survived Third Mainland at 5pm", "text": "Drive across the bridge between 5 and 6 pm.", "goal": 1, "counter": "bridge_rush" },
-    { "id": "agbero-10", "title": "Paid the agbero 10 times", "text": "Owo ticket, ten times.", "goal": 10, "counter": "agbero_paid" },
-    { "id": "roger-5", "title": "Roger that", "text": "Settle five checkpoints.", "goal": 5, "counter": "rogered" },
-    { "id": "mouth-5", "title": "Mouth wey sabi", "text": "Argue your way through five checkpoints.", "goal": 5, "counter": "argued_free" },
-    { "id": "gbam-10", "title": "Gbam! Gbam! Gbam!", "text": "Crash ten times. On purpose?", "goal": 10, "counter": "crashes" },
-    { "id": "mechanic-5", "title": "Mechanic's best customer", "text": "Repair the bus five times.", "goal": 5, "counter": "repairs" },
-    { "id": "empty-tank", "title": "Fuel scarcity", "text": "Run the tank completely dry.", "goal": 1, "counter": "ran_dry" },
-    { "id": "fights-5", "title": "Area champion", "text": "Win five street fights.", "goal": 5, "counter": "fights_won" },
-    { "id": "peace-5", "title": "Peace maker", "text": "Apologise your way out of five wahalas.", "goal": 5, "counter": "apologies" },
-    { "id": "five-stars", "title": "Five-star wahala", "text": "Reach five stars of Area heat.", "goal": 1, "counter": "heat_max" },
-    { "id": "escaped", "title": "Them no see me", "text": "Lose the Task Force three times.", "goal": 3, "counter": "heat_escaped" },
-    { "id": "impounded", "title": "Bus don enter yard", "text": "Get your bus impounded.", "goal": 1, "counter": "impounds" },
-    { "id": "rain-run", "title": "Rain no fit stop me", "text": "Finish a danfo run in the rain.", "goal": 1, "counter": "rain_runs" },
-    { "id": "flood", "title": "Submarine danfo", "text": "Drive through a flooded road.", "goal": 1, "counter": "floods" },
-    { "id": "radio-all", "title": "Radio head", "text": "Listen to every station.", "goal": 4, "counter": "stations_heard" },
-    { "id": "preacher", "title": "Mobile church", "text": "Carry the Preacher three times.", "goal": 3, "counter": "carried_preacher" },
-    { "id": "fleet-3", "title": "Transport mogul", "text": "Own three buses.", "goal": 3, "counter": "buses_owned" },
-    { "id": "duplex", "title": "Landlord material", "text": "Move into a duplex.", "goal": 1, "counter": "duplex" },
-    { "id": "generator", "title": "I better pass my neighbour", "text": "Buy a generator.", "goal": 1, "counter": "generator" },
-    { "id": "fish-20", "title": "Fisherman's friend", "text": "Sell twenty fish.", "goal": 20, "counter": "fish_sold" },
-    { "id": "owambe", "title": "Uninvited guest", "text": "Crash an owambe and eat the jollof.", "goal": 1, "counter": "owambe_crashed" },
-    { "id": "suya-50", "title": "Mallam's apprentice", "text": "Sell fifty sticks of suya.", "goal": 50, "counter": "suya_sold" },
-    { "id": "daily-5", "title": "Lagos no dey carry last", "text": "Finish five daily Lagos Wahala events.", "goal": 5, "counter": "daily_done" },
-    { "id": "race-win", "title": "Who get road? Me!", "text": "Win a danfo race.", "goal": 1, "counter": "races_won" },
-    { "id": "crew", "title": "Motor park family", "text": "Join a crew.", "goal": 1, "counter": "crew_joined" },
-    { "id": "trader", "title": "Buy low, sell high", "text": "Make ₦20,000 profit trading.", "goal": 20000, "counter": "trade_profit" },
-    { "id": "photo", "title": "Pose for the gram", "text": "Take five photos.", "goal": 5, "counter": "photos" },
-    { "id": "rep-hero", "title": "Street legend", "text": "Reach a street reputation of 75.", "goal": 1, "counter": "rep_legend" }
-  ]
+    {
+      "id": "third-mainland-5pm",
+      "title": "Survived Third Mainland at 5pm",
+      "text": "Drive across the bridge between 5 and 6 pm.",
+      "goal": 1,
+      "counter": "bridge_rush"
+    },
+    {
+      "id": "agbero-10",
+      "title": "Paid the agbero 10 times",
+      "text": "Owo ticket, ten times.",
+      "goal": 10,
+      "counter": "agbero_paid"
+    },
+    {
+      "id": "roger-5",
+      "title": "Roger that",
+      "text": "Settle five checkpoints.",
+      "goal": 5,
+      "counter": "rogered"
+    },
+    {
+      "id": "mouth-5",
+      "title": "Mouth wey sabi",
+      "text": "Argue your way through five checkpoints.",
+      "goal": 5,
+      "counter": "argued_free"
+    },
+    {
+      "id": "gbam-10",
+      "title": "Gbam! Gbam! Gbam!",
+      "text": "Crash ten times. On purpose?",
+      "goal": 10,
+      "counter": "crashes"
+    },
+    {
+      "id": "mechanic-5",
+      "title": "Mechanic's best customer",
+      "text": "Repair the bus five times.",
+      "goal": 5,
+      "counter": "repairs"
+    },
+    {
+      "id": "empty-tank",
+      "title": "Fuel scarcity",
+      "text": "Run the tank completely dry.",
+      "goal": 1,
+      "counter": "ran_dry"
+    },
+    {
+      "id": "fights-5",
+      "title": "Area champion",
+      "text": "Win five street fights.",
+      "goal": 5,
+      "counter": "fights_won"
+    },
+    {
+      "id": "peace-5",
+      "title": "Peace maker",
+      "text": "Apologise your way out of five wahalas.",
+      "goal": 5,
+      "counter": "apologies"
+    },
+    {
+      "id": "five-stars",
+      "title": "Five-star wahala",
+      "text": "Reach five stars of Area heat.",
+      "goal": 1,
+      "counter": "heat_max"
+    },
+    {
+      "id": "escaped",
+      "title": "Them no see me",
+      "text": "Lose the Task Force three times.",
+      "goal": 3,
+      "counter": "heat_escaped"
+    },
+    {
+      "id": "impounded",
+      "title": "Bus don enter yard",
+      "text": "Get your bus impounded.",
+      "goal": 1,
+      "counter": "impounds"
+    },
+    {
+      "id": "rain-run",
+      "title": "Rain no fit stop me",
+      "text": "Finish a danfo run in the rain.",
+      "goal": 1,
+      "counter": "rain_runs"
+    },
+    {
+      "id": "flood",
+      "title": "Submarine danfo",
+      "text": "Drive through a flooded road.",
+      "goal": 1,
+      "counter": "floods"
+    },
+    {
+      "id": "radio-all",
+      "title": "Radio head",
+      "text": "Listen to every station.",
+      "goal": 4,
+      "counter": "stations_heard"
+    },
+    {
+      "id": "preacher",
+      "title": "Mobile church",
+      "text": "Carry the Preacher three times.",
+      "goal": 3,
+      "counter": "carried_preacher"
+    },
+    {
+      "id": "fleet-3",
+      "title": "Transport mogul",
+      "text": "Own three buses.",
+      "goal": 3,
+      "counter": "buses_owned"
+    },
+    {
+      "id": "duplex",
+      "title": "Landlord material",
+      "text": "Move into a duplex.",
+      "goal": 1,
+      "counter": "duplex"
+    },
+    {
+      "id": "generator",
+      "title": "I better pass my neighbour",
+      "text": "Buy a generator.",
+      "goal": 1,
+      "counter": "generator"
+    },
+    {
+      "id": "fish-20",
+      "title": "Fisherman's friend",
+      "text": "Sell twenty fish.",
+      "goal": 20,
+      "counter": "fish_sold"
+    },
+    {
+      "id": "owambe",
+      "title": "Uninvited guest",
+      "text": "Crash an owambe and eat the jollof.",
+      "goal": 1,
+      "counter": "owambe_crashed"
+    },
+    {
+      "id": "suya-50",
+      "title": "Mallam's apprentice",
+      "text": "Sell fifty sticks of suya.",
+      "goal": 50,
+      "counter": "suya_sold"
+    },
+    {
+      "id": "daily-5",
+      "title": "Lagos no dey carry last",
+      "text": "Finish five daily Lagos Wahala events.",
+      "goal": 5,
+      "counter": "daily_done"
+    },
+    {
+      "id": "race-win",
+      "title": "Who get road? Me!",
+      "text": "Win a danfo race.",
+      "goal": 1,
+      "counter": "races_won"
+    },
+    {
+      "id": "crew",
+      "title": "Motor park family",
+      "text": "Join a crew.",
+      "goal": 1,
+      "counter": "crew_joined"
+    },
+    {
+      "id": "trader",
+      "title": "Buy low, sell high",
+      "text": "Make ₦20,000 profit trading.",
+      "goal": 20000,
+      "counter": "trade_profit"
+    },
+    {
+      "id": "photo",
+      "title": "Pose for the gram",
+      "text": "Take five photos.",
+      "goal": 5,
+      "counter": "photos"
+    },
+    {
+      "id": "rep-hero",
+      "title": "Street legend",
+      "text": "Reach a street reputation of 75.",
+      "goal": 1,
+      "counter": "rep_legend"
+    },
+    {
+      "id": "gtd",
+      "title": "Grand Theft Danfo",
+      "text": "Steal a vehicle.",
+      "goal": 1,
+      "counter": "cars_stolen"
+    },
+    {
+      "id": "gtd-10",
+      "title": "Professional",
+      "text": "Steal ten vehicles.",
+      "goal": 10,
+      "counter": "cars_stolen"
+    },
+    {
+      "id": "collector",
+      "title": "Car collector",
+      "text": "Fill your garage.",
+      "goal": 1,
+      "counter": "garage_full"
+    },
+    {
+      "id": "chop-5",
+      "title": "Chop shop regular",
+      "text": "Sell five stolen cars.",
+      "goal": 5,
+      "counter": "chopped"
+    }
+  ],
+  "vehicles": {
+    "_comment": "Owned, parked and stolen vehicles (M14). top = top speed px/s on roads; chop = what the Mushin chop shop pays for a stolen one.",
+    "garage_slots": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "respray": 3000,
+    "kinds": {
+      "danfo": {
+        "name": "danfo",
+        "top": 380,
+        "chop": 30000
+      },
+      "car": {
+        "name": "car",
+        "top": 420,
+        "chop": 25000
+      },
+      "taxi": {
+        "name": "taxi",
+        "top": 410,
+        "chop": 20000
+      },
+      "suv": {
+        "name": "SUV",
+        "top": 430,
+        "chop": 60000
+      },
+      "pickup": {
+        "name": "pickup",
+        "top": 380,
+        "chop": 35000
+      },
+      "truck": {
+        "name": "truck",
+        "top": 300,
+        "chop": 45000
+      },
+      "tanker": {
+        "name": "tanker",
+        "top": 280,
+        "chop": 50000
+      },
+      "bus": {
+        "name": "city bus",
+        "top": 300,
+        "chop": 55000
+      },
+      "keke": {
+        "name": "keke",
+        "top": 260,
+        "chop": 12000
+      },
+      "okada": {
+        "name": "okada",
+        "top": 460,
+        "chop": 8000
+      }
+    },
+    "thief_lines": [
+      "Ole! Ole! Thief!",
+      "Somebody stop am! My motor!",
+      "Na my car be that o!",
+      "Thief! Catch am!"
+    ]
+  }
 }

@@ -178,12 +178,9 @@ func _return_vehicle() -> void:
 	if main.mode == "driving":
 		d.speed = 0.0
 		main._enter_exit()
-	d.set_kind("danfo")
-	d.refresh_art()
-	d.max_road = 380.0
 	d.position = _saved.get("pos", d.position)
 	d.heading = float(_saved.get("heading", d.heading))
 	_saved = {}
 	main.rented = false
-	host.care.apply_paint()
+	host.garage.reapply_current() # back to whatever you were driving before the rental
 	main._set_waypoint(Vector2.INF)

@@ -103,7 +103,11 @@ func tick(delta: float, focus: Vector2, mode: String, stuck: bool) -> void:
 func _tick_danfo(delta: float, focus: Vector2, mode: String, stuck: bool) -> void:
 	match active["stage"]:
 		"go_to_start":
-			if mode == "driving" and focus.distance_to(start_pos(active)) < 220.0:
+			if mode == "driving" and focus.distance_to(start_pos(active)) < 220.0 and not Street.driving_baba():
+				if not active.get("hinted_bus", false):
+					active["hinted_bus"] = true
+					message.emit("Passengers only enter a danfo. Bring Baba God Dey.")
+			elif mode == "driving" and focus.distance_to(start_pos(active)) < 220.0:
 				var n := _rng.randi_range(8, 14)
 				active["passengers"] = n
 				active["patience"] = 100.0

@@ -23,6 +23,7 @@ var life: StreetLife
 var online: StreetOnline
 var fights: FightStage
 var lamps: VehicleLights
+var garage: GarageSys
 var fauna: StreetLifeFx
 var points: Array = [] # service points: {pos, kind, label, ...}
 var _hud: Control
@@ -52,8 +53,9 @@ func setup(m: Node2D) -> void:
 	online = StreetOnline.new()
 	fights = FightStage.new()
 	lamps = VehicleLights.new()
+	garage = GarageSys.new()
 	fauna = StreetLifeFx.new()
-	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online, fights, lamps, fauna]:
+	for mod: Node in [care, checkpoints, heat, passengers, weather, radio, reactions, hustles, life, online, fights, lamps, fauna, garage]:
 		add_child(mod)
 		mod.setup(self)
 	points = care.build_points(main.map) + life.build_points(main.map) + hustles.build_points(main.map)
@@ -83,6 +85,7 @@ func tick(dt: float) -> void:
 	life.tick(dt)
 	online.tick(dt)
 	lamps.tick(dt)
+	garage.tick(dt)
 	fauna.tick(dt)
 	_tick_awards()
 	_update_hud(dt)
@@ -110,6 +113,9 @@ func pick(a: Array) -> String:
 
 ## The nearest street service to `focus`, or {}.
 func prompt(focus: Vector2) -> Dictionary:
+	var g := garage.prompt(focus)
+	if not g.is_empty():
+		return g
 	var reach := 170.0 if main.mode == "driving" else 95.0
 	var best := {}
 	var bd := reach
@@ -135,6 +141,8 @@ func _label_for(p: Dictionary) -> String:
 
 func act(p: Dictionary) -> void:
 	match p["kind"]:
+		"parked", "garage_open", "garage_park", "steal", "chop":
+			garage.act(p)
 		"fuel", "jerrycan", "mechanic", "vulcanizer":
 			care.use(p)
 		_:
@@ -179,6 +187,13 @@ func ask(title: String, body: String, options: Array, seconds := 0.0, timeout_ke
 
 func impound(reason: String) -> void:
 	if Street.impounded:
+		return
+	if not Street.driving_baba():
+		# Not your bus: they keep the car, and you walk.
+		var was_stolen: bool = Street.current.get("stolen", false)
+		garage.back_to_baba(false)
+		Street.add_heat(-1.0)
+		main.hud.toast("They confiscated the %s (%s)." % ["stolen car" if was_stolen else "car", reason])
 		return
 	if main.mode == "driving":
 		main.danfo.speed = 0.0
@@ -275,6 +290,7 @@ func _update_hud(dt: float) -> void:
 	_bus_bar.get_parent().visible = driving or Street.damage > 30.0
 	_fuel_bar.value = Street.fuel
 	_bus_bar.value = 100.0 - Street.damage
+	(_bus_bar.get_parent().get_child(0) as Label).text = "Bus" if Street.driving_baba() else "Car"
 	var st := Street.stars()
 	_heat_label.visible = Street.heat >= 0.5
 	_heat_label.text = "Area heat " + "★".repeat(maxi(st, 1 if Street.heat >= 0.5 else 0)) + "☆".repeat(5 - maxi(st, 1 if Street.heat >= 0.5 else 0))
@@ -303,6 +319,10 @@ func _update_marks() -> void:
 	if weather.flood > 0.3:
 		for s: Vector2 in weather.spots:
 			marks.append({ "pos": s, "kind": "flood" })
+	var bb := garage._baba_node()
+	if bb:
+		marks.append({ "pos": bb.position, "kind": "bus" })
+	marks.append({ "pos": garage.garage_pos, "kind": "garage" })
 	var ev := life.daily_event()
 	if not ev.is_empty() and life._event_hours(ev) and Street.daily.get("stage") in ["new", "runs"] and main.map.landmarks.has(ev["where"]):
 		marks.append({ "pos": main.map.landmarks[ev["where"]]["pos"], "kind": "event" })

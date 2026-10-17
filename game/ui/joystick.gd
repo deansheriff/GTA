@@ -38,7 +38,8 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _update(pos: Vector2) -> void:
-	var v := (pos - _center()) / RADIUS
+	# Sensitivity (Settings → Controls): higher reaches full speed with a shorter push.
+	var v := (pos - _center()) / (RADIUS / clampf(float(Settings.get_pref("stick_sens", 1.0)), 0.5, 2.0))
 	value = v.limit_length(1.0)
 	queue_redraw()
 

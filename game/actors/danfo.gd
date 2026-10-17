@@ -30,6 +30,7 @@ var speed := 0.0 # px / s
 var _wedged_t := 0.0
 var max_road := 380.0
 var max_off := 150.0
+var turn_k := 1.0 # steering sensitivity (Settings → Controls), player vehicle only
 var limit := INF # fuel and damage cap the top speed (street/vehicle_care.gd)
 var _art: Sprite2D
 var _paint := Color(0, 0, 0, 0)
@@ -96,7 +97,7 @@ func drive(delta: float, input: Vector2, world: MapData) -> String:
 	if input.length() > 0.15:
 		var want := input.angle()
 		var diff := wrapf(want - heading, -PI, PI)
-		var turn := 2.6 * clampf(0.3 + absf(speed) / 160.0, 0.0, 1.0)
+		var turn := 2.6 * turn_k * clampf(0.3 + absf(speed) / 160.0, 0.0, 1.0)
 		heading += clampf(diff, -turn * delta, turn * delta)
 		var goal := -120.0 if absf(diff) > 2.4 else top_speed * minf(input.length(), 1.0)
 		speed += clampf(goal - speed, -520.0 * delta, 260.0 * delta)
