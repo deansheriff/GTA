@@ -1,19 +1,19 @@
 {
   "_comment": "Free-roam hustles (game money). Fares and pay in naira. Landmark ids from data/map/lagos.json.",
   "danfo_routes": [
-    { "id": "osh-oba", "name": "Oshodi → Obalende", "from": "tunde-depot", "to": "obalende-motor-park", "fare": 700 },
+    { "id": "osh-oba", "name": "Oshodi → Obalende", "from": "oshodi-park", "to": "obalende-motor-park", "fare": 700 },
     { "id": "oba-lek", "name": "Obalende → Lekki", "from": "obalende-motor-park", "to": "lekki-event-centre", "fare": 900 },
-    { "id": "osh-yab", "name": "Oshodi → Yaba", "from": "tunde-depot", "to": "kc-room", "fare": 500 },
-    { "id": "oba-ike", "name": "Obalende → Ikeja", "from": "obalende-motor-park", "to": "miracle-fm", "fare": 1000 },
-    { "id": "osh-sur", "name": "Oshodi → Surulere", "from": "tunde-depot", "to": "aunty-boss-kitchen", "fare": 400 },
-    { "id": "oba-ket", "name": "Obalende → Agbado-Ketu", "from": "obalende-motor-park", "to": "agbado-ketu-council", "fare": 1100 }
+    { "id": "osh-yab", "name": "Oshodi → Yaba", "from": "oshodi-park", "to": "yaba-police", "fare": 500 },
+    { "id": "oba-ike", "name": "Obalende → Ikeja", "from": "obalende-motor-park", "to": "radio-gbedu", "fare": 1000 },
+    { "id": "osh-sur", "name": "Oshodi → Surulere", "from": "oshodi-park", "to": "ojuelegba-buka", "fare": 400 },
+    { "id": "oba-ket", "name": "Obalende → Agbado-Ketu", "from": "obalende-motor-park", "to": "ward-collation", "fare": 1100 }
   ],
   "deliveries": [
-    { "id": "jollof-coolers", "name": "Deliver jollof coolers", "from": "aunty-boss-kitchen", "to": "lekki-event-centre", "pay": 4500, "minutes": 150, "line": "Owambe no fit start without jollof!" },
-    { "id": "phone-repair", "name": "Return a repaired phone", "from": "oshodi-market", "to": "kc-room", "pay": 2500, "minutes": 120, "line": "Screen don dey new. Customer go happy." },
-    { "id": "campaign-flyers", "name": "Drop campaign flyers", "from": "miracle-fm", "to": "agbado-ketu-council", "pay": 3000, "minutes": 120, "line": "\"Light for All (T&Cs Apply)\". Hmm." },
-    { "id": "fish-order", "name": "Fresh fish order", "from": "obalende-motor-park", "to": "mama-chief-house", "pay": 3500, "minutes": 100, "line": "Ikoyi madam wants it before lunch." },
-    { "id": "diesel-jerrycan", "name": "Carry diesel jerrycan", "from": "petronaija-station", "to": "aunty-boss-kitchen", "pay": 2000, "minutes": 90, "line": "Generator dey wait. Customers dey wait." }
+    { "id": "jollof-coolers", "name": "Deliver jollof coolers", "from": "ojuelegba-buka", "to": "lekki-event-centre", "pay": 4500, "minutes": 150, "line": "Owambe no fit start without jollof!" },
+    { "id": "phone-repair", "name": "Return a repaired phone", "from": "oshodi-market", "to": "yaba-police", "pay": 2500, "minutes": 120, "line": "Screen don dey new. Customer go happy." },
+    { "id": "campaign-flyers", "name": "Drop campaign flyers", "from": "radio-gbedu", "to": "ward-collation", "pay": 3000, "minutes": 120, "line": "\"Light for All (T&Cs Apply)\". Hmm." },
+    { "id": "fish-order", "name": "Fresh fish order", "from": "obalende-motor-park", "to": "coker-bankole-house", "pay": 3500, "minutes": 100, "line": "Ikoyi madam wants it before lunch." },
+    { "id": "diesel-jerrycan", "name": "Carry diesel jerrycan", "from": "mushin-station", "to": "ojuelegba-buka", "pay": 2000, "minutes": 90, "line": "Generator dey wait. Customers dey wait." }
   ],
   "pos": { "commission": [150, 400], "customers": 6, "network_fail": 0.3 }
 }

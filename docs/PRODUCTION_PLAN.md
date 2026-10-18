@@ -1,9 +1,90 @@
-# Naija Street Life — Production Plan
+# Production plan: Naija Street Life — Èkó Ò Ní Bàjẹ́
 
-The source of truth for build progress (owner instruction, D-008): build continuously, mark
-milestones, make no APK until the game is done, then do one release build.
+On 2026-10-18 the owner retired the 2D game and its first story (D-021). The game is now the 3D Lagos
+open world (D-020) with the campaign **Èkó Ò Ní Bàjẹ́**. The story document is
+[docs/story/eko-oni-baje.md](story/eko-oni-baje.md): a prologue, 5 acts, 27 missions and 3 endings.
 
-**Legend:** ✅ done · 🔨 in progress · ⬜ to do · 🔒 blocked on the owner (decision, money, legal or accounts)
+Each phase ends playable, tested, committed and pushed. 🔒 marks items only the owner can do.
+
+## P1 · Foundation and the opening ✅ (2026-10-18)
+- **3D only:** the game boots into 3D Lagos with a main menu (Continue, New game, Missions,
+  Settings, Credits). The 2D game and its story are gone.
+- **Campaign engine:**
+  - Missions are data (`data/story/eko/campaign.json`), played by `world3d/mission3d.gd`.
+  - Step kinds: title cards, dialogue with choices, actors and props, goto, stay still,
+    escape from chasers, danfo fares, fights, forced night and rain, cinematic cameras, items,
+    Respect.
+  - A failed step retries from where it began.
+  - Autopilot plays whole missions for tests.
+- **Melee combat:** punch, hit reactions and knockdowns. Up to two enemies swing at once, and
+  there's a health bar.
+- **Playable now:**
+  - The prologue, "Oshodi, 2011": rain, hide, run, the gutter under the bridge, the voice.
+  - Mission 1, "Obalende! Obalende!": danfo fares with Sego, then Tolu's ID.
+  - Mission 2, "Agbero Tax": the fight with Wire, and Kongi with the lion-head stick.
+- **Missions screen:** all 27 missions are listed, with the unbuilt ones marked "coming soon".
+- **New Meshy cast:** Dayo, young Dayo, Sego, Mama Àgbà and Kongi (all rigged), plus the
+  lion-head walking stick.
+- **Map:** landmarks re-themed for the story, such as Oshodi Motor Park (Union Office), the
+  Balogun compound, Yaba Police Division, the Coker-Bankole residence and The Lagos Ledger.
+
+## P2 · Act I complete (missions 3–6)
+- **Vehicle chases:** pursuit AI, ramming, vehicle damage and bailing out (M3 One Chance, M5
+  Seme Run).
+- **Guns:** aim, shoot, take cover, ammo, and enemies who shoot back (M5, M6).
+- **Wanted and police response:** checkpoints use the "roger" choices (bribe, argue, show
+  papers, flee), which move Wanted and Respect.
+- **Map additions:** a Third Mainland Bridge approach, the Lagos–Badagry expressway with a Seme
+  border post, and the Lagos Island festival zone (no vehicles, a white-robed Eyo crowd).
+- **Cutscene tools:** scripted actor walks, a vehicle convoy, arrest and news-report beats.
+
+## P3 · Act II (missions 7–12)
+- An interior for the police station (Cell Four) and Computer Village's stall maze, with a foot
+  chase over rooftops.
+- Owambe social stealth: aso-ebi disguise, money spraying and talking-drum dance prompts.
+- Water: canoes and Makoko on stilts (M10). Regions: Abeokuta and Olumo Rock (climbing, the Ìrókò
+  charm).
+- A bridge chase on an okada, jumping onto trailers and a fight on a moving tanker (M12).
+
+## P4 · Act III (missions 13–18) and Big Choice 1
+- A no-weapon crowd escape (Janazah), the Ballot Box choice (snatch or swap, with filming) and an
+  ambulance run.
+- Regions: Kano and the Durbar (a horseback chase), and the Niger Delta creeks (speedboats, a
+  refinery explosion).
+- The Festac safe-house raid (defending it), with Mama Àgbà's death scene and the "no jokes"
+  rule.
+
+## P5 · Act IV (missions 19–23)
+- The Ajegunle chase and the choice over Sego, and the Nokia recording walk (walk only, the
+  radio advert).
+- A city-bus escape, the Oshodi loudspeaker scene and assembling the crew.
+- Region: Obinna's village in Anambra, with the New Yam festival and the Mmanwu masquerades.
+
+## P6 · Act V, endings and post-game
+- The blackout stealth (generator pools of light), the three-front assault and the yacht boss
+  fight with the staff.
+- **Endings:** Ọba Ìta, Ìdájọ́ (fair or bitter, depending on the ballot choice) and Japa.
+- Post-game free roam that depends on the ending: kingpin territory, a neutral driver, and so on.
+
+## Cross-cutting work (runs through every phase)
+- **Map v2:** a closer-to-real Lagos layout, with the lagoon and Third Mainland Bridge, the
+  Island, Ikeja, Alaba, Festac, Ajegunle and Makoko. Regions outside Lagos are separate scenes.
+- **Cast models:** about 14 more characters: Obinna, Hauwa, Amaka, Bigz, Kemi, Wire, Rasheed,
+  the senator, Tonye, Baba Fakunle, CP Ladipo, Musa, Tolu and Sadiq. At about 20 Meshy credits
+  each that's roughly 300 credits, from the monthly reset on 2026-11-18 or a credit pack 🔒.
+- **Story systems:** Respect, Wanted, NEPA cuts, go-slow hawkers, Mama Àgbà's food buffs (until
+  Act III) and the radio station with Uncle Obi's adverts.
+- **Language:** a native-speaker review of the Pidgin, Yoruba, Igbo and Hausa lines 🔒, with
+  subtitles throughout.
+- **Phone performance** on a real device 🔒 (a debug APK once P2 lands).
+- **Age rating:** guns, kidnapping and ritual crime mean an IARC Mature (16+/18+) rating. The
+  old prize and skill-challenge features stay switched off 🔒.
+- **Online:** the server's features were built for the 2D game. Deciding what returns (chat,
+  cloud saves) is an owner decision 🔒.
+
+---
+
+# Archive: the 2D game (retired 2026-10-18)
 
 ## M0 — Foundations ✅
 - ✅ Godot 4.6 Android project, Compatibility renderer, settings, HUD, joystick

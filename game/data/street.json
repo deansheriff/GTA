@@ -454,7 +454,7 @@
     {
       "id": "blackout",
       "name": "District blackout",
-      "where": "elddc-substation",
+      "where": "ikoyi-substation",
       "hours": [
         18,
         23

@@ -6,7 +6,7 @@ config_version=5
 
 config/name="Naija Street Life"
 config/description="A Nigerian life-sim and comedy-crime game. Story mode: Up NEPA!"
-run/main_scene="res://main.tscn"
+run/main_scene="res://world3d/street3d.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.png"
 config/quit_on_go_back=false

@@ -1,17 +1,17 @@
 class_name Street3D
 extends Node3D
-## 3D Lagos (D-020): the whole island in 3D, built from the 2D game's map data and the Meshy models.
-## Walk as Tunde, take any vehicle (traffic drivers get dragged out), drive through traffic past
-## townspeople who get out of your way. Runs on the Compatibility renderer, like the 2D game.
-## Launch: the "3D Lagos" button on the title screen, or Godot --path game -- --proto3d.
+## Naija Street Life: Èkó Ò Ní Bàjẹ́ (D-020, D-021). The whole game: Lagos in 3D, built from the map
+## data and the Meshy models. Boots to the main menu over the living city; New game plays the
+## prologue and the campaign (Mission3D), Continue resumes the save. Between missions, free roam:
+## walk as Dayo, take any vehicle, run danfo fares, dodge checkpoints. Compatibility renderer.
 
 const CELL_M := Terrain3D.CELL_M
-## Crowd sizes and draw distance follow the game's graphics preset (Settings: low/medium/high).
+const ENTER_RANGE := 3.6
+
+## Crowd sizes and draw distance follow the graphics preset (Settings: low / medium / high).
 var traffic_n := 26
 var people_n := 36
-var q_far := 1.0 # draw-distance scale
-var _look_t := 0.0 # seconds since the player last dragged the camera
-const ENTER_RANGE := 3.6
+var q_far := 1.0
 
 var map: MapData
 var models := Models3D.new()
@@ -21,27 +21,28 @@ var player: Player3D
 var ride: Vehicle3D # the vehicle the player is driving, or null
 var vehicles: Array[Vehicle3D] = []
 var people: Array[Person3D] = []
+var people_keys: Array = []
 var cam: Camera3D
 var cam_yaw := 0.0
-var hud: Label
-var _joy: Control
-var _act_btn: Button
-var _run_btn: Button
+var run: DanfoRun3D
+var lights: Lights3D
+var checkpoints: Checkpoint3D
+var stage: Stage3D
+var combat: Combat3D
+var missions: Mission3D
+var hud: Hud3D
+var in_menu := true
+var _look_t := 0.0
+var _shake := 0.0
+var _dark := 0.0
 var _run_held := false
 var _rng := RandomNumberGenerator.new()
 var _fps_t := 0.0
 var _frames := 0
 var _recycle_t := 0.0
 var _walk_cells: Array[Vector2i] = []
-var run: DanfoRun3D
-var lights: Lights3D
-var checkpoints: Checkpoint3D
-var _dark := 0.0
-var people_keys: Array = []
-var _minimap: Minimap3D
-var _toast: Label
-var _toast_t := 0.0
-var _money: Label
+var _menu_t := 0.0
+var _save_ok := true
 var _env: Environment
 var _sun: DirectionalLight3D
 var _sky: ProceduralSkyMaterial
@@ -52,7 +53,6 @@ var demo_drive := Vector2.ZERO
 
 func _ready() -> void:
 	_rng.seed = 2026
-	_guard_save()
 	_quality()
 	map = MapData.shared()
 	_environment()
@@ -73,7 +73,7 @@ func _ready() -> void:
 	run = DanfoRun3D.new()
 	add_child(run)
 	run.setup(self)
-	run.message.connect(_say)
+	run.message.connect(notify)
 	run.paid.connect(_save_game)
 	lights = Lights3D.new()
 	add_child(lights)
@@ -81,44 +81,59 @@ func _ready() -> void:
 	checkpoints = Checkpoint3D.new()
 	add_child(checkpoints)
 	checkpoints.setup(self)
-	checkpoints.message.connect(_say)
+	checkpoints.message.connect(notify)
 	checkpoints.charged.connect(_save_game)
-	_hud()
+	stage = Stage3D.new()
+	add_child(stage)
+	stage.setup(self)
+	combat = Combat3D.new()
+	add_child(combat)
+	combat.setup(self)
+	missions = Mission3D.new()
+	add_child(missions)
+	missions.setup(self)
+	missions.mission_done.connect(_on_mission_done)
+	hud = Hud3D.new()
+	add_child(hud)
+	hud.setup(self)
+	hud.action_pressed.connect(_action)
+	hud.punch_pressed.connect(combat.player_attack)
+	hud.run_changed.connect(func(h: bool) -> void: _run_held = h)
+	hud.new_game.connect(_new_game)
+	hud.continue_game.connect(_continue_game)
+	_register_save()
 	_apply_quality_env()
 	_day_night()
+	var shots := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shots="):
-			_shots(a.trim_prefix("--shots="))
+			shots = a.trim_prefix("--shots=")
+	if shots != "":
+		_shots(shots)
+	else:
+		hud.show_menu(FileAccess.file_exists(SaveGame.PATH))
+		Sound.music("highlife")
 
 
-## The 2D game's systems that feed the save (the world, jobs, garage...) are gone while we're in
-## 3D. Load the latest save's money and clock, and make every save from here keep the 2D parts
-## exactly as they were saved (a provider whose object is gone answers with its saved copy).
-func _guard_save() -> void:
-	# The title may save again only once the 2D game has reloaded its world (main.gd sets it).
-	if Engine.has_meta("save_ready"):
-		Engine.remove_meta("save_ready")
-	var data: Dictionary = {}
-	if FileAccess.file_exists(SaveGame.PATH):
-		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(SaveGame.PATH))
-		if parsed is Dictionary:
-			data = parsed
-	if not data.is_empty():
-		Clock.from_dict(data.get("clock", {}))
-		Life.from_dict(data.get("life", {}))
-		SaveGame.revision = int(data.get("revision", 0))
-	var world_saved: Dictionary = data.get("world", {})
-	var wp: Callable = SaveGame.world_provider
-	SaveGame.world_provider = func() -> Dictionary: return wp.call() if wp.is_valid() else world_saved
-	var extras: Dictionary = data.get("extras", {})
-	for k in SaveGame.extra_providers.keys():
-		var c: Callable = SaveGame.extra_providers[k]
-		var frozen: Variant = extras.get(k, {})
-		SaveGame.extra_providers[k] = func() -> Variant: return c.call() if c.is_valid() else frozen
-	_save_ok = not Engine.has_meta("qa_no_save")
+# ---------- save ----------
+
+func _register_save() -> void:
+	SaveGame.world_provider = _world_state
+	SaveGame.world_restorer = _restore_world
+	SaveGame.extra_providers = { "story": Story.to_dict, "street": Street.to_dict }
+	SaveGame.extra_restorers = { "story": Story.from_dict, "street": Street.from_dict }
 
 
-var _save_ok := true
+func _world_state() -> Dictionary:
+	var p := focus()
+	return { "pos": [p.x, p.z], "model": player.model_key }
+
+
+func _restore_world(d: Dictionary) -> void:
+	var p: Array = d.get("pos", [])
+	if p.size() == 2:
+		player.position = Vector3(float(p[0]), terrain.height_at(Vector3(float(p[0]), 0, float(p[1]))), float(p[1]))
+	player.set_model(String(d.get("model", "dayo")))
 
 
 func _save_game() -> void:
@@ -126,8 +141,57 @@ func _save_game() -> void:
 		SaveGame.save_now()
 
 
+func _new_game() -> void:
+	in_menu = false
+	SaveGame.wipe()
+	Story.reset()
+	Sound.music("")
+	missions.run("p0")
+
+
+func _continue_game() -> void:
+	in_menu = false
+	SaveGame.load_local()
+	Sound.music("")
+	# A mission interrupted by quitting starts again from its beginning.
+	var id := Story.current
+	if id != "" and Story.playable(id):
+		missions.run(id)
+	else:
+		_next_mission_marker()
+
+
+func _on_mission_done(id: String) -> void:
+	_save_game()
+	var nxt := Story.next_mission()
+	if nxt == "":
+		notify("You've played every chapter so far. More of the story is coming.")
+		return
+	var m: Dictionary = Story.mission(nxt)
+	if Story.playable(nxt) and not m.has("start"):
+		missions.run(nxt)
+	else:
+		_next_mission_marker()
+
+
+## Free roam until the player reaches the next mission's marker.
+func _next_mission_marker() -> void:
+	var nxt := Story.next_mission()
+	if nxt == "" or not Story.playable(nxt):
+		stage.set_marker(null)
+		if nxt != "":
+			set_objective("Next: %s (coming soon). Free roam: drive danfo, explore Lagos." % String(Story.mission(nxt).get("title", "")), null)
+		return
+	var m: Dictionary = Story.mission(nxt)
+	var at: Vector3 = resolve({ "at": m.get("start", "player") })
+	stage.set_marker(at, String(m.get("title", "")))
+	set_objective("Next mission: %s · %s" % [String(m.get("title", "")), String(m.get("where", ""))], at)
+
+
+# ---------- quality ----------
+
 func _quality() -> void:
-	var g: Dictionary = Settings.current if get_node_or_null("/root/Settings") else {}
+	var g: Dictionary = Settings.current
 	var dd := int(g.get("draw_distance", 2))
 	q_far = [0.65, 0.65, 0.85, 1.0][clampi(dd, 0, 3)]
 	people_n = clampi(int(g.get("max_npcs", 30)), 10, 36)
@@ -135,13 +199,19 @@ func _quality() -> void:
 
 
 func _apply_quality_env() -> void:
-	var g: Dictionary = Settings.current if get_node_or_null("/root/Settings") else {}
+	var g: Dictionary = Settings.current
 	var shadows := String(g.get("shadows", "blob"))
 	_sun.shadow_enabled = shadows != "none"
 	_sun.directional_shadow_max_distance = 70.0 if shadows == "painted" else 40.0
 	_env.glow_enabled = String(g.get("effects", "low")) != "off"
 	_env.fog_depth_begin = 90.0 * q_far
 	_env.fog_depth_end = 175.0 * q_far
+
+
+## Settings changed in a menu: lighting and haze update now; crowd sizes on the next start.
+func apply_quality() -> void:
+	_quality()
+	_apply_quality_env()
 
 
 # ---------- helpers the actors use ----------
@@ -178,6 +248,161 @@ func clear_ahead(v: Vehicle3D) -> float:
 		if lateral < 2.0:
 			best = minf(best, ahead - v.length * 0.5 - half)
 	return best
+
+
+# ---------- the story's stage directions (Mission3D calls these) ----------
+
+## A step's position: "landmark:id", "node:id", "player", or [x, z] metres; plus "offset" [dx, dz].
+func resolve(st: Dictionary) -> Vector3:
+	var at: Variant = st.get("at", "player")
+	var p := player.position
+	if at is Array and (at as Array).size() == 2:
+		p = Vector3(float(at[0]), 0, float(at[1]))
+	elif at is String:
+		var s := String(at)
+		if s.begins_with("landmark:") and map.landmarks.has(s.substr(9)):
+			p = Terrain3D.w(map.landmarks[s.substr(9)]["pos"])
+		elif s.begins_with("node:") and map.road_nodes.has(s.substr(5)):
+			p = Terrain3D.w(map.road_nodes[s.substr(5)])
+	var off: Array = st.get("offset", [0, 0])
+	p += Vector3(float(off[0]), 0, float(off[1]))
+	p.y = terrain.height_at(p)
+	return p
+
+
+## Put Dayo somewhere: on foot, or at the wheel of a fresh vehicle (with its painted slogan).
+func place_player(pos: Vector3, vehicle_kind := "", slogan := "") -> void:
+	if ride and vehicle_kind == "":
+		_action() # get out first
+	if vehicle_kind == "":
+		player.position = pos
+		return
+	var v := Vehicle3D.new()
+	add_child(v)
+	v.setup(models, vehicle_kind, self)
+	# Onto the nearest road, pointing along it.
+	var best := ""
+	var bd := INF
+	for id in map.road_nodes:
+		var d := Terrain3D.w(map.road_nodes[id]).distance_squared_to(pos)
+		if d < bd and not (map.road_graph.get(id, []) as Array).is_empty():
+			bd = d
+			best = id
+	if best != "":
+		v.place_on_road(best, map.road_graph[best][0], 0.15)
+	else:
+		v.position = pos
+	v.mode = Vehicle3D.Mode.PARKED
+	v.speed = 0.0
+	if slogan != "":
+		_paint_slogan(v, slogan)
+	vehicles.append(v)
+	if ride:
+		_action()
+	player.position = v.position + Vector3(0, 0, 2.0)
+	_enter(v)
+
+
+func _paint_slogan(v: Vehicle3D, text: String) -> void:
+	for side in [1.0, -1.0]:
+		var l := Label3D.new()
+		l.text = text
+		l.font_size = 48
+		l.pixel_size = 0.006
+		l.modulate = Color("#1d1611")
+		l.outline_size = 0
+		l.position = Vector3(0, 1.35, 1.12 * side)
+		l.rotation.y = 0.0 if side > 0 else PI
+		v.add_child(l)
+
+
+func teleport_ride(pos: Vector3) -> void:
+	if ride:
+		ride.position = pos
+		ride.speed = 0.0
+	else:
+		player.position = pos
+
+
+func spawn_actor(id: String, who: String, pos: Vector3, anim := "idle", face := "", prop := "", model := "") -> Person3D:
+	return stage.spawn(id, who, pos, anim, face, prop, model)
+
+
+func despawn_actor(id: String) -> void:
+	stage.despawn(id)
+
+
+func clear_actors() -> void:
+	stage.clear()
+
+
+func set_env(night: bool, rain: bool) -> void:
+	stage.set_env(night, rain)
+	_day_night()
+
+
+func show_title(text: String, sub := "", secs := 2.5, col := UiStyle.DANFO) -> void:
+	await hud.show_title(text, sub, secs, col)
+
+
+func say(lines: Array) -> Array:
+	return await hud.say(lines)
+
+
+func notify(text: String) -> void:
+	hud.notify(text)
+
+
+func black(secs: float) -> void:
+	await hud.black(secs)
+
+
+func cam_mode(mode: String, at: Vector3) -> void:
+	stage.cam_override = mode
+	stage.cam_target = at
+
+
+func force_exit() -> void:
+	if ride:
+		_action()
+
+
+func set_objective(text: String, target: Variant) -> void:
+	hud.set_objective(text)
+	run.story_target = target
+
+
+func mission_banner(m: Dictionary) -> void:
+	var act := int(m.get("act", 0))
+	hud.notify(Story.act_title(act) if act == 0 else "%s: %s" % [Story.act_title(act), String(m.get("title", ""))])
+
+
+func retry_from(snap: Vector3) -> void:
+	combat.clear()
+	player.position = snap
+	if ride:
+		ride.speed = 0.0
+
+
+func shake(amount: float) -> void:
+	_shake = maxf(_shake, amount)
+
+
+## Autopilot (tests): load at the nearest stop, then arrive at the destination a moment later.
+func autopilot_fare() -> void:
+	_autopilot_fare.call_deferred()
+
+
+func _autopilot_fare() -> void:
+	if ride == null:
+		return
+	var s := run.nearest_stop(ride.position)
+	ride.position = run.stops[s]["pos"]
+	ride.speed = 0.0
+	await get_tree().create_timer(1.6).timeout
+	if run.dest >= 0:
+		ride.position = run.stops[run.dest]["pos"]
+		ride.speed = 0.0
 
 
 # ---------- world ----------
@@ -229,8 +454,7 @@ func _spawn_player() -> void:
 	player = Player3D.new()
 	add_child(player)
 	player.setup(models, self)
-	var start: Vector2 = map.road_nodes.get("yaba_c", map.player_start)
-	# The nearest pavement cell to Yaba's junction.
+	var start: Vector2 = map.road_nodes.get("mushin_c", map.player_start)
 	var best := Vector2i.ZERO
 	var bd := INF
 	for c in _walk_cells:
@@ -239,19 +463,6 @@ func _spawn_player() -> void:
 			bd = d
 			best = c
 	player.position = cell_pos(best)
-	# Tunde's danfo, parked at the kerb beside him.
-	var nb: Array = map.road_graph.get("yaba_c", [])
-	if not nb.is_empty():
-		var dv := Vehicle3D.new()
-		add_child(dv)
-		dv.setup(models, "danfo", self)
-		dv.place_on_road("yaba_c", nb[0], 0.12)
-		dv.mode = Vehicle3D.Mode.PARKED
-		dv.speed = 0.0
-		vehicles.append(dv)
-		var to_car := dv.position - player.position
-		cam_yaw = atan2(-to_car.x, -to_car.z) # camera behind Tunde, looking at his bus
-		player.model.rotation.y = atan2(to_car.x, to_car.z)
 	cam = Camera3D.new()
 	cam.fov = 62.0
 	cam.far = 400.0
@@ -290,8 +501,6 @@ func _reroute(v: Vehicle3D, near: float, far: float) -> void:
 
 func _spawn_people() -> void:
 	var keys: Array = Models3D.PEOPLE.filter(func(k: String) -> bool: return models.has(k, Models3D.CHARS))
-	if keys.is_empty() and models.has("tunde"):
-		keys = ["tunde"]
 	people_keys = keys
 	if keys.is_empty():
 		return
@@ -323,13 +532,18 @@ func _input_vec() -> Vector2:
 	if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT): v.x += 1
 	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP): v.y -= 1
 	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN): v.y += 1
-	if _joy:
-		v += _joy.value
+	if hud and hud.joy:
+		v += hud.joy.value
 	return v.limit_length(1.0)
 
 
+## Talking, title cards and menus freeze the player's controls.
+func _controls_locked() -> bool:
+	return in_menu or hud.dialogue.visible
+
+
 func _physics_process(delta: float) -> void:
-	var inp := _input_vec()
+	var inp := Vector2.ZERO if _controls_locked() else _input_vec()
 	if ride:
 		var d := demo_drive if demo_drive != Vector2.ZERO else Vector2(inp.x, -inp.y)
 		ride.drive(d.y, d.x, delta)
@@ -347,9 +561,21 @@ func _physics_process(delta: float) -> void:
 	run.step(delta)
 	lights.step(delta, _dark)
 	checkpoints.step(delta)
+	stage.step(delta)
+	combat.step(delta)
+	hud.fight_mode(combat.active, combat.player_hp)
+	if missions.running == "" and not in_menu and stage._marker.visible:
+		if Vector2(focus().x - stage._marker.position.x, focus().z - stage._marker.position.z).length() < 6.0:
+			stage.set_marker(null)
+			missions.run(Story.next_mission())
 	_place_camera(delta)
 	_recycle(delta)
 	_update_hud(delta)
+	_sounds()
+
+
+func _sounds() -> void:
+	Sound.world(_dark > 0.5, true, ride != null, absf(ride.speed) if ride else 0.0, 1.0 if stage.raining else 0.0)
 
 
 ## People in front of a moving player vehicle dive out of the way.
@@ -364,22 +590,42 @@ func _scatter(v: Vehicle3D) -> void:
 
 
 func _place_camera(delta: float) -> void:
+	if in_menu and delta < 1.0:
+		# Main menu: a slow drift over the city.
+		_menu_t += delta * 0.05
+		var c := player.position
+		cam.position = c + Vector3(sin(_menu_t) * 42.0, 30.0, cos(_menu_t) * 42.0)
+		cam.look_at(c + Vector3(0, 4, 0))
+		return
 	var target: Vector3
 	var dist: float
 	var height: float
+	player.visible = ride == null and not (stage and stage.cam_override == "low")
+	if stage and stage.cam_override == "low":
+		# Under the bridge, from the gutter: Dayo is down in it; we see only legs and feet.
+		var away := (player.position - stage.cam_target)
+		away.y = 0.0
+		cam.position = cam.position.lerp(player.position + away.normalized() * 0.6 + Vector3(0, 0.3, 0), minf(1.0, delta * 4.0))
+		cam.look_at(stage.cam_target + Vector3(0, 0.5, 0))
+		return
+	if stage and stage.cam_override == "look":
+		target = stage.cam_target + Vector3(0, 1.4, 0)
+		cam.position = cam.position.lerp(player.position + (player.position - stage.cam_target).normalized() * 3.0 + Vector3(0, 2.2, 0), minf(1.0, delta * 3.0))
+		cam.look_at(target)
+		return
+	var sens := float(Settings.get_pref("cam_sens", 1.0))
 	if ride:
-		# Swing in behind the vehicle as it turns (unless the player is looking around).
 		_look_t += delta
 		var behind := ride.heading - PI * 0.5 # (sin, cos) of this = -forward
 		if _look_t > 1.5:
-			cam_yaw = lerp_angle(cam_yaw, behind, minf(1.0, delta * 2.5))
+			cam_yaw = lerp_angle(cam_yaw, behind, minf(1.0, delta * 2.5 * sens))
 		dist = 6.0 + ride.length * 0.9
 		height = 3.2 + ride.length * 0.35
 		target = ride.position + Vector3(0, 1.2, 0)
 	else:
 		_look_t += delta
 		if player.moving > 0.0 and _look_t > 2.0:
-			cam_yaw = lerp_angle(cam_yaw, player.facing() + PI, minf(1.0, delta * 1.2))
+			cam_yaw = lerp_angle(cam_yaw, player.facing() + PI, minf(1.0, delta * 1.2 * sens))
 		dist = 5.2
 		height = 2.6
 		target = player.position + Vector3(0, 1.4, 0)
@@ -390,6 +636,9 @@ func _place_camera(delta: float) -> void:
 	if not hit.is_empty():
 		want = (hit["position"] as Vector3).lerp(target, 0.12)
 	cam.position = want if delta >= 1.0 else cam.position.lerp(want, minf(1.0, delta * 6.0))
+	if _shake > 0.0:
+		_shake = maxf(0.0, _shake - delta)
+		cam.position += Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-1, 1), 0) * _shake * 0.3
 	cam.look_at(target)
 
 
@@ -413,15 +662,17 @@ func _recycle(delta: float) -> void:
 
 ## Enter the nearest vehicle, or get out of the one you're driving.
 func _action() -> void:
+	if _controls_locked() or combat.active:
+		return
 	if ride:
 		var side := Vector3(-ride.forward().z, 0, ride.forward().x) * -1.0 # driver's door (left)
 		ride.mode = Vehicle3D.Mode.PARKED
 		ride.speed = 0.0
-		player.position = ride.position + side * (1.6 + 0.4)
+		player.position = ride.position + side * 2.0
 		player.visible = true
 		player.collision_layer = 4
 		ride = null
-		_act_btn.text = "ENTER"
+		hud.act_btn.text = "ENTER"
 		return
 	var best: Vehicle3D = null
 	var bd := ENTER_RANGE
@@ -430,15 +681,18 @@ func _action() -> void:
 		if d < bd:
 			bd = d
 			best = v
-	if best == null:
-		return
-	if best.mode == Vehicle3D.Mode.AI:
-		_drag_out_driver(best)
-	ride = best
+	if best:
+		_enter(best)
+
+
+func _enter(v: Vehicle3D) -> void:
+	if v.mode == Vehicle3D.Mode.AI:
+		_drag_out_driver(v)
+	ride = v
 	ride.mode = Vehicle3D.Mode.PLAYER
 	player.visible = false
 	player.collision_layer = 0
-	_act_btn.text = "EXIT"
+	hud.act_btn.text = "EXIT"
 
 
 ## Carjacking: the driver lands on the road beside his car and argues.
@@ -453,78 +707,10 @@ func _drag_out_driver(v: Vehicle3D) -> void:
 	var c := Vector2i(int(p.position.x / CELL_M), int(p.position.z / CELL_M))
 	p.from = c
 	p.to = c
+	Story.wanted = minf(5.0, Story.wanted + 0.5)
 
 
 # ---------- HUD ----------
-
-func _hud() -> void:
-	var layer := CanvasLayer.new()
-	add_child(layer)
-	hud = Label.new()
-	hud.position = Vector2(16, 12)
-	hud.add_theme_font_size_override("font_size", 20)
-	hud.add_theme_color_override("font_color", Color("#f1e6c8"))
-	hud.add_theme_color_override("font_outline_color", Color("#1d1611"))
-	hud.add_theme_constant_override("outline_size", 6)
-	layer.add_child(hud)
-	if DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"):
-		_joy = preload("res://ui/joystick.gd").new()
-		_joy.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-		_joy.position = Vector2(20, -180)
-		layer.add_child(_joy)
-	_act_btn = _button(layer, "ENTER", Vector2(-170, -130))
-	_act_btn.pressed.connect(_action)
-	_run_btn = _button(layer, "RUN", Vector2(-170, -250))
-	_run_btn.button_down.connect(func() -> void: _run_held = true)
-	_run_btn.button_up.connect(func() -> void: _run_held = false)
-	_money = Label.new()
-	_money.position = Vector2(16, 66)
-	_money.add_theme_font_size_override("font_size", 24)
-	_money.add_theme_color_override("font_color", Color("#f6d04d"))
-	_money.add_theme_color_override("font_outline_color", Color("#1d1611"))
-	_money.add_theme_constant_override("outline_size", 6)
-	layer.add_child(_money)
-	_toast = Label.new()
-	_toast.anchor_left = 0.18
-	_toast.anchor_right = 0.82
-	_toast.offset_top = 112
-	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_toast.add_theme_font_size_override("font_size", 26)
-	_toast.add_theme_color_override("font_color", Color("#fff4d6"))
-	_toast.add_theme_color_override("font_outline_color", Color("#1d1611"))
-	_toast.add_theme_constant_override("outline_size", 8)
-	_toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	layer.add_child(_toast)
-	_minimap = Minimap3D.new()
-	layer.add_child(_minimap)
-	_minimap.setup(self)
-	_minimap.anchor_left = 1.0
-	_minimap.anchor_right = 1.0
-	_minimap.offset_left = -232
-	_minimap.offset_top = 80
-	var back := _button(layer, "Back to 2D", Vector2(-230, 12), true)
-	back.custom_minimum_size = Vector2(210, 52)
-	back.pressed.connect(_back)
-
-
-func _button(layer: CanvasLayer, text: String, at: Vector2, top := false) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(150, 96)
-	b.add_theme_font_size_override("font_size", 24)
-	b.anchor_left = 1.0
-	b.anchor_right = 1.0
-	b.anchor_top = 0.0 if top else 1.0
-	b.anchor_bottom = b.anchor_top
-	b.offset_left = at.x
-	b.offset_top = at.y
-	b.offset_right = at.x + b.custom_minimum_size.x
-	b.offset_bottom = at.y + b.custom_minimum_size.y
-	layer.add_child(b)
-	return b
-
 
 func _update_hud(delta: float) -> void:
 	_frames += 1
@@ -534,19 +720,15 @@ func _update_hud(delta: float) -> void:
 	var f := focus()
 	var dist: Dictionary = map.district_at(Vector2(f.x, f.z) / Terrain3D.K)
 	var where := String(dist.get("name", "Lagos"))
-	var line := "%s · %s" % [where, ("%d km/h in the %s" % [int(absf(ride.speed) * 3.6), ride.kind]) if ride else "on foot"]
-	var life: Node = get_node_or_null("/root/Life")
-	var clock: Node = get_node_or_null("/root/Clock")
+	var line := "%s · %s" % [where, ("%d km/h" % int(absf(ride.speed) * 3.6)) if ride else "on foot"]
+	hud.info.text = "%s · %d fps" % [line, int(round(_frames / _fps_t))]
 	var job := ""
 	if run.dest >= 0:
 		job = " · %d on board → %s %d m" % [run.passengers, run.stops[run.dest]["name"], int(f.distance_to(run.stops[run.dest]["pos"]))]
-	elif ride and ride.kind == "danfo":
-		job = " · stop at a bus stop to load passengers"
-	_money.text = "₦%s  %s%s" % [_naira(int(life.money) if life else 0), String(clock.label()) if clock else "", job]
-	_day_night()
-	hud.text = "%s · %d fps\nWASD / stick · E get in or out · Shift run · Esc back" % [line, int(round(_frames / _fps_t))]
+	hud.money.text = "₦%s  %s  Respect %d%s" % [_naira(int(Life.money)), String(Clock.label()), Story.respect, job]
 	_frames = 0
 	_fps_t = 0.0
+	_day_night()
 
 
 func _naira(n: int) -> String:
@@ -558,125 +740,85 @@ func _naira(n: int) -> String:
 	return ("-" if n < 0 else "") + s + out
 
 
-func _say(text: String) -> void:
-	_toast.text = text
-	_toast_t = 5.0
-
-
-func _process(delta: float) -> void:
-	if _toast_t > 0.0:
-		_toast_t -= delta
-		_toast.modulate.a = clampf(_toast_t, 0.0, 1.0)
-
-
-## Sun, sky and haze follow the game clock (shared with the 2D game).
+## Sun, sky and haze follow the game clock; the story can force night (the prologue).
 func _day_night() -> void:
-	var clock: Node = get_node_or_null("/root/Clock")
-	if clock == null or _sun == null:
+	if _sun == null:
 		return
-	var hours: float = float(clock.hour()) + float(clock.minute()) / 60.0
-	var dark: float = clamp(float(clock.darkness()), 0.0, 1.0)
-	if Engine.has_meta("qa_night"):
+	var hours: float = float(Clock.hour()) + float(Clock.minute()) / 60.0
+	var dark: float = clamp(float(Clock.darkness()), 0.0, 1.0)
+	if stage and stage.night:
 		dark = 1.0
 		hours = 21.0
 	_dark = dark
-	var day_t := clampf((hours - 6.0) / 12.0, 0.0, 1.0) # 06:00 -> 18:00
+	var day_t := clampf((hours - 6.0) / 12.0, 0.0, 1.0)
 	_sun.rotation_degrees.x = -(10.0 + sin(day_t * PI) * 62.0)
 	_sun.rotation_degrees.y = lerpf(-90.0, 90.0, day_t)
 	_sun.light_energy = lerpf(1.35, 0.12, dark)
 	_sun.light_color = Color("#fff1d8").lerp(Color("#9fb4e8"), dark)
 	_env.ambient_light_energy = lerpf(0.8, 0.25, dark)
-	_sky.sky_top_color = Color("#4f8fd0").lerp(Color("#0b1630"), dark)
-	_sky.sky_horizon_color = Color("#d6e4ea").lerp(Color("#2a3150"), dark)
+	var rain_k := 0.35 if stage and stage.raining else 0.0
+	_sky.sky_top_color = Color("#4f8fd0").lerp(Color("#0b1630"), dark).lerp(Color("#3a4048"), rain_k)
+	_sky.sky_horizon_color = Color("#d6e4ea").lerp(Color("#2a3150"), dark).lerp(Color("#4a5058"), rain_k)
 	_env.fog_light_color = Color("#d9dcd2").lerp(Color("#1c2236"), dark)
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	if in_menu:
+		return
 	# Drag anywhere free (or move the mouse with the right button) to look around.
+	var sens := float(Settings.get_pref("cam_sens", 1.0))
 	if e is InputEventScreenDrag and e.position.x > get_viewport().get_visible_rect().size.x * 0.35:
-		cam_yaw -= e.relative.x * 0.006
+		cam_yaw -= e.relative.x * 0.006 * sens
 		_look_t = 0.0
 	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
-		cam_yaw -= e.relative.x * 0.006
+		cam_yaw -= e.relative.x * 0.006 * sens
 		_look_t = 0.0
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and combat.active:
+		combat.player_attack()
 	if e is InputEventKey and e.pressed and not e.echo:
 		match e.physical_keycode:
-			KEY_ESCAPE: _back()
+			KEY_ESCAPE: hud.open_pause()
 			KEY_E, KEY_F: _action()
-
-
-func _back() -> void:
-	_save_game()
-	get_tree().change_scene_to_file("res://main.tscn")
+			KEY_J, KEY_SPACE:
+				if combat.active:
+					combat.player_attack()
 
 
 # ---------- QA ----------
 
-## Walk, look over the district, take a vehicle, drive; save pictures, then quit.
+## Plays the opening of the campaign on autopilot and saves pictures, then quits:
+##   Godot --path game -- --shots=DIR
 func _shots(dir: String) -> void:
-	Engine.set_meta("qa_no_save", true) # QA earnings never touch the real save
-	_save_ok = false
-	SaveGame.set_process(false) # no autosave during QA either
+	_save_ok = false # QA never touches the real save
+	SaveGame.set_process(false)
 	DirAccess.make_dir_recursive_absolute(dir)
+	hud.show_menu(false)
 	await get_tree().create_timer(1.5).timeout
-	await _save(dir + "/3d-0-foot.png")
-	demo_stick = Vector2(0, -1)
-	await get_tree().create_timer(2.0).timeout
-	demo_stick = Vector2.ZERO
-	await _save(dir + "/3d-1-walk.png")
-	# Overview: high over the district.
-	var keep := cam.position
-	cam.position = player.position + Vector3(-45, 55, 45)
-	cam.look_at(player.position)
-	set_physics_process(false)
-	await get_tree().create_timer(0.6).timeout
-	await _save(dir + "/3d-2-overview.png")
-	set_physics_process(true)
-	cam.position = keep
-	# Take the nearest vehicle (Tunde's danfo) and drive.
-	for v in vehicles:
-		if v.mode == Vehicle3D.Mode.PARKED:
-			player.position = v.position + Vector3(0, 0, 2.5)
-	_action()
-	demo_drive = Vector2(0, 1)
-	await get_tree().create_timer(3.0).timeout
-	await _save(dir + "/3d-3-drive.png")
-	demo_drive = Vector2(0.18, 1)
-	await get_tree().create_timer(2.0).timeout
-	await _save(dir + "/3d-4-drive.png")
-	demo_drive = Vector2.ZERO
-	# A danfo run: pull up at the nearest stop, load, jump to the destination, unload.
-	var life: Node = get_node_or_null("/root/Life")
-	var before: int = int(life.money) if life else 0
-	var s0 := run.nearest_stop(ride.position)
-	ride.position = run.stops[s0]["pos"] + Vector3(0, 0, 0)
-	ride.speed = 0.0
-	await get_tree().create_timer(1.6).timeout
-	await _save(dir + "/3d-5-stop.png")
-	var loaded := run.dest >= 0
-	if loaded:
-		ride.position = run.stops[run.dest]["pos"]
-		ride.speed = 0.0
-		await get_tree().create_timer(1.6).timeout
-	print("street3d run: loaded=%s paid=%d stops=%d" % [loaded, (int(life.money) if life else 0) - before, run.stops.size()])
-	# Checkpoint: blast through one at speed.
-	if not checkpoints.spots.is_empty():
-		var cp: Dictionary = checkpoints.spots[0]
-		var m0: int = int(life.money) if life else 0
-		ride.position = cp["pos"] - (cp["fwd"] as Vector3) * 4.0
-		ride.heading = -Vector2(cp["fwd"].x, cp["fwd"].z).angle()
-		ride.speed = 12.0
-		await get_tree().create_timer(0.5).timeout
-		await _save(dir + "/3d-6-checkpoint.png")
-		print("street3d checkpoint: %s charged=%d lamps=%d" % [cp["kind"], m0 - (int(life.money) if life else 0), lights.lamps.size()])
-	# Night: lamps, glow and headlights.
-	Engine.set_meta("qa_night", true)
-	_day_night()
-	ride.speed = 6.0 # roll on down the checkpoint road with the headlights on
-	await get_tree().create_timer(1.2).timeout
-	await _save(dir + "/3d-7-night.png")
-	Engine.remove_meta("qa_night")
-	print("street3d: vehicles=%d people=%d buildings=%d | %s" % [vehicles.size(), people.size(), map.buildings.size(), hud.text.replace(char(10), " | ")])
+	await _save(dir + "/e0-menu.png")
+	hud._close_menu()
+	in_menu = false
+	Story.reset()
+	missions.autopilot = true
+	hud.dialogue.autoplay = true
+	missions.mission_done.disconnect(_on_mission_done)
+	for id: String in ["p0", "m01", "m02"]:
+		missions.run(id)
+		var t := 0.0
+		var took := 0
+		while missions.running == id or Story.current == id:
+			await get_tree().create_timer(0.5).timeout
+			t += 0.5
+			# A few frames from each mission, at fixed times into it.
+			if took < 2 and t >= [3.0, 9.0][took]:
+				await _save(dir + "/e-%s-%d.png" % [id, took])
+				took += 1
+			if t > 120.0:
+				print("story3d: TIMEOUT in ", id, " at step ", Story.checkpoint)
+				break
+		print("story3d: %s done=%s" % [id, Story.done.has(id)])
+	await get_tree().create_timer(2.6).timeout # let the last title card finish
+	await _save(dir + "/e9-after.png")
+	print("story3d: done=%s respect=%d items=%s | %s" % [Story.done.keys(), Story.respect, Story.items.keys(), hud.info.text])
 	get_tree().quit()
 
 

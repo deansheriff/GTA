@@ -33,7 +33,7 @@ static func island_r(p: Vector2) -> float:
 	return d.length() + 0.05 * sin(a * 5.0 + 1.3) + 0.035 * sin(a * 9.0 + 0.4) + 0.02 * sin(a * 13.0 + 2.1)
 
 const WALLS := [Color("#c9a66b"), Color("#86a58a"), Color("#c08566"), Color("#8f9cbf"), Color("#d6c49c"), Color("#b78aa6")]
-const SIGNS := ["AUNTY BOSS KITCHEN", "KONFAM POS", "GIDI BARBING SALON", "9BARS RECHARGE", "GOD'S TIME REPAIRS", "MIRACLE FM 99.9", "TAP-TAP POS", "NO CONDITION IS PERMANENT"]
+const SIGNS := ["IYA BASIRA BUKA", "KONFAM POS", "GIDI BARBING SALON", "9BARS RECHARGE", "GOD'S TIME REPAIRS", "RADIO GBEDU 101.5", "TAP-TAP POS", "NO CONDITION IS PERMANENT"]
 
 
 class BuildingSpec:

@@ -154,3 +154,10 @@ Pro-plan models are privately owned, so no attribution is required for them.
 
 The models were made with Meshy 6 Lite, remeshed to 3k–12k triangles and given 2K textures. They
 ship slimmed, with 1024 px textures. The free-plan Tunde was replaced by the rigged Pro Tunde.
+
+## Story cast for Èkó Ò Ní Bàjẹ́ (Meshy Pro, 2026-10-18)
+Dayo, young Dayo, Sego, Mama Àgbà and Kongi were rigged and given their own walk and run, and they
+share the action pack. The lion-head walking stick is a prop. The prompts are in
+`tools/art/meshy-spec.json`. Until the rest of the cast is modelled, they appear as existing
+people: Uncle Obi and the senator as the businessman, Hauwa, Amaka and Kemi as the young woman,
+Wire as the agbero, and Chief Bayo as the chief.

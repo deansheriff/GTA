@@ -610,3 +610,34 @@ Meshy makes objects, not road networks (`world3d/terrain3d.gd`):
   - Pull up slowly to settle the roger.
   - Blast through and you pay the fine, and Area Heat rises.
   - They move every game day.
+
+
+## D-021 · 3D only, and the new story "Èkó Ò Ní Bàjẹ́" · 2026-10-18
+**Owner request:** "remove the 2D mode. It's no longer needed. I want to change the story. Use
+the story I provided instead. Disregard the first story. Start building to production."
+
+**What changed:**
+- **The 2D game is gone:** `main.gd`, the actors, the 2D world (streaming, crowds, traffic,
+  interiors), the 2D HUD and phone, the 2D story engine and its missions, the street-host
+  modules, the canvas shaders, the old minigames and about 27 MB of painted 2D art. Git history
+  keeps all of it.
+- **What 3D still uses:** the map data (`world/map_data.gd`, `world/layout.gd`), the autoloads
+  (Life, Clock, SaveGame, Street, Settings, Sound, Net, Telemetry), the joystick, the dialogue
+  box, the pause menu, notifications, UiStyle and the money-spray and quick-time minigames for
+  later missions.
+- **The new story:** the old "Up NEPA!" story and its docs were removed. The owner's document is
+  [docs/story/eko-oni-baje.md](story/eko-oni-baje.md). The `Story` autoload was rewritten for
+  this campaign: missions done, the big choices, items, Respect and Wanted.
+- **The game boots into 3D** (`world3d/street3d.tscn`) at a main menu.
+
+**Brands and agencies kept out of the game:**
+- "Nokia 3310" becomes **Papa's old phone**.
+- The Hiluxes become unbranded pickups, and Bigz's Benz will be an unbranded luxury saloon.
+- LASTMA becomes **traffic officers**, and the BRT becomes a city bus.
+- Real places stay as settings (UNILAG, LUTH, Oshodi and others).
+- Tinubu Square isn't named in-game, because of the real politician's name.
+- All other characters, parties and the newspaper are fictional.
+
+**Native-speaker review:** every line of Pidgin, Yoruba, Igbo and Hausa is flagged for review.
+
+**Credits:** "Story by Sheriff Usman", from the story document's byline.

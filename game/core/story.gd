@@ -1,38 +1,26 @@
 extends Node
-## Autoload "Story": story progress for "Up NEPA!" (missions done, ability tiers, story money ₦s,
-## relationships, per-hero state for switching). Mission scripts live in data/story/*.json and are
-## run by MissionRunner; this node only remembers what happened.
+## Autoload "Story": progress through the campaign "Èkó Ò Ní Bàjẹ́" (D-021, docs/story/eko-oni-baje.md).
+## Missions, cast and lines live in data/story/eko/campaign.json and are played by Mission3D in the
+## 3D city; this node only remembers what happened: missions done, the mission in progress and
+## its checkpoint, the big choices, evidence found, and Dayo's Respect and Wanted level.
 
 signal progress_changed
-signal hero_switched(hero: String)
 
-const HEROES := ["tunde", "ngozi", "kc"]
-const HERO_NAME := { "tunde": "Tunde", "ngozi": "Aunty Boss", "kc": "KC" }
-const HERO_HOME := { "tunde": "tunde-depot", "ngozi": "aunty-boss-kitchen", "kc": "kc-room" }
-const HERO_SHEET := { "tunde": "characters/tunde-walk.png", "ngozi": "characters/ngozi-walk.png", "kc": "characters/kc-walk.png" }
+const DATA := "res://data/story/eko/campaign.json"
 
-var missions := {} # id -> mission dictionary (data/story/missions.json)
+var cast := {} # id -> {name, model, colour}
+var acts: Array = [] # [{id, title}]
+var missions := {} # id -> mission dictionary
 var order: Array = [] # mission ids in story order
-var dialogue := {} # id -> Array of lines
-var cast := {} # id -> {name, portrait, sprite?, ped?}
-var chats := {} # Family Meeting banks and off-screen events
-var collectibles: Array = [] # hidden diary pages in the world
 
 var done := {} # mission id -> true
-var current := "" # mission in progress ("" when free roaming)
+var current := "" # mission in progress ("" = free roam)
 var checkpoint := 0 # step index to resume `current` from
-var story_money := 0 # ₦s, separate from free-roam money until the credits (Bible §9.7)
-var tiers := {} # ability -> tier (0 = locked)
-var switching := false # unlocked by P4
-var heroes := {} # hero -> {pos: [x, y], needs: {}, away_since: minutes}
-var diary_pages := 0
-var evidence := 0
-## Act 3 election: support for Teacher (0-100) in each NPC voting bloc of Agbado-Ketu Central.
-const BLOCS := ["traders", "drivers", "students", "church", "okada", "youth"]
-const BLOC_NAME := { "traders": "Market traders", "drivers": "Danfo drivers", "students": "Students", "church": "Church women", "okada": "Okada union", "youth": "Street youth" }
-var blocs := { "traders": 35, "drivers": 30, "students": 45, "church": 40, "okada": 25, "youth": 35 }
-var trust := 5 # KC's hidden gist credibility (0-5)
-const PAGES_FOR_D := 10
+var choices := {} # choice id -> option id ("ballot": "swap", "sego": "spare", "final": "judgment"...)
+var flags := {}
+var items := {} # evidence and keepsakes: "father_phone", "tolu_id", "ledger"...
+var respect := 0 # street cred, -100..100
+var wanted := 0.0 # 0..5 stars
 
 
 func _ready() -> void:
@@ -40,58 +28,53 @@ func _ready() -> void:
 
 
 func load_data() -> void:
-	var m: Dictionary = _json("res://data/story/missions.json")
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(DATA)) if FileAccess.file_exists(DATA) else null
+	if not parsed is Dictionary:
+		push_error("story data missing: " + DATA)
+		return
+	cast = parsed.get("cast", {})
+	acts = parsed.get("acts", [])
 	missions.clear()
 	order.clear()
-	for mission in m.get("missions", []):
-		missions[mission["id"]] = mission
-		order.append(mission["id"])
-	collectibles = m.get("collectibles", [])
-	dialogue = _json("res://data/story/dialogue.json").get("lines", {})
-	cast = _json("res://data/story/cast.json").get("cast", {})
-	chats = _json("res://data/story/chat.json")
+	for m: Dictionary in parsed.get("missions", []):
+		missions[m["id"]] = m
+		order.append(m["id"])
 
 
-func _json(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
-		return {}
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	return parsed if parsed is Dictionary else {}
+## Name, colour and model of a speaker (dialogue boxes use this).
+func who(id: String) -> Dictionary:
+	if cast.has(id):
+		return cast[id]
+	return { "name": id.capitalize() if id != "" else "", "colour": "#e0a91c" }
 
 
-# ---------- missions ----------
-
-func is_done(id: String) -> bool:
-	return done.has(id)
+func mission(id: String) -> Dictionary:
+	return missions.get(id, {})
 
 
-func requirements_met(id: String) -> bool:
-	for r in missions[id].get("requires", []):
-		if not done.has(r):
-			return false
-	# "requires_count": [n, [ids]] — any n of these (Act 2 blocks open in any order).
-	var rc: Array = missions[id].get("requires_count", [])
-	if rc.size() == 2:
-		var n := 0
-		for r in rc[1]:
-			if done.has(r):
-				n += 1
-		if n < int(rc[0]):
-			return false
-	return true
+func playable(id: String) -> bool:
+	return not (mission(id).get("steps", []) as Array).is_empty()
 
 
-## Missions the player can start now (not done, requirements met, not auto-chained).
-func available() -> Array:
-	var out := []
+## The next mission in story order that isn't done ("" when the campaign is finished).
+func next_mission() -> String:
 	for id in order:
-		if not done.has(id) and requirements_met(id) and id != current:
-			out.append(id)
-	return out
+		if not done.has(id):
+			return id
+	return ""
 
 
-func new_game() -> bool:
-	return done.is_empty() and current == ""
+func act_title(act: int) -> String:
+	for a: Dictionary in acts:
+		if int(a["id"]) == act:
+			return String(a["title"])
+	return ""
+
+
+func start(id: String) -> void:
+	current = id
+	checkpoint = 0
+	progress_changed.emit()
 
 
 func complete(id: String) -> void:
@@ -102,203 +85,42 @@ func complete(id: String) -> void:
 	progress_changed.emit()
 
 
-func tier(ability: String) -> int:
-	return int(tiers.get(ability, 0))
-
-
-func unlock(ability: String, t: int) -> void:
-	if t > tier(ability):
-		tiers[ability] = t
-		progress_changed.emit()
-
-
-func flag(name: String) -> Variant:
-	return Life.flags.get(name, null)
-
-
-func set_flag(name: String, value: Variant = true) -> void:
-	Life.flags[name] = value
-
-
-func line_list(id: String) -> Array:
-	return dialogue.get(id, [])
-
-
-func who(id: String) -> Dictionary:
-	if HERO_NAME.has(id) and not cast.has(id):
-		return { "name": HERO_NAME[id] }
-	return cast.get(id, { "name": id.capitalize() })
-
-
-# ---------- relationships ----------
-
-static func pair(a: String, b: String) -> String:
-	for k in ["tunde-ngozi", "tunde-kc", "ngozi-kc"]:
-		if k == a + "-" + b or k == b + "-" + a:
-			return k
-	return a + "-" + b
-
-
-func rel(a: String, b: String) -> int:
-	return int(Life.relationships.get(pair(a, b), 50))
-
-
-func add_rel(a: String, b: String, delta: int) -> void:
-	if a == "all":
-		for p in [["tunde", "ngozi"], ["tunde", "kc"], ["ngozi", "kc"]]:
-			add_rel(p[0], p[1], delta)
-		return
-	var k := pair(a, b)
-	Life.relationships[k] = clampi(int(Life.relationships.get(k, 50)) + delta, 0, 100)
+func choose(choice_id: String, option: String) -> void:
+	choices[choice_id] = option
 	progress_changed.emit()
 
 
-func family_rel() -> int:
-	return (rel("tunde", "ngozi") + rel("tunde", "kc") + rel("ngozi", "kc")) / 3
-
-
-# ---------- hero switching ----------
-
-## Store the outgoing hero, load the incoming one. Returns the incoming hero's saved position
-## (or Vector2.INF if they have none yet) and an off-screen event (may be empty).
-func swap_hero(to: String, current_pos: Vector2) -> Dictionary:
-	var from := Life.hero
-	heroes[from] = { "pos": [current_pos.x, current_pos.y], "needs": Life.needs.duplicate(), "away_since": Clock.minutes }
-	var st: Dictionary = heroes.get(to, {})
-	var event := {}
-	if st.has("away_since") and Clock.minutes - int(st["away_since"]) >= 120 and current == "":
-		event = roll_offscreen(to)
-	Life.hero = to
-	Life.home = HERO_HOME[to]
-	if st.has("needs"):
-		for n in st["needs"]:
-			Life.needs[n] = float(st["needs"][n])
-	# Time passed for them too: needs decay a little while away (they ate somewhere, hopefully).
-	if st.has("away_since"):
-		var hours := (Clock.minutes - int(st["away_since"])) / 60.0
-		for n in Life.NEEDS:
-			Life.needs[n] = clampf(Life.needs[n] - Life.DECAY[n] * hours * 0.5, 15.0, 100.0)
-	Life.changed.emit()
-	hero_switched.emit(to)
-	var pos := Vector2.INF
-	if st.has("pos"):
-		pos = Vector2(st["pos"][0], st["pos"][1])
-	return { "pos": pos, "event": event }
-
-
-## One weighted "while you were away" event (abilities spec §5). Cosmetic or economic only.
-func roll_offscreen(hero: String) -> Dictionary:
-	var table: Array = chats.get("offscreen", [])
-	var pool := table.filter(func(e: Dictionary) -> bool: return e.get("hero", "any") in ["any", hero])
-	var total := 0
-	for e in pool:
-		total += int(e["weight"])
-	if total <= 0:
-		return {}
-	var roll := randi() % total
-	for e in pool:
-		roll -= int(e["weight"])
-		if roll < 0:
-			apply_effects(e.get("effects", {}))
-			return e
-	return {}
-
-
-## Shared effect format used by rewards, off-screen events and dialogue choices.
-func apply_effects(fx: Dictionary) -> void:
-	if fx.has("story_money"):
-		story_money = maxi(0, story_money + int(fx["story_money"]))
-	for s in fx.get("stats", {}):
-		var v := float(Life.stats.get(s, 0.0)) + float(fx["stats"][s])
-		Life.stats[s] = clampf(v, 0.0, 1000.0 if s == "hype" else 100.0)
-	for s in fx.get("xp", {}):
-		Life.add_xp(s, int(fx["xp"][s]))
-	for a in fx.get("ability", {}):
-		unlock(a, int(fx["ability"][a]))
-	for r in fx.get("rel", {}):
-		var parts: PackedStringArray = String(r).split("-")
-		if parts.size() == 2:
-			add_rel(parts[0], parts[1], int(fx["rel"][r]))
-		else:
-			add_rel("all", "", int(fx["rel"][r]))
-	for f in fx.get("flags", {}):
-		set_flag(f, fx["flags"][f])
-	for it in fx.get("items", {}):
-		Life.add_item(it, int(fx["items"][it]))
-	if fx.get("unlock_switching", false):
-		switching = true
-	if fx.has("diary_pages"):
-		diary_pages += int(fx["diary_pages"])
-	if fx.has("evidence"):
-		evidence += int(fx["evidence"])
-	for b in fx.get("blocs", {}):
-		if b == "all":
-			for k in BLOCS:
-				blocs[k] = clampi(int(blocs[k]) + int(fx["blocs"][b]), 0, 100)
-		elif blocs.has(b):
-			blocs[b] = clampi(int(blocs[b]) + int(fx["blocs"][b]), 0, 100)
-	if fx.get("cashout", false) and story_money > 0:
-		# The credits: story money finally joins the wallet (Bible §9.7).
-		Life.earn(story_money, "Story money (Up NEPA!)")
-		story_money = 0
-	if fx.has("trust"):
-		trust = clampi(trust + int(fx["trust"]), 0, 5)
-	Life.changed.emit()
+func give(item: String) -> void:
+	items[item] = true
 	progress_changed.emit()
 
 
-# ---------- election and endings ----------
-
-## Teacher's share of the vote: blocs weighted equally (the WIEC count in 3.4).
-func teacher_support() -> int:
-	var t := 0
-	for b in BLOCS:
-		t += int(blocs[b])
-	return t / BLOCS.size()
+func add_respect(n: int) -> void:
+	respect = clampi(respect + n, -100, 100)
+	progress_changed.emit()
 
 
-## Which ending the choices add up to (mission list, Act 3 table). Checked in this order:
-## B (kept the old notes) → C (KC chose to japa) → D (all ten diary pages + the stitch key)
-## → A (honest). A is also the fallback, with a quieter epilogue if trust is low.
-func compute_ending() -> String:
-	if flag("old_notes") == "kept":
-		return "B"
-	if flag("japa_chosen"):
-		return "C"
-	if diary_pages >= PAGES_FOR_D and flag("stitch_key"):
-		return "D"
-	return "A"
+## Which ending the final choice leads to, and whether Judgment holds (Ballot Box swap).
+func ending() -> String:
+	var f := String(choices.get("final", ""))
+	if f == "judgment":
+		return "judgment" if choices.get("ballot", "") == "swap" else "judgment_bitter"
+	return f
 
-
-## Ending A needs: tried honest OR 5+ evidence, old notes handed over, family trust ≥ 60.
-func honest_ending_full() -> bool:
-	return (flag("tried_honest") == true or evidence >= 5) and flag("old_notes") == "handed" and family_rel() >= 60
-
-
-# ---------- save ----------
 
 func to_dict() -> Dictionary:
-	return {
-		"done": done, "current": current, "checkpoint": checkpoint, "story_money": story_money,
-		"tiers": tiers, "switching": switching, "heroes": heroes, "diary_pages": diary_pages, "evidence": evidence,
-		"blocs": blocs, "trust": trust,
-	}
+	return { "done": done, "current": current, "checkpoint": checkpoint, "choices": choices, "flags": flags, "items": items, "respect": respect, "wanted": wanted }
 
 
 func from_dict(d: Dictionary) -> void:
 	done = d.get("done", {})
 	current = String(d.get("current", ""))
 	checkpoint = int(d.get("checkpoint", 0))
-	story_money = int(d.get("story_money", 0))
-	tiers = d.get("tiers", {})
-	switching = bool(d.get("switching", false))
-	heroes = d.get("heroes", {})
-	diary_pages = int(d.get("diary_pages", 0))
-	evidence = int(d.get("evidence", 0))
-	blocs = { "traders": 35, "drivers": 30, "students": 45, "church": 40, "okada": 25, "youth": 35 }
-	for b in d.get("blocs", {}):
-		blocs[b] = int(d["blocs"][b])
-	trust = int(d.get("trust", 5))
+	choices = d.get("choices", {})
+	flags = d.get("flags", {})
+	items = d.get("items", {})
+	respect = int(d.get("respect", 0))
+	wanted = float(d.get("wanted", 0.0))
 	progress_changed.emit()
 
 

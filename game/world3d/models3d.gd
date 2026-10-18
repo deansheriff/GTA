@@ -21,8 +21,9 @@ const BUILDINGS := {
 ## Landmark kinds and particular landmarks with a model of their own.
 const LANDMARKS := {
 	"park": "motor_park", "market": "market", "station": "station",
-	"yaba-church": "church", "northvale-embassy": "office_tower", "miracle-fm": "office_tower",
-	"agbado-ketu-council": "office_tower",
+	"yaba-church": "church", "lagos-ledger": "office_tower", "radio-gbedu": "office_tower",
+	"ward-collation": "office_tower", "yaba-police": "apartment", "coker-bankole-house": "mansion",
+	"balogun-compound": "apartment", "oshodi-park": "motor_park",
 }
 ## District flavour: rich districts get duplexes and towers, crowded ones get shacks.
 const DISTRICT_SWAP := {

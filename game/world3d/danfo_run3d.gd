@@ -1,6 +1,6 @@
 class_name DanfoRun3D
 extends Node3D
-## Danfo passenger runs in 3D Lagos (D-020), the 2D game's core hustle: every district has a bus
+## Danfo passenger runs in 3D Lagos (D-020), Dayo's daily hustle: every district has a bus
 ## stop (a sign and people waiting). Stop the danfo at one and passengers climb in, shouting the
 ## next stop; drive there (follow the beacon and the minimap) and stop to collect the fares.
 ## Money goes into the same wallet as the 2D game (Life.earn).
@@ -17,6 +17,8 @@ var fare := 0
 var dest := -1 # index into stops, -1 = no run
 var origin := -1
 var _still := 0.0
+var story_target: Variant = null # a mission objective's position (minimap / beacon)
+var enabled := true # off during story scenes, except a mission's "fares" step
 var _beacon: MeshInstance3D
 var _waiting := {} # stop index -> [Person3D]
 var _rng := RandomNumberGenerator.new()
@@ -111,11 +113,16 @@ func nearest_stop(pos: Vector3) -> int:
 
 
 func target() -> Variant:
+	if story_target != null:
+		return story_target
 	return stops[dest]["pos"] if dest >= 0 else null
 
 
 func step(delta: float) -> void:
 	_update_waiters()
+	if not enabled:
+		_still = 0.0
+		return
 	var ride: Vehicle3D = world.ride
 	if ride == null or ride.kind != "danfo":
 		_still = 0.0
@@ -133,6 +140,13 @@ func step(delta: float) -> void:
 		_arrive()
 	elif dest < 0:
 		_board(at)
+
+
+## Drop any load (a mission took over).
+func cancel() -> void:
+	dest = -1
+	passengers = 0
+	_beacon.visible = false
 
 
 func _board(at: int) -> void:

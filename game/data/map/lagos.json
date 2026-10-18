@@ -1,90 +1,1017 @@
 {
-  "_comment": "Tropical-island Lagos (decisions D-007, D-008). All coordinates are in cells (64 px). Real neighbourhood names; every business and venue is fictional.",
-  "size": [192, 132],
-  "land": {
-    "mainland": [[8,4],[60,2],[120,3],[176,6],[188,20],[190,48],[178,62],[150,66],[124,68],[110,73],[92,75],[72,80],[62,86],[56,96],[44,104],[24,106],[10,96],[4,60],[4,24]],
-    "island": [[66,98],[80,96],[96,96],[110,94],[126,96],[146,98],[166,98],[186,100],[190,112],[186,122],[166,126],[140,127],[116,126],[96,124],[80,120],[68,114],[64,106]]
-  },
-  "lagoon": [[56,70],[191,60],[191,99],[56,100]],
-  "nodes": {
-    "oshodi_w": [22,40], "oshodi_c": [60,34], "ikeja_c": [100,22], "ketu_c": [150,24], "ketu_e": [178,30],
-    "ikeja_w": [80,14], "ikeja_e": [122,14], "ikeja_n": [100,8],
-    "mushin_w": [18,62], "mushin_c": [48,60], "yaba_c": [104,58], "east_mid": [148,56], "ketu_se": [176,46],
-    "ketu_s": [152,40], "yaba_n": [102,42], "yaba_s": [102,70],
-    "surulere_c": [46,84], "surulere_s": [46,98], "surulere_w": [26,92],
-    "tmb_mid": [98,84], "island_n": [90,100], "obalende": [84,108], "lagos_island_w": [70,104], "eko_mid": [60,92],
-    "ikoyi_c": [106,102], "lekki_w": [136,106], "lekki_c": [160,108], "lekki_e": [184,110],
-    "vi_c": [112,116], "lekki_beach": [150,120],
-    "yaba_nw": [94,50], "yaba_ne": [114,50], "yaba_se": [114,66], "yaba_sw": [94,66],
-    "osh_nw": [52,28], "osh_ne": [68,28], "osh_se": [68,40], "osh_sw": [52,40],
-    "sur_a": [34,80], "sur_b": [58,80],
-    "mus_a": [36,52], "mus_b": [36,70], "mus_c": [60,52], "mus_d": [60,70],
-    "lek_a": [160,120], "lek_b": [172,108], "lek_c": [172,120],
-    "iko_a": [106,97], "iko_b": [120,100],
-    "vi_a": [112,108], "vi_b": [126,112]
-  },
-  "roads": [
-    { "id": "northern-artery", "class": "expressway", "nodes": ["oshodi_w","oshodi_c","ikeja_c","ketu_c","ketu_e"] },
-    { "id": "oshodi-surulere", "class": "main", "nodes": ["oshodi_c","mushin_c","surulere_c","surulere_s"] },
-    { "id": "ikorodu-road", "class": "expressway", "nodes": ["ikeja_c","yaba_n","yaba_c","yaba_s"] },
-    { "id": "third-mainland-bridge", "class": "expressway", "nodes": ["yaba_s","tmb_mid","island_n","obalende"] },
-    { "id": "mushin-crossway", "class": "main", "nodes": ["mushin_w","mushin_c","yaba_c","east_mid","ketu_se"] },
-    { "id": "ketu-south", "class": "main", "nodes": ["ketu_c","ketu_s","east_mid"] },
-    { "id": "eko-bridge", "class": "main", "nodes": ["surulere_c","eko_mid","lagos_island_w","obalende"] },
-    { "id": "island-main", "class": "expressway", "nodes": ["obalende","ikoyi_c","lekki_w","lekki_c","lekki_e"] },
-    { "id": "beach-road", "class": "main", "nodes": ["obalende","vi_c","lekki_beach","lekki_e"] },
-    { "id": "ikeja-west", "class": "street", "nodes": ["ikeja_w","ikeja_c","ikeja_e"] },
-    { "id": "ikeja-north", "class": "street", "nodes": ["ikeja_n","ikeja_c"] },
-    { "id": "yaba-loop", "class": "street", "nodes": ["yaba_nw","yaba_ne","yaba_se","yaba_sw","yaba_nw"] },
-    { "id": "oshodi-market-ring", "class": "street", "nodes": ["osh_nw","osh_ne","osh_se","osh_sw","osh_nw"] },
-    { "id": "surulere-street", "class": "street", "nodes": ["sur_a","surulere_c","sur_b"] },
-    { "id": "surulere-west", "class": "street", "nodes": ["surulere_c","surulere_w"] },
-    { "id": "mushin-west-street", "class": "street", "nodes": ["mus_a","mushin_c","mus_b"] },
-    { "id": "mushin-east-street", "class": "street", "nodes": ["mus_c","mus_d"] },
-    { "id": "lekki-estate-1", "class": "street", "nodes": ["lekki_c","lek_a"] },
-    { "id": "lekki-estate-2", "class": "street", "nodes": ["lek_b","lek_c"] },
-    { "id": "ikoyi-crescent", "class": "street", "nodes": ["iko_a","ikoyi_c","iko_b"] },
-    { "id": "vi-link", "class": "street", "nodes": ["vi_a","vi_c","vi_b"] }
+ "_comment": "Tropical-island Lagos (decisions D-007, D-008). All coordinates are in cells (64 px). Real neighbourhood names; every business and venue is fictional.",
+ "size": [
+  192,
+  132
+ ],
+ "land": {
+  "mainland": [
+   [
+    8,
+    4
+   ],
+   [
+    60,
+    2
+   ],
+   [
+    120,
+    3
+   ],
+   [
+    176,
+    6
+   ],
+   [
+    188,
+    20
+   ],
+   [
+    190,
+    48
+   ],
+   [
+    178,
+    62
+   ],
+   [
+    150,
+    66
+   ],
+   [
+    124,
+    68
+   ],
+   [
+    110,
+    73
+   ],
+   [
+    92,
+    75
+   ],
+   [
+    72,
+    80
+   ],
+   [
+    62,
+    86
+   ],
+   [
+    56,
+    96
+   ],
+   [
+    44,
+    104
+   ],
+   [
+    24,
+    106
+   ],
+   [
+    10,
+    96
+   ],
+   [
+    4,
+    60
+   ],
+   [
+    4,
+    24
+   ]
   ],
-  "road_classes": {
-    "expressway": { "width": 148, "speed": 1.0 },
-    "main": { "width": 112, "speed": 0.85 },
-    "street": { "width": 80, "speed": 0.6 }
+  "island": [
+   [
+    66,
+    98
+   ],
+   [
+    80,
+    96
+   ],
+   [
+    96,
+    96
+   ],
+   [
+    110,
+    94
+   ],
+   [
+    126,
+    96
+   ],
+   [
+    146,
+    98
+   ],
+   [
+    166,
+    98
+   ],
+   [
+    186,
+    100
+   ],
+   [
+    190,
+    112
+   ],
+   [
+    186,
+    122
+   ],
+   [
+    166,
+    126
+   ],
+   [
+    140,
+    127
+   ],
+   [
+    116,
+    126
+   ],
+   [
+    96,
+    124
+   ],
+   [
+    80,
+    120
+   ],
+   [
+    68,
+    114
+   ],
+   [
+    64,
+    106
+   ]
+  ]
+ },
+ "lagoon": [
+  [
+   56,
+   70
+  ],
+  [
+   191,
+   60
+  ],
+  [
+   191,
+   99
+  ],
+  [
+   56,
+   100
+  ]
+ ],
+ "nodes": {
+  "oshodi_w": [
+   22,
+   40
+  ],
+  "oshodi_c": [
+   60,
+   34
+  ],
+  "ikeja_c": [
+   100,
+   22
+  ],
+  "ketu_c": [
+   150,
+   24
+  ],
+  "ketu_e": [
+   178,
+   30
+  ],
+  "ikeja_w": [
+   80,
+   14
+  ],
+  "ikeja_e": [
+   122,
+   14
+  ],
+  "ikeja_n": [
+   100,
+   8
+  ],
+  "mushin_w": [
+   18,
+   62
+  ],
+  "mushin_c": [
+   48,
+   60
+  ],
+  "yaba_c": [
+   104,
+   58
+  ],
+  "east_mid": [
+   148,
+   56
+  ],
+  "ketu_se": [
+   176,
+   46
+  ],
+  "ketu_s": [
+   152,
+   40
+  ],
+  "yaba_n": [
+   102,
+   42
+  ],
+  "yaba_s": [
+   102,
+   70
+  ],
+  "surulere_c": [
+   46,
+   84
+  ],
+  "surulere_s": [
+   46,
+   98
+  ],
+  "surulere_w": [
+   26,
+   92
+  ],
+  "tmb_mid": [
+   98,
+   84
+  ],
+  "island_n": [
+   90,
+   100
+  ],
+  "obalende": [
+   84,
+   108
+  ],
+  "lagos_island_w": [
+   70,
+   104
+  ],
+  "eko_mid": [
+   60,
+   92
+  ],
+  "ikoyi_c": [
+   106,
+   102
+  ],
+  "lekki_w": [
+   136,
+   106
+  ],
+  "lekki_c": [
+   160,
+   108
+  ],
+  "lekki_e": [
+   184,
+   110
+  ],
+  "vi_c": [
+   112,
+   116
+  ],
+  "lekki_beach": [
+   150,
+   120
+  ],
+  "yaba_nw": [
+   94,
+   50
+  ],
+  "yaba_ne": [
+   114,
+   50
+  ],
+  "yaba_se": [
+   114,
+   66
+  ],
+  "yaba_sw": [
+   94,
+   66
+  ],
+  "osh_nw": [
+   52,
+   28
+  ],
+  "osh_ne": [
+   68,
+   28
+  ],
+  "osh_se": [
+   68,
+   40
+  ],
+  "osh_sw": [
+   52,
+   40
+  ],
+  "sur_a": [
+   34,
+   80
+  ],
+  "sur_b": [
+   58,
+   80
+  ],
+  "mus_a": [
+   36,
+   52
+  ],
+  "mus_b": [
+   36,
+   70
+  ],
+  "mus_c": [
+   60,
+   52
+  ],
+  "mus_d": [
+   60,
+   70
+  ],
+  "lek_a": [
+   160,
+   120
+  ],
+  "lek_b": [
+   172,
+   108
+  ],
+  "lek_c": [
+   172,
+   120
+  ],
+  "iko_a": [
+   106,
+   97
+  ],
+  "iko_b": [
+   120,
+   100
+  ],
+  "vi_a": [
+   112,
+   108
+  ],
+  "vi_b": [
+   126,
+   112
+  ]
+ },
+ "roads": [
+  {
+   "id": "northern-artery",
+   "class": "expressway",
+   "nodes": [
+    "oshodi_w",
+    "oshodi_c",
+    "ikeja_c",
+    "ketu_c",
+    "ketu_e"
+   ]
   },
-  "districts": [
-    { "id": "ikeja", "name": "Ikeja", "center": [100,18], "buildings": {"two-storey":4,"bungalow":3,"pos-shop":2,"provision-store":1}, "props": {"umbrella":2,"kiosk":2,"mango":2,"generator":1,"tyres":1}, "density": 0.75 },
-    { "id": "agbado-ketu", "name": "Agbado-Ketu", "center": [152,30], "buildings": {"bungalow":4,"provision-store":2,"canteen":2,"two-storey":1}, "props": {"mango":2,"tyres":2,"generator":2,"drum-chairs":1,"umbrella":1}, "density": 0.6 },
-    { "id": "oshodi", "name": "Oshodi", "center": [60,34], "buildings": {"canteen":3,"pos-shop":3,"provision-store":3,"two-storey":3}, "props": {"umbrella":4,"kiosk":3,"orange-tray":2,"tyres":1}, "density": 0.9 },
-    { "id": "mushin", "name": "Mushin", "center": [44,60], "buildings": {"two-storey":4,"provision-store":2,"canteen":2,"pos-shop":1}, "props": {"tyres":3,"generator":3,"drum-chairs":2,"umbrella":1}, "density": 0.9 },
-    { "id": "yaba", "name": "Yaba", "center": [104,56], "buildings": {"two-storey":4,"pos-shop":3,"provision-store":2,"bungalow":1}, "props": {"umbrella":2,"kiosk":2,"mango":1,"generator":2}, "density": 0.85 },
-    { "id": "surulere", "name": "Surulere", "center": [44,88], "buildings": {"bungalow":3,"canteen":3,"pos-shop":2,"two-storey":2}, "props": {"umbrella":2,"mango":2,"generator":2,"drum-chairs":1}, "density": 0.75 },
-    { "id": "lagos-island", "name": "Lagos Island", "center": [80,108], "buildings": {"two-storey":5,"provision-store":2,"pos-shop":2}, "props": {"umbrella":3,"kiosk":2,"orange-tray":2}, "density": 0.95 },
-    { "id": "ikoyi", "name": "Ikoyi", "center": [108,104], "buildings": {"bungalow":4,"island-cottage":3}, "props": {"mango":3,"palm":3,"generator":1}, "density": 0.45 },
-    { "id": "victoria-island", "name": "Victoria Island", "center": [118,118], "buildings": {"two-storey":4,"bungalow":2,"beach-bar":1}, "props": {"palm":3,"kiosk":1,"umbrella":1}, "density": 0.6 },
-    { "id": "lekki", "name": "Lekki", "center": [164,112], "buildings": {"island-cottage":4,"bungalow":3,"beach-bar":1}, "props": {"palm":3,"palm-cluster":2,"mango":1}, "density": 0.5 }
+  {
+   "id": "oshodi-surulere",
+   "class": "main",
+   "nodes": [
+    "oshodi_c",
+    "mushin_c",
+    "surulere_c",
+    "surulere_s"
+   ]
+  },
+  {
+   "id": "ikorodu-road",
+   "class": "expressway",
+   "nodes": [
+    "ikeja_c",
+    "yaba_n",
+    "yaba_c",
+    "yaba_s"
+   ]
+  },
+  {
+   "id": "third-mainland-bridge",
+   "class": "expressway",
+   "nodes": [
+    "yaba_s",
+    "tmb_mid",
+    "island_n",
+    "obalende"
+   ]
+  },
+  {
+   "id": "mushin-crossway",
+   "class": "main",
+   "nodes": [
+    "mushin_w",
+    "mushin_c",
+    "yaba_c",
+    "east_mid",
+    "ketu_se"
+   ]
+  },
+  {
+   "id": "ketu-south",
+   "class": "main",
+   "nodes": [
+    "ketu_c",
+    "ketu_s",
+    "east_mid"
+   ]
+  },
+  {
+   "id": "eko-bridge",
+   "class": "main",
+   "nodes": [
+    "surulere_c",
+    "eko_mid",
+    "lagos_island_w",
+    "obalende"
+   ]
+  },
+  {
+   "id": "island-main",
+   "class": "expressway",
+   "nodes": [
+    "obalende",
+    "ikoyi_c",
+    "lekki_w",
+    "lekki_c",
+    "lekki_e"
+   ]
+  },
+  {
+   "id": "beach-road",
+   "class": "main",
+   "nodes": [
+    "obalende",
+    "vi_c",
+    "lekki_beach",
+    "lekki_e"
+   ]
+  },
+  {
+   "id": "ikeja-west",
+   "class": "street",
+   "nodes": [
+    "ikeja_w",
+    "ikeja_c",
+    "ikeja_e"
+   ]
+  },
+  {
+   "id": "ikeja-north",
+   "class": "street",
+   "nodes": [
+    "ikeja_n",
+    "ikeja_c"
+   ]
+  },
+  {
+   "id": "yaba-loop",
+   "class": "street",
+   "nodes": [
+    "yaba_nw",
+    "yaba_ne",
+    "yaba_se",
+    "yaba_sw",
+    "yaba_nw"
+   ]
+  },
+  {
+   "id": "oshodi-market-ring",
+   "class": "street",
+   "nodes": [
+    "osh_nw",
+    "osh_ne",
+    "osh_se",
+    "osh_sw",
+    "osh_nw"
+   ]
+  },
+  {
+   "id": "surulere-street",
+   "class": "street",
+   "nodes": [
+    "sur_a",
+    "surulere_c",
+    "sur_b"
+   ]
+  },
+  {
+   "id": "surulere-west",
+   "class": "street",
+   "nodes": [
+    "surulere_c",
+    "surulere_w"
+   ]
+  },
+  {
+   "id": "mushin-west-street",
+   "class": "street",
+   "nodes": [
+    "mus_a",
+    "mushin_c",
+    "mus_b"
+   ]
+  },
+  {
+   "id": "mushin-east-street",
+   "class": "street",
+   "nodes": [
+    "mus_c",
+    "mus_d"
+   ]
+  },
+  {
+   "id": "lekki-estate-1",
+   "class": "street",
+   "nodes": [
+    "lekki_c",
+    "lek_a"
+   ]
+  },
+  {
+   "id": "lekki-estate-2",
+   "class": "street",
+   "nodes": [
+    "lek_b",
+    "lek_c"
+   ]
+  },
+  {
+   "id": "ikoyi-crescent",
+   "class": "street",
+   "nodes": [
+    "iko_a",
+    "ikoyi_c",
+    "iko_b"
+   ]
+  },
+  {
+   "id": "vi-link",
+   "class": "street",
+   "nodes": [
+    "vi_a",
+    "vi_c",
+    "vi_b"
+   ]
+  }
+ ],
+ "road_classes": {
+  "expressway": {
+   "width": 148,
+   "speed": 1.0
+  },
+  "main": {
+   "width": 112,
+   "speed": 0.85
+  },
+  "street": {
+   "width": 80,
+   "speed": 0.6
+  }
+ },
+ "districts": [
+  {
+   "id": "ikeja",
+   "name": "Ikeja",
+   "center": [
+    100,
+    18
+   ],
+   "buildings": {
+    "two-storey": 4,
+    "bungalow": 3,
+    "pos-shop": 2,
+    "provision-store": 1
+   },
+   "props": {
+    "umbrella": 2,
+    "kiosk": 2,
+    "mango": 2,
+    "generator": 1,
+    "tyres": 1
+   },
+   "density": 0.75
+  },
+  {
+   "id": "agbado-ketu",
+   "name": "Agbado-Ketu",
+   "center": [
+    152,
+    30
+   ],
+   "buildings": {
+    "bungalow": 4,
+    "provision-store": 2,
+    "canteen": 2,
+    "two-storey": 1
+   },
+   "props": {
+    "mango": 2,
+    "tyres": 2,
+    "generator": 2,
+    "drum-chairs": 1,
+    "umbrella": 1
+   },
+   "density": 0.6
+  },
+  {
+   "id": "oshodi",
+   "name": "Oshodi",
+   "center": [
+    60,
+    34
+   ],
+   "buildings": {
+    "canteen": 3,
+    "pos-shop": 3,
+    "provision-store": 3,
+    "two-storey": 3
+   },
+   "props": {
+    "umbrella": 4,
+    "kiosk": 3,
+    "orange-tray": 2,
+    "tyres": 1
+   },
+   "density": 0.9
+  },
+  {
+   "id": "mushin",
+   "name": "Mushin",
+   "center": [
+    44,
+    60
+   ],
+   "buildings": {
+    "two-storey": 4,
+    "provision-store": 2,
+    "canteen": 2,
+    "pos-shop": 1
+   },
+   "props": {
+    "tyres": 3,
+    "generator": 3,
+    "drum-chairs": 2,
+    "umbrella": 1
+   },
+   "density": 0.9
+  },
+  {
+   "id": "yaba",
+   "name": "Yaba",
+   "center": [
+    104,
+    56
+   ],
+   "buildings": {
+    "two-storey": 4,
+    "pos-shop": 3,
+    "provision-store": 2,
+    "bungalow": 1
+   },
+   "props": {
+    "umbrella": 2,
+    "kiosk": 2,
+    "mango": 1,
+    "generator": 2
+   },
+   "density": 0.85
+  },
+  {
+   "id": "surulere",
+   "name": "Surulere",
+   "center": [
+    44,
+    88
+   ],
+   "buildings": {
+    "bungalow": 3,
+    "canteen": 3,
+    "pos-shop": 2,
+    "two-storey": 2
+   },
+   "props": {
+    "umbrella": 2,
+    "mango": 2,
+    "generator": 2,
+    "drum-chairs": 1
+   },
+   "density": 0.75
+  },
+  {
+   "id": "lagos-island",
+   "name": "Lagos Island",
+   "center": [
+    80,
+    108
+   ],
+   "buildings": {
+    "two-storey": 5,
+    "provision-store": 2,
+    "pos-shop": 2
+   },
+   "props": {
+    "umbrella": 3,
+    "kiosk": 2,
+    "orange-tray": 2
+   },
+   "density": 0.95
+  },
+  {
+   "id": "ikoyi",
+   "name": "Ikoyi",
+   "center": [
+    108,
+    104
+   ],
+   "buildings": {
+    "bungalow": 4,
+    "island-cottage": 3
+   },
+   "props": {
+    "mango": 3,
+    "palm": 3,
+    "generator": 1
+   },
+   "density": 0.45
+  },
+  {
+   "id": "victoria-island",
+   "name": "Victoria Island",
+   "center": [
+    118,
+    118
+   ],
+   "buildings": {
+    "two-storey": 4,
+    "bungalow": 2,
+    "beach-bar": 1
+   },
+   "props": {
+    "palm": 3,
+    "kiosk": 1,
+    "umbrella": 1
+   },
+   "density": 0.6
+  },
+  {
+   "id": "lekki",
+   "name": "Lekki",
+   "center": [
+    164,
+    112
+   ],
+   "buildings": {
+    "island-cottage": 4,
+    "bungalow": 3,
+    "beach-bar": 1
+   },
+   "props": {
+    "palm": 3,
+    "palm-cluster": 2,
+    "mango": 1
+   },
+   "density": 0.5
+  }
+ ],
+ "beach_props": {
+  "canoe": 3,
+  "palm-cluster": 3,
+  "beach-umbrella": 2,
+  "nets": 2,
+  "fish-baskets": 2,
+  "coconut-cart": 1,
+  "palm": 2
+ },
+ "beach_buildings": {
+  "fisher-hut": 2,
+  "beach-bar": 1,
+  "island-cottage": 1
+ },
+ "landmarks": [
+  {
+   "id": "ojuelegba-buka",
+   "name": "Iya Basira Buka (Ojuelegba)",
+   "district": "surulere",
+   "cell": [
+    40,
+    82
+   ],
+   "kind": "canteen"
+  },
+  {
+   "id": "yaba-police",
+   "name": "Yaba Police Division",
+   "district": "yaba",
+   "cell": [
+    110,
+    62
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "lekki-event-centre",
+   "name": "Royal Pavilion Event Centre",
+   "district": "lekki",
+   "cell": [
+    168,
+    116
+   ],
+   "kind": "beach-bar"
+  },
+  {
+   "id": "obalende-motor-park",
+   "name": "Obalende Motor Park",
+   "district": "lagos-island",
+   "cell": [
+    88,
+    112
+   ],
+   "kind": "park"
+  },
+  {
+   "id": "oshodi-market",
+   "name": "Oshodi Market",
+   "district": "oshodi",
+   "cell": [
+    60,
+    30
+   ],
+   "kind": "market"
+  },
+  {
+   "id": "oshodi-park",
+   "name": "Oshodi Motor Park (Union Office)",
+   "district": "oshodi",
+   "cell": [
+    66,
+    44
+   ],
+   "kind": "park"
+  },
+  {
+   "id": "coker-bankole-house",
+   "name": "Coker-Bankole residence",
+   "district": "ikoyi",
+   "cell": [
+    114,
+    100
+   ],
+   "kind": "bungalow"
+  },
+  {
+   "id": "ward-collation",
+   "name": "Ward 7 Collation Centre",
+   "district": "agbado-ketu",
+   "cell": [
+    158,
+    28
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "radio-gbedu",
+   "name": "Radio Gbedu 101.5",
+   "district": "ikeja",
+   "cell": [
+    110,
+    16
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "mushin-station",
+   "name": "Mushin filling station",
+   "district": "mushin",
+   "cell": [
+    56,
+    56
+   ],
+   "kind": "station"
+  },
+  {
+   "id": "ojota-bus-stop",
+   "name": "Ojota bus stop",
+   "district": "agbado-ketu",
+   "cell": [
+    140,
+    25
+   ],
+   "kind": "park"
+  },
+  {
+   "id": "yaba-barbershop",
+   "name": "Sharp Cut Barbing Saloon",
+   "district": "yaba",
+   "cell": [
+    97,
+    55
+   ],
+   "kind": "pos-shop"
+  },
+  {
+   "id": "yaba-church",
+   "name": "Overflowing Grace Assembly",
+   "district": "yaba",
+   "cell": [
+    107,
+    54
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "sabi-phones",
+   "name": "Sabi Phones & Accessories",
+   "district": "yaba",
+   "cell": [
+    96,
+    63
+   ],
+   "kind": "provision-store"
+  },
+  {
+   "id": "balogun-compound",
+   "name": "Balogun compound (Mushin)",
+   "district": "mushin",
+   "cell": [
+    40,
+    63
+   ],
+   "kind": "bungalow"
+  },
+  {
+   "id": "lagos-ledger",
+   "name": "The Lagos Ledger",
+   "district": "victoria-island",
+   "cell": [
+    116,
+    120
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "mallam-suya",
+   "name": "Mallam Garba Suya Spot",
+   "district": "victoria-island",
+   "cell": [
+    128,
+    116
+   ],
+   "kind": "provision-store"
+  },
+  {
+   "id": "ward-stadium",
+   "name": "Agbado-Ketu Central Mini Stadium",
+   "district": "agbado-ketu",
+   "cell": [
+    162,
+    36
+   ],
+   "kind": "park"
+  },
+  {
+   "id": "ikoyi-substation",
+   "name": "Power distribution substation",
+   "district": "agbado-ketu",
+   "cell": [
+    172,
+    42
+   ],
+   "kind": "park"
+  }
+ ],
+ "start": {
+  "player": [
+   44,
+   90
   ],
-  "beach_props": {"canoe":3,"palm-cluster":3,"beach-umbrella":2,"nets":2,"fish-baskets":2,"coconut-cart":1,"palm":2},
-  "beach_buildings": {"fisher-hut":2,"beach-bar":1,"island-cottage":1},
-  "landmarks": [
-    { "id": "aunty-boss-kitchen", "name": "Aunty Boss Kitchen", "district": "surulere", "cell": [40,82], "kind": "canteen" },
-    { "id": "kc-room", "name": "KC's room (Yaba)", "district": "yaba", "cell": [110,62], "kind": "two-storey" },
-    { "id": "lekki-event-centre", "name": "Royal Pavilion Event Centre", "district": "lekki", "cell": [168,116], "kind": "beach-bar" },
-    { "id": "obalende-motor-park", "name": "Obalende Motor Park", "district": "lagos-island", "cell": [88,112], "kind": "park" },
-    { "id": "oshodi-market", "name": "Oshodi Market", "district": "oshodi", "cell": [60,30], "kind": "market" },
-    { "id": "tunde-depot", "name": "Baba God Dey depot", "district": "oshodi", "cell": [66,44], "kind": "park" },
-    { "id": "mama-chief-house", "name": "Adebayo-Williams residence", "district": "ikoyi", "cell": [114,100], "kind": "bungalow" },
-    { "id": "agbado-ketu-council", "name": "Agbado-Ketu Central LGA Secretariat", "district": "agbado-ketu", "cell": [158,28], "kind": "two-storey" },
-    { "id": "miracle-fm", "name": "Miracle FM 99.9", "district": "ikeja", "cell": [110,16], "kind": "two-storey" },
-    { "id": "petronaija-station", "name": "PetroNaija filling station", "district": "mushin", "cell": [56,56], "kind": "station" },
-    { "id": "ojota-bus-stop", "name": "Ojota bus stop", "district": "agbado-ketu", "cell": [140,25], "kind": "park" },
-    { "id": "yaba-barbershop", "name": "Sharp Cut Barbing Saloon", "district": "yaba", "cell": [97,55], "kind": "pos-shop" },
-    { "id": "yaba-church", "name": "Overflowing Grace Assembly", "district": "yaba", "cell": [107,54], "kind": "two-storey" },
-    { "id": "yaba-charging-kiosk", "name": "Charge Am Here", "district": "yaba", "cell": [96,63], "kind": "provision-store" },
-    { "id": "mushin-mechanic", "name": "Alhaji Mechanic Workshop", "district": "mushin", "cell": [40,63], "kind": "park" },
-    { "id": "northvale-embassy", "name": "Embassy of the Republic of Northvale", "district": "victoria-island", "cell": [116,120], "kind": "two-storey" },
-    { "id": "mallam-suya", "name": "Mallam Garba Suya Spot", "district": "victoria-island", "cell": [128,116], "kind": "provision-store" },
-    { "id": "ward-stadium", "name": "Agbado-Ketu Central Mini Stadium", "district": "agbado-ketu", "cell": [162,36], "kind": "park" },
-    { "id": "elddc-substation", "name": "Light & Darkness substation", "district": "agbado-ketu", "cell": [172,42], "kind": "park" }
-  ],
-  "start": { "player": [44,90], "danfo": [46,86] }
+  "danfo": [
+   46,
+   86
+  ]
+ }
 }

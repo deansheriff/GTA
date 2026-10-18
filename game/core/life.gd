@@ -12,7 +12,7 @@ const NEEDS := ["hunger", "energy", "fun", "social", "hygiene"]
 const DECAY := { "hunger": 4.5, "energy": 3.2, "fun": 2.5, "social": 2.0, "hygiene": 2.2 }
 const SKILLS := ["driving", "cooking", "haggling", "filming", "charisma", "composure", "hustle"]
 
-var hero := "tunde"
+var hero := "dayo"
 var needs := { "hunger": 80.0, "energy": 85.0, "fun": 60.0, "social": 60.0, "hygiene": 75.0 }
 var money := 15000 # ₦
 var ledger: Array = [] # last 100 entries: {t, delta, reason}
@@ -20,7 +20,7 @@ var inventory := {} # item id -> count
 var skills_xp := {} # skill -> xp
 var flags := {} # story / world flags
 var relationships := { "tunde-ngozi": 50, "tunde-kc": 45, "ngozi-kc": 60 }
-var home := "tunde-depot" # landmark id where this hero sleeps
+var home := "balogun-compound" # landmark id where Dayo sleeps (Mama Àgbà's room in Mushin)
 var stats := { "bp": 20.0, "aura": 40.0, "hype": 100.0, "battery": 60.0 } # hero stats (M3 uses them)
 var items_db := {}
 ## Ward policies chosen by elected players (F4), set by the game as you move between districts.
@@ -232,7 +232,7 @@ func reset() -> void:
 	skills_xp = {}
 	flags = {}
 	relationships = { "tunde-ngozi": 50, "tunde-kc": 45, "ngozi-kc": 60 }
-	home = "tunde-depot"
+	home = "balogun-compound"
 	stats = { "bp": 20.0, "aura": 40.0, "hype": 100.0, "battery": 60.0 }
 	changed.emit()
 

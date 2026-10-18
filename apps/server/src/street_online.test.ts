@@ -63,14 +63,14 @@ async function world() {
 
 test('danfo race: server positions decide the order, and warping is a disqualification', { timeout: 60_000 }, async () => {
   const w = await world();
-  const lm = LANDMARKS['kc-room']!;
+  const lm = LANDMARKS['yaba-police']!;
   const startX = lm.x - 1700;
   const a = await w.join('Tunde', startX, lm.y);
   const b = await w.join('Rival', startX + 60, lm.y);
   await w.move(a, startX + 5, lm.y, 1);
   await w.move(b, startX + 65, lm.y, 1);
   const inv = waitFor(b.ws, (m) => m.t === 'race_invite');
-  a.ws.send(JSON.stringify({ t: 'race_open', to: 'kc-room', duel: b.pid }));
+  a.ws.send(JSON.stringify({ t: 'race_open', to: 'yaba-police', duel: b.pid }));
   const invite = await inv;
   assert.equal(invite.duel, true);
   const goA = waitFor(a.ws, (m) => m.t === 'race_go');
