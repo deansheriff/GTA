@@ -72,7 +72,7 @@ func _ready() -> void:
 	if "--proto3d" in OS.get_cmdline_user_args() and not Engine.has_meta("proto3d_seen"):
 		Engine.set_meta("proto3d_seen", true)
 		clash.free() # made with the script but only joins the tree further down
-		get_tree().change_scene_to_file.call_deferred("res://proto3d/district3d.tscn")
+		get_tree().change_scene_to_file.call_deferred("res://world3d/street3d.tscn")
 		return
 	for a in OS.get_cmdline_user_args():
 		if a == "--demo":
@@ -163,6 +163,7 @@ func _ready() -> void:
 	var had_save := false
 	if not demo:
 		had_save = SaveGame.load_local()
+		Engine.set_meta("save_ready", true) # the save's providers are live: safe to save from the title
 	Net.welcomed.connect(func(_id: int, _room: String) -> void: SaveGame.pull_cloud())
 	hud.waypoint_set.connect(_set_waypoint)
 	hud.waypoint_cleared.connect(func() -> void: _set_waypoint(Vector2.INF))

@@ -312,3 +312,14 @@ milestones, make no APK until the game is done, then do one release build.
 - Drivable 3D Yaba from the map data, opened from the title screen.
 - Five Meshy models (CC BY 4.0, credited): danfo, Tunde, shop, bungalow and keke.
 - Not yet tested on a phone. A full 3D port is a separate decision.
+
+## M16 · 3D Lagos: all assets and the whole island ✅ (2026-10-18, D-020)
+- 54 Meshy Pro assets: 12 rigged and animated people, 10 vehicles, 14 buildings and 18 props.
+- The whole map in 3D: road ribbons, kerbs and water.
+- On foot and driving, with carjacking, traffic, townspeople, danfo passenger runs, a minimap,
+  day and night, and a shared wallet and save.
+- Next (M17):
+  - A phone performance pass.
+  - Story missions and hustles in 3D.
+  - Night lights and headlights.
+  - Interiors for key landmarks.

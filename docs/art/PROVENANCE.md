@@ -137,3 +137,20 @@ resized to 1024 px JPEG).
 | Keke | `game/art3d/keke.glb` | 290,476 → 6,000 | green and yellow keke napep tricycle, canvas roof, unbranded |
 
 All prompts asked for no text, logos or brands.
+
+## 3D models (Meshy Pro, 3D Lagos)
+
+On 2026-10-18 the owner's Meshy Pro plan made 54 models through the Meshy API
+(`tools/art/meshy.mjs`). Every prompt is in `tools/art/meshy-spec.json`. The shared style line
+asks for no text, logos or brand names, and the agencies (marshal, task force) are fictional.
+Pro-plan models are privately owned, so no attribution is required for them.
+
+| Group | Models |
+|---|---|
+| People (rigged, walk + run, shared action pack) | tunde, walker, market_woman, okada_rider, marshal, agbero, taskforce, businessman, young_woman, elder, aunty_boss, chief |
+| Vehicles | keke (passenger, replaces the free-plan cargo keke), okada, car, taxi, suv, bus, tanker, truck, pickup, van |
+| Buildings | canteen, pos_shop, provision_store, apartment, island_cottage, fisher_hut, beach_bar, market, motor_park, station, church, office_tower, mansion, shack |
+| Props | palm, mango, pole, transformer, generator, kiosk, tyres, drum_chairs, orange_tray, canoe, nets, fish_baskets, coconut_cart, umbrella, streetlight, water_tank, barrier, plastic_table |
+
+The models were made with Meshy 6 Lite, remeshed to 3k–12k triangles and given 2K textures. They
+ship slimmed, with 1024 px textures. The free-plan Tunde was replaced by the rigged Pro Tunde.

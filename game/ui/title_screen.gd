@@ -100,8 +100,11 @@ func _build_menu(menu: VBoxContainer) -> void:
 	row.add_child(_btn("Settings", func() -> void: open_settings.emit(), 180))
 	row.add_child(_btn("Credits", _credits, 180))
 	menu.add_child(row)
-	if ResourceLoader.exists("res://proto3d/district3d.tscn"):
-		menu.add_child(_btn("3D prototype (Yaba)", func() -> void: get_tree().change_scene_to_file("res://proto3d/district3d.tscn")))
+	if ResourceLoader.exists("res://world3d/street3d.tscn"):
+		menu.add_child(_btn("3D Lagos (preview)", func() -> void:
+			if Engine.has_meta("save_ready"):
+				SaveGame.save_now() # 3D Lagos starts from the freshest save
+			get_tree().change_scene_to_file("res://world3d/street3d.tscn")))
 
 
 func _btn(text: String, cb: Callable, w := 370) -> Button:
@@ -149,7 +152,7 @@ func _credits() -> void:
 
 Story, design and code made for this project.
 Painted art generated for this project with GPT Image, from our own style reference (see docs/art/PROVENANCE.md).
-3D models made with Meshy (meshy.ai), CC BY 4.0: danfo, Tunde, shop, bungalow and keke (3D prototype only).
+3D models made with Meshy (meshy.ai). The first models (danfo, shop, bungalow) are CC BY 4.0.
 Music and sound effects synthesised from code for this project.
 All characters, businesses, agencies and parties are fictional. Real places are used as settings only.
 

@@ -25,6 +25,7 @@ func _initialize() -> void:
 	_test_street()
 	_test_people()
 	_test_ui()
+	_test_world3d()
 	print("tests: %d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -496,6 +497,39 @@ func _test_people() -> void:
 	for sheet in ["characters/drivers-a.png", "characters/officials-a.png"]:
 		check(w.use_sheet(sheet, 7), "%s loads" % sheet)
 	w.free()
+
+
+## 3D Lagos (D-020): every model the 3D tables name exists, people are rigged with the shared
+## action pack, and the 3D scripts compile.
+func _test_world3d() -> void:
+	var M: GDScript = load("res://world3d/models3d.gd")
+	var missing := []
+	for art: String in M.BUILDINGS:
+		for k: String in M.BUILDINGS[art]:
+			if not ResourceLoader.exists("res://art3d/%s.glb" % k):
+				missing.append(k)
+	for k: String in M.LANDMARKS:
+		if not ResourceLoader.exists("res://art3d/%s.glb" % M.LANDMARKS[k]):
+			missing.append(M.LANDMARKS[k])
+	for kind: String in M.PROPS:
+		if not ResourceLoader.exists("res://art3d/%s.glb" % M.PROPS[kind][0]):
+			missing.append(M.PROPS[kind][0])
+	for kind: String in M.VEHICLES:
+		if not ResourceLoader.exists("res://art3d/%s.glb" % M.VEHICLES[kind]["model"]):
+			missing.append(M.VEHICLES[kind]["model"])
+	for k: String in M.PEOPLE + ["tunde"]:
+		for f in ["%s.glb", "%s_run.glb"]:
+			if not ResourceLoader.exists("res://art3d/chars/" + f % k):
+				missing.append(f % k)
+	check(missing.is_empty(), "every 3D model exists (missing: %s)" % [missing])
+	var lib: RefCounted = M.new()
+	var got: Array = lib.person("walker")
+	var ap: AnimationPlayer = got[1]
+	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
+	if got[0]:
+		(got[0] as Node).free()
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d"]:
+		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 
 ## UI polish (M13): message kinds and the toast stack limit.

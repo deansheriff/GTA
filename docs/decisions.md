@@ -536,3 +536,59 @@ so they're credited on the credits screen. They're slimmed for phones with
 **Going fully 3D would mean** porting each of those systems and the camera and controls, and
 making many more models. Meshy text-to-3D retires on 31 October (it moves to Meshy's Agent),
 and the free plan allows 10 downloads a month.
+
+
+## D-020 · 3D Lagos: the whole island in 3D, with Meshy Pro assets · 2026-10-18
+**Owner request:** "I just subscribed. Use this to create all the assets we'll need. Including
+roads, maps, vehicles, NPCs and other things. Then continue building."
+
+**Assets** (`tools/art/meshy.mjs` + `tools/art/meshy-spec.json`, Meshy API on the owner's Pro plan):
+- 54 models in one resumable, budget-capped run, which cost 900 credits:
+  - 12 rigged people. A-pose generation fixed the "hands and shirt stuck to the body" rig.
+  - 10 vehicles, 14 building types and 18 props.
+- Each model is Meshy 6 Lite remeshed to a phone budget, then textured, rigged if it's a person,
+  downloaded and slimmed.
+- Every person brings their own walk and run. One shared 10-clip action pack (idle, talk, argue,
+  wave, punch, hit, dead, sit, phone, cheer) plays on all of them, because Meshy rigs share one
+  24-bone skeleton.
+- Prompts are unbranded and the agencies fictional. Pro-plan models are privately owned. The
+  first free-plan models (danfo, shop, bungalow) stay CC BY and are credited.
+- The key is `MESHY_API_KEY` in the git-ignored `.env`. Raw downloads and the run state stay in
+  the git-ignored `art-src/meshy/`.
+
+**Roads and the map** are built in code from the 2D map data rather than generated, because
+Meshy makes objects, not road networks (`world3d/terrain3d.gd`):
+- Roads are ribbons that follow the real road curves, with white edge lines and yellow centre
+  dashes. The lines stop short of junctions.
+- Pavements are raised 12 cm, which gives every street a kerb. Road shoulders are laterite.
+- The lagoon and sea use a moving glossy water shader. The sea runs to the horizon.
+
+**The 3D city** (`world3d/`, opened from the title screen as "3D Lagos (preview)"):
+- **Map coverage:** the whole island, with 271 buildings and 600 props. Each building's model is
+  chosen by its type, district and landmark:
+  - Lekki and Ikoyi get duplexes and towers.
+  - Mushin and Agbado-Ketu get shacks.
+  - Landmarks get the church, motor park, market, station or office tower.
+- **Building details:** each building faces its road, carries its painted shop sign and keeps
+  its generator.
+- **Draw distance:** far buildings and props switch off, hidden by haze.
+- **On foot:** walk or run as Tunde.
+- **Vehicles:** take any vehicle with E or ENTER; traffic drivers get dragged out. Eleven vehicle
+  kinds each have their own handling. 26 AI vehicles keep to the right-hand lane and slow for
+  whatever is ahead.
+- **Townspeople:** 36 of them stroll the pavements, chat and phone, and dive out of the way of a
+  speeding vehicle.
+- **Danfo runs:** every district has a bus stop with people waiting.
+  - Stop at one in the danfo to load 6 to 14 passengers.
+  - Follow the beacon and the minimap to the next stop to get paid.
+  - The money goes into the same wallet as the 2D game.
+- **Time:** the clock is shared with the 2D game; sun, sky and haze follow it from day to night.
+- **Saving:** while you're in 3D, saves keep the 2D world exactly as it was saved. Money and time
+  carry both ways. The title saves first, and the 3D scene saves after each paid run and on exit.
+- **Performance:** 60 fps on the dev PC with the Compatibility renderer.
+
+**Not done yet:**
+- No phone test.
+- The story, missions, hustles and online features still run only in 2D.
+- No interiors and no night lights.
+- 3D art adds about 45 MB to the project; check the APK size next.
