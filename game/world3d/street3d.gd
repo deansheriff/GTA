@@ -620,6 +620,7 @@ func _physics_process(delta: float) -> void:
 	combat.step(delta)
 	hud.fight_mode(combat.active, combat.player_hp)
 	hud.gun_mode(combat.armed and (combat.active or ride == null), combat.clip, combat.reserve)
+	player.show_gun(combat.armed and ride == null)
 	if missions.running == "" and not in_menu and stage._marker.visible:
 		if Vector2(focus().x - stage._marker.position.x, focus().z - stage._marker.position.z).length() < 6.0:
 			stage.set_marker(null)

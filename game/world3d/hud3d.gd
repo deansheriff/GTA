@@ -394,6 +394,7 @@ func _credits_panel() -> Control:
 	l.text = """Naija Street Life: Èkó Ò Ní Bàjẹ́
 Story by Sheriff Usman. Design and code made for this project.
 3D models made with Meshy (meshy.ai). The first models (danfo, shop, bungalow) are CC BY 4.0.
+Free models via Poly Pizza: "Yacht" by Alex Safayan, "Canopy" by Poly by Google, "Ambulance Car" by Zsky (CC-BY 3.0); Quaternius and kazuma models (CC0).
 Music and sound effects synthesised from code for this project.
 All characters, businesses, agencies and parties are fictional. Real places are used as settings only.
 Made with Godot Engine (godotengine.org/license), MIT License. Copyright (c) 2014-present Godot Engine contributors; (c) 2007-2014 Juan Linietsky, Ariel Manzur."""

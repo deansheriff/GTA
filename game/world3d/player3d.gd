@@ -14,6 +14,9 @@ var moving := 0.0 # 0 idle, 1 walking, 2 running
 var model_key := ""
 var _lib: Models3D
 var _action_t := 0.0 # a one-off clip (punch, hit) is playing
+var _gun: Node3D
+var _hand := -1
+var _skel: Skeleton3D
 
 
 func setup(lib: Models3D, w) -> void:
@@ -50,6 +53,40 @@ func set_model(key: String) -> void:
 	add_child(model)
 	moving = -1.0
 	Models3D.play(ap, "idle", "walk")
+
+
+## The pistol in Dayo's right hand (free CC0 model, D-024). It follows the hand bone each frame
+## (Meshy skeletons are in centimetres under a 0.01-scaled Armature, so a plain child would be
+## scaled down with it).
+func show_gun(on: bool) -> void:
+	if on and _gun == null:
+		var g: Node3D = _lib.make("pistol", "res://art3d/free/")
+		if g == null:
+			return
+		var bb := Models3D.aabb(g)
+		var k := 0.2 / maxf(bb.size.x, maxf(bb.size.y, bb.size.z))
+		g.scale = Vector3.ONE * k
+		g.position = -bb.get_center() * k
+		_gun = Node3D.new()
+		_gun.add_child(g)
+		add_child(_gun)
+	if _gun:
+		_gun.visible = on and visible
+
+
+func _process(_d: float) -> void:
+	if _gun == null or not _gun.visible:
+		return
+	if _skel == null or not is_instance_valid(_skel):
+		var sks := model.find_children("*", "Skeleton3D", true, false)
+		if sks.is_empty():
+			return
+		_skel = sks[0]
+		_hand = _skel.find_bone("RightHand")
+	if _hand < 0:
+		return
+	var g := _skel.global_transform * _skel.get_bone_global_pose(_hand) # metres (the Armature carries 0.01)
+	_gun.global_transform = Transform3D(g.basis.orthonormalized(), g.origin) * Transform3D(Basis(Vector3.RIGHT, -PI * 0.5), Vector3(0, 0.08, 0.03))
 
 
 func punch() -> void:

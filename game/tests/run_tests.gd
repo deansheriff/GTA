@@ -280,6 +280,9 @@ func _test_world3d() -> void:
 		for f in ["%s.glb", "%s_run.glb"]:
 			if not ResourceLoader.exists("res://art3d/chars/" + f % k):
 				missing.append(f % k)
+	for k in ["horse", "helicopter", "pistol", "rock_large", "mountain", "tent", "gazebo", "barrel", "gas_tank", "speedboat", "yacht", "canopy", "ambulance"]:
+		if not ResourceLoader.exists("res://art3d/free/%s.glb" % k):
+			missing.append("free/" + k)
 	check(missing.is_empty(), "every 3D model exists (missing: %s)" % [missing])
 	var lib: RefCounted = M.new()
 	var got: Array = lib.person("walker")

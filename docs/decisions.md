@@ -727,3 +727,31 @@ reset.
 | Sketchfab | Filter by CC licence |
 
 Lagos-specific things (danfos, kekes, agbada) still come from Meshy.
+
+
+## D-024 · Free CC0 / CC-BY assets from Poly Pizza, and the first debug APK of the 3D game · 2026-10-18
+**Owner:** "Make the debug apk so I can try Act I. Let's use Quaternius or any other available one
+that suits our need."
+
+**APK:**
+- `build/naija-street-life-debug.apk`, version 2.0.0 (code 200), so it installs over the old 2D
+  build.
+- The 3D textures import with phone texture compression (ETC2/ASTC): 512 px for props, buildings
+  and townspeople, 1024 px for the main cast and vehicles. The APK went from 196 MB to 115 MB.
+- 53 MB of that is the Godot engine for both 32- and 64-bit Android. The store AAB splits per
+  device.
+
+**Free assets** (`tools/art/free_assets.mjs` + `tools/art/free-assets.json`, searched with
+`tools/art/polypizza_search.mjs`):
+- Each model's licence is read from its page, and only CC0 or CC-BY are accepted.
+- Raw files go to the git-ignored `art-src/free/`, and slimmed copies to `game/art3d/free/`.
+- The credits are in [docs/art/FREE_ASSETS.md](art/FREE_ASSETS.md) and on the credits screen.
+- **First 13 models:**
+  - Quaternius (CC0): horse (animated: walk, gallop, idle…), pistol, rocks and a mountain (for
+    Olumo Rock), tent, gazebo, barrel, gas cylinder and boat.
+  - kazuma (CC0): helicopter.
+  - CC-BY 3.0, credited: yacht (Alex Safayan), event canopy (Poly by Google) and ambulance (Zsky).
+- **In the game now:** the pistol, held in Dayo's right hand while he's armed. The rest wait for
+  Acts II–V.
+- **Style note:** these are flat low-poly, simpler than the hand-painted Meshy models. They're
+  used for props and vehicles, not the cast.
