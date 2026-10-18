@@ -12,6 +12,7 @@ const PROP_FAR := 95.0
 var map: MapData
 var models: Models3D
 var obstacles: Array[Vector3] = [] # solid props as (x, z, radius) for people to walk round
+var far_scale := 1.0 # graphics preset: shorter draw distance on low-end phones
 
 
 func build(m: MapData, lib: Models3D) -> void:
@@ -60,7 +61,29 @@ func _buildings() -> void:
 			gh.add_child(g)
 			gh.position = Vector3(local.x * 0.5 + 0.6, 0, local.z * 0.5 - 0.8)
 			holder.add_child(gh)
-		Models3D.far_cull(body, BUILDING_FAR)
+		_yard(holder, key, local, b.seed)
+		Models3D.far_cull(body, BUILDING_FAR * far_scale)
+
+
+## Lived-in details: an overhead water tank behind some houses, plastic tables out front of
+## canteens, shops and bars.
+func _yard(holder: Node3D, key: String, size: Vector3, seed: int) -> void:
+	var adds := []
+	if seed % 4 == 0 and key in ["bungalow", "island_cottage", "shop", "apartment", "shack", "mansion"]:
+		adds.append(["water_tank", 3.6, Vector3(size.x * 0.5 - 1.2, 0, -size.z * 0.5 - 1.4)])
+	if key in ["canteen", "provision_store", "beach_bar", "pos_shop"]:
+		adds.append(["plastic_table", 0.8, Vector3(-size.x * 0.25, 0, size.z * 0.5 + 2.2)])
+	for a: Array in adds:
+		var m := models.make(a[0])
+		if m == null:
+			continue
+		Models3D.fit_height(m, float(a[1]))
+		var h := Node3D.new()
+		h.add_child(m)
+		h.position = a[2]
+		h.rotation.y = float(seed % 7) * 0.4
+		holder.add_child(h)
+		Models3D.no_shadow(h)
 
 
 ## The yaw that turns a model's front (+Z) towards the side of the footprint with the most road.
@@ -178,7 +201,7 @@ func _props() -> void:
 			continue
 		add_child(holder)
 		var big: bool = float(spec[1]) > 3.0
-		Models3D.far_cull(holder, PROP_FAR * (1.5 if big else 1.0))
+		Models3D.far_cull(holder, PROP_FAR * far_scale * (1.5 if big else 1.0))
 		if not big:
 			Models3D.no_shadow(holder)
 		if p.kind in MapData.SOLID_PROPS:

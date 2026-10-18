@@ -592,3 +592,21 @@ Meshy makes objects, not road networks (`world3d/terrain3d.gd`):
 - The story, missions, hustles and online features still run only in 2D.
 - No interiors and no night lights.
 - 3D art adds about 45 MB to the project; check the APK size next.
+
+**M17 additions (2026-10-18):**
+- **Graphics settings:** 3D follows the graphics preset.
+  - Shadows are off on Low and short-range on Medium.
+  - Glow follows the effects setting.
+  - Draw distance, haze, traffic (14 to 28) and crowds (up to 36) scale with the preset.
+- **Camera:** drag on the screen (or right-drag the mouse) to look around. The camera stops at
+  walls instead of entering buildings.
+- **Streetlights:** 66 solar streetlights stand along the main roads, batched per 48 m area.
+  After dark their lamps glow, the six nearest you cast real light, and your vehicle gets
+  headlights.
+- **Yard details:** water tanks behind some houses, and plastic tables outside canteens, shops
+  and bars.
+- **Checkpoints:** four roadside checkpoints use the 2D game's crews, lines and prices, with
+  barriers and officers.
+  - Pull up slowly to settle the roger.
+  - Blast through and you pay the fine, and Area Heat rises.
+  - They move every game day.

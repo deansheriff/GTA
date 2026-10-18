@@ -528,7 +528,7 @@ func _test_world3d() -> void:
 	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
 	if got[0]:
 		(got[0] as Node).free()
-	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d"]:
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d"]:
 		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 

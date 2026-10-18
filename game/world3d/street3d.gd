@@ -6,8 +6,11 @@ extends Node3D
 ## Launch: the "3D Lagos" button on the title screen, or Godot --path game -- --proto3d.
 
 const CELL_M := Terrain3D.CELL_M
-const TRAFFIC_N := 26
-const PEOPLE_N := 36
+## Crowd sizes and draw distance follow the game's graphics preset (Settings: low/medium/high).
+var traffic_n := 26
+var people_n := 36
+var q_far := 1.0 # draw-distance scale
+var _look_t := 0.0 # seconds since the player last dragged the camera
 const ENTER_RANGE := 3.6
 
 var map: MapData
@@ -31,6 +34,9 @@ var _frames := 0
 var _recycle_t := 0.0
 var _walk_cells: Array[Vector2i] = []
 var run: DanfoRun3D
+var lights: Lights3D
+var checkpoints: Checkpoint3D
+var _dark := 0.0
 var people_keys: Array = []
 var _minimap: Minimap3D
 var _toast: Label
@@ -47,6 +53,7 @@ var demo_drive := Vector2.ZERO
 func _ready() -> void:
 	_rng.seed = 2026
 	_guard_save()
+	_quality()
 	map = MapData.shared()
 	_environment()
 	terrain = Terrain3D.new()
@@ -54,6 +61,7 @@ func _ready() -> void:
 	terrain.build(map)
 	city = City3D.new()
 	add_child(city)
+	city.far_scale = q_far
 	city.build(map, models)
 	for y in map.rows:
 		for x in map.cols:
@@ -67,7 +75,16 @@ func _ready() -> void:
 	run.setup(self)
 	run.message.connect(_say)
 	run.paid.connect(_save_game)
+	lights = Lights3D.new()
+	add_child(lights)
+	lights.build(self)
+	checkpoints = Checkpoint3D.new()
+	add_child(checkpoints)
+	checkpoints.setup(self)
+	checkpoints.message.connect(_say)
+	checkpoints.charged.connect(_save_game)
 	_hud()
+	_apply_quality_env()
 	_day_night()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shots="):
@@ -107,6 +124,24 @@ var _save_ok := true
 func _save_game() -> void:
 	if _save_ok:
 		SaveGame.save_now()
+
+
+func _quality() -> void:
+	var g: Dictionary = Settings.current if get_node_or_null("/root/Settings") else {}
+	var dd := int(g.get("draw_distance", 2))
+	q_far = [0.65, 0.65, 0.85, 1.0][clampi(dd, 0, 3)]
+	people_n = clampi(int(g.get("max_npcs", 30)), 10, 36)
+	traffic_n = [14, 14, 22, 28][clampi(dd, 0, 3)]
+
+
+func _apply_quality_env() -> void:
+	var g: Dictionary = Settings.current if get_node_or_null("/root/Settings") else {}
+	var shadows := String(g.get("shadows", "blob"))
+	_sun.shadow_enabled = shadows != "none"
+	_sun.directional_shadow_max_distance = 70.0 if shadows == "painted" else 40.0
+	_env.glow_enabled = String(g.get("effects", "low")) != "off"
+	_env.fog_depth_begin = 90.0 * q_far
+	_env.fog_depth_end = 175.0 * q_far
 
 
 # ---------- helpers the actors use ----------
@@ -226,7 +261,7 @@ func _spawn_player() -> void:
 
 
 func _spawn_traffic() -> void:
-	for i in TRAFFIC_N:
+	for i in traffic_n:
 		var v := Vehicle3D.new()
 		add_child(v)
 		v.setup(models, Models3D.TRAFFIC_MIX[i % Models3D.TRAFFIC_MIX.size()], self)
@@ -260,7 +295,7 @@ func _spawn_people() -> void:
 	people_keys = keys
 	if keys.is_empty():
 		return
-	for i in PEOPLE_N:
+	for i in people_n:
 		var c := _walk_cell_near(focus(), 6.0, 70.0)
 		var p := Person3D.new()
 		add_child(p)
@@ -310,6 +345,8 @@ func _physics_process(delta: float) -> void:
 	if ride and absf(ride.speed) > 3.0:
 		_scatter(ride)
 	run.step(delta)
+	lights.step(delta, _dark)
+	checkpoints.step(delta)
 	_place_camera(delta)
 	_recycle(delta)
 	_update_hud(delta)
@@ -331,19 +368,27 @@ func _place_camera(delta: float) -> void:
 	var dist: float
 	var height: float
 	if ride:
-		# Swing in behind the vehicle as it turns.
+		# Swing in behind the vehicle as it turns (unless the player is looking around).
+		_look_t += delta
 		var behind := ride.heading - PI * 0.5 # (sin, cos) of this = -forward
-		cam_yaw = lerp_angle(cam_yaw, behind, minf(1.0, delta * 2.5))
+		if _look_t > 1.5:
+			cam_yaw = lerp_angle(cam_yaw, behind, minf(1.0, delta * 2.5))
 		dist = 6.0 + ride.length * 0.9
 		height = 3.2 + ride.length * 0.35
 		target = ride.position + Vector3(0, 1.2, 0)
 	else:
-		if player.moving > 0.0:
+		_look_t += delta
+		if player.moving > 0.0 and _look_t > 2.0:
 			cam_yaw = lerp_angle(cam_yaw, player.facing() + PI, minf(1.0, delta * 1.2))
 		dist = 5.2
 		height = 2.6
 		target = player.position + Vector3(0, 1.4, 0)
 	var want := target + Vector3(sin(cam_yaw) * dist, height, cos(cam_yaw) * dist)
+	# Don't let the camera go inside a building: stop it at the first wall in the way.
+	var q := PhysicsRayQueryParameters3D.create(target, want, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty():
+		want = (hit["position"] as Vector3).lerp(target, 0.12)
 	cam.position = want if delta >= 1.0 else cam.position.lerp(want, minf(1.0, delta * 6.0))
 	cam.look_at(target)
 
@@ -440,8 +485,10 @@ func _hud() -> void:
 	_money.add_theme_constant_override("outline_size", 6)
 	layer.add_child(_money)
 	_toast = Label.new()
-	_toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_toast.offset_top = 110
+	_toast.anchor_left = 0.18
+	_toast.anchor_right = 0.82
+	_toast.offset_top = 112
+	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.add_theme_font_size_override("font_size", 26)
 	_toast.add_theme_color_override("font_color", Color("#fff4d6"))
@@ -529,6 +576,10 @@ func _day_night() -> void:
 		return
 	var hours: float = float(clock.hour()) + float(clock.minute()) / 60.0
 	var dark: float = clamp(float(clock.darkness()), 0.0, 1.0)
+	if Engine.has_meta("qa_night"):
+		dark = 1.0
+		hours = 21.0
+	_dark = dark
 	var day_t := clampf((hours - 6.0) / 12.0, 0.0, 1.0) # 06:00 -> 18:00
 	_sun.rotation_degrees.x = -(10.0 + sin(day_t * PI) * 62.0)
 	_sun.rotation_degrees.y = lerpf(-90.0, 90.0, day_t)
@@ -541,6 +592,13 @@ func _day_night() -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	# Drag anywhere free (or move the mouse with the right button) to look around.
+	if e is InputEventScreenDrag and e.position.x > get_viewport().get_visible_rect().size.x * 0.35:
+		cam_yaw -= e.relative.x * 0.006
+		_look_t = 0.0
+	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
+		cam_yaw -= e.relative.x * 0.006
+		_look_t = 0.0
 	if e is InputEventKey and e.pressed and not e.echo:
 		match e.physical_keycode:
 			KEY_ESCAPE: _back()
@@ -601,6 +659,23 @@ func _shots(dir: String) -> void:
 		ride.speed = 0.0
 		await get_tree().create_timer(1.6).timeout
 	print("street3d run: loaded=%s paid=%d stops=%d" % [loaded, (int(life.money) if life else 0) - before, run.stops.size()])
+	# Checkpoint: blast through one at speed.
+	if not checkpoints.spots.is_empty():
+		var cp: Dictionary = checkpoints.spots[0]
+		var m0: int = int(life.money) if life else 0
+		ride.position = cp["pos"] - (cp["fwd"] as Vector3) * 4.0
+		ride.heading = -Vector2(cp["fwd"].x, cp["fwd"].z).angle()
+		ride.speed = 12.0
+		await get_tree().create_timer(0.5).timeout
+		await _save(dir + "/3d-6-checkpoint.png")
+		print("street3d checkpoint: %s charged=%d lamps=%d" % [cp["kind"], m0 - (int(life.money) if life else 0), lights.lamps.size()])
+	# Night: lamps, glow and headlights.
+	Engine.set_meta("qa_night", true)
+	_day_night()
+	ride.speed = 6.0 # roll on down the checkpoint road with the headlights on
+	await get_tree().create_timer(1.2).timeout
+	await _save(dir + "/3d-7-night.png")
+	Engine.remove_meta("qa_night")
 	print("street3d: vehicles=%d people=%d buildings=%d | %s" % [vehicles.size(), people.size(), map.buildings.size(), hud.text.replace(char(10), " | ")])
 	get_tree().quit()
 

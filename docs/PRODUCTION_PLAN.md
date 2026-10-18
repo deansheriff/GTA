@@ -318,8 +318,9 @@ milestones, make no APK until the game is done, then do one release build.
 - The whole map in 3D: road ribbons, kerbs and water.
 - On foot and driving, with carjacking, traffic, townspeople, danfo passenger runs, a minimap,
   day and night, and a shared wallet and save.
-- Next (M17):
-  - A phone performance pass.
+- M17 (2026-10-18): graphics presets, a drag camera that stops at walls, streetlights with
+  night lighting and headlights, yard details, and checkpoints.
+- Next:
+  - A phone performance pass on a real device.
   - Story missions and hustles in 3D.
-  - Night lights and headlights.
   - Interiors for key landmarks.
