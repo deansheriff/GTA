@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csd2rr0lo1iks"
-path="res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.ctex"
+path.s3tc="res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.s3tc.ctex"
+path.etc2="res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3b8cf5e1b4cad5b806717cf47586f851"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/beach_bar_0.jpg"
-dest_files=["res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.ctex"]
+dest_files=["res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.s3tc.ctex", "res://.godot/imported/beach_bar_0.jpg-cec876bfef67d34006e12f23912df316.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://brmxrinirwjvt"
-path="res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.ctex"
+path.s3tc="res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.s3tc.ctex"
+path.etc2="res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c8c77ba25888cb7367a5eaf800964181"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/chars/agbero_Image_0.jpg"
-dest_files=["res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.ctex"]
+dest_files=["res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.s3tc.ctex", "res://.godot/imported/agbero_Image_0.jpg-c39255385027f3b55971cef70c1c105b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

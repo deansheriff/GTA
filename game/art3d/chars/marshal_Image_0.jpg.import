@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdx5oi8p7w725"
-path="res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.ctex"
+path.s3tc="res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.s3tc.ctex"
+path.etc2="res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9ef4b589e2cd2835741dd91dd044db24"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/chars/marshal_Image_0.jpg"
-dest_files=["res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.ctex"]
+dest_files=["res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.s3tc.ctex", "res://.godot/imported/marshal_Image_0.jpg-78adcf2d45a403d1475a2f9b7b9a20da.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

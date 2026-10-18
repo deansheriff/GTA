@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wkvjp64j0l73"
-path="res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.ctex"
+path.s3tc="res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.s3tc.ctex"
+path.etc2="res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d0468934724b62257ed8e61afda392a4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/keke_2.jpg"
-dest_files=["res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.ctex"]
+dest_files=["res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.s3tc.ctex", "res://.godot/imported/keke_2.jpg-2ea8deb58b0b73658f77dda0b953e5cc.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

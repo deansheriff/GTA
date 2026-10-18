@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://chfff2h8vh6nr"
-path="res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.ctex"
+path.s3tc="res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.s3tc.ctex"
+path.etc2="res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2a4b3454e90f448214a8825095ee9100"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/truck_0.jpg"
-dest_files=["res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.ctex"]
+dest_files=["res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.s3tc.ctex", "res://.godot/imported/truck_0.jpg-5bbff95b848de974e68ee83285ea790b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

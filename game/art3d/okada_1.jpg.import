@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr0ou6x7de2ip"
-path="res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.ctex"
+path.s3tc="res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.s3tc.ctex"
+path.etc2="res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c1d658ec9cd175576edf4ca4b6d568ad"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/okada_1.jpg"
-dest_files=["res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.ctex"]
+dest_files=["res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.s3tc.ctex", "res://.godot/imported/okada_1.jpg-7cdc485fa0657e32bb7c0cf2abaf0d7f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

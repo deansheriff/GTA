@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://blg8vn4qteygr"
-path="res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.ctex"
+path.s3tc="res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.s3tc.ctex"
+path.etc2="res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "82717b7371ce88ab1c2d61ab6e61c5d5"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/station_0.jpg"
-dest_files=["res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.ctex"]
+dest_files=["res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.s3tc.ctex", "res://.godot/imported/station_0.jpg-8dae0c81fe354462e911886239adb1ec.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

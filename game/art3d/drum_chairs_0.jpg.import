@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bhlqt7oaurnql"
-path="res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.ctex"
+path.s3tc="res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.s3tc.ctex"
+path.etc2="res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ba1886f7fab0dd4fc68088fd672d13d0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/drum_chairs_0.jpg"
-dest_files=["res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.ctex"]
+dest_files=["res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.s3tc.ctex", "res://.godot/imported/drum_chairs_0.jpg-10c4f5830a2ecd5dc95bef490c0e6c4e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://fhtfi2fqqlao"
-path="res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.ctex"
+path.s3tc="res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.s3tc.ctex"
+path.etc2="res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6478dd507aaef5f1005d8bcab7d7a458"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/chars/young_woman_Image_0.jpg"
-dest_files=["res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.ctex"]
+dest_files=["res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.s3tc.ctex", "res://.godot/imported/young_woman_Image_0.jpg-1bb32d4168951036a53cedd1b3c84538.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1

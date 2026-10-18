@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://rebqw1m1chg8"
-path="res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.ctex"
+path.s3tc="res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.s3tc.ctex"
+path.etc2="res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "fbbfac02e1894b079a6b7a5268fedfac"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://art3d/mango_0.jpg"
-dest_files=["res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.ctex"]
+dest_files=["res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.s3tc.ctex", "res://.godot/imported/mango_0.jpg-b69ee34d8e15e314ee467ce9ba935aee.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=512
 detect_3d/compress_to=1
