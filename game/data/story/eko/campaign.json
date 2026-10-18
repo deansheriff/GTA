@@ -1,157 +1,1411 @@
 {
  "_comment": "Èkó Ò Ní Bàjẹ́ (D-021, docs/story/eko-oni-baje.md). Missions with steps are playable; the rest are planned. Pidgin, Yoruba, Igbo and Hausa lines are flagged for native-speaker review. Brands are kept out: Bayo's phone is 'Papa's old phone', vehicles are unbranded.",
  "cast": {
-  "dayo": { "name": "Dayo \"Sabi\"", "model": "dayo", "colour": "#e0a91c" },
-  "young_dayo": { "name": "Dayo (14)", "model": "young_dayo", "colour": "#e0a91c" },
-  "sego": { "name": "Sego", "model": "sego", "colour": "#e8483a" },
-  "bayo": { "name": "Chief Bayo Balogun", "model": "chief", "colour": "#c8a02a" },
-  "mama_agba": { "name": "Mama Àgbà", "model": "mama_agba", "colour": "#2f6f99" },
-  "kemi": { "name": "Kemi", "model": "young_woman", "colour": "#9a5bc4" },
-  "obinna": { "name": "Uncle Obi", "model": "businessman", "colour": "#3a4250" },
-  "kongi": { "name": "Alhaji Kongi", "model": "kongi", "colour": "#d9d3c4" },
-  "wire": { "name": "Tiamiyu \"Wire\"", "model": "agbero", "colour": "#8a3a2a" },
-  "rasheed": { "name": "Rasheed Adio", "model": "okada_rider", "colour": "#6b8e23" },
-  "hauwa": { "name": "ACP Hauwa Danjuma", "model": "young_woman", "colour": "#2f5e3a" },
-  "amaka": { "name": "Amaka Eze", "model": "young_woman", "colour": "#c4473a" },
-  "bigz": { "name": "Bigz Jupiter", "model": "walker", "colour": "#1f9a86" },
-  "senator": { "name": "Senator Coker-Bankole", "model": "businessman", "colour": "#84509a" },
-  "tonye": { "name": "General Tonye", "model": "elder", "colour": "#22806f" },
-  "fakunle": { "name": "Baba Fakunle", "model": "elder", "colour": "#c96f24" },
-  "agbero": { "name": "Agbero", "model": "agbero", "colour": "#8a3a2a" },
-  "gunman": { "name": "Gunman", "model": "agbero", "colour": "#555555" },
-  "passenger": { "name": "Passenger", "model": "market_woman", "colour": "#2f8a52" },
-  "herbal": { "name": "Herbal seller", "model": "elder", "colour": "#7a6a2a" },
-  "voice": { "name": "???", "colour": "#888888" },
-  "story": { "name": "", "colour": "#f1e6c8" }
+  "dayo": {
+   "name": "Dayo \"Sabi\"",
+   "model": "dayo",
+   "colour": "#e0a91c"
+  },
+  "young_dayo": {
+   "name": "Dayo (14)",
+   "model": "young_dayo",
+   "colour": "#e0a91c"
+  },
+  "sego": {
+   "name": "Sego",
+   "model": "sego",
+   "colour": "#e8483a"
+  },
+  "bayo": {
+   "name": "Chief Bayo Balogun",
+   "model": "chief",
+   "colour": "#c8a02a"
+  },
+  "mama_agba": {
+   "name": "Mama Àgbà",
+   "model": "mama_agba",
+   "colour": "#2f6f99"
+  },
+  "kemi": {
+   "name": "Kemi",
+   "model": "young_woman",
+   "colour": "#9a5bc4"
+  },
+  "obinna": {
+   "name": "Uncle Obi",
+   "model": "businessman",
+   "colour": "#3a4250"
+  },
+  "kongi": {
+   "name": "Alhaji Kongi",
+   "model": "kongi",
+   "colour": "#d9d3c4"
+  },
+  "wire": {
+   "name": "Tiamiyu \"Wire\"",
+   "model": "agbero",
+   "colour": "#8a3a2a"
+  },
+  "rasheed": {
+   "name": "Rasheed Adio",
+   "model": "okada_rider",
+   "colour": "#6b8e23"
+  },
+  "hauwa": {
+   "name": "ACP Hauwa Danjuma",
+   "model": "young_woman",
+   "colour": "#2f5e3a"
+  },
+  "amaka": {
+   "name": "Amaka Eze",
+   "model": "young_woman",
+   "colour": "#c4473a"
+  },
+  "bigz": {
+   "name": "Bigz Jupiter",
+   "model": "walker",
+   "colour": "#1f9a86"
+  },
+  "senator": {
+   "name": "Senator Coker-Bankole",
+   "model": "businessman",
+   "colour": "#84509a"
+  },
+  "tonye": {
+   "name": "General Tonye",
+   "model": "elder",
+   "colour": "#22806f"
+  },
+  "fakunle": {
+   "name": "Baba Fakunle",
+   "model": "elder",
+   "colour": "#c96f24"
+  },
+  "agbero": {
+   "name": "Agbero",
+   "model": "agbero",
+   "colour": "#8a3a2a"
+  },
+  "gunman": {
+   "name": "Gunman",
+   "model": "agbero",
+   "colour": "#555555"
+  },
+  "passenger": {
+   "name": "Passenger",
+   "model": "market_woman",
+   "colour": "#2f8a52"
+  },
+  "herbal": {
+   "name": "Herbal seller",
+   "model": "elder",
+   "colour": "#7a6a2a"
+  },
+  "voice": {
+   "name": "???",
+   "colour": "#888888"
+  },
+  "story": {
+   "name": "",
+   "colour": "#f1e6c8"
+  },
+  "customs": {
+   "name": "Customs officer",
+   "model": "taskforce",
+   "colour": "#2f5e3a"
+  },
+  "police": {
+   "name": "Police",
+   "model": "taskforce",
+   "colour": "#2f4e7a"
+  },
+  "tolu": {
+   "name": "Tolu Adeyemi",
+   "model": "young_woman",
+   "colour": "#c47a3a"
+  },
+  "robber": {
+   "name": "One-chance robber",
+   "model": "okada_rider",
+   "colour": "#6b4a3a"
+  }
  },
  "acts": [
-  { "id": 0, "title": "Prologue · Oshodi, 2011" },
-  { "id": 1, "title": "Act I · Hustle No Dey Sleep" },
-  { "id": 2, "title": "Act II · No Condition Is Permanent" },
-  { "id": 3, "title": "Act III · Who Get Lagos?" },
-  { "id": 4, "title": "Act IV · The Hand That Feeds You" },
-  { "id": 5, "title": "Act V · Èkó Ò Ní Bàjẹ́" }
+  {
+   "id": 0,
+   "title": "Prologue · Oshodi, 2011"
+  },
+  {
+   "id": 1,
+   "title": "Act I · Hustle No Dey Sleep"
+  },
+  {
+   "id": 2,
+   "title": "Act II · No Condition Is Permanent"
+  },
+  {
+   "id": 3,
+   "title": "Act III · Who Get Lagos?"
+  },
+  {
+   "id": 4,
+   "title": "Act IV · The Hand That Feeds You"
+  },
+  {
+   "id": 5,
+   "title": "Act V · Èkó Ò Ní Bàjẹ́"
+  }
  ],
  "missions": [
-  { "id": "p0", "act": 0, "title": "Oshodi, 2011", "where": "Oshodi", "summary": "The night Chief Bayo dies. Hide, run through the market and remember: a lion-head walking stick and a voice saying \"No witness\".",
+  {
+   "id": "p0",
+   "act": 0,
+   "title": "Oshodi, 2011",
+   "where": "Oshodi",
+   "summary": "The night Chief Bayo dies. Hide, run through the market and remember: a lion-head walking stick and a voice saying \"No witness\".",
    "steps": [
-    { "do": "env", "night": true, "rain": true },
-    { "do": "player", "as": "young_dayo" },
-    { "do": "place", "at": "landmark:oshodi-park", "offset": [0, 3] },
-    { "do": "spawn", "id": "bayo", "who": "bayo", "at": "landmark:oshodi-park", "offset": [1.6, 3], "anim": "phone", "face": "player" },
-    { "do": "title", "text": "Oshodi, 2011", "sub": "Rain. Generators humming under the bridge.", "s": 3.0 },
-    { "do": "say", "lines": [
-     { "who": "bayo", "text": "(on the phone) I don show dem everything. Tomorrow, the press go hear am." },
-     { "who": "story", "text": "Headlights sweep the union office. Three pickups, no plates." },
-     { "who": "bayo", "text": "Dayo. Take this phone. Run. Go Mama. No look back." }
-    ] },
-    { "do": "item", "give": "father_phone", "text": "Papa's old phone" },
-    { "do": "spawn", "id": "g1", "who": "gunman", "at": "landmark:oshodi-park", "offset": [-6, -10], "anim": "idle", "face": "player" },
-    { "do": "spawn", "id": "g2", "who": "gunman", "at": "landmark:oshodi-park", "offset": [6, -10], "anim": "idle", "face": "player" },
-    { "do": "still", "s": 5.0, "text": "Stay down under the counter. Don't move." },
-    { "do": "despawn", "id": "bayo" },
-    { "do": "escape", "to": "landmark:oshodi-market", "offset": [0, 6], "radius": 6, "chasers": ["gunman", "gunman"], "text": "Run through the market. Don't let them catch you." },
-    { "do": "clear" },
-    { "do": "goto", "at": "node:oshodi_c", "offset": [9, 9], "radius": 3.5, "on": "foot", "text": "Hide in the gutter under the bridge." },
-    { "do": "spawn", "id": "bayo", "who": "bayo", "at": "node:oshodi_c", "offset": [9, 3], "anim": "hit" },
-    { "do": "spawn", "id": "boss", "who": "voice", "model": "businessman", "at": "node:oshodi_c", "offset": [11, 3.5], "anim": "idle", "face": "bayo", "prop": "lion_staff" },
-    { "do": "cam", "mode": "low", "at": "node:oshodi_c", "offset": [9, 3] },
-    { "do": "still", "s": 2.5, "text": "Don't move. Don't breathe." },
-    { "do": "say", "lines": [
-     { "who": "voice", "text": "Bayo, you for just collect the money. Make una finish am." },
-     { "who": "voice", "text": "No witness." }
-    ] },
-    { "do": "sfx", "name": "thunder" },
-    { "do": "black", "s": 1.8 },
-    { "do": "say", "lines": [ { "who": "story", "text": "In Dayo's fist, Papa's old phone is still recording. Then the battery dies." } ] },
-    { "do": "cam", "mode": "follow" },
-    { "do": "clear" },
-    { "do": "title", "text": "ÈKÓ Ò NÍ BÀJẸ́", "sub": "Lagos will not spoil.", "s": 3.5 },
-    { "do": "env", "night": false, "rain": false },
-    { "do": "title", "text": "2026", "sub": "Ojuelegba. Morning go-slow.", "s": 2.5 }
-   ] },
-
-  { "id": "m01", "act": 1, "title": "\"Obalende! Obalende!\"", "where": "Ojuelegba to Obalende", "summary": "Danfo driving with Sego hanging off the door. Pick up fares, argue over change, and find a bag left behind.",
+    {
+     "do": "env",
+     "night": true,
+     "rain": true
+    },
+    {
+     "do": "player",
+     "as": "young_dayo"
+    },
+    {
+     "do": "place",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      0,
+      3
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "bayo",
+     "who": "bayo",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      1.6,
+      3
+     ],
+     "anim": "phone",
+     "face": "player"
+    },
+    {
+     "do": "title",
+     "text": "Oshodi, 2011",
+     "sub": "Rain. Generators humming under the bridge.",
+     "s": 3.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bayo",
+       "text": "(on the phone) I don show dem everything. Tomorrow, the press go hear am."
+      },
+      {
+       "who": "story",
+       "text": "Headlights sweep the union office. Three pickups, no plates."
+      },
+      {
+       "who": "bayo",
+       "text": "Dayo. Take this phone. Run. Go Mama. No look back."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "father_phone",
+     "text": "Papa's old phone"
+    },
+    {
+     "do": "spawn",
+     "id": "g1",
+     "who": "gunman",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -6,
+      -10
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g2",
+     "who": "gunman",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      6,
+      -10
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "still",
+     "s": 5.0,
+     "text": "Stay down under the counter. Don't move."
+    },
+    {
+     "do": "despawn",
+     "id": "bayo"
+    },
+    {
+     "do": "escape",
+     "to": "landmark:oshodi-market",
+     "offset": [
+      0,
+      6
+     ],
+     "radius": 6,
+     "chasers": [
+      "gunman",
+      "gunman"
+     ],
+     "text": "Run through the market. Don't let them catch you."
+    },
+    {
+     "do": "clear"
+    },
+    {
+     "do": "goto",
+     "at": "node:oshodi_c",
+     "offset": [
+      9,
+      9
+     ],
+     "radius": 3.5,
+     "on": "foot",
+     "text": "Hide in the gutter under the bridge."
+    },
+    {
+     "do": "spawn",
+     "id": "bayo",
+     "who": "bayo",
+     "at": "node:oshodi_c",
+     "offset": [
+      9,
+      3
+     ],
+     "anim": "hit"
+    },
+    {
+     "do": "spawn",
+     "id": "boss",
+     "who": "voice",
+     "model": "businessman",
+     "at": "node:oshodi_c",
+     "offset": [
+      11,
+      3.5
+     ],
+     "anim": "idle",
+     "face": "bayo",
+     "prop": "lion_staff"
+    },
+    {
+     "do": "cam",
+     "mode": "low",
+     "at": "node:oshodi_c",
+     "offset": [
+      9,
+      3
+     ]
+    },
+    {
+     "do": "still",
+     "s": 2.5,
+     "text": "Don't move. Don't breathe."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "voice",
+       "text": "Bayo, you for just collect the money. Make una finish am."
+      },
+      {
+       "who": "voice",
+       "text": "No witness."
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "thunder"
+    },
+    {
+     "do": "black",
+     "s": 1.8
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "In Dayo's fist, Papa's old phone is still recording. Then the battery dies."
+      }
+     ]
+    },
+    {
+     "do": "cam",
+     "mode": "follow"
+    },
+    {
+     "do": "clear"
+    },
+    {
+     "do": "title",
+     "text": "ÈKÓ Ò NÍ BÀJẸ́",
+     "sub": "Lagos will not spoil.",
+     "s": 3.5
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "title",
+     "text": "2026",
+     "sub": "Ojuelegba. Morning go-slow.",
+     "s": 2.5
+    }
+   ]
+  },
+  {
+   "id": "m01",
+   "act": 1,
+   "title": "\"Obalende! Obalende!\"",
+   "where": "Ojuelegba to Obalende",
+   "summary": "Danfo driving with Sego hanging off the door. Pick up fares, argue over change, and find a bag left behind.",
    "steps": [
-    { "do": "player", "as": "dayo" },
-    { "do": "place", "at": "node:surulere_c", "vehicle": "danfo", "slogan": "NO KING AS GOD" },
-    { "do": "say", "lines": [
-     { "who": "sego", "text": "Sabi! You dey sleep for road? Obalende people don full ground!" },
-     { "who": "dayo", "text": "I dey here, I dey here. Make we hustle." },
-     { "who": "sego", "text": "Obalende! Obalende! Enter with your change o!" }
-    ] },
-    { "do": "fares", "count": 2, "text": "Stop at a bus stop to load passengers, then drop them at the next stop (2 runs)." },
-    { "do": "say", "lines": [
-     { "who": "passenger", "text": "Oga, I no get ₦200 change. Drop me for next bus stop." },
-     { "who": "sego", "text": "Madam, change na your own wahala, no be ours!" },
-     { "who": "herbal", "text": "Malaria, ulcer, bad luck: one bottle cure all! Five hundred naira only!" },
-     { "who": "sego", "text": "Oga herbal, abeg no sell bad luck inside my bus. We get enough." }
-    ] },
-    { "do": "say", "lines": [
-     { "who": "sego", "text": "Sabi, see bag for back seat. Somebody forget am." },
-     { "who": "dayo", "text": "UNILAG ID card. Tolu Adeyemi. This girl na Kemi classmate." },
-     { "who": "sego", "text": "As our elders say... I no remember wetin dem say, but e go make sense later." }
-    ] },
-    { "do": "item", "give": "tolu_id", "text": "Tolu Adeyemi's student ID" }
-   ] },
-
-  { "id": "m02", "act": 1, "title": "Agbero Tax", "where": "Oshodi park", "summary": "Kongi's agberos demand double ticket. Dayo refuses. Then he sees the lion-head walking stick.",
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "place",
+     "at": "node:surulere_c",
+     "vehicle": "danfo",
+     "slogan": "NO KING AS GOD"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "Sabi! You dey sleep for road? Obalende people don full ground!"
+      },
+      {
+       "who": "dayo",
+       "text": "I dey here, I dey here. Make we hustle."
+      },
+      {
+       "who": "sego",
+       "text": "Obalende! Obalende! Enter with your change o!"
+      }
+     ]
+    },
+    {
+     "do": "fares",
+     "count": 2,
+     "text": "Stop at a bus stop to load passengers, then drop them at the next stop (2 runs)."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "passenger",
+       "text": "Oga, I no get ₦200 change. Drop me for next bus stop."
+      },
+      {
+       "who": "sego",
+       "text": "Madam, change na your own wahala, no be ours!"
+      },
+      {
+       "who": "herbal",
+       "text": "Malaria, ulcer, bad luck: one bottle cure all! Five hundred naira only!"
+      },
+      {
+       "who": "sego",
+       "text": "Oga herbal, abeg no sell bad luck inside my bus. We get enough."
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "Sabi, see bag for back seat. Somebody forget am."
+      },
+      {
+       "who": "dayo",
+       "text": "UNILAG ID card. Tolu Adeyemi. This girl na Kemi classmate."
+      },
+      {
+       "who": "sego",
+       "text": "As our elders say... I no remember wetin dem say, but e go make sense later."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "tolu_id",
+     "text": "Tolu Adeyemi's student ID"
+    }
+   ]
+  },
+  {
+   "id": "m02",
+   "act": 1,
+   "title": "Agbero Tax",
+   "where": "Oshodi park",
+   "summary": "Kongi's agberos demand double ticket. Dayo refuses. Then he sees the lion-head walking stick.",
    "steps": [
-    { "do": "player", "as": "dayo" },
-    { "do": "goto", "at": "landmark:oshodi-park", "radius": 16, "on": "vehicle", "text": "Drive to Oshodi park for the evening load." },
-    { "do": "exit" },
-    { "do": "spawn", "id": "wire", "who": "wire", "at": "player", "offset": [2.5, 2.5], "anim": "argue", "face": "player" },
-    { "do": "spawn", "id": "kongi", "who": "kongi", "at": "landmark:oshodi-park", "offset": [-12, -8], "anim": "idle", "face": "player", "prop": "lion_staff" },
-    { "do": "say", "lines": [
-     { "who": "wire", "text": "Driver! Today ticket na double. Chairman orders." },
-     { "who": "dayo", "text": "Double? I pay this morning." },
-     { "who": "wire", "text": "Morning na morning, evening na evening. Pay, or we scatter that bus." },
-     { "who": "dayo", "text": "Then come scatter am." }
-    ] },
-    { "do": "despawn", "id": "wire" },
-    { "do": "fight", "text": "Fight Wire and his boys. Passengers are placing bets.", "enemies": [
-     { "id": "wire", "who": "wire", "hp": 6 },
-     { "id": "b1", "who": "agbero", "hp": 3 },
-     { "id": "b2", "who": "agbero", "hp": 3 }
-    ] },
-    { "do": "cam", "mode": "look", "at": "landmark:oshodi-park", "offset": [-12, -8] },
-    { "do": "say", "lines": [
-     { "who": "story", "text": "Across the park, a man watches from the office window, leaning on a lion-head walking stick." },
-     { "who": "voice", "text": "...No witness." },
-     { "who": "story", "text": "Dayo freezes. Wire's knife catches his arm." }
-    ] },
-    { "do": "sfx", "name": "punch" },
-    { "do": "cam", "mode": "follow" },
-    { "do": "say", "lines": [
-     { "who": "sego", "text": "Sabi! Your hand! Ah, small wahala, small wahala. Make we comot here!" }
-    ] },
-    { "do": "respect", "n": 5 },
-    { "do": "clear" }
-   ] },
-
-  { "id": "m03", "act": 1, "title": "One Chance", "where": "Third Mainland Bridge approach", "summary": "Chase a one-chance bus across the bridge, ram it and rescue Amaka from the robbers.", "steps": [] },
-  { "id": "m04", "act": 1, "title": "The Chairman Will See You", "where": "Oshodi", "summary": "Kongi offers ₦500,000 for a special load to the Seme border. Uncle Obi warns Dayo off \"those park people\".", "steps": [] },
-  { "id": "m05", "act": 1, "title": "Seme Run", "where": "Lagos–Badagry expressway", "summary": "A night convoy of smuggled rice. One sack moves: Tolu Adeyemi. Turn the convoy around.", "steps": [] },
-  { "id": "m06", "act": 1, "title": "Eyo Day", "where": "Lagos Island", "summary": "Save Kongi from gunmen in the white-robed festival crowd, then get arrested by ACP Hauwa.", "steps": [] },
-  { "id": "m07", "act": 2, "title": "Cell Four", "where": "Yaba police station", "summary": "Hauwa's deal: a staged escape that a real hit squad turns deadly.", "steps": [] },
-  { "id": "m08", "act": 2, "title": "Computer Village", "where": "Ikeja", "summary": "Meet Bigz. A foot chase through the phone stalls for a stolen laptop.", "steps": [] },
-  { "id": "m09", "act": 2, "title": "Owambe", "where": "Lekki event centre", "summary": "Infiltrate the senator's daughter's wedding in aso-ebi. Photograph the big men. Escape in the wedding convoy.", "steps": [] },
-  { "id": "m10", "act": 2, "title": "Makoko", "where": "Lagos lagoon", "summary": "Canoe chase to a stilt house full of captives and red calabashes.", "steps": [] },
-  { "id": "m11", "act": 2, "title": "Under Olumo Rock", "where": "Abeokuta", "summary": "Baba Fakunle heals Dayo and casts Ifá: the hand that washes your face dirtied it.", "steps": [] },
-  { "id": "m12", "act": 2, "title": "Third Mainland", "where": "Third Mainland Bridge", "summary": "Corner Kongi on the bridge. He didn't kill your father. A sniper kills him mid-sentence.", "steps": [] },
-  { "id": "m13", "act": 3, "title": "Janazah", "where": "Oshodi", "summary": "Kongi's burial. Rasheed gives Dayo eight days.", "steps": [] },
-  { "id": "m14", "act": 3, "title": "Ballot Box", "where": "Surulere", "summary": "Election day. Snatch the boxes, or swap them and film it (Big Choice 1).", "steps": [] },
-  { "id": "m15", "act": 3, "title": "LUTH", "where": "Lagos University Teaching Hospital", "summary": "Race Sego's mother to theatre through gridlock.", "steps": [] },
-  { "id": "m16", "act": 3, "title": "Durbar", "where": "Kano", "summary": "Chase the ring's trucks through the Sallah Durbar. Find Sadiq alive.", "steps": [] },
-  { "id": "m17", "act": 3, "title": "Kpo-Fire", "where": "Niger Delta creeks", "summary": "General Tonye remembers the soldier who refused to burn his village.", "steps": [] },
-  { "id": "m18", "act": 3, "title": "Alaba International", "where": "Alaba and Festac", "summary": "Uncle Obi's safe house is raided. Mama Àgbà is shot. Kemi is taken.", "steps": [] },
-  { "id": "m19", "act": 4, "title": "Sego", "where": "Ajegunle", "summary": "Hunt down the informant. Kill Sego or let him go.", "steps": [] },
-  { "id": "m20", "act": 4, "title": "Papa's Phone", "where": "Mushin and Ikeja", "summary": "Mama Àgbà's iron box. Bigz restores the recording. The voice is Uncle Obi's.", "steps": [] },
-  { "id": "m21", "act": 4, "title": "Badge", "where": "Yaba", "summary": "Hauwa was never the enemy. Escape CP Ladipo's raid in a stolen city bus.", "steps": [] },
-  { "id": "m22", "act": 4, "title": "Brotherhood", "where": "Oshodi", "summary": "Play the recording over the park loudspeaker. Rasheed joins. Assemble the crew.", "steps": [] },
-  { "id": "m23", "act": 4, "title": "Iri Ji", "where": "Obinna's village, Anambra", "summary": "Rescue Kemi during the New Yam festival among the masquerades.", "steps": [] },
-  { "id": "m24", "act": 5, "title": "Blackout", "where": "Ikoyi and Banana Island", "summary": "Bigz kills the power. Sneak through dark estates between generator lights.", "steps": [] },
-  { "id": "m25", "act": 5, "title": "Lagos Rises", "where": "Banana Island", "summary": "Land, water and law: the crew hits everything at once while Dayo storms the gala.", "steps": [] },
-  { "id": "m26", "act": 5, "title": "The Lion Staff", "where": "Lagos lagoon", "summary": "The yacht, the rain, the staff. Take it, drag him to shore, or walk away (Big Choice 2).", "steps": [] }
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "goto",
+     "at": "landmark:oshodi-park",
+     "radius": 16,
+     "text": "Drive to Oshodi park for the evening load."
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "spawn",
+     "id": "wire",
+     "who": "wire",
+     "at": "player",
+     "offset": [
+      2.5,
+      2.5
+     ],
+     "anim": "argue",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "kongi",
+     "who": "kongi",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -12,
+      -8
+     ],
+     "anim": "idle",
+     "face": "player",
+     "prop": "lion_staff"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "wire",
+       "text": "Driver! Today ticket na double. Chairman orders."
+      },
+      {
+       "who": "dayo",
+       "text": "Double? I pay this morning."
+      },
+      {
+       "who": "wire",
+       "text": "Morning na morning, evening na evening. Pay, or we scatter that bus."
+      },
+      {
+       "who": "dayo",
+       "text": "Then come scatter am."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "wire"
+    },
+    {
+     "do": "fight",
+     "text": "Fight Wire and his boys. Passengers are placing bets.",
+     "enemies": [
+      {
+       "id": "wire",
+       "who": "wire",
+       "hp": 6
+      },
+      {
+       "id": "b1",
+       "who": "agbero",
+       "hp": 3
+      },
+      {
+       "id": "b2",
+       "who": "agbero",
+       "hp": 3
+      }
+     ]
+    },
+    {
+     "do": "cam",
+     "mode": "look",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -12,
+      -8
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Across the park, a man watches from the office window, leaning on a lion-head walking stick."
+      },
+      {
+       "who": "voice",
+       "text": "...No witness."
+      },
+      {
+       "who": "story",
+       "text": "Dayo freezes. Wire's knife catches his arm."
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "punch"
+    },
+    {
+     "do": "cam",
+     "mode": "follow"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "Sabi! Your hand! Ah, small wahala, small wahala. Make we comot here!"
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 5
+    },
+    {
+     "do": "clear"
+    }
+   ],
+   "start": "landmark:oshodi-park"
+  },
+  {
+   "id": "m03",
+   "act": 1,
+   "title": "One Chance",
+   "where": "Third Mainland Bridge approach",
+   "summary": "Chase a one-chance bus across the bridge, ram it and rescue Amaka from the robbers.",
+   "steps": [
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "place",
+     "at": "node:yaba_c",
+     "vehicle": "danfo",
+     "slogan": "NO KING AS GOD"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Near the Third Mainland Bridge, a danfo full of 'passengers' swerves. A woman is fighting inside."
+      },
+      {
+       "who": "dayo",
+       "text": "One chance bus. Not today."
+      }
+     ]
+    },
+    {
+     "do": "chase",
+     "vehicle": "danfo",
+     "at": "node:yaba_s",
+     "slogan": "ENEMIES ARE NOT HAPPY",
+     "health": 90,
+     "text": "Chase the one-chance bus and ram it to a stop."
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "fight",
+     "text": "Fight the robbers on the shoulder, with traffic flying past.",
+     "enemies": [
+      {
+       "id": "r1",
+       "who": "robber",
+       "hp": 3
+      },
+      {
+       "id": "r2",
+       "who": "robber",
+       "hp": 3
+      },
+      {
+       "id": "r3",
+       "who": "agbero",
+       "hp": 4
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "amaka",
+     "who": "amaka",
+     "at": "player",
+     "offset": [
+      2,
+      1.5
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "amaka",
+       "text": "Thank you. Thank you. I sell aso-ebi for Balogun market. I just enter the wrong bus."
+      },
+      {
+       "who": "dayo",
+       "text": "Aso-ebi seller wey dey carry camera?"
+      },
+      {
+       "who": "story",
+       "text": "Her bag has spilled open: a press card, and photos of Oshodi park buses at night."
+      },
+      {
+       "who": "amaka",
+       "text": "Please. Forget wetin you see."
+      },
+      {
+       "who": "dayo",
+       "text": "Lagos na place of secrets, madam. I no see anything."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "amaka_photos",
+     "text": "Seen: photos of Oshodi park buses at night"
+    },
+    {
+     "do": "respect",
+     "n": 3
+    },
+    {
+     "do": "clear"
+    }
+   ],
+   "start": "node:yaba_c"
+  },
+  {
+   "id": "m04",
+   "act": 1,
+   "title": "The Chairman Will See You",
+   "where": "Oshodi",
+   "summary": "Kongi offers ₦500,000 for a special load to the Seme border. Uncle Obi warns Dayo off \"those park people\".",
+   "steps": [
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "spawn",
+     "id": "kongi",
+     "who": "kongi",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -12,
+      -8
+     ],
+     "anim": "idle",
+     "face": "player",
+     "prop": "lion_staff"
+    },
+    {
+     "do": "spawn",
+     "id": "wire",
+     "who": "wire",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -9.5,
+      -8.5
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "goto",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -10.5,
+      -5.5
+     ],
+     "radius": 3.5,
+     "on": "foot",
+     "text": "Kongi has summoned you. Go to the union office."
+    },
+    {
+     "do": "cam",
+     "mode": "look",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -12,
+      -8
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kongi",
+       "text": "Sabi. The boy wey beat my boys. Sit down."
+      },
+      {
+       "who": "kongi",
+       "text": "I need driver wey get liver. ₦500,000 for one job: a special load of rice to the Seme border."
+      },
+      {
+       "who": "story",
+       "text": "Dayo can't stop staring at the lion-head walking stick."
+      },
+      {
+       "who": "kongi",
+       "text": "You like am? Gift from a big man. Lagos na place of gifts, Sabi."
+      }
+     ]
+    },
+    {
+     "do": "choice",
+     "id": "kongi_job",
+     "who": "kongi",
+     "text": "So? You dey in or you dey out?",
+     "options": [
+      {
+       "id": "close",
+       "text": "I'm in. (Stay close to Kongi.)"
+      },
+      {
+       "id": "cash",
+       "text": "₦500,000 na money. I'm in."
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "wire",
+       "text": "Chairman say make I give you this. Half now, half when you come back."
+      }
+     ]
+    },
+    {
+     "do": "pay",
+     "amount": 50000,
+     "reason": "Kongi's advance for the Seme run"
+    },
+    {
+     "do": "cam",
+     "mode": "follow"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "obinna",
+       "text": "(on the phone) Dayo, my son. I hear you dey move with those park people."
+      },
+      {
+       "who": "obinna",
+       "text": "Stay away from them, you hear? Think of your sister. Think of Mama."
+      },
+      {
+       "who": "dayo",
+       "text": "I hear you, Uncle Obi."
+      }
+     ]
+    },
+    {
+     "do": "flag",
+     "set": "kongi_job"
+    },
+    {
+     "do": "clear"
+    }
+   ],
+   "start": "landmark:oshodi-park"
+  },
+  {
+   "id": "m05",
+   "act": 1,
+   "title": "Seme Run",
+   "where": "Lagos–Badagry expressway",
+   "summary": "A night convoy of smuggled rice. One sack moves: Tolu Adeyemi. Turn the convoy around.",
+   "steps": [
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Seme Run",
+     "sub": "The Lagos–Badagry expressway, after dark.",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "node:oshodi_c",
+     "vehicle": "truck",
+     "slogan": "NO TELLING ME"
+    },
+    {
+     "do": "setpiece",
+     "id": "border",
+     "model": "station",
+     "at": "node:oshodi_w",
+     "offset": [
+      -6,
+      6
+     ],
+     "label": "SEME BORDER · CUSTOMS"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "wire",
+       "text": "(radio) Follow the escort. No stop for anybody. Customs see you, na your own palava."
+      }
+     ]
+    },
+    {
+     "do": "follow",
+     "vehicle": "pickup",
+     "path": [
+      "oshodi_c",
+      "osh_sw"
+     ],
+     "gap": 70,
+     "text": "Follow the escort pickup. Don't fall behind."
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "pickup",
+      "pickup"
+     ],
+     "at": "node:oshodi_w",
+     "radius": 14,
+     "text": "Customs patrol on your tail! Make it to the border post."
+    },
+    {
+     "do": "roger",
+     "kind": "task",
+     "who": "customs",
+     "roger": 5000,
+     "fine": 15000,
+     "text": "Customs! Where una dey carry rice go this hour of night?"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "In the back, one rice sack moves."
+      },
+      {
+       "who": "dayo",
+       "text": "Rice no dey breathe."
+      },
+      {
+       "who": "story",
+       "text": "He cuts it open. A gagged girl: Tolu Adeyemi, the girl from the ID card. Three more sacks hold people."
+      },
+      {
+       "who": "tolu",
+       "text": "Please... please. They said we were going to Cotonou."
+      }
+     ]
+    },
+    {
+     "do": "gun",
+     "rounds": 48,
+     "text": "Took a pistol from the cab's glovebox"
+    },
+    {
+     "do": "fight",
+     "text": "The escorts turn on you. Take them down.",
+     "enemies": [
+      {
+       "id": "e1",
+       "who": "gunman",
+       "hp": 4,
+       "gun": true
+      },
+      {
+       "id": "e2",
+       "who": "gunman",
+       "hp": 4,
+       "gun": true
+      },
+      {
+       "id": "e3",
+       "who": "wire",
+       "hp": 5,
+       "gun": true
+      }
+     ]
+    },
+    {
+     "do": "setpiece",
+     "id": "church",
+     "model": "church",
+     "at": "node:mushin_w",
+     "offset": [
+      6,
+      -6
+     ],
+     "label": "BADAGRY · ST. MICHAEL'S CHURCH"
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "pickup"
+     ],
+     "at": "node:mushin_w",
+     "radius": 14,
+     "text": "Get the four victims to the church in Badagry."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "The church doors open. The pastor counts four frightened faces and hides them in the vestry."
+      },
+      {
+       "who": "tolu",
+       "text": "God bless you. Tell Kemi I'm alive."
+      },
+      {
+       "who": "dayo",
+       "text": "You go tell am yourself."
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 5
+    },
+    {
+     "do": "wanted",
+     "set": 0
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "clear"
+    }
+   ]
+  },
+  {
+   "id": "m06",
+   "act": 1,
+   "title": "Eyo Day",
+   "where": "Lagos Island",
+   "summary": "Save Kongi from gunmen in the white-robed festival crowd, then get arrested by ACP Hauwa.",
+   "steps": [
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "title",
+     "text": "Eyo Day",
+     "sub": "Lagos Island is a sea of white.",
+     "s": 2.5
+    },
+    {
+     "do": "crowd",
+     "id": "eyo",
+     "model": "eyo",
+     "at": "node:lagos_island_w",
+     "count": 36,
+     "radius": 22
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "No vehicles in the festival zone. Dayo wraps himself in a white agbada and walks in."
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "node:lagos_island_w",
+     "offset": [
+      4,
+      4
+     ],
+     "radius": 5,
+     "on": "foot",
+     "text": "Find Kongi in the crowd."
+    },
+    {
+     "do": "spawn",
+     "id": "kongi",
+     "who": "kongi",
+     "at": "node:lagos_island_w",
+     "offset": [
+      8,
+      6
+     ],
+     "anim": "idle",
+     "face": "player",
+     "prop": "lion_staff"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "Kongi! You and me need to talk."
+      },
+      {
+       "who": "kongi",
+       "text": "Sabi? You come here to—"
+      },
+      {
+       "who": "story",
+       "text": "Shots crack from inside the white-robed crowd."
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "gunshot"
+    },
+    {
+     "do": "escort",
+     "id": "kongi",
+     "at": "node:eko_mid",
+     "radius": 6,
+     "text": "Drag Kongi out through the Idumota alleys. The gunmen are dressed in white!",
+     "enemies": [
+      {
+       "id": "w1",
+       "who": "gunman",
+       "hp": 4,
+       "gun": true
+      },
+      {
+       "id": "w2",
+       "who": "gunman",
+       "hp": 4,
+       "gun": true
+      },
+      {
+       "id": "w3",
+       "who": "gunman",
+       "hp": 4,
+       "gun": true
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kongi",
+       "text": "(bleeding) Dem no come for me. Dem come make you look like say na you."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "player",
+     "offset": [
+      3.5,
+      3
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "p1",
+     "who": "police",
+     "at": "player",
+     "offset": [
+      -3,
+      3.5
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "p2",
+     "who": "police",
+     "at": "player",
+     "offset": [
+      0,
+      -4
+     ],
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "Oladayo Balogun. Hands where I can see them. You are under arrest."
+      },
+      {
+       "who": "dayo",
+       "text": "I just saved this man's life!"
+      },
+      {
+       "who": "hauwa",
+       "text": "Then you will have plenty to tell the judge."
+      }
+     ]
+    },
+    {
+     "do": "black",
+     "s": 1.5
+    },
+    {
+     "do": "news",
+     "headline": "EVENING NEWS",
+     "text": "Danfo driver's bus found burned \"with evidence of human trafficking\".",
+     "s": 4.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "In Mushin, Kemi watches the news and cries."
+      },
+      {
+       "who": "obinna",
+       "text": "(on the phone) Don't worry, my daughter. I will handle it."
+      }
+     ]
+    },
+    {
+     "do": "title",
+     "text": "END OF ACT I",
+     "sub": "Hustle No Dey Sleep",
+     "s": 3.0
+    },
+    {
+     "do": "clear"
+    }
+   ],
+   "start": "node:eko_mid"
+  },
+  {
+   "id": "m07",
+   "act": 2,
+   "title": "Cell Four",
+   "where": "Yaba police station",
+   "summary": "Hauwa's deal: a staged escape that a real hit squad turns deadly.",
+   "steps": []
+  },
+  {
+   "id": "m08",
+   "act": 2,
+   "title": "Computer Village",
+   "where": "Ikeja",
+   "summary": "Meet Bigz. A foot chase through the phone stalls for a stolen laptop.",
+   "steps": []
+  },
+  {
+   "id": "m09",
+   "act": 2,
+   "title": "Owambe",
+   "where": "Lekki event centre",
+   "summary": "Infiltrate the senator's daughter's wedding in aso-ebi. Photograph the big men. Escape in the wedding convoy.",
+   "steps": []
+  },
+  {
+   "id": "m10",
+   "act": 2,
+   "title": "Makoko",
+   "where": "Lagos lagoon",
+   "summary": "Canoe chase to a stilt house full of captives and red calabashes.",
+   "steps": []
+  },
+  {
+   "id": "m11",
+   "act": 2,
+   "title": "Under Olumo Rock",
+   "where": "Abeokuta",
+   "summary": "Baba Fakunle heals Dayo and casts Ifá: the hand that washes your face dirtied it.",
+   "steps": []
+  },
+  {
+   "id": "m12",
+   "act": 2,
+   "title": "Third Mainland",
+   "where": "Third Mainland Bridge",
+   "summary": "Corner Kongi on the bridge. He didn't kill your father. A sniper kills him mid-sentence.",
+   "steps": []
+  },
+  {
+   "id": "m13",
+   "act": 3,
+   "title": "Janazah",
+   "where": "Oshodi",
+   "summary": "Kongi's burial. Rasheed gives Dayo eight days.",
+   "steps": []
+  },
+  {
+   "id": "m14",
+   "act": 3,
+   "title": "Ballot Box",
+   "where": "Surulere",
+   "summary": "Election day. Snatch the boxes, or swap them and film it (Big Choice 1).",
+   "steps": []
+  },
+  {
+   "id": "m15",
+   "act": 3,
+   "title": "LUTH",
+   "where": "Lagos University Teaching Hospital",
+   "summary": "Race Sego's mother to theatre through gridlock.",
+   "steps": []
+  },
+  {
+   "id": "m16",
+   "act": 3,
+   "title": "Durbar",
+   "where": "Kano",
+   "summary": "Chase the ring's trucks through the Sallah Durbar. Find Sadiq alive.",
+   "steps": []
+  },
+  {
+   "id": "m17",
+   "act": 3,
+   "title": "Kpo-Fire",
+   "where": "Niger Delta creeks",
+   "summary": "General Tonye remembers the soldier who refused to burn his village.",
+   "steps": []
+  },
+  {
+   "id": "m18",
+   "act": 3,
+   "title": "Alaba International",
+   "where": "Alaba and Festac",
+   "summary": "Uncle Obi's safe house is raided. Mama Àgbà is shot. Kemi is taken.",
+   "steps": []
+  },
+  {
+   "id": "m19",
+   "act": 4,
+   "title": "Sego",
+   "where": "Ajegunle",
+   "summary": "Hunt down the informant. Kill Sego or let him go.",
+   "steps": []
+  },
+  {
+   "id": "m20",
+   "act": 4,
+   "title": "Papa's Phone",
+   "where": "Mushin and Ikeja",
+   "summary": "Mama Àgbà's iron box. Bigz restores the recording. The voice is Uncle Obi's.",
+   "steps": []
+  },
+  {
+   "id": "m21",
+   "act": 4,
+   "title": "Badge",
+   "where": "Yaba",
+   "summary": "Hauwa was never the enemy. Escape CP Ladipo's raid in a stolen city bus.",
+   "steps": []
+  },
+  {
+   "id": "m22",
+   "act": 4,
+   "title": "Brotherhood",
+   "where": "Oshodi",
+   "summary": "Play the recording over the park loudspeaker. Rasheed joins. Assemble the crew.",
+   "steps": []
+  },
+  {
+   "id": "m23",
+   "act": 4,
+   "title": "Iri Ji",
+   "where": "Obinna's village, Anambra",
+   "summary": "Rescue Kemi during the New Yam festival among the masquerades.",
+   "steps": []
+  },
+  {
+   "id": "m24",
+   "act": 5,
+   "title": "Blackout",
+   "where": "Ikoyi and Banana Island",
+   "summary": "Bigz kills the power. Sneak through dark estates between generator lights.",
+   "steps": []
+  },
+  {
+   "id": "m25",
+   "act": 5,
+   "title": "Lagos Rises",
+   "where": "Banana Island",
+   "summary": "Land, water and law: the crew hits everything at once while Dayo storms the gala.",
+   "steps": []
+  },
+  {
+   "id": "m26",
+   "act": 5,
+   "title": "The Lion Staff",
+   "where": "Lagos lagoon",
+   "summary": "The yacht, the rain, the staff. Take it, drag him to shore, or walk away (Big Choice 2).",
+   "steps": []
+  }
  ]
 }

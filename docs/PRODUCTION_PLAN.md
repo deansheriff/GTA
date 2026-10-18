@@ -28,7 +28,17 @@ Each phase ends playable, tested, committed and pushed. 🔒 marks items only th
 - **Map:** landmarks re-themed for the story, such as Oshodi Motor Park (Union Office), the
   Balogun compound, Yaba Police Division, the Coker-Bankole residence and The Lagos Ledger.
 
-## P2 · Act I complete (missions 3–6)
+## P2 · Act I complete (missions 3–6) ✅ (2026-10-18, D-022)
+- **Done:**
+  - Vehicle damage, flee and chase AI, and ramming.
+  - Guns (auto-aim, drive-by, armed enemies).
+  - Wanted and police pursuit, and checkpoint "roger" choices.
+  - Convoy follow, escort under fire, Eyo crowds and set pieces.
+  - Missions 3–6 playable, so Act I ends with the arrest and the news.
+- **Still to do:** the real map additions (Badagry road, Seme border, the Lagos Island festival
+  zone) move to Map v2. They're stand-ins on the current map for now.
+
+Original plan:
 - **Vehicle chases:** pursuit AI, ramming, vehicle damage and bailing out (M3 One Chance, M5
   Seme Run).
 - **Guns:** aim, shoot, take cover, ammo, and enemies who shoot back (M5, M6).

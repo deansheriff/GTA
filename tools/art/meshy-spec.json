@@ -454,6 +454,13 @@
    "polycount": 4000,
    "prompt": "An ornate wooden walking stick with a carved lion head handle, polished dark wood, brass ring near the top",
    "texture": "Dark polished mahogany wood, carved lion head with gold-brown mane detail, brass ring"
+  },
+  {
+   "key": "eyo",
+   "kind": "prop",
+   "polycount": 5000,
+   "prompt": "An Eyo masquerade figure from the Lagos Eyo festival, a standing person completely covered in flowing white cloth robes from head to feet, a wide-brimmed white hat with a white veil hiding the face, holding a long straight wooden staff upright, respectful traditional costume",
+   "texture": "Bright clean white cloth robes and veil with soft folds, white wide-brimmed hat, plain brown wooden staff"
   }
  ]
 }

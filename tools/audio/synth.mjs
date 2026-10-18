@@ -302,3 +302,25 @@ groove(88, 8, [165, 147, 165, 196], 0.35, 'music/night.wav', true); // E D E G â
 // Radio stations: a brighter highlife loop and a quiet talk-show bed.
 groove(124, 8, [262, 220, 175, 196], 0.85, 'music/highlife.wav'); // C A F G â€” highlife classics
 groove(96, 8, [196, 196, 175, 175], 0.25, 'music/talk.wav', true); // a soft studio bed
+// Guns (P2, D-022): a sharp crack with a low thump and a short tail; a far shot; a reload click.
+{
+  const x = len(0.45);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * Math.exp(-i / (SR * 0.035)) * 0.95;
+  mix(x, kick(0.3), 0, 0.9);
+  const tail = len(0.45);
+  for (let i = 0; i < tail.length; i++) tail[i] = rand() * Math.exp(-i / (SR * 0.12)) * 0.25;
+  mix(x, lowpass(tail, 900), 0, 1);
+  wav('sfx/gunshot.wav', lowpass(x, 5200));
+}
+{
+  const x = len(0.6);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * Math.exp(-i / (SR * 0.06)) * 0.6;
+  mix(x, kick(0.35), 0, 0.5);
+  wav('sfx/gunshot_far.wav', lowpass(x, 1400));
+}
+{
+  const x = len(0.18);
+  mix(x, clap(0.03), 0, 0.5);
+  mix(x, clap(0.03), 0.09, 0.6);
+  wav('sfx/reload.wav', x);
+}

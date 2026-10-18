@@ -13,6 +13,9 @@ var cam_target := Vector3.ZERO
 var _rain: CPUParticles3D
 var _marker: MeshInstance3D
 var _marker_label: Label3D
+var _crowds := {} # id -> [Node3D] bobbing festival figures
+var _sets := {} # id -> Node3D
+var _t := 0.0
 
 
 func setup(w) -> void:
@@ -64,9 +67,74 @@ func setup(w) -> void:
 	add_child(_marker_label)
 
 
-func step(_delta: float) -> void:
+func step(delta: float) -> void:
 	if raining and world.cam:
 		_rain.global_position = world.cam.global_position + Vector3(0, 10, 0)
+	_t += delta
+	# Festival figures sway and drift (Eyo masquerades are never still).
+	for id in _crowds:
+		var list: Array = _crowds[id]
+		for i in list.size():
+			var n: Node3D = list[i]
+			n.rotation.y += sin(_t * 0.7 + i) * delta * 0.6
+			n.position.y = absf(sin(_t * 3.0 + i * 1.7)) * 0.08
+
+
+## A festival crowd of unrigged figures (Eyo masquerades) around a place.
+func crowd(id: String, model: String, at: Vector3, count: int, radius: float, height: float) -> void:
+	clear_crowd(id)
+	var list := []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(id)
+	for i in count:
+		var m: Node3D = world.models.make(model)
+		if m == null:
+			break
+		Models3D.fit_height(m, height * rng.randf_range(0.93, 1.07))
+		var h := Node3D.new()
+		h.add_child(m)
+		var ang := rng.randf() * TAU
+		var d := sqrt(rng.randf()) * radius
+		h.position = at + Vector3(cos(ang) * d, 0, sin(ang) * d)
+		h.rotation.y = rng.randf() * TAU
+		add_child(h)
+		Models3D.far_cull(h, 90.0)
+		Models3D.no_shadow(h)
+		list.append(h)
+	_crowds[id] = list
+
+
+func clear_crowd(id: String) -> void:
+	for n: Node in _crowds.get(id, []):
+		n.queue_free()
+	_crowds.erase(id)
+
+
+## A one-off building or prop placed for a mission (the Seme border post, a Badagry church).
+func setpiece(id: String, model: String, at: Vector3, label: String, yaw: float) -> void:
+	if _sets.has(id):
+		(_sets[id] as Node).queue_free()
+	var root := Node3D.new()
+	root.position = at
+	root.rotation.y = deg_to_rad(yaw)
+	add_child(root)
+	var m: Node3D = world.models.make(model) if model != "" else null
+	if m:
+		var bb := Models3D.aabb(m)
+		var k := 9.0 / maxf(bb.size.x, maxf(bb.size.z, 0.1))
+		m.scale = Vector3.ONE * k
+		m.position = Vector3(-bb.get_center().x * k, -bb.position.y * k, -bb.get_center().z * k)
+		root.add_child(m)
+	if label != "":
+		var l := Label3D.new()
+		l.text = label
+		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		l.font_size = 56
+		l.pixel_size = 0.012
+		l.outline_size = 10
+		l.position = Vector3(0, 7.0, 0)
+		root.add_child(l)
+	_sets[id] = root
 
 
 func set_env(n: bool, r: bool) -> void:
@@ -134,4 +202,9 @@ func despawn(id: String) -> void:
 func clear() -> void:
 	for id in actors.keys():
 		despawn(id)
+	for id in _crowds.keys():
+		clear_crowd(id)
+	for id in _sets.keys():
+		(_sets[id] as Node).queue_free()
+	_sets.clear()
 	cam_override = "follow"

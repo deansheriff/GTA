@@ -31,6 +31,8 @@ var stage: Stage3D
 var combat: Combat3D
 var missions: Mission3D
 var hud: Hud3D
+var police: Police3D
+var mission_vehicles: Array[Vehicle3D] = []
 var in_menu := true
 var _look_t := 0.0
 var _shake := 0.0
@@ -93,11 +95,18 @@ func _ready() -> void:
 	add_child(missions)
 	missions.setup(self)
 	missions.mission_done.connect(_on_mission_done)
+	police = Police3D.new()
+	add_child(police)
+	police.setup(self)
+	checkpoints.charged.connect(func() -> void:
+		if ride and absf(ride.speed) > 3.0:
+			police.raise(1.0))
 	hud = Hud3D.new()
 	add_child(hud)
 	hud.setup(self)
 	hud.action_pressed.connect(_action)
 	hud.punch_pressed.connect(combat.player_attack)
+	hud.shoot_pressed.connect(_shoot)
 	hud.run_changed.connect(func(h: bool) -> void: _run_held = h)
 	hud.new_game.connect(_new_game)
 	hud.continue_game.connect(_continue_game)
@@ -314,6 +323,46 @@ func _paint_slogan(v: Vehicle3D, text: String) -> void:
 		l.position = Vector3(0, 1.35, 1.12 * side)
 		l.rotation.y = 0.0 if side > 0 else PI
 		v.add_child(l)
+
+
+## A vehicle a mission needs (a fleeing one-chance bus, chasing customs pickups, a convoy lead),
+## put on the nearest road pointing along it. Cleared when the mission ends.
+func spawn_mission_vehicle(kind: String, pos: Vector3, mode: int, slogan := "") -> Vehicle3D:
+	var v := Vehicle3D.new()
+	add_child(v)
+	v.setup(models, kind, self)
+	var best := ""
+	var bd := INF
+	for id in map.road_nodes:
+		var d := Terrain3D.w(map.road_nodes[id]).distance_squared_to(pos)
+		if d < bd and not (map.road_graph.get(id, []) as Array).is_empty():
+			bd = d
+			best = id
+	if best != "" and mode != Vehicle3D.Mode.CHASE:
+		var nbs: Array = map.road_graph[best]
+		# Head away from the player (a getaway driver) or along the first road.
+		var pick: String = nbs[0]
+		for n: String in nbs:
+			if Terrain3D.w(map.road_nodes[n]).distance_to(focus()) > Terrain3D.w(map.road_nodes[pick]).distance_to(focus()):
+				pick = n
+		v.place_on_road(best, pick, 0.2)
+	else:
+		v.position = pos
+		v.position.y = 0.0
+	v.mode = mode
+	if slogan != "":
+		_paint_slogan(v, slogan)
+	vehicles.append(v)
+	mission_vehicles.append(v)
+	return v
+
+
+func clear_mission_vehicles() -> void:
+	for v in mission_vehicles:
+		if v != ride and is_instance_valid(v):
+			vehicles.erase(v)
+			v.queue_free()
+	mission_vehicles.clear()
 
 
 func teleport_ride(pos: Vector3) -> void:
@@ -552,8 +601,14 @@ func _physics_process(delta: float) -> void:
 		var stick := demo_stick if demo_stick != Vector2.ZERO else inp
 		player.walk(stick, cam_yaw, _run_held or Input.is_physical_key_pressed(KEY_SHIFT), delta)
 	for v in vehicles:
-		if v.mode == Vehicle3D.Mode.AI:
+		if v.mode == Vehicle3D.Mode.AI or v.mode == Vehicle3D.Mode.FLEE:
 			v.ai_step(delta)
+		elif v.mode == Vehicle3D.Mode.CHASE:
+			v.chase_step(delta)
+	police.suspended = missions.running != ""
+	police.step(delta)
+	if ride and ride.is_wreck and missions.running == "":
+		_action() # out of the wreck
 	for p in people:
 		p.step(delta)
 	if ride and absf(ride.speed) > 3.0:
@@ -564,6 +619,7 @@ func _physics_process(delta: float) -> void:
 	stage.step(delta)
 	combat.step(delta)
 	hud.fight_mode(combat.active, combat.player_hp)
+	hud.gun_mode(combat.armed and (combat.active or ride == null), combat.clip, combat.reserve)
 	if missions.running == "" and not in_menu and stage._marker.visible:
 		if Vector2(focus().x - stage._marker.position.x, focus().z - stage._marker.position.z).length() < 6.0:
 			stage.set_marker(null)
@@ -660,6 +716,15 @@ func _recycle(delta: float) -> void:
 			p.position = cell_pos(c)
 
 
+## Fire the pistol. Shooting in the street outside a mission draws the police.
+func _shoot() -> void:
+	if not combat.armed or _controls_locked():
+		return
+	combat.player_shoot()
+	if missions.running == "" and not combat.active:
+		police.raise(0.3)
+
+
 ## Enter the nearest vehicle, or get out of the one you're driving.
 func _action() -> void:
 	if _controls_locked() or combat.active:
@@ -681,7 +746,7 @@ func _action() -> void:
 		if d < bd:
 			bd = d
 			best = v
-	if best:
+	if best and not best.is_wreck:
 		_enter(best)
 
 
@@ -707,7 +772,7 @@ func _drag_out_driver(v: Vehicle3D) -> void:
 	var c := Vector2i(int(p.position.x / CELL_M), int(p.position.z / CELL_M))
 	p.from = c
 	p.to = c
-	Story.wanted = minf(5.0, Story.wanted + 0.5)
+	police.raise(0.5)
 
 
 # ---------- HUD ----------
@@ -725,7 +790,8 @@ func _update_hud(delta: float) -> void:
 	var job := ""
 	if run.dest >= 0:
 		job = " · %d on board → %s %d m" % [run.passengers, run.stops[run.dest]["name"], int(f.distance_to(run.stops[run.dest]["pos"]))]
-	hud.money.text = "₦%s  %s  Respect %d%s" % [_naira(int(Life.money)), String(Clock.label()), Story.respect, job]
+	var stars := "★".repeat(int(ceil(Story.wanted - 0.01)))
+	hud.money.text = "₦%s  %s  Respect %d%s%s" % [_naira(int(Life.money)), String(Clock.label()), Story.respect, ("  WANTED " + stars) if stars != "" else "", job]
 	_frames = 0
 	_fps_t = 0.0
 	_day_night()
@@ -773,8 +839,11 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
 		cam_yaw -= e.relative.x * 0.006 * sens
 		_look_t = 0.0
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and combat.active:
-		combat.player_attack()
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and (combat.active or combat.armed):
+		if combat.armed:
+			_shoot()
+		else:
+			combat.player_attack()
 	if e is InputEventKey and e.pressed and not e.echo:
 		match e.physical_keycode:
 			KEY_ESCAPE: hud.open_pause()
@@ -782,6 +851,8 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_J, KEY_SPACE:
 				if combat.active:
 					combat.player_attack()
+			KEY_K:
+				_shoot()
 
 
 # ---------- QA ----------
@@ -801,7 +872,7 @@ func _shots(dir: String) -> void:
 	missions.autopilot = true
 	hud.dialogue.autoplay = true
 	missions.mission_done.disconnect(_on_mission_done)
-	for id: String in ["p0", "m01", "m02"]:
+	for id: String in ["p0", "m01", "m02", "m03", "m04", "m05", "m06"]:
 		missions.run(id)
 		var t := 0.0
 		var took := 0
@@ -817,6 +888,15 @@ func _shots(dir: String) -> void:
 				break
 		print("story3d: %s done=%s" % [id, Story.done.has(id)])
 	await get_tree().create_timer(2.6).timeout # let the last title card finish
+	# Free roam with two stars: police units come after Dayo.
+	Story.wanted = 2.0
+	await get_tree().create_timer(5.0).timeout
+	await _save(dir + "/e8-police.png")
+	var nearest := 999.0
+	for u in police.units:
+		nearest = minf(nearest, u.position.distance_to(focus()))
+	print("story3d police: units=%d nearest=%.0f m" % [police.units.size(), nearest])
+	Story.wanted = 0.0
 	await _save(dir + "/e9-after.png")
 	print("story3d: done=%s respect=%d items=%s | %s" % [Story.done.keys(), Story.respect, Story.items.keys(), hud.info.text])
 	get_tree().quit()

@@ -641,3 +641,61 @@ the story I provided instead. Disregard the first story. Start building to produ
 **Native-speaker review:** every line of Pidgin, Yoruba, Igbo and Hausa is flagged for review.
 
 **Credits:** "Story by Sheriff Usman", from the story document's byline.
+
+
+## D-022 · Act I complete: chases, guns, police, convoys · 2026-10-18
+**Owner:** "go" (start P2).
+
+**Systems:**
+- **Vehicles** have health. Crashes damage both sides, and a vehicle at 0 health is a smoking
+  wreck. Two new behaviours:
+  - **FLEE:** a getaway driver who picks the road leading away from you.
+  - **CHASE:** follows the roads towards you, then goes straight for you to ram.
+- **Guns:**
+  - Dayo gets a pistol on the Seme Run, with a 12-round clip and auto-reload.
+  - Auto-aim picks the nearest enemy ahead of the camera, which works on a phone and from a moving
+    vehicle (drive-bys).
+  - Armed enemies keep 6–14 m away and fire, hitting less often if you're running or driving fast.
+  - Tracers, muzzle flashes, and new synthesised gunshot, distant-shot and reload sounds.
+  - Health comes back slowly between fights.
+- **Wanted and police:**
+  - Carjacking, gunfire in the street and blasting checkpoints raise Wanted (0–5 stars).
+  - One police pickup per star chases in free roam, lights flashing.
+  - Boxed in for 2 s = BUSTED: 10% of your money (at least ₦2,000), and the stars clear.
+  - Out of sight (70 m) for 15 s, you lose a star.
+  - Missions pause the police.
+- **New mission steps:**
+
+  | Step | What it does |
+  |---|---|
+  | chase | Ram a fleeing vehicle until it's a wreck. |
+  | pursuit | Reach a place with vehicles chasing you. |
+  | follow | Keep up with a convoy lead, who waits if you fall behind. |
+  | escort | Bring someone through on foot under fire. |
+  | roger | A checkpoint choice: bribe, argue, papers or flee, which moves money, Respect and Wanted. |
+  | gun | Give Dayo the pistol. |
+  | news | An evening-news title card. |
+  | wanted | Set the Wanted level. |
+  | pay | Pay Dayo. |
+  | crowd | Festival figures that sway. |
+  | setpiece | A one-off labelled building for a mission. |
+
+**Missions 3–6 are playable,** which completes Act I:
+- **One Chance:** ram the robbers' bus on the Third Mainland approach, the roadside fight, and
+  Amaka's press card.
+- **The Chairman Will See You:** Kongi's offer, the lion-head stick, a ₦50,000 advance and Uncle
+  Obi's warning.
+- **Seme Run:**
+  - The night convoy in a lorry and the customs pursuit.
+  - The border checkpoint choice, Tolu in a rice sack, and the gunfight with the escorts.
+  - The run to St. Michael's Church in Badagry.
+- **Eyo Day:**
+  - 36 Eyo masquerades (a new Meshy model).
+  - Gunmen in white, dragging Kongi out under fire.
+  - Hauwa's arrest, the evening news and Uncle Obi's call to Kemi.
+
+**Geography is a stand-in until Map v2:** the Seme border and Badagry sit at the west end of the
+current map, Lagos Island's west side is the festival zone, and the Third Mainland route is the
+existing bridge.
+
+**Meshy credits:** all used (1,030). The Eyo masquerader was the last model.

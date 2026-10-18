@@ -6,6 +6,7 @@ extends CanvasLayer
 
 signal action_pressed
 signal punch_pressed
+signal shoot_pressed
 signal run_changed(held: bool)
 signal new_game
 signal continue_game
@@ -19,6 +20,8 @@ var health: ProgressBar
 var act_btn: Button
 var run_btn: Button
 var punch_btn: Button
+var shoot_btn: Button
+var ammo: Label
 var pause_btn: Button
 var minimap: Minimap3D
 var joy: Control
@@ -80,6 +83,10 @@ func setup(w) -> void:
 	punch_btn = _button("PUNCH", Vector2(-340, -130))
 	punch_btn.pressed.connect(func() -> void: punch_pressed.emit())
 	punch_btn.visible = false
+	shoot_btn = _button("SHOOT", Vector2(-340, -250))
+	shoot_btn.pressed.connect(func() -> void: shoot_pressed.emit())
+	shoot_btn.visible = false
+	ammo = _label(Vector2(16, 126), 20, UiStyle.PAPER)
 	pause_btn = _button("II", Vector2(-96, 12), true)
 	pause_btn.custom_minimum_size = Vector2(80, 64)
 	pause_btn.offset_right = pause_btn.offset_left + 80
@@ -207,6 +214,12 @@ func fight_mode(on: bool, hp: int) -> void:
 	if not menu_open():
 		act_btn.visible = not talking
 		run_btn.visible = not talking
+
+
+func gun_mode(on: bool, clip: int, reserve: int) -> void:
+	shoot_btn.visible = on and not dialogue.visible
+	ammo.visible = on
+	ammo.text = "Pistol %d / %d" % [clip, reserve]
 
 
 # ---------- menus ----------

@@ -161,3 +161,5 @@ share the action pack. The lion-head walking stick is a prop. The prompts are in
 `tools/art/meshy-spec.json`. Until the rest of the cast is modelled, they appear as existing
 people: Uncle Obi and the senator as the businessman, Hauwa, Amaka and Kemi as the young woman,
 Wire as the agbero, and Chief Bayo as the chief.
+
+The Eyo masquerade figure (`game/art3d/eyo.glb`, unrigged, sways in code) was added for Act I's Eyo Day. It used the last of the month's credits.

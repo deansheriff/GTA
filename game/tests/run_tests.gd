@@ -215,7 +215,7 @@ func _test_street() -> void:
 func _test_campaign() -> void:
 	var story: Node = root.get_node("Story")
 	check(story.order.size() == 27 and story.order[0] == "p0" and story.order[26] == "m26", "the campaign lists the prologue and 26 missions")
-	var known := ["env", "player", "place", "spawn", "despawn", "clear", "title", "say", "item", "still", "escape", "goto", "fares", "fight", "exit", "cam", "black", "sfx", "respect", "choice", "flag", "wait"]
+	var known := ["env", "player", "place", "spawn", "despawn", "clear", "title", "say", "item", "still", "escape", "goto", "fares", "fight", "exit", "cam", "black", "sfx", "respect", "choice", "flag", "wait", "chase", "pursuit", "follow", "escort", "roger", "gun", "news", "wanted", "crowd", "setpiece", "pay"]
 	var m := MapData.shared()
 	var bad := []
 	var playable := 0
@@ -243,7 +243,7 @@ func _test_campaign() -> void:
 			if st.has("who") and not story.cast.has(String(st["who"])):
 				bad.append("%s: unknown actor %s" % [id, st["who"]])
 	check(bad.is_empty(), "campaign data is consistent %s" % [bad])
-	check(playable >= 3, "the prologue and Act I's opening are playable (%d)" % playable)
+	check(playable >= 7, "the prologue and Act I's opening are playable (%d)" % playable)
 	story.reset()
 	story.complete("p0")
 	story.choose("ballot", "swap")
@@ -287,7 +287,7 @@ func _test_world3d() -> void:
 	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
 	if got[0]:
 		(got[0] as Node).free()
-	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d"]:
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d"]:
 		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 
