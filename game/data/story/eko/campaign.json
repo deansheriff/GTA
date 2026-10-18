@@ -19,7 +19,12 @@
   "bayo": {
    "name": "Chief Bayo Balogun",
    "model": "chief",
-   "colour": "#c8a02a"
+   "colour": "#c8a02a",
+   "look": {
+    "hue": 0.05,
+    "sat": 0.9,
+    "val": 1.0
+   }
   },
   "mama_agba": {
    "name": "Mama Àgbà",
@@ -29,12 +34,24 @@
   "kemi": {
    "name": "Kemi",
    "model": "young_woman",
-   "colour": "#9a5bc4"
+   "colour": "#9a5bc4",
+   "look": {
+    "hue": 0.62,
+    "sat": 1.1,
+    "val": 1.0
+   }
   },
   "obinna": {
    "name": "Uncle Obi",
    "model": "businessman",
-   "colour": "#3a4250"
+   "colour": "#3a4250",
+   "look": {
+    "hue": 0,
+    "sat": 1,
+    "val": 1.7,
+    "tint": "#e8dcc0",
+    "tint_mix": 0.5
+   }
   },
   "kongi": {
    "name": "Alhaji Kongi",
@@ -44,42 +61,84 @@
   "wire": {
    "name": "Tiamiyu \"Wire\"",
    "model": "agbero",
-   "colour": "#8a3a2a"
+   "colour": "#8a3a2a",
+   "look": {
+    "hue": 0.6,
+    "sat": 1.0,
+    "val": 0.8
+   }
   },
   "rasheed": {
    "name": "Rasheed Adio",
    "model": "okada_rider",
-   "colour": "#6b8e23"
+   "colour": "#6b8e23",
+   "look": {
+    "hue": 0.9,
+    "sat": 1.2,
+    "val": 0.9
+   }
   },
   "hauwa": {
    "name": "ACP Hauwa Danjuma",
    "model": "young_woman",
-   "colour": "#2f5e3a"
+   "colour": "#2f5e3a",
+   "look": {
+    "hue": 0.33,
+    "sat": 0.5,
+    "val": 0.55
+   }
   },
   "amaka": {
    "name": "Amaka Eze",
    "model": "young_woman",
-   "colour": "#c4473a"
+   "colour": "#c4473a",
+   "look": {
+    "hue": 0.9,
+    "sat": 1.2,
+    "val": 1.0
+   }
   },
   "bigz": {
    "name": "Bigz Jupiter",
    "model": "walker",
-   "colour": "#1f9a86"
+   "colour": "#1f9a86",
+   "look": {
+    "hue": 0.45,
+    "sat": 1.4,
+    "val": 1.1
+   }
   },
   "senator": {
    "name": "Senator Coker-Bankole",
    "model": "businessman",
-   "colour": "#84509a"
+   "colour": "#84509a",
+   "look": {
+    "hue": 0,
+    "sat": 1,
+    "val": 1.1,
+    "tint": "#7a3fa0",
+    "tint_mix": 0.7
+   }
   },
   "tonye": {
    "name": "General Tonye",
    "model": "elder",
-   "colour": "#22806f"
+   "colour": "#22806f",
+   "look": {
+    "hue": 0.5,
+    "sat": 0.9,
+    "val": 0.75
+   }
   },
   "fakunle": {
    "name": "Baba Fakunle",
    "model": "elder",
-   "colour": "#c96f24"
+   "colour": "#c96f24",
+   "look": {
+    "hue": 0.12,
+    "sat": 0.3,
+    "val": 1.2
+   }
   },
   "agbero": {
    "name": "Agbero",
@@ -89,7 +148,12 @@
   "gunman": {
    "name": "Gunman",
    "model": "agbero",
-   "colour": "#555555"
+   "colour": "#555555",
+   "look": {
+    "hue": 0.0,
+    "sat": 0.0,
+    "val": 0.45
+   }
   },
   "passenger": {
    "name": "Passenger",
@@ -99,7 +163,12 @@
   "herbal": {
    "name": "Herbal seller",
    "model": "elder",
-   "colour": "#7a6a2a"
+   "colour": "#7a6a2a",
+   "look": {
+    "hue": 0.15,
+    "sat": 1.2,
+    "val": 1.0
+   }
   },
   "voice": {
    "name": "???",
@@ -112,22 +181,44 @@
   "customs": {
    "name": "Customs officer",
    "model": "taskforce",
-   "colour": "#2f5e3a"
+   "colour": "#2f5e3a",
+   "look": {
+    "hue": 0.15,
+    "sat": 0.6,
+    "val": 0.7
+   }
   },
   "police": {
    "name": "Police",
    "model": "taskforce",
-   "colour": "#2f4e7a"
+   "colour": "#2f4e7a",
+   "look": {
+    "hue": 0.55,
+    "sat": 0.8,
+    "val": 0.8,
+    "tint": "#3050a0",
+    "tint_mix": 0.5
+   }
   },
   "tolu": {
    "name": "Tolu Adeyemi",
    "model": "young_woman",
-   "colour": "#c47a3a"
+   "colour": "#c47a3a",
+   "look": {
+    "hue": 0.08,
+    "sat": 0.7,
+    "val": 1.1
+   }
   },
   "robber": {
    "name": "One-chance robber",
    "model": "okada_rider",
-   "colour": "#6b4a3a"
+   "colour": "#6b4a3a",
+   "look": {
+    "hue": 0.35,
+    "sat": 0.5,
+    "val": 0.55
+   }
   }
  },
  "acts": [

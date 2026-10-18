@@ -699,3 +699,31 @@ current map, Lagos Island's west side is the festival zone, and the Third Mainla
 existing bridge.
 
 **Meshy credits:** all used (1,030). The Eyo masquerader was the last model.
+
+
+## D-023 · Distinct looks for the stand-in cast, and free asset sources · 2026-10-18
+**Owner:** chose option 3: no second Meshy account, and no new credits until the 18 November
+reset.
+
+**Restyle** (`world3d/restyle.gdshader`, `Models3D.restyle`):
+- Each cast entry in `campaign.json` can carry a `look`: hue, saturation, value, plus an optional
+  tint for greys.
+- The shader hue-shifts the clothes and leaves warm skin tones alone.
+- Kemi, Hauwa, Amaka and Tolu share the young-woman model but now look clearly different:
+  - Uncle Obi wears a light suit and the Senator a purple one.
+  - Police are navy and customs khaki.
+  - Bigz, Wire, Rasheed, Tonye and Baba Fakunle have their own colours.
+- The proper models replace them after the reset. The `model` field just changes.
+
+**Free asset sources** (each download needs the owner's OK, and each licence must be checked):
+
+| Source | What it has |
+|---|---|
+| Quaternius, Kenney | CC0 characters, vehicles and props |
+| Poly Pizza | CC0 or CC-BY models |
+| Poly Haven, ambientCG | CC0 textures, sky images and models |
+| Mixamo | Animations, free for games |
+| Freesound, OpenGameArt | Sounds and music (CC0 or CC-BY) |
+| Sketchfab | Filter by CC licence |
+
+Lagos-specific things (danfos, kekes, agbada) still come from Meshy.

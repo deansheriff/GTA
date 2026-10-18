@@ -168,6 +168,8 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	if not ok:
 		p.free()
 		return null
+	if model == "":
+		Models3D.restyle(p, info.get("look", {})) # stand-in cast get their own colours
 	p.position = Vector3(pos.x, world.terrain.height_at(pos), pos.z)
 	p.state = Person3D.State.PAUSE
 	p.pause_left = 1e9

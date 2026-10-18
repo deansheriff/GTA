@@ -204,6 +204,28 @@ func person(key: String, height := 1.75) -> Array:
 	return [root, ap]
 
 
+## A new look for a shared person (D-023): clothes hue-shifted, skin kept. look = {hue, sat, val}.
+static func restyle(n: Node, look: Dictionary) -> void:
+	if look.is_empty():
+		return
+	var sh: Shader = load("res://world3d/restyle.gdshader")
+	for c in n.find_children("*", "MeshInstance3D", true, false):
+		var mi := c as MeshInstance3D
+		for i in mi.mesh.get_surface_count() if mi.mesh else 0:
+			var m: Material = mi.get_active_material(i)
+			if m is BaseMaterial3D and (m as BaseMaterial3D).albedo_texture:
+				var sm := ShaderMaterial.new()
+				sm.shader = sh
+				sm.set_shader_parameter("tex", (m as BaseMaterial3D).albedo_texture)
+				sm.set_shader_parameter("hue", float(look.get("hue", 0.0)))
+				sm.set_shader_parameter("sat", float(look.get("sat", 1.0)))
+				sm.set_shader_parameter("val", float(look.get("val", 1.0)))
+				if look.has("tint"):
+					sm.set_shader_parameter("tint", Color(String(look["tint"])))
+					sm.set_shader_parameter("tint_mix", float(look.get("tint_mix", 0.6)))
+				mi.set_surface_override_material(i, sm)
+
+
 static func find_player(n: Node) -> AnimationPlayer:
 	var found := n.find_children("*", "AnimationPlayer", true, false)
 	return found[0] as AnimationPlayer if not found.is_empty() else null
