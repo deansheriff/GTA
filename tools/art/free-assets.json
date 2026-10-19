@@ -5,7 +5,13 @@
    "key": "dayo",
    "id": "kZ3DmIoGip",
    "tris": 6000,
-   "use": "Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot)"
+   "use": "Dayo, the protagonist (used exactly as published: own colours, size and 24 animations)"
+  },
+  {
+   "key": "young_dayo",
+   "id": "gKLBoRsyKe",
+   "tris": 7000,
+   "use": "Young Dayo in the prologue (used exactly as published)"
   },
   {
    "key": "horse",

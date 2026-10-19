@@ -19,3 +19,4 @@ the credit below, which the game's credits screen repeats.
 | `canopy` | Canopy | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/40tUFNg2fu4 | Owambe event canopy (Act II) |
 | `ambulance` | Ambulance Car | Zsky | CC-BY 3.0 | https://poly.pizza/m/4JxDoxLnRd | LUTH ambulance run (Act III) |
 | `dayo` | Casual Character | Quaternius | CC0 | https://poly.pizza/m/kZ3DmIoGip | Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot) |
+| `young_dayo` | Hoodie Character | Quaternius | CC0 | https://poly.pizza/m/gKLBoRsyKe | Young Dayo in the prologue (used exactly as published) |

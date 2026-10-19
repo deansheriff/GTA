@@ -823,3 +823,13 @@ file stays in the repo, so switching back is a one-line change.
 
 **Style:** it's flat-coloured low-poly next to the hand-painted townspeople, and the hair is a bit
 longer than Dayo's cropped cut in the story.
+
+**Update (owner: "Why is Dayo still bent? Do not replace anything from the free asset. Use the
+asset as it is.")**
+- **What was bent:** the 14-year-old Dayo in the prologue. He was still the Meshy model playing
+  the shared action pack's idle, which is a crouched, hunched stance in side view.
+- **Young Dayo** is now Quaternius's CC0 "Hoodie Character" (poly.pizza/m/gKLBoRsyKe).
+- **Both Dayos are used exactly as published:** no recolouring, no resizing, and their own
+  animations. Grown Dayo has the asset's own white T-shirt, jeans, red trainers and skin tone.
+- **Rule for free assets:** use them as published. Only our clip names point at their clips, and
+  looping clips loop.

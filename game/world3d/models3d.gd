@@ -64,14 +64,12 @@ const TRAFFIC_MIX := ["danfo", "danfo", "danfo", "keke", "keke", "okada", "okada
 ## Townspeople models (rigged): key -> height.
 const PEOPLE := ["walker", "market_woman", "okada_rider", "agbero", "businessman", "young_woman", "elder", "aunty_boss", "chief", "marshal", "taskforce"]
 
-## Free rigged people (D-026): CC0 Quaternius characters with their own 24-clip animation sets,
-## recoloured by material name. They replace a Meshy cast member by key.
+## Free rigged people (D-026): CC0 Quaternius characters, used exactly as published (their own
+## colours, size and 24-clip animation sets; owner: "Use the asset as it is"). They replace a
+## Meshy cast member by key.
 const FREE_PEOPLE := {
-	"dayo": {
-		"file": "res://art3d/free/dayo.glb", "height": 1.8,
-		"colors": { "Skin": "#5b3a26", "Skin_Darker": "#48301f", "Hair": "#141010", "Eyebrows": "#141010",
-			"White": "#5d6040", "LightBlue": "#232a3a", "Red_Dark": "#1c1916", "LightBrown": "#3a2f25" },
-	},
+	"dayo": "res://art3d/free/dayo.glb", # Casual Character
+	"young_dayo": "res://art3d/free/young_dayo.glb", # Hoodie Character
 }
 ## Our clip names -> Quaternius clip names.
 const FREE_ANIMS := {
@@ -246,23 +244,10 @@ static func restyle(n: Node, look: Dictionary) -> void:
 
 
 func _free_person(key: String) -> Array:
-	var spec: Dictionary = FREE_PEOPLE[key]
-	var path := String(spec["file"])
+	var path := String(FREE_PEOPLE[key])
 	if not ResourceLoader.exists(path):
 		return [null, null]
-	var m: Node3D = (load(path) as PackedScene).instantiate()
-	# Recolour: each named material gets its new colour (materials are shared, so duplicate them).
-	var cols: Dictionary = spec.get("colors", {})
-	for c in m.find_children("*", "MeshInstance3D", true, false):
-		var mi := c as MeshInstance3D
-		for i in mi.mesh.get_surface_count():
-			var mat: Material = mi.get_active_material(i)
-			if mat is BaseMaterial3D and cols.has(mat.resource_name):
-				var d: BaseMaterial3D = (mat as BaseMaterial3D).duplicate()
-				d.albedo_color = Color(String(cols[mat.resource_name]))
-				d.roughness = 0.75
-				mi.set_surface_override_material(i, d)
-	fit_height(m, float(spec.get("height", 1.8)))
+	var m: Node3D = (load(path) as PackedScene).instantiate() # as published: no recolour, no resize
 	var root := Node3D.new()
 	root.add_child(m)
 	var ap := find_player(m)
