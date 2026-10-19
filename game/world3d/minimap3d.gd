@@ -24,14 +24,23 @@ func setup(w) -> void:
 				pts.append(a.lerp(b, float(j) / n))
 		if src.size() > 0:
 			pts.append(src[src.size() - 1] * Terrain3D.K)
-		_roads.append([pts, float(r["width"]) * Terrain3D.K])
+		var box := Rect2(pts[0], Vector2.ZERO)
+		for q in pts:
+			box = box.expand(q)
+		_roads.append([pts, float(r["width"]) * Terrain3D.K, box.grow(10.0)])
 	custom_minimum_size = Vector2(RADIUS * 2.0, RADIUS * 2.0)
 	size = custom_minimum_size
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-func _process(_d: float) -> void:
-	queue_redraw()
+var _redraw_t := 0.0
+
+
+func _process(d: float) -> void:
+	_redraw_t -= d
+	if _redraw_t <= 0.0:
+		_redraw_t = 0.08 # 12 redraws a second is plenty for a minimap
+		queue_redraw()
 
 
 func _to_screen(p: Vector2, f: Vector3, yaw: float) -> Vector2:
@@ -50,7 +59,10 @@ func _draw() -> void:
 	var yaw: float = world.cam_yaw
 	var k := RADIUS / METRES
 	var lim := (RADIUS - 2.0) * (RADIUS - 2.0)
+	var view := Rect2(Vector2(f.x, f.z) - Vector2(METRES, METRES), Vector2(METRES, METRES) * 2.0)
 	for item: Array in _roads:
+		if not (item[2] as Rect2).intersects(view):
+			continue
 		var pts: PackedVector2Array = item[0]
 		var segs := PackedVector2Array()
 		var prev := Vector2.INF

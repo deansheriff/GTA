@@ -35,6 +35,10 @@ window/handheld/orientation=4
 
 [rendering]
 
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/size.mobile=1024
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile=0
+
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=1
@@ -45,3 +49,7 @@ environment/defaults/default_clear_color=Color(0.13, 0.11, 0.09, 1)
 [naija]
 
 online/default_server=""
+
+[physics]
+
+common/physics_interpolation=true

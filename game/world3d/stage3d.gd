@@ -118,7 +118,9 @@ func setpiece(id: String, model: String, at: Vector3, label: String, yaw: float)
 	root.position = at
 	root.rotation.y = deg_to_rad(yaw)
 	add_child(root)
-	var m: Node3D = world.models.make(model) if model != "" else null
+	if model == "gutter" or model == "overpass" or model == "lamp":
+		_build_piece(root, model)
+	var m: Node3D = world.models.make(model) if model != "" and not model in ["gutter", "overpass", "lamp"] else null
 	if m:
 		var bb := Models3D.aabb(m)
 		var k := 9.0 / maxf(bb.size.x, maxf(bb.size.z, 0.1))
@@ -193,6 +195,74 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	return p
 
 
+## Pieces built in code for the story: an open concrete gutter, an overpass on pillars, a lamp.
+func _build_piece(root: Node3D, kind: String) -> void:
+	var concrete := StandardMaterial3D.new()
+	concrete.albedo_color = Color(0.55, 0.53, 0.5)
+	concrete.roughness = 0.9
+	match kind:
+		"gutter":
+			# An open drain: two kerbs of concrete with black water between them.
+			for side in [-0.75, 0.75]:
+				_box(root, Vector3(0.3, 0.45, 16.0), Vector3(side, 0.22, 0), concrete)
+			var water := StandardMaterial3D.new()
+			water.albedo_color = Color(0.05, 0.06, 0.06)
+			water.roughness = 0.05
+			water.metallic = 0.3
+			_box(root, Vector3(1.2, 0.04, 16.0), Vector3(0, 0.03, 0), water)
+		"overpass":
+			# Oshodi's flyover: a deck on pillars, the city's roof for the people beneath.
+			_box(root, Vector3(10.0, 1.1, 44.0), Vector3(0, 6.5, 0), concrete)
+			for z in [-18.0, -6.0, 6.0, 18.0]:
+				_box(root, Vector3(1.2, 6.0, 1.2), Vector3(0, 3.0, z), concrete)
+			var rail := StandardMaterial3D.new()
+			rail.albedo_color = Color(0.85, 0.75, 0.3)
+			for side in [-5.0, 5.0]:
+				_box(root, Vector3(0.25, 0.8, 44.0), Vector3(side, 7.45, 0), rail)
+		"lamp":
+			var l := OmniLight3D.new()
+			l.light_color = Color("#ffb45e")
+			l.light_energy = 2.6
+			l.omni_range = 14.0
+			l.position = Vector3(0, 3.6, 0)
+			root.add_child(l)
+			var bulb := MeshInstance3D.new()
+			var sm := SphereMesh.new()
+			sm.radius = 0.18
+			sm.height = 0.36
+			bulb.mesh = sm
+			var bm := StandardMaterial3D.new()
+			bm.albedo_color = Color(1.0, 0.85, 0.6)
+			bm.emission_enabled = true
+			bm.emission = Color("#ffb45e")
+			bm.emission_energy_multiplier = 5.0
+			bulb.material_override = bm
+			bulb.position = Vector3(0, 3.6, 0)
+			root.add_child(bulb)
+			_box(root, Vector3(0.08, 3.6, 0.08), Vector3(0, 1.8, 0), concrete)
+
+
+func _box(root: Node3D, size: Vector3, at: Vector3, mat: Material) -> void:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	mi.mesh = bm
+	mi.material_override = mat
+	mi.position = at
+	root.add_child(mi)
+	var body := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	cs.shape = shape
+	body.add_child(cs)
+	body.position = at
+	if size.y > 1.0:
+		root.add_child(body) # pillars and the deck are solid; kerbs and water you can step over
+	else:
+		body.free()
+
+
 func despawn(id: String) -> void:
 	if actors.has(id):
 		var n: Variant = actors[id] # may already be freed (fighters are freed by Combat3D)
@@ -201,12 +271,14 @@ func despawn(id: String) -> void:
 		actors.erase(id)
 
 
-func clear() -> void:
+## Remove the mission's people and crowds; set pieces too when `all` (the mission is over).
+func clear(all := true) -> void:
 	for id in actors.keys():
 		despawn(id)
 	for id in _crowds.keys():
 		clear_crowd(id)
-	for id in _sets.keys():
-		(_sets[id] as Node).queue_free()
-	_sets.clear()
+	if all:
+		for id in _sets.keys():
+			(_sets[id] as Node).queue_free()
+		_sets.clear()
 	cam_override = "follow"

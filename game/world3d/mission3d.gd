@@ -84,7 +84,7 @@ func _step(st: Dictionary) -> bool:
 		"despawn":
 			world.despawn_actor(String(st["id"]))
 		"clear":
-			world.clear_actors()
+			world.stage.clear(false) # people go; the scene's set pieces stay until the mission ends
 		"title":
 			await world.show_title(String(st.get("text", "")), String(st.get("sub", "")), float(st.get("s", 2.5)))
 		"say":

@@ -82,6 +82,7 @@ func place_on_road(from: String, to: String, t: float) -> void:
 	heading = -dir.angle()
 	rotation.y = heading
 	speed = cruise
+	reset_physics_interpolation()
 
 
 ## Player driving: throttle -1..1, steer -1..1 (positive = right).

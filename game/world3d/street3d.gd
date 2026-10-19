@@ -24,6 +24,7 @@ var people: Array[Person3D] = []
 var people_keys: Array = []
 var cam: Camera3D
 var cam_yaw := 0.0
+var cam_pitch := 0.45 # radians above the horizon; the player drags up/down to change it
 var run: DanfoRun3D
 var lights: Lights3D
 var checkpoints: Checkpoint3D
@@ -117,7 +118,9 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shots="):
 			shots = a.trim_prefix("--shots=")
-	if shots != "":
+	if "--perf" in OS.get_cmdline_user_args():
+		_perf()
+	elif shots != "":
 		_shots(shots)
 	else:
 		hud.show_menu(FileAccess.file_exists(SaveGame.PATH))
@@ -201,18 +204,24 @@ func _next_mission_marker() -> void:
 
 func _quality() -> void:
 	var g: Dictionary = Settings.current
-	var dd := int(g.get("draw_distance", 2))
-	q_far = [0.65, 0.65, 0.85, 1.0][clampi(dd, 0, 3)]
-	people_n = clampi(int(g.get("max_npcs", 30)), 10, 36)
-	traffic_n = [14, 14, 22, 28][clampi(dd, 0, 3)]
+	var dd := clampi(int(g.get("draw_distance", 2)), 1, 3)
+	q_far = [0.65, 0.65, 0.85, 1.0][dd]
+	people_n = [10, 10, 18, 30][dd] # phones: fewer animated people on Low/Medium
+	traffic_n = [10, 10, 16, 26][dd]
 
 
 func _apply_quality_env() -> void:
 	var g: Dictionary = Settings.current
-	var shadows := String(g.get("shadows", "blob"))
-	_sun.shadow_enabled = shadows != "none"
-	_sun.directional_shadow_max_distance = 70.0 if shadows == "painted" else 40.0
+	var preset := String(g.get("preset", "medium"))
+	# Sun shadows: off on Low, short range on Medium (only what's near you casts), longer on High.
+	_sun.shadow_enabled = preset != "low"
+	_sun.directional_shadow_max_distance = 45.0 if preset == "high" else 25.0
+	_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL if preset != "high" else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	_env.glow_enabled = String(g.get("effects", "low")) != "off"
+	# Smooth edges: MSAA (cheap on phone tile GPUs), FXAA on Low.
+	var vp := get_viewport()
+	vp.msaa_3d = Viewport.MSAA_4X if preset == "high" else (Viewport.MSAA_2X if preset != "low" else Viewport.MSAA_DISABLED)
+	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if preset == "low" else Viewport.SCREEN_SPACE_AA_DISABLED
 	_env.fog_depth_begin = 90.0 * q_far
 	_env.fog_depth_end = 175.0 * q_far
 
@@ -285,6 +294,7 @@ func place_player(pos: Vector3, vehicle_kind := "", slogan := "") -> void:
 		_action() # get out first
 	if vehicle_kind == "":
 		player.position = pos
+		player.reset_physics_interpolation()
 		return
 	var v := Vehicle3D.new()
 	add_child(v)
@@ -369,8 +379,10 @@ func teleport_ride(pos: Vector3) -> void:
 	if ride:
 		ride.position = pos
 		ride.speed = 0.0
+		ride.reset_physics_interpolation()
 	else:
 		player.position = pos
+		player.reset_physics_interpolation()
 
 
 func spawn_actor(id: String, who: String, pos: Vector3, anim := "idle", face := "", prop := "", model := "") -> Person3D:
@@ -515,6 +527,7 @@ func _spawn_player() -> void:
 	cam = Camera3D.new()
 	cam.fov = 62.0
 	cam.far = 400.0
+	cam.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF # moved every frame
 	add_child(cam)
 	cam.make_current()
 	_place_camera(1.0)
@@ -611,6 +624,7 @@ func _physics_process(delta: float) -> void:
 		_action() # out of the wreck
 	for p in people:
 		p.step(delta)
+	_anim_lod(delta)
 	if ride and absf(ride.speed) > 3.0:
 		_scatter(ride)
 	run.step(delta)
@@ -625,14 +639,47 @@ func _physics_process(delta: float) -> void:
 		if Vector2(focus().x - stage._marker.position.x, focus().z - stage._marker.position.z).length() < 6.0:
 			stage.set_marker(null)
 			missions.run(Story.next_mission())
-	_place_camera(delta)
 	_recycle(delta)
 	_update_hud(delta)
 	_sounds()
 
 
+func _process(delta: float) -> void:
+	_place_camera(delta)
+
+
 func _sounds() -> void:
 	Sound.world(_dark > 0.5, true, ride != null, absf(ride.speed) if ride else 0.0, 1.0 if stage.raining else 0.0)
+
+
+## Animation level of detail: people near the camera animate every frame, further ones every 2nd
+## to 6th frame, and off-screen or far ones not at all (skeletons are the main CPU cost on phones).
+var _lod_frame := 0
+var _lod_acc := {}
+
+
+func _anim_lod(delta: float) -> void:
+	_lod_frame += 1
+	var c := cam.global_position
+	var fwd := -cam.global_transform.basis.z
+	var crowd: Array = people.duplicate()
+	crowd.append_array(stage.actors.values())
+	for p in crowd:
+		if not is_instance_valid(p) or p.ap == null:
+			continue
+		var ap: AnimationPlayer = p.ap
+		if ap.callback_mode_process != AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL:
+			ap.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+		var rel: Vector3 = (p as Node3D).global_position - c
+		var d := rel.length()
+		var every := 1 if d < 18.0 else (2 if d < 35.0 else (4 if d < 55.0 else 6))
+		if d > 75.0 or (d > 6.0 and rel.dot(fwd) < -2.0):
+			every = 0 # behind the camera or beyond the haze: frozen
+		var id: int = p.get_instance_id()
+		_lod_acc[id] = float(_lod_acc.get(id, 0.0)) + delta
+		if every > 0 and (_lod_frame + id) % every == 0:
+			ap.advance(_lod_acc[id])
+			_lod_acc[id] = 0.0
 
 
 ## People in front of a moving player vehicle dive out of the way.
@@ -646,24 +693,28 @@ func _scatter(v: Vehicle3D) -> void:
 			p.flee(v.position, fwd)
 
 
+## The camera runs every rendered frame (not on physics ticks) and follows the interpolated
+## positions of the player and vehicles, so it's smooth at any frame rate.
 func _place_camera(delta: float) -> void:
 	if in_menu and delta < 1.0:
-		# Main menu: a slow drift over the city.
-		_menu_t += delta * 0.05
+		# Main menu: a slow, low drift down a street.
+		_menu_t += delta * 0.04
 		var c := player.position
-		cam.position = c + Vector3(sin(_menu_t) * 42.0, 30.0, cos(_menu_t) * 42.0)
-		cam.look_at(c + Vector3(0, 4, 0))
+		cam.position = c + Vector3(sin(_menu_t) * 24.0, 11.0, cos(_menu_t) * 24.0)
+		cam.look_at(c + Vector3(0, 3, 0))
 		return
 	var target: Vector3
 	var dist: float
 	var height: float
 	player.visible = ride == null and not (stage and stage.cam_override == "low")
+	var pp := player.get_global_transform_interpolated().origin
 	if stage and stage.cam_override == "low":
 		# Under the bridge, from the gutter: Dayo is down in it; we see only legs and feet.
 		var away := (player.position - stage.cam_target)
 		away.y = 0.0
-		cam.position = cam.position.lerp(player.position + away.normalized() * 0.6 + Vector3(0, 0.3, 0), minf(1.0, delta * 4.0))
-		cam.look_at(stage.cam_target + Vector3(0, 0.5, 0))
+		# Just over the gutter's concrete edge (0.45 m), peeking out at the bridge.
+		cam.position = cam.position.lerp(player.position + away.normalized() * 0.25 + Vector3(0, 0.62, 0), minf(1.0, delta * 4.0))
+		cam.look_at(stage.cam_target + Vector3(0, 0.7, 0))
 		return
 	if stage and stage.cam_override == "look":
 		target = stage.cam_target + Vector3(0, 1.4, 0)
@@ -676,23 +727,24 @@ func _place_camera(delta: float) -> void:
 		var behind := ride.heading - PI * 0.5 # (sin, cos) of this = -forward
 		if _look_t > 1.5:
 			cam_yaw = lerp_angle(cam_yaw, behind, minf(1.0, delta * 2.5 * sens))
-		dist = 6.0 + ride.length * 0.9
-		height = 3.2 + ride.length * 0.35
-		target = ride.position + Vector3(0, 1.2, 0)
+		dist = 6.5 + ride.length * 0.9
+		target = ride.get_global_transform_interpolated().origin + Vector3(0, 1.2, 0)
 	else:
 		_look_t += delta
 		if player.moving > 0.0 and _look_t > 2.0:
 			cam_yaw = lerp_angle(cam_yaw, player.facing() + PI, minf(1.0, delta * 1.2 * sens))
-		dist = 5.2
-		height = 2.6
-		target = player.position + Vector3(0, 1.4, 0)
-	var want := target + Vector3(sin(cam_yaw) * dist, height, cos(cam_yaw) * dist)
+		dist = 5.6
+		target = pp + Vector3(0, 1.4, 0)
+	# Orbit: yaw round the player, pitch from just above the street to high overhead.
+	height = sin(cam_pitch) * dist
+	var flat := cos(cam_pitch) * dist
+	var want := target + Vector3(sin(cam_yaw) * flat, height, cos(cam_yaw) * flat)
 	# Don't let the camera go inside a building: stop it at the first wall in the way.
 	var q := PhysicsRayQueryParameters3D.create(target, want, 1)
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
 	if not hit.is_empty():
 		want = (hit["position"] as Vector3).lerp(target, 0.12)
-	cam.position = want if delta >= 1.0 else cam.position.lerp(want, minf(1.0, delta * 6.0))
+	cam.position = want if delta >= 1.0 else cam.position.lerp(want, minf(1.0, delta * 12.0))
 	if _shake > 0.0:
 		_shake = maxf(0.0, _shake - delta)
 		cam.position += Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-1, 1), 0) * _shake * 0.3
@@ -715,6 +767,7 @@ func _recycle(delta: float) -> void:
 			p.to = c
 			p.state = Person3D.State.WALK
 			p.position = cell_pos(c)
+			p.reset_physics_interpolation()
 
 
 ## Fire the pistol. Shooting in the street outside a mission draws the police.
@@ -820,9 +873,13 @@ func _day_night() -> void:
 	var day_t := clampf((hours - 6.0) / 12.0, 0.0, 1.0)
 	_sun.rotation_degrees.x = -(10.0 + sin(day_t * PI) * 62.0)
 	_sun.rotation_degrees.y = lerpf(-90.0, 90.0, day_t)
-	_sun.light_energy = lerpf(1.35, 0.12, dark)
+	# Night stays readable (phone feedback): a cool moonlight and a blue ambient fill, not black.
+	_sun.light_energy = lerpf(1.35, 0.4, dark)
 	_sun.light_color = Color("#fff1d8").lerp(Color("#9fb4e8"), dark)
-	_env.ambient_light_energy = lerpf(0.8, 0.25, dark)
+	_env.ambient_light_sky_contribution = lerpf(1.0, 0.25, dark)
+	_env.ambient_light_color = Color(0.34, 0.4, 0.56)
+	_env.ambient_light_energy = lerpf(0.8, 1.0, dark)
+	_env.tonemap_exposure = lerpf(1.05, 1.3, dark)
 	var rain_k := 0.35 if stage and stage.raining else 0.0
 	_sky.sky_top_color = Color("#4f8fd0").lerp(Color("#0b1630"), dark).lerp(Color("#3a4048"), rain_k)
 	_sky.sky_horizon_color = Color("#d6e4ea").lerp(Color("#2a3150"), dark).lerp(Color("#4a5058"), rain_k)
@@ -834,11 +891,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	# Drag anywhere free (or move the mouse with the right button) to look around.
 	var sens := float(Settings.get_pref("cam_sens", 1.0))
+	# Drag right/left to turn the camera round, up/down to raise or lower it.
+	var drag := Vector2.ZERO
 	if e is InputEventScreenDrag and e.position.x > get_viewport().get_visible_rect().size.x * 0.35:
-		cam_yaw -= e.relative.x * 0.006 * sens
-		_look_t = 0.0
+		drag = e.relative
 	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
-		cam_yaw -= e.relative.x * 0.006 * sens
+		drag = e.relative
+	if drag != Vector2.ZERO:
+		cam_yaw -= drag.x * 0.006 * sens
+		cam_pitch = clampf(cam_pitch + drag.y * 0.005 * sens, -0.05, 1.25)
 		_look_t = 0.0
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and (combat.active or combat.armed):
 		if combat.armed:
@@ -873,7 +934,7 @@ func _shots(dir: String) -> void:
 	missions.autopilot = true
 	hud.dialogue.autoplay = true
 	missions.mission_done.disconnect(_on_mission_done)
-	for id: String in ["p0", "m01", "m02", "m03", "m04", "m05", "m06"]:
+	for id: String in (["p0"] if "--p0" in OS.get_cmdline_user_args() else ["p0", "m01", "m02", "m03", "m04", "m05", "m06"]):
 		missions.run(id)
 		var t := 0.0
 		var took := 0
@@ -900,6 +961,49 @@ func _shots(dir: String) -> void:
 	Story.wanted = 0.0
 	await _save(dir + "/e9-after.png")
 	print("story3d: done=%s respect=%d items=%s | %s" % [Story.done.keys(), Story.respect, Story.items.keys(), hud.info.text])
+	get_tree().quit()
+
+
+## Performance probe: draw calls, objects and triangles at a few spots (free roam, on foot).
+##   Godot --path game -- --perf
+func _perf() -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	in_menu = false
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Engine.max_fps = 0
+	var spots := ["node:yaba_c", "landmark:oshodi-market", "node:obalende", "node:lekki_c"]
+	var tot := [0.0, 0.0, 0.0, 0.0]
+	for sp in spots:
+		player.position = resolve({ "at": sp, "offset": [3, 3] })
+		await get_tree().create_timer(2.0).timeout
+		var dc := Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+		var ob := Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)
+		var pr := Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
+		var ms := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
+		print("perf %s: draws=%d objects=%d tris=%dk cpu=%.1fms fps=%d" % [sp, dc, ob, pr / 1000, ms, Engine.get_frames_per_second()])
+		for i in 4:
+			tot[i] += [dc, ob, pr / 1000.0, ms][i] / spots.size()
+	print("perf AVG: draws=%d objects=%d tris=%dk cpu=%.1fms" % tot)
+	# What costs CPU? Switch things off one at a time at the last spot.
+	var probes := {
+		"minimap": func(on: bool) -> void: hud.minimap.set_process(on); hud.minimap.visible = on,
+		"people": func(on: bool) -> void:
+			for p in people:
+				p.visible = on
+				p.process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED,
+		"traffic": func(on: bool) -> void:
+			for v in vehicles:
+				v.visible = on
+				v.process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED,
+	}
+	for k: String in probes:
+		probes[k].call(false)
+		await get_tree().create_timer(1.5).timeout
+		var ms := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
+		print("perf without %s: cpu=%.1fms draws=%d" % [k, ms, Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)])
+		probes[k].call(true)
+		await get_tree().create_timer(0.5).timeout
 	get_tree().quit()
 
 

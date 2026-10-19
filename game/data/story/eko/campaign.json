@@ -273,6 +273,68 @@
      ]
     },
     {
+     "do": "setpiece",
+     "id": "office_lamp",
+     "model": "lamp",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      2.5,
+      1.5
+     ]
+    },
+    {
+     "do": "setpiece",
+     "id": "market_lamp1",
+     "model": "lamp",
+     "at": "landmark:oshodi-market",
+     "offset": [
+      -6,
+      2
+     ]
+    },
+    {
+     "do": "setpiece",
+     "id": "market_lamp2",
+     "model": "lamp",
+     "at": "landmark:oshodi-market",
+     "offset": [
+      5,
+      8
+     ]
+    },
+    {
+     "do": "setpiece",
+     "id": "flyover",
+     "model": "overpass",
+     "at": "node:oshodi_c",
+     "offset": [
+      9,
+      0
+     ],
+     "yaw": 90
+    },
+    {
+     "do": "setpiece",
+     "id": "gutter",
+     "model": "gutter",
+     "at": "node:oshodi_c",
+     "offset": [
+      9,
+      9
+     ],
+     "yaw": 90
+    },
+    {
+     "do": "setpiece",
+     "id": "bridge_lamp",
+     "model": "lamp",
+     "at": "node:oshodi_c",
+     "offset": [
+      6,
+      3
+     ]
+    },
+    {
      "do": "spawn",
      "id": "bayo",
      "who": "bayo",

@@ -266,19 +266,37 @@ func _merge_pack(ap: AnimationPlayer) -> void:
 							break
 					_anim_lib.add_animation(nm, sp.get_animation(a).duplicate())
 				_pack_root_path = _skeleton_path(sp)
+				var psk := sp.get_node(sp.root_node).get_node_or_null(_pack_root_path) as Skeleton3D
+				if psk and psk.find_bone("Hips") >= 0:
+					_pack_hip_y = psk.get_bone_rest(psk.find_bone("Hips")).origin.y
 			pack.free()
 	if _anim_lib == null:
 		return
 	var lib := _lib(ap)
 	var here := _skeleton_path(ap)
+	# The pack was animated on another body: keep only its rotations (so every person keeps their
+	# own limb lengths) and scale the hips' height to this body.
+	var hip_k := 1.0
+	var sk := ap.get_node(ap.root_node).get_node_or_null(here) as Skeleton3D
+	if sk and _pack_hip_y > 0.0 and sk.find_bone("Hips") >= 0:
+		hip_k = sk.get_bone_rest(sk.find_bone("Hips")).origin.y / _pack_hip_y
 	for nm in _anim_lib.get_animation_list():
 		if not lib.has_animation(nm):
-			var a: Animation = _anim_lib.get_animation(nm).duplicate()
+			var a: Animation = _anim_lib.get_animation(nm).duplicate(true)
 			_repath(a, _pack_root_path, here)
+			for t in range(a.get_track_count() - 1, -1, -1):
+				if a.track_get_type(t) != Animation.TYPE_POSITION_3D:
+					continue
+				if not String(a.track_get_path(t)).ends_with(":Hips"):
+					a.remove_track(t)
+				elif hip_k != 1.0:
+					for k in a.track_get_key_count(t):
+						a.track_set_key_value(t, k, (a.track_get_key_value(t, k) as Vector3) * hip_k)
 			lib.add_animation(nm, a)
 
 
 var _pack_root_path := ""
+var _pack_hip_y := 0.0
 ## Meshy's clip names in the action pack -> the short names the game plays.
 const PACK_NAMES := { "wave": "wave", "sit": "sit", "dead": "dead", "hit": "hit", "motivational": "cheer", "phone": "phone", "punch": "punch", "angry": "argue", "talk": "talk", "idle": "idle" }
 

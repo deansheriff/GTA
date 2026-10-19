@@ -755,3 +755,48 @@ that suits our need."
   Acts II–V.
 - **Style note:** these are flat low-poly, simpler than the hand-painted Meshy models. They're
   used for props and vehicles, not the cast.
+
+
+## D-025 · Phone feedback on the Act I APK: smoothness, visuals, night, camera · 2026-10-19
+**Owner:**
+- "The pose of the protagonist is not an A-Pose."
+- "The graphics is looking crude. Very rough edges, It's laggy. The camera is choppy."
+- "The first act shows night time and rain falling but I can't see the ground."
+- "The title screen lags."
+- "Players should be able to move camera up, down, left, right."
+
+**Changes:**
+- **Smooth motion:**
+  - Physics interpolation is on.
+  - The camera now runs every rendered frame instead of on physics ticks, following the
+    interpolated player and vehicles.
+  - Teleports reset interpolation.
+- **The title screen** camera is a slow, low drift down a street instead of a wide sweep over the
+  city, and it's smooth.
+- **Camera:** drag left/right to orbit and up/down to tilt, from just above the street to
+  overhead. Right-drag the mouse on desktop. The Camera speed setting applies to both.
+- **Anti-aliasing:** MSAA 2x on Medium, 4x on High, and FXAA on Low.
+- **Performance:**
+  - Buildings, props, yard items and generators are batched per model part per 48 m area instead
+    of being about 870 separate scene instances. Draw calls dropped from about 148 to 69 without shadows (87 with Medium's short shadows) and
+    triangles from about 600k to 216k (300k with shadows) per frame (perf probe: `-- --perf`).
+  - People's animations update every frame up close, less often further away, and not at all
+    behind the camera or past 75 m.
+  - The minimap redraws at 12 Hz and skips roads that are out of view.
+  - Phone defaults: crowds of 10, 18 or 30 people and 10, 16 or 26 vehicles (Low, Medium, High).
+  - Sun shadows are off on Low, reach 25 m on Medium (one cascade) and 45 m on High. The shadow
+    map is 1024 on phones.
+- **Night:**
+  - A readable moonlit night: a cool sun at 0.4 energy, a blue ambient fill and slightly higher
+    exposure.
+  - The prologue gets warm lamps at the union office, in the market and under the bridge.
+  - It also gets a real open gutter (concrete edges, black water) and the Oshodi flyover on
+    pillars.
+  - The gutter camera peeks out over the gutter's edge.
+- **The protagonist's pose:** the shared action pack now gives only bone rotations, with the
+  hips' height scaled to each body. That stopped it bending other bodies' limbs (bowed legs,
+  splayed arms). The idle itself is the pack's relaxed stance; a different idle clip costs
+  3 Meshy credits after the reset.
+- **This PC's timings are unreliable:** during the work a stray `cmd.exe` on the dev PC (running
+  since 16 October) kept the CPU at 100%. Draw-call, object and triangle counts are the reliable
+  measures.
