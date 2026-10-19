@@ -15,7 +15,10 @@ var model_key := ""
 var _lib: Models3D
 var _action_t := 0.0 # a one-off clip (punch, hit) is playing
 var _gun: Node3D
+var armed := false # holding the pistol: gun stance when standing
 var _hand := -1
+var _elbow := -1
+var _gun_x := true # the pistol's barrel runs along its X axis (else Z)
 var _skel: Skeleton3D
 
 
@@ -64,6 +67,7 @@ func show_gun(on: bool) -> void:
 		if g == null:
 			return
 		var bb := Models3D.aabb(g)
+		_gun_x = bb.size.x >= bb.size.z
 		var k := 0.2 / maxf(bb.size.x, maxf(bb.size.y, bb.size.z))
 		g.scale = Vector3.ONE * k
 		g.position = -bb.get_center() * k
@@ -72,6 +76,9 @@ func show_gun(on: bool) -> void:
 		add_child(_gun)
 	if _gun:
 		_gun.visible = on and visible
+	if on != armed:
+		armed = on
+		moving = -1.0 # re-pick the standing clip
 
 
 func _process(_d: float) -> void:
@@ -83,10 +90,27 @@ func _process(_d: float) -> void:
 			return
 		_skel = sks[0]
 		_hand = _skel.find_bone("RightHand")
+		_elbow = _skel.find_bone("RightForeArm")
+		if _hand < 0:
+			_hand = _skel.find_bone("Wrist.R") # Quaternius rigs
+			_elbow = _skel.find_bone("LowerArm.R")
 	if _hand < 0:
 		return
-	var g := _skel.global_transform * _skel.get_bone_global_pose(_hand) # metres (the Armature carries 0.01)
-	_gun.global_transform = Transform3D(g.basis.orthonormalized(), g.origin) * Transform3D(Basis(Vector3.RIGHT, -PI * 0.5), Vector3(0, 0.08, 0.03))
+	# Aim along the forearm (elbow -> wrist) with the grip down: works for any rig and its scale.
+	var wrist := (_skel.global_transform * _skel.get_bone_global_pose(_hand)).origin
+	var fwd := model.global_transform.basis.z
+	if _elbow >= 0:
+		fwd = (wrist - (_skel.global_transform * _skel.get_bone_global_pose(_elbow)).origin).normalized()
+	var up := (Vector3.UP - fwd * fwd.dot(Vector3.UP)).normalized()
+	if up.length() < 0.1:
+		up = model.global_transform.basis.z
+	var b := Basis(fwd, up, fwd.cross(up)) if _gun_x else Basis(up.cross(fwd), up, fwd)
+	_gun.global_transform = Transform3D(b, wrist + fwd * 0.06)
+
+
+func shoot_anim() -> void:
+	_action_t = 0.3
+	Models3D.play(ap, "shoot", "punch", 1.4)
 
 
 func punch() -> void:
@@ -146,7 +170,7 @@ func walk(stick: Vector2, cam_yaw: float, run: bool, delta: float) -> void:
 	if want != moving:
 		moving = want
 		match int(want):
-			0: Models3D.play(ap, "idle", "walk", 1.0)
+			0: Models3D.play(ap, "gun_idle" if armed else "idle", "idle", 1.0)
 			1: Models3D.play(ap, "walk", "idle", 1.0)
 			2: Models3D.play(ap, "run", "walk", 1.0)
 

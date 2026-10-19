@@ -18,3 +18,4 @@ the credit below, which the game's credits screen repeats.
 | `yacht` | Yacht | Alex Safayan | CC-BY 3.0 | https://poly.pizza/m/9znU2c-dTSR | Obinna's yacht, the final fight (Act V) |
 | `canopy` | Canopy | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/40tUFNg2fu4 | Owambe event canopy (Act II) |
 | `ambulance` | Ambulance Car | Zsky | CC-BY 3.0 | https://poly.pizza/m/4JxDoxLnRd | LUTH ambulance run (Act III) |
+| `dayo` | Casual Character | Quaternius | CC0 | https://poly.pizza/m/kZ3DmIoGip | Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot) |

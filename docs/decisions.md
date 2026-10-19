@@ -800,3 +800,26 @@ that suits our need."
 - **This PC's timings are unreliable:** during the work a stray `cmd.exe` on the dev PC (running
   since 16 October) kept the CPU at 100%. Draw-call, object and triangle counts are the reliable
   measures.
+
+
+## D-026 · Dayo is now a free CC0 character (Quaternius "Casual Character") · 2026-10-19
+**Owner:** "Use a character from one of the free sources and swap it with Dayo."
+
+**The candidates:** I compared six CC0 Quaternius men from Poly Pizza. I picked **Casual
+Character** (poly.pizza/m/kZ3DmIoGip) because it has realistic adult proportions, a natural
+arms-down stance and its own 24 clips: idle, walk, run, punches and kicks, two hit reactions,
+death, wave, interact, roll, and gun idle, shooting and running-while-shooting.
+
+**How it's used:**
+- `Models3D.FREE_PEOPLE` swaps a cast key for a free rig and recolours it by material name. Dayo
+  has dark brown skin, black hair, his olive T-shirt, dark jeans and black boots.
+- It's scaled to 1.8 m, and `FREE_ANIMS` maps our clip names to its own, so missions, fights and
+  the player need no changes.
+- Armed, Dayo stands in the gun stance and plays the shooting clip with each shot.
+- The pistol aims along the forearm (elbow to wrist) with the grip down, which works on any rig.
+
+**Unchanged:** young Dayo (prologue) and everyone else are still Meshy models. The old Meshy Dayo
+file stays in the repo, so switching back is a one-line change.
+
+**Style:** it's flat-coloured low-poly next to the hand-painted townspeople, and the hair is a bit
+longer than Dayo's cropped cut in the story.

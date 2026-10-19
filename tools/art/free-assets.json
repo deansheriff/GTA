@@ -1,18 +1,89 @@
 {
  "_comment": "Free 3D assets from Poly Pizza (D-024). Only CC0 or CC-BY; CC-BY ones are credited in docs/art/FREE_ASSETS.md and the credits screen. Run: node tools/art/free_assets.mjs",
  "assets": [
-  { "key": "horse", "id": "qvTrSG9pZF", "tris": 6000, "use": "Kano Durbar horseback chase (Act III)" },
-  { "key": "helicopter", "id": "EQJ2MECUbx", "tris": 6000, "use": "The senator's helicopter, Obinna's escape (Acts IV-V)" },
-  { "key": "pistol", "id": "J3i9KDQ3kt", "tris": 1500, "use": "Dayo's pistol in hand" },
-  { "key": "rock_large", "id": "li0YBlBEMz", "tris": 2000, "use": "Olumo Rock boulders, creek banks (Acts II-III)" },
-  { "key": "mountain", "id": "7HYR2s9JVi", "tris": 4000, "use": "Olumo Rock outcrop, Abeokuta (Act II)" },
-  { "key": "tent", "id": "5Q7qIrfDxA", "tris": 3000, "use": "Festival and refinery camps" },
-  { "key": "gazebo", "id": "xYZB1TmGMv", "tris": 3000, "use": "Owambe and Iri Ji seating" },
-  { "key": "barrel", "id": "MraIiFnpAY", "tris": 1000, "use": "Kpo-fire refinery drums (Act III)" },
-  { "key": "gas_tank", "id": "RoCvKBGkoC", "tris": 3000, "use": "Refinery tanks (Act III)" },
-  { "key": "speedboat", "id": "5UEl54KsuC", "tris": 4000, "use": "Creek speedboats, lagoon chases (Acts II-V)" },
-  { "key": "yacht", "id": "9znU2c-dTSR", "tris": 8000, "use": "Obinna's yacht, the final fight (Act V)" },
-  { "key": "canopy", "id": "40tUFNg2fu4", "tris": 3000, "use": "Owambe event canopy (Act II)" },
-  { "key": "ambulance", "id": "4JxDoxLnRd", "tris": 6000, "use": "LUTH ambulance run (Act III)" }
+  {
+   "key": "dayo",
+   "id": "kZ3DmIoGip",
+   "tris": 6000,
+   "use": "Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot)"
+  },
+  {
+   "key": "horse",
+   "id": "qvTrSG9pZF",
+   "tris": 6000,
+   "use": "Kano Durbar horseback chase (Act III)"
+  },
+  {
+   "key": "helicopter",
+   "id": "EQJ2MECUbx",
+   "tris": 6000,
+   "use": "The senator's helicopter, Obinna's escape (Acts IV-V)"
+  },
+  {
+   "key": "pistol",
+   "id": "J3i9KDQ3kt",
+   "tris": 1500,
+   "use": "Dayo's pistol in hand"
+  },
+  {
+   "key": "rock_large",
+   "id": "li0YBlBEMz",
+   "tris": 2000,
+   "use": "Olumo Rock boulders, creek banks (Acts II-III)"
+  },
+  {
+   "key": "mountain",
+   "id": "7HYR2s9JVi",
+   "tris": 4000,
+   "use": "Olumo Rock outcrop, Abeokuta (Act II)"
+  },
+  {
+   "key": "tent",
+   "id": "5Q7qIrfDxA",
+   "tris": 3000,
+   "use": "Festival and refinery camps"
+  },
+  {
+   "key": "gazebo",
+   "id": "xYZB1TmGMv",
+   "tris": 3000,
+   "use": "Owambe and Iri Ji seating"
+  },
+  {
+   "key": "barrel",
+   "id": "MraIiFnpAY",
+   "tris": 1000,
+   "use": "Kpo-fire refinery drums (Act III)"
+  },
+  {
+   "key": "gas_tank",
+   "id": "RoCvKBGkoC",
+   "tris": 3000,
+   "use": "Refinery tanks (Act III)"
+  },
+  {
+   "key": "speedboat",
+   "id": "5UEl54KsuC",
+   "tris": 4000,
+   "use": "Creek speedboats, lagoon chases (Acts II-V)"
+  },
+  {
+   "key": "yacht",
+   "id": "9znU2c-dTSR",
+   "tris": 8000,
+   "use": "Obinna's yacht, the final fight (Act V)"
+  },
+  {
+   "key": "canopy",
+   "id": "40tUFNg2fu4",
+   "tris": 3000,
+   "use": "Owambe event canopy (Act II)"
+  },
+  {
+   "key": "ambulance",
+   "id": "4JxDoxLnRd",
+   "tris": 6000,
+   "use": "LUTH ambulance run (Act III)"
+  }
  ]
 }

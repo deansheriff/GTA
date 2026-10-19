@@ -64,6 +64,23 @@ const TRAFFIC_MIX := ["danfo", "danfo", "danfo", "keke", "keke", "okada", "okada
 ## Townspeople models (rigged): key -> height.
 const PEOPLE := ["walker", "market_woman", "okada_rider", "agbero", "businessman", "young_woman", "elder", "aunty_boss", "chief", "marshal", "taskforce"]
 
+## Free rigged people (D-026): CC0 Quaternius characters with their own 24-clip animation sets,
+## recoloured by material name. They replace a Meshy cast member by key.
+const FREE_PEOPLE := {
+	"dayo": {
+		"file": "res://art3d/free/dayo.glb", "height": 1.8,
+		"colors": { "Skin": "#5b3a26", "Skin_Darker": "#48301f", "Hair": "#141010", "Eyebrows": "#141010",
+			"White": "#5d6040", "LightBlue": "#232a3a", "Red_Dark": "#1c1916", "LightBrown": "#3a2f25" },
+	},
+}
+## Our clip names -> Quaternius clip names.
+const FREE_ANIMS := {
+	"idle": "Idle", "walk": "Walk", "run": "Run", "punch": "Punch_Right", "hit": "HitRecieve",
+	"dead": "Death", "wave": "Wave", "talk": "Interact", "argue": "Interact", "phone": "Idle_Neutral",
+	"cheer": "Wave", "sit": "Idle_Neutral", "kick": "Kick_Right", "gun_idle": "Idle_Gun_Pointing",
+	"shoot": "Gun_Shoot", "run_shoot": "Run_Shoot",
+}
+
 var _scenes := {}
 var _anim_lib: AnimationLibrary
 var _anim_checked := false
@@ -183,6 +200,8 @@ static func no_shadow(n: Node) -> void:
 ## shared action pack (idle, talk, fight...) merged into one AnimationPlayer. Returns
 ## [root Node3D, AnimationPlayer or null].
 func person(key: String, height := 1.75) -> Array:
+	if FREE_PEOPLE.has(key):
+		return _free_person(key)
 	var m := make(key, CHARS)
 	if m == null:
 		m = make(key) # older unrigged model (art3d/tunde.glb)
@@ -224,6 +243,42 @@ static func restyle(n: Node, look: Dictionary) -> void:
 					sm.set_shader_parameter("tint", Color(String(look["tint"])))
 					sm.set_shader_parameter("tint_mix", float(look.get("tint_mix", 0.6)))
 				mi.set_surface_override_material(i, sm)
+
+
+func _free_person(key: String) -> Array:
+	var spec: Dictionary = FREE_PEOPLE[key]
+	var path := String(spec["file"])
+	if not ResourceLoader.exists(path):
+		return [null, null]
+	var m: Node3D = (load(path) as PackedScene).instantiate()
+	# Recolour: each named material gets its new colour (materials are shared, so duplicate them).
+	var cols: Dictionary = spec.get("colors", {})
+	for c in m.find_children("*", "MeshInstance3D", true, false):
+		var mi := c as MeshInstance3D
+		for i in mi.mesh.get_surface_count():
+			var mat: Material = mi.get_active_material(i)
+			if mat is BaseMaterial3D and cols.has(mat.resource_name):
+				var d: BaseMaterial3D = (mat as BaseMaterial3D).duplicate()
+				d.albedo_color = Color(String(cols[mat.resource_name]))
+				d.roughness = 0.75
+				mi.set_surface_override_material(i, d)
+	fit_height(m, float(spec.get("height", 1.8)))
+	var root := Node3D.new()
+	root.add_child(m)
+	var ap := find_player(m)
+	if ap:
+		var lib := _lib(ap)
+		for want: String in FREE_ANIMS:
+			for a in ap.get_animation_list():
+				var nm := String(a)
+				if nm == FREE_ANIMS[want] or nm.ends_with("|" + String(FREE_ANIMS[want])):
+					var anim := ap.get_animation(a)
+					if not want in ["dead", "hit", "punch", "shoot", "wave", "kick"]:
+						anim.loop_mode = Animation.LOOP_LINEAR
+					if not lib.has_animation(want):
+						lib.add_animation(want, anim)
+					break
+	return [root, ap]
 
 
 static func find_player(n: Node) -> AnimationPlayer:

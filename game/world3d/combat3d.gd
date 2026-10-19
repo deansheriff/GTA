@@ -225,6 +225,8 @@ func player_shoot() -> void:
 			best = e
 	Sound.sfx("gunshot", _rng.randf_range(0.95, 1.05))
 	world.shake(0.08)
+	if world.ride == null:
+		world.player.shoot_anim()
 	if best.is_empty():
 		tracer(from, from + look * 25.0)
 		return

@@ -163,3 +163,5 @@ people: Uncle Obi and the senator as the businessman, Hauwa, Amaka and Kemi as t
 Wire as the agbero, and Chief Bayo as the chief.
 
 The Eyo masquerade figure (`game/art3d/eyo.glb`, unrigged, sways in code) was added for Act I's Eyo Day. It used the last of the month's credits.
+
+On 2026-10-19 Dayo switched to the CC0 Quaternius "Casual Character", recoloured (D-026). The Meshy `chars/dayo.glb` is kept, unused.
