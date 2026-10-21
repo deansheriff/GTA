@@ -25,14 +25,25 @@ const LANDMARKS := {
 	"ward-collation": "office_tower", "yaba-police": "apartment", "coker-bankole-house": "mansion",
 	"balogun-compound": "apartment", "oshodi-park": "motor_park",
 }
-## District flavour: rich districts get duplexes and towers, crowded ones get shacks.
+## District flavour: rich districts get duplexes and towers, crowded ones get shacks, and the old
+## commercial centres get the Downtown City MegaKit's brick blocks (CC0 Quaternius, D-027).
 const DISTRICT_SWAP := {
 	"lekki": { "bungalow": "mansion", "two-storey": "mansion" },
 	"ikoyi": { "two-storey": "office_tower", "bungalow": "mansion" },
-	"vi": { "two-storey": "office_tower" },
+	"victoria-island": { "two-storey": "city_large", "bungalow": "city_medium" },
+	"lagos-island": { "two-storey": "city_medium", "bungalow": "city_small", "canteen": "city_small" },
+	"ikeja": { "two-storey": "city_large", "bungalow": "city_small" },
+	"yaba": { "two-storey": "city_small" },
 	"mushin": { "bungalow": "shack" },
 	"agbado-ketu": { "bungalow": "shack" },
 }
+## Downtown City MegaKit models (glTF with their textures beside them), by our key.
+const CITYKIT := {
+	"city_small": "Building_Small_1", "city_medium": "Building_Medium_2_001", "city_large": "Building_Large_2",
+	"ac_unit": "Prop_ACUnit", "bollard": "Prop_Bollard", "manhole": "Prop_ManholeCover",
+	"planter": "Prop_Planter_Single", "crosswalk": "Decal_Crosswalk",
+}
+const CITYKIT_DIR := "res://art3d/citykit/"
 
 ## Map prop kind -> [model key, height in metres].
 const PROPS := {
@@ -62,7 +73,8 @@ const VEHICLES := {
 const TRAFFIC_MIX := ["danfo", "danfo", "danfo", "keke", "keke", "okada", "okada", "car", "car", "taxi", "suv", "bus", "truck", "tanker", "pickup", "van"]
 
 ## Townspeople models (rigged): key -> height.
-const PEOPLE := ["walker", "market_woman", "okada_rider", "agbero", "businessman", "young_woman", "elder", "aunty_boss", "chief", "marshal", "taskforce"]
+## (okada_rider was generated sitting on his bike, so he can't walk the streets: left out.)
+const PEOPLE := ["walker", "market_woman", "agbero", "businessman", "young_woman", "elder", "aunty_boss", "chief", "marshal", "taskforce"]
 
 ## Free rigged people (D-026): CC0 Quaternius characters, used exactly as published (their own
 ## colours, size and 24-clip animation sets; owner: "Use the asset as it is"). They replace a
@@ -86,6 +98,8 @@ var _anim_checked := false
 
 func scene(key: String, dir := ART) -> PackedScene:
 	var path := dir + key + ".glb"
+	if dir == ART and CITYKIT.has(key):
+		path = CITYKIT_DIR + String(CITYKIT[key]) + ".gltf"
 	if _scenes.has(path):
 		return _scenes[path]
 	var ps: PackedScene = load(path) if ResourceLoader.exists(path) else null

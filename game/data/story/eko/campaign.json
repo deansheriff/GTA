@@ -70,7 +70,7 @@
   },
   "rasheed": {
    "name": "Rasheed Adio",
-   "model": "okada_rider",
+   "model": "walker",
    "colour": "#6b8e23",
    "look": {
     "hue": 0.9,
@@ -212,7 +212,7 @@
   },
   "robber": {
    "name": "One-chance robber",
-   "model": "okada_rider",
+   "model": "agbero",
    "colour": "#6b4a3a",
    "look": {
     "hue": 0.35,

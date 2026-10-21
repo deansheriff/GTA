@@ -46,13 +46,35 @@ static func tex_mat(path: String, tint := Color.WHITE, rough := 0.9, scale := 0.
 	return m
 
 
+## A physically based ground material from the Downtown City MegaKit (CC0 Quaternius, D-027):
+## colour, normal and occlusion/roughness/metal maps, tiled in world space every `tile` metres.
+static func pbr_mat(base: String, normal: String, orm: String, tile := 4.0) -> BaseMaterial3D:
+	var dir := "res://art3d/citykit/"
+	if not ResourceLoader.exists(dir + base):
+		return null
+	var m := ORMMaterial3D.new()
+	m.albedo_texture = load(dir + base)
+	if ResourceLoader.exists(dir + normal):
+		m.normal_enabled = true
+		m.normal_texture = load(dir + normal)
+	if ResourceLoader.exists(dir + orm):
+		m.orm_texture = load(dir + orm)
+	m.uv1_triplanar = true
+	m.uv1_world_triplanar = true
+	m.uv1_scale = Vector3.ONE / tile
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
+
+
 func _cells() -> void:
+	var dirt := pbr_mat("T_Dirt_BaseColor.png", "T_Dirt_Normal.png", "T_Dirt_ORM.png", 5.0)
+	var concrete := pbr_mat("T_Concrete_BaseColor.png", "T_Concrete_Normal.png", "T_Concrete_ORM.png", 3.0)
 	var mats := {
-		MapData.S.ROAD: tex_mat("ground/dirt.png", Color(0.74, 0.62, 0.54)), # laterite shoulder under the ribbon
+		MapData.S.ROAD: dirt if dirt else tex_mat("ground/dirt.png", Color(0.74, 0.62, 0.54)), # road shoulder under the ribbon
 		MapData.S.BRIDGE: tex_mat("ground/asphalt.png", Color(0.75, 0.75, 0.75), 0.75),
-		MapData.S.WALK: tex_mat("ground/interlock.png", Color(0.92, 0.9, 0.86)),
+		MapData.S.WALK: concrete if concrete else tex_mat("ground/interlock.png", Color(0.92, 0.9, 0.86)),
 		MapData.S.GUTTER: tex_mat("ground/interlock.png", Color(0.45, 0.45, 0.45)),
-		MapData.S.GROUND: tex_mat("ground/grass.png", Color(0.47, 0.5, 0.38)),
+		MapData.S.GROUND: tex_mat("ground/grass.png", Color(0.5, 0.5, 0.4)), # dusty Lagos yards, not lawn green
 		MapData.S.BEACH: tex_mat("ground/sand.png"),
 	}
 	var water := _water_material()
@@ -126,7 +148,9 @@ void fragment() {
 # ---------- roads ----------
 
 func _roads() -> void:
-	var asphalt := tex_mat("ground/asphalt.png", Color(0.8, 0.8, 0.8), 0.72, 0.2)
+	var asphalt: BaseMaterial3D = pbr_mat("T_Concrete_Asphalt_BaseColor.png", "T_Concrete_Normal.png", "T_Concrete_ORM.png", 6.0)
+	if asphalt == null:
+		asphalt = tex_mat("ground/asphalt.png", Color(0.8, 0.8, 0.8), 0.72, 0.2)
 	var line_mat := StandardMaterial3D.new()
 	line_mat.albedo_color = Color(0.9, 0.88, 0.82)
 	line_mat.roughness = 1.0

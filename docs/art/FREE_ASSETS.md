@@ -20,3 +20,16 @@ the credit below, which the game's credits screen repeats.
 | `ambulance` | Ambulance Car | Zsky | CC-BY 3.0 | https://poly.pizza/m/4JxDoxLnRd | LUTH ambulance run (Act III) |
 | `dayo` | Casual Character | Quaternius | CC0 | https://poly.pizza/m/kZ3DmIoGip | Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot) |
 | `young_dayo` | Hoodie Character | Quaternius | CC0 | https://poly.pizza/m/gKLBoRsyKe | Young Dayo in the prologue (used exactly as published) |
+
+## Downtown City MegaKit (Quaternius, CC0)
+- **Source:** https://quaternius.com/packs/downtowncitymegakit.html, the free Standard version
+  from itch.io at $0, downloaded 2026-10-19.
+- **Licence:** CC0 1.0, per `License_Standard.txt` in the pack.
+- **In the game** (`game/art3d/citykit/`): the three pre-built buildings (Building_Small_1,
+  Building_Medium_2_001 and Building_Large_2), the props (AC unit, bollard, manhole cover, drain
+  and planter), the crosswalk decal, and the concrete, asphalt and dirt materials with their
+  normal and ORM maps.
+- **Unchanged:** the files are as published. Textures import at 1024 px for phones.
+- **Rendering note:** the kit keeps a wear mask in its vertex colours for its own shader, so we
+  render it without vertex colour as albedo.
+- The full zip is in the git-ignored `art-src/citykit/`.

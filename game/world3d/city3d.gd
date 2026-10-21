@@ -16,6 +16,7 @@ var models: Models3D
 var obstacles: Array[Vector3] = [] # solid props as (x, z, radius) for people to walk round
 var far_scale := 1.0 # graphics preset: shorter draw distance on low-end phones
 const CHUNK := 48.0
+var debug_spots: Array[Vector3] = [] # QA: where some kit buildings stand
 var _batch := {} # model key -> {xforms: Array[Transform3D], far: float, shadow: bool}
 var _templates := {} # model key -> {parts: [[mesh, xform]], aabb: AABB}
 
@@ -25,6 +26,7 @@ func build(m: MapData, lib: Models3D) -> void:
 	models = lib
 	_buildings()
 	_props()
+	_street_furniture()
 	_build_batches()
 
 
@@ -55,7 +57,7 @@ func _buildings() -> void:
 		var local := Vector3(size.z, size.y, size.x) if quarter else size
 		var base := Transform3D(Basis(Vector3.UP, face), body.position)
 		if key != "" and _template(key) != null:
-			_place_row(key, local, base, key in ["office_tower", "apartment"])
+			_place_row(key, local, base, key in ["office_tower", "apartment"], key.begins_with("city_"))
 		else:
 			_box(holder, local, b.wall, roof_mat)
 		if b.sign_text != "":
@@ -74,8 +76,14 @@ func _yard(base: Transform3D, key: String, size: Vector3, seed: int) -> void:
 		adds.append(["water_tank", 3.6, Vector3(size.x * 0.5 - 1.2, 0, -size.z * 0.5 - 1.4)])
 	if key in ["canteen", "provision_store", "beach_bar", "pos_shop"]:
 		adds.append(["plastic_table", 0.8, Vector3(-size.x * 0.25, 0, size.z * 0.5 + 2.2)])
+	# Window AC units on the street front, the Lagos skyline's signature.
+	if key in ["shop", "apartment", "provision_store", "canteen", "pos_shop"] and seed % 2 == 0:
+		adds.append(["ac_unit", 0.6, Vector3(size.x * 0.28, 2.7, size.z * 0.5 + 0.12)])
+		if key == "apartment":
+			adds.append(["ac_unit", 0.6, Vector3(-size.x * 0.22, 5.4, size.z * 0.5 + 0.12)])
 	for a: Array in adds:
-		_queue_fit(a[0], float(a[1]), base * Transform3D(Basis(Vector3.UP, float(seed % 7) * 0.4), a[2]), PROP_FAR, false)
+		var yaw := 0.0 if a[0] == "ac_unit" else float(seed % 7) * 0.4 # AC units face the street
+		_queue_fit(a[0], float(a[1]), base * Transform3D(Basis(Vector3.UP, yaw), a[2]), PROP_FAR, false)
 
 
 ## The yaw that turns a model's front (+Z) towards the side of the footprint with the most road.
@@ -101,11 +109,14 @@ func _road_side(fp: Rect2) -> float:
 
 ## A row of copies across the footprint at natural proportions (scaled to the depth, capped in
 ## height; towers may go tall).
-func _place_row(key: String, size: Vector3, base: Transform3D, tall := false) -> void:
+func _place_row(key: String, size: Vector3, base: Transform3D, tall := false, real := false) -> void:
 	var bb: AABB = _templates[key]["aabb"]
 	if bb.size.x <= 0.0:
 		return
 	var k := minf(size.z / bb.size.z, (22.0 if tall else 10.0) / bb.size.y)
+	if real:
+		# Real-scale kit buildings: never enlarged, only shrunk to fit the plot's depth and width.
+		k = minf(1.0, minf(size.z / bb.size.z, size.x / bb.size.x))
 	var width := bb.size.x * k
 	var n := maxi(1, int(floor(size.x / width)))
 	var gap := (size.x - n * width) / n
@@ -131,10 +142,27 @@ func _template(key: String) -> Variant:
 		while p != m and p is Node3D:
 			xf = (p as Node3D).transform * xf
 			p = p.get_parent()
-		parts.append([mi.mesh, xf])
+		var mesh: Mesh = mi.mesh
+		if Models3D.CITYKIT.has(key):
+			mesh = _kit_mesh(mesh)
+		parts.append([mesh, xf])
 	_templates[key] = { "parts": parts, "aabb": Models3D.aabb(m) }
 	m.free()
 	return _templates[key]
+
+
+## The MegaKit stores a wear mask in its vertex colours for its own shader; Godot's importer would
+## paint it on as colour (red bands along every wall). Render the asset as its author shows it:
+## materials without vertex colour as albedo.
+func _kit_mesh(mesh: Mesh) -> Mesh:
+	var copy: Mesh = mesh.duplicate()
+	for i in copy.get_surface_count():
+		var mat := copy.surface_get_material(i)
+		if mat is BaseMaterial3D and (mat as BaseMaterial3D).vertex_color_use_as_albedo:
+			var d: BaseMaterial3D = mat.duplicate()
+			d.vertex_color_use_as_albedo = false
+			copy.surface_set_material(i, d)
+	return copy
 
 
 func _queue(key: String, xf: Transform3D, far: float, shadow: bool) -> void:
@@ -156,6 +184,11 @@ func _queue_fit(key: String, height: float, at: Transform3D, far: float, shadow:
 
 
 func _build_batches() -> void:
+	if "--look" in OS.get_cmdline_user_args():
+		print("city batches: ", _batch.keys().map(func(k: String) -> String: return "%s=%d" % [k, (_batch[k]["xforms"] as Array).size()]))
+		for k in ["city_large", "city_small"]:
+			if _batch.has(k):
+				debug_spots.append((_batch[k]["xforms"][0] as Transform3D).origin)
 	for key: String in _batch:
 		var t: Variant = _templates.get(key)
 		if t == null:
@@ -258,3 +291,51 @@ func _props() -> void:
 			body.position = pos
 			add_child(body)
 			obstacles.append(Vector3(pos.x, pos.z, maxf(0.25, r)))
+
+
+## Manhole covers down the middle of each lane and zebra crossings across every road just before
+## its junctions (Downtown City MegaKit, CC0).
+func _street_furniture() -> void:
+	var junctions := {}
+	for id in map.road_graph:
+		if (map.road_graph[id] as Array).size() >= 3:
+			junctions[id] = (map.road_nodes[id] as Vector2) * K
+	for r: Dictionary in map.roads:
+		var pts: PackedVector2Array = r["points"]
+		var half: float = float(r["width"]) * K * 0.5
+		if pts.size() < 2:
+			continue
+		var run := 0.0
+		for i in pts.size() - 1:
+			var a := pts[i] * K
+			var b := pts[i + 1] * K
+			var seg := a.distance_to(b)
+			var dir := (b - a) / maxf(seg, 0.001)
+			var side := Vector2(-dir.y, dir.x)
+			var t := fmod(40.0 - run, 40.0)
+			while t < seg:
+				var p := a + dir * t + side * (half * 0.45)
+				_queue("manhole", Transform3D(Basis(Vector3.UP, -dir.angle()), Vector3(p.x, Terrain3D.ROAD_Y + 0.02, p.y)), PROP_FAR * 0.6, false)
+				t += 40.0
+			run += seg
+		# Crossings 10 m out from each end that meets a junction, spanning the road.
+		for end in [0, pts.size() - 1]:
+			var j := pts[end] * K
+			var near_junction := false
+			for q: Vector2 in junctions.values():
+				if q.distance_to(j) < 3.0:
+					near_junction = true
+			if not near_junction:
+				continue
+			var other := pts[1 if end == 0 else pts.size() - 2] * K
+			var dir2 := (other - j).normalized()
+			var c := j + dir2 * 10.0
+			# The decal's stripes run along its X; turn it so they cross the road.
+			var w := half * 2.0
+			var tpl: Variant = _template("crosswalk")
+			if tpl == null:
+				continue
+			var bb: AABB = tpl["aabb"]
+			var sx := w / maxf(bb.size.z, 0.1)
+			var xf := Transform3D(Basis(Vector3.UP, -dir2.angle()) * Basis.from_scale(Vector3(1.0, 1.0, sx)), Vector3(c.x, Terrain3D.ROAD_Y + 0.025, c.y))
+			_queue("crosswalk", xf, PROP_FAR, false)

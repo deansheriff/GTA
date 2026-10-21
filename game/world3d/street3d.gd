@@ -120,6 +120,8 @@ func _ready() -> void:
 			shots = a.trim_prefix("--shots=")
 	if "--perf" in OS.get_cmdline_user_args():
 		_perf()
+	elif shots != "" and "--look" in OS.get_cmdline_user_args():
+		_look(shots)
 	elif shots != "":
 		_shots(shots)
 	else:
@@ -475,20 +477,22 @@ func _environment() -> void:
 	mat.sky_top_color = Color("#4f8fd0")
 	mat.sky_horizon_color = Color("#d6e4ea")
 	mat.ground_horizon_color = Color("#c9b99a")
-	mat.sun_angle_max = 20.0
+	mat.sun_angle_max = 30.0
+	mat.sun_curve = 0.08 # a soft, hazy sun disc
 	sky.sky_material = mat
 	_sky = mat
 	env.sky = sky
 	env.background_mode = Environment.BG_SKY
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.8
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.05
+	# ACES: richer contrast and no washed-out highlights in the midday sun (polish, D-027).
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_exposure = 0.95
 	env.glow_enabled = true
 	env.glow_intensity = 0.3
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.04
-	env.adjustment_contrast = 1.05
+	env.adjustment_saturation = 1.1
+	env.adjustment_contrast = 1.06
 	# Harmattan-ish haze hides where far buildings and props are switched off.
 	env.fog_enabled = true
 	env.fog_light_color = Color("#d9dcd2")
@@ -879,7 +883,7 @@ func _day_night() -> void:
 	_env.ambient_light_sky_contribution = lerpf(1.0, 0.25, dark)
 	_env.ambient_light_color = Color(0.34, 0.4, 0.56)
 	_env.ambient_light_energy = lerpf(0.8, 1.0, dark)
-	_env.tonemap_exposure = lerpf(1.05, 1.3, dark)
+	_env.tonemap_exposure = lerpf(0.95, 1.25, dark)
 	var rain_k := 0.35 if stage and stage.raining else 0.0
 	_sky.sky_top_color = Color("#4f8fd0").lerp(Color("#0b1630"), dark).lerp(Color("#3a4048"), rain_k)
 	_sky.sky_horizon_color = Color("#d6e4ea").lerp(Color("#2a3150"), dark).lerp(Color("#4a5058"), rain_k)
@@ -1004,6 +1008,25 @@ func _perf() -> void:
 		print("perf without %s: cpu=%.1fms draws=%d" % [k, ms, Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)])
 		probes[k].call(true)
 		await get_tree().create_timer(0.5).timeout
+	get_tree().quit()
+
+
+## QA: pictures from a raised camera over a few districts (buildings and street dressing).
+func _look(dir: String) -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	in_menu = false
+	DirAccess.make_dir_recursive_absolute(dir)
+	var spots: Array = ["node:vi_c", "node:ikeja_c", "node:yaba_c", "node:obalende", "node:lekki_c"]
+	for p in city.debug_spots:
+		spots.append([p.x + 18.0, p.z + 18.0])
+	for i in spots.size():
+		player.position = resolve({ "at": spots[i], "offset": [4, 4] })
+		player.reset_physics_interpolation()
+		in_menu = true # the raised, orbiting camera
+		_menu_t = 0.8 + i * 1.3
+		await get_tree().create_timer(1.5).timeout
+		await _save(dir + "/look-%d.png" % i)
 	get_tree().quit()
 
 

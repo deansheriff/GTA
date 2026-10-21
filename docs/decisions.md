@@ -833,3 +833,32 @@ asset as it is.")**
   animations. Grown Dayo has the asset's own white T-shirt, jeans, red trainers and skin tone.
 - **Rule for free assets:** use them as published. Only our clip names point at their clips, and
   looping clips loop.
+
+
+## D-027 · Joystick, the bike guy, the Downtown City MegaKit and graphics polish · 2026-10-21
+**Owner:**
+- "The bike guy … is a man on a bike but still waving hands in the title screen."
+- "Polish the graphics more."
+- "Use some building assets from [the Downtown City MegaKit]."
+- "The control Joypad sometimes stay stuck in a position."
+
+**Changes:**
+- **Joystick:** a finger that presses inside the stick is now followed anywhere on screen until it
+  lifts.
+  - On phones the stick ignores Android's emulated mouse events, which only track the first
+    finger.
+  - It lets go when hidden, paused or sent to the background, and keeps listening while the game
+    is paused.
+- **The bike guy:** Meshy generated the okada rider seated on his motorcycle, so he walked around
+  with a bike. He's no longer a townsperson, and his two stand-in roles moved to other models. Even
+  his un-rigged original stands over the bike with an arm out, so it can't be a rider either.
+- **Downtown City MegaKit** (CC0, see FREE_ASSETS.md):
+  - Real-scale brick blocks: Small 17 m, Medium 25 m and Large 28 m tall.
+  - They stand in Victoria Island, Lagos Island, Ikeja and Yaba, shrunk only when the plot is
+    small.
+  - The kit's asphalt, concrete and dirt materials now cover roads, pavements and shoulders.
+  - Window AC units sit on shop and apartment fronts.
+  - Manhole covers are every 40 m, with zebra crossings before junctions.
+- **Polish:** ACES tone mapping with slightly lower exposure and a touch more saturation and
+  contrast, a soft sun disc, and dustier yards.
+- **Cost:** about 126 draw calls (from 87). The kit buildings have about 12 material parts each.
