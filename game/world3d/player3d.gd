@@ -20,6 +20,13 @@ var _hand := -1
 var _elbow := -1
 var _gun_x := true # the pistol's barrel runs along its X axis (else Z)
 var _skel: Skeleton3D
+## Stamina (D-028): sprinting uses it up; Mama Àgbà's amala and ewedu make it last.
+var stamina := 1.0
+var stamina_k := 1.0 # drain multiplier (food buffs lower it)
+var _winded := false
+var in_cover := false # standing still against a wall: gunmen hit far less often
+var _vault := {} # mid-jump across a rooftop gap: {from, to, t, dur}
+var _cover_t := 0.0
 
 
 func setup(lib: Models3D, w) -> void:
@@ -144,7 +151,12 @@ func _figure() -> Node3D:
 
 
 ## stick: x right, y down (screen); cam_yaw: the camera's yaw. run: sprint held.
+## Walks on the terrain, decks and set floors (World.ground_at); never into open water. Running
+## at a short gap between rooftops jumps it (auto-vault); walking stops at the edge.
 func walk(stick: Vector2, cam_yaw: float, run: bool, delta: float) -> void:
+	if not _vault.is_empty():
+		_vault_step(delta)
+		return
 	var mag := minf(1.0, stick.length())
 	var dir := Vector3.ZERO
 	if mag > 0.12:
@@ -152,15 +164,34 @@ func walk(stick: Vector2, cam_yaw: float, run: bool, delta: float) -> void:
 		var fwd := Vector3(-sin(cam_yaw), 0, -cos(cam_yaw))
 		var right := Vector3(cos(cam_yaw), 0, -sin(cam_yaw))
 		dir = (right * stick.x - fwd * stick.y).normalized()
-	var fast := run or mag > 0.92
+	var fast := (run or mag > 0.92) and not _winded
 	var spd := (RUN if fast else WALK) * (1.0 if mag > 0.12 else 0.0)
+	if fast and spd > 0.0:
+		stamina = maxf(0.0, stamina - delta * 0.055 * stamina_k)
+		if stamina <= 0.0:
+			_winded = true
+	else:
+		stamina = minf(1.0, stamina + delta * 0.12)
+		if _winded and stamina > 0.35:
+			_winded = false
 	velocity.x = dir.x * spd
 	velocity.z = dir.z * spd
-	velocity.y = 0.0 # flat city: height comes from the terrain (kerbs), not gravity
+	velocity.y = 0.0 # flat city: height comes from the terrain, decks and kerbs, not gravity
+	if spd > 0.0:
+		var nxt := position + velocity * delta + dir * 0.35
+		var g: float = world.ground_at(nxt, position.y)
+		if is_nan(g) or g < position.y - 1.6:
+			if fast and _try_vault(dir):
+				return
+			velocity.x = 0.0
+			velocity.z = 0.0
 	move_and_slide()
-	position.y = lerpf(position.y, world.terrain.height_at(position), minf(1.0, delta * 14.0))
+	var here: float = world.ground_at(position, position.y)
+	if not is_nan(here):
+		position.y = lerpf(position.y, here, minf(1.0, delta * (14.0 if here > position.y else 9.0)))
 	if dir != Vector3.ZERO:
 		model.rotation.y = lerp_angle(model.rotation.y, atan2(dir.x, dir.z), minf(1.0, delta * 12.0))
+	_cover_check(spd == 0.0, delta)
 	var want := 0.0 if spd == 0.0 else (2.0 if fast else 1.0)
 	if _action_t > 0.0:
 		_action_t -= delta
@@ -177,3 +208,54 @@ func walk(stick: Vector2, cam_yaw: float, run: bool, delta: float) -> void:
 
 func facing() -> float:
 	return model.rotation.y
+
+
+## A gap ahead (a rooftop edge, a canoe's gap): look up to 4.5 m on for somewhere to land.
+func _try_vault(dir: Vector3) -> bool:
+	for i in range(2, 10):
+		var d := i * 0.5
+		var p := position + dir * d
+		var g: float = world.ground_at(p, position.y + 0.4)
+		if not is_nan(g) and g > position.y - 2.5:
+			var land := p + dir * 0.4
+			land.y = g
+			_vault = { "from": position, "to": land, "t": 0.0, "dur": 0.32 + d * 0.06 }
+			Models3D.play(ap, "jump", "run", 1.3)
+			Sound.sfx("whoosh", 1.2)
+			return true
+	return false
+
+
+func _vault_step(delta: float) -> void:
+	_vault["t"] = float(_vault["t"]) + delta
+	var k := clampf(float(_vault["t"]) / float(_vault["dur"]), 0.0, 1.0)
+	var a: Vector3 = _vault["from"]
+	var b: Vector3 = _vault["to"]
+	position = a.lerp(b, k) + Vector3(0, sin(k * PI) * 0.9, 0)
+	if k >= 1.0:
+		_vault = {}
+		moving = -1.0
+
+
+func vaulting() -> bool:
+	return not _vault.is_empty()
+
+
+## In cover: stood still for a moment with a wall within arm's reach.
+func _cover_check(still: bool, delta: float) -> void:
+	_cover_t = _cover_t + delta if still else 0.0
+	if _cover_t < 0.4:
+		in_cover = false
+		return
+	if int(_cover_t * 10.0) % 3 != 0:
+		return
+	var space := get_world_3d().direct_space_state
+	var c := position + Vector3(0, 0.9, 0)
+	in_cover = false
+	for k in 8:
+		var d := Vector3(cos(k * TAU / 8.0), 0, sin(k * TAU / 8.0))
+		var q := PhysicsRayQueryParameters3D.create(c, c + d * 1.3, 1 | 2)
+		q.exclude = [get_rid()]
+		if not space.intersect_ray(q).is_empty():
+			in_cover = true
+			return

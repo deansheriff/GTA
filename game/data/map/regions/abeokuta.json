@@ -1,0 +1,252 @@
+{
+ "_comment": "Abeokuta: the town, Itoku's adire market, Olumo Rock and Baba Fakunle's shrine below it (Act II, M11).",
+ "region": "abeokuta",
+ "name": "Abeokuta, Ogun State",
+ "size": [
+  96,
+  72
+ ],
+ "ground": "grass",
+ "inland": true,
+ "land": {
+  "land": [
+   [
+    0,
+    0
+   ],
+   [
+    96,
+    0
+   ],
+   [
+    96,
+    72
+   ],
+   [
+    0,
+    72
+   ]
+  ]
+ },
+ "lagoon": [
+  [
+   200,
+   200
+  ],
+  [
+   201,
+   200
+  ],
+  [
+   201,
+   201
+  ],
+  [
+   200,
+   201
+  ]
+ ],
+ "road_classes": {
+  "expressway": {
+   "width": 148,
+   "speed": 1.0
+  },
+  "main": {
+   "width": 112,
+   "speed": 0.85
+  },
+  "street": {
+   "width": 80,
+   "speed": 0.6
+  }
+ },
+ "nodes": {
+  "gate_w": [
+   6,
+   40
+  ],
+  "town_c": [
+   30,
+   40
+  ],
+  "town_n": [
+   30,
+   14
+  ],
+  "town_s": [
+   30,
+   62
+  ],
+  "town_e": [
+   54,
+   40
+  ],
+  "market": [
+   42,
+   52
+  ],
+  "olumo": [
+   66,
+   38
+  ],
+  "shrine": [
+   76,
+   48
+  ]
+ },
+ "roads": [
+  {
+   "id": "abeokuta-road",
+   "class": "main",
+   "nodes": [
+    "gate_w",
+    "town_c",
+    "town_e",
+    "olumo"
+   ]
+  },
+  {
+   "id": "town-ns",
+   "class": "street",
+   "nodes": [
+    "town_n",
+    "town_c",
+    "town_s"
+   ]
+  },
+  {
+   "id": "itoku",
+   "class": "street",
+   "nodes": [
+    "town_c",
+    "market"
+   ]
+  },
+  {
+   "id": "shrine-path",
+   "class": "street",
+   "nodes": [
+    "olumo",
+    "shrine"
+   ]
+  }
+ ],
+ "districts": [
+  {
+   "id": "abeokuta",
+   "name": "Abeokuta",
+   "center": [
+    32,
+    38
+   ],
+   "density": 0.75,
+   "buildings": {
+    "bungalow": 5,
+    "two-storey": 2,
+    "provision-store": 2,
+    "canteen": 2
+   },
+   "props": {
+    "mango": 3,
+    "palm": 2,
+    "kiosk": 2,
+    "umbrella": 2
+   }
+  },
+  {
+   "id": "itoku",
+   "name": "Itoku adire market",
+   "center": [
+    44,
+    54
+   ],
+   "density": 0.8,
+   "buildings": {
+    "pos-shop": 3,
+    "provision-store": 3
+   },
+   "props": {
+    "umbrella": 4,
+    "orange-tray": 2
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "olumo-rock",
+   "name": "Olumo Rock",
+   "district": "abeokuta",
+   "cell": [
+    66,
+    32
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "fakunle-shrine",
+   "name": "Baba Fakunle's shrine",
+   "district": "abeokuta",
+   "cell": [
+    76,
+    50
+   ],
+   "kind": "bungalow"
+  },
+  {
+   "id": "itoku-market",
+   "name": "Itoku adire market",
+   "district": "itoku",
+   "cell": [
+    44,
+    50
+   ],
+   "kind": "market"
+  }
+ ],
+ "start": {
+  "player": [
+   8,
+   42
+  ],
+  "danfo": [
+   8,
+   40
+  ]
+ },
+ "set_pieces": [
+  {
+   "model": "free:mountain",
+   "cell": [
+    68,
+    26
+   ],
+   "size": 46.0
+  },
+  {
+   "model": "free:rock_large",
+   "cell": [
+    60,
+    30
+   ],
+   "size": 9.0
+  },
+  {
+   "model": "free:rock_large",
+   "cell": [
+    74,
+    34
+   ],
+   "size": 7.0
+  },
+  {
+   "model": "free:rock_large",
+   "cell": [
+    62,
+    22
+   ],
+   "size": 11.0
+  }
+ ],
+ "beach_props": {},
+ "beach_buildings": {}
+}

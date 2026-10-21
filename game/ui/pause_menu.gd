@@ -6,6 +6,7 @@ extends CanvasLayer
 signal open_settings(root: Control)
 
 var _root: Control
+var extra: Array = [] # more buttons from the game, set before adding: [[label, Callable(root)]]
 var _tips := ["Argue with the marshals only when your street reputation is good.", "Park off the lane, or the drivers behind you will get out.", "Rain means higher fares, but watch for floods on the low roads.", "A generator saves your sleep when NEPA takes light at night.", "Crews that hold a route earn 10% more on every run."]
 
 
@@ -38,7 +39,12 @@ func _ready() -> void:
 	t.add_theme_color_override("font_outline_color", UiStyle.INK)
 	t.add_theme_constant_override("outline_size", 10)
 	v.add_child(t)
-	for spec: Array in [["Resume", close], ["Settings", func() -> void: open_settings.emit(_root)], ["Save", _save], ["Save & quit", _quit]]:
+	var items: Array = [["Resume", close], ["Settings", func() -> void: open_settings.emit(_root)]]
+	for e: Array in extra:
+		var cb: Callable = e[1]
+		items.append([e[0], func() -> void: cb.call(_root)])
+	items.append_array([["Save", _save], ["Save & quit", _quit]])
+	for spec: Array in items:
 		var b := Button.new()
 		b.text = spec[0]
 		b.custom_minimum_size = Vector2(360, 62)

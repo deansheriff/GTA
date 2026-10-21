@@ -34,6 +34,19 @@ var missions: Mission3D
 var hud: Hud3D
 var police: Police3D
 var mission_vehicles: Array[Vehicle3D] = []
+var loading: Loading3D
+var sets: Sets3D
+var fx: Fx3D
+var stealth: Stealth3D
+var roam: FreeRoam3D
+var signals: Signals3D
+var region := "lagos" # which map is built: Lagos, or a story region (D-028)
+var prompt_text := "" # a context action a mission or a stall offers (the ACT button shows it)
+var prompt_cb: Callable
+var _built := false
+var _maps := {} # region id -> MapData (Lagos stays cached; one region at a time besides it)
+var _res_t := 0.0
+var _res_frames := 0
 var in_menu := true
 var _look_t := 0.0
 var _shake := 0.0
@@ -57,35 +70,29 @@ var demo_drive := Vector2.ZERO
 func _ready() -> void:
 	_rng.seed = 2026
 	_quality()
-	map = MapData.shared()
+	# Phones: build the city over several frames behind a loading screen (no frozen black boot).
+	loading = Loading3D.new()
+	add_child(loading)
+	loading.open("Lagos")
 	_environment()
-	terrain = Terrain3D.new()
-	add_child(terrain)
-	terrain.build(map)
-	city = City3D.new()
-	add_child(city)
-	city.far_scale = q_far
-	city.build(map, models)
-	for y in map.rows:
-		for x in map.cols:
-			if map.surface[y * map.cols + x] == MapData.S.WALK:
-				_walk_cells.append(Vector2i(x, y))
+	loading.stage(0.05, "Drawing the map of Lagos")
+	map = await _map_for("lagos")
+	await _build_world()
+	loading.stage(0.88, "Waking up the city")
+	await get_tree().process_frame
 	_spawn_player()
 	_spawn_traffic()
 	_spawn_people()
-	run = DanfoRun3D.new()
-	add_child(run)
-	run.setup(self)
-	run.message.connect(notify)
-	run.paid.connect(_save_game)
-	lights = Lights3D.new()
-	add_child(lights)
-	lights.build(self)
-	checkpoints = Checkpoint3D.new()
-	add_child(checkpoints)
-	checkpoints.setup(self)
-	checkpoints.message.connect(notify)
-	checkpoints.charged.connect(_save_game)
+	_spawn_map_services()
+	sets = Sets3D.new()
+	add_child(sets)
+	sets.setup(self)
+	fx = Fx3D.new()
+	add_child(fx)
+	fx.setup(self)
+	stealth = Stealth3D.new()
+	add_child(stealth)
+	stealth.setup(self)
 	stage = Stage3D.new()
 	add_child(stage)
 	stage.setup(self)
@@ -99,21 +106,25 @@ func _ready() -> void:
 	police = Police3D.new()
 	add_child(police)
 	police.setup(self)
-	checkpoints.charged.connect(func() -> void:
-		if ride and absf(ride.speed) > 3.0:
-			police.raise(1.0))
 	hud = Hud3D.new()
 	add_child(hud)
 	hud.setup(self)
 	hud.action_pressed.connect(_action)
-	hud.punch_pressed.connect(combat.player_attack)
+	hud.punch_pressed.connect(_punch)
 	hud.shoot_pressed.connect(_shoot)
 	hud.run_changed.connect(func(h: bool) -> void: _run_held = h)
 	hud.new_game.connect(_new_game)
 	hud.continue_game.connect(_continue_game)
+	roam = FreeRoam3D.new()
+	add_child(roam)
+	roam.setup(self)
+	signals.message.connect(notify)
 	_register_save()
 	_apply_quality_env()
 	_day_night()
+	_built = true
+	await loading.close()
+	get_viewport().size_changed.connect(func() -> void: UiStyle.fit_safe_area(hud._root))
 	var shots := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shots="):
@@ -122,6 +133,8 @@ func _ready() -> void:
 		_perf()
 	elif shots != "" and "--look" in OS.get_cmdline_user_args():
 		_look(shots)
+	elif shots != "" and "--sets" in OS.get_cmdline_user_args():
+		_look_sets(shots)
 	elif shots != "":
 		_shots(shots)
 	else:
@@ -134,20 +147,27 @@ func _ready() -> void:
 func _register_save() -> void:
 	SaveGame.world_provider = _world_state
 	SaveGame.world_restorer = _restore_world
-	SaveGame.extra_providers = { "story": Story.to_dict, "street": Street.to_dict }
-	SaveGame.extra_restorers = { "story": Story.from_dict, "street": Street.from_dict }
+	SaveGame.extra_providers = { "story": Story.to_dict, "street": Street.to_dict, "roam": roam.to_dict }
+	SaveGame.extra_restorers = { "story": Story.from_dict, "street": Street.from_dict, "roam": roam.from_dict }
 
 
 func _world_state() -> Dictionary:
 	var p := focus()
-	return { "pos": [p.x, p.z], "model": player.model_key }
+	return { "pos": [p.x, p.z], "model": player.model_key, "region": region, "offmap": sets.active != "", "armed": combat.armed, "reserve": combat.reserve }
 
 
 func _restore_world(d: Dictionary) -> void:
 	var p: Array = d.get("pos", [])
-	if p.size() == 2:
+	# Free roam is always in Lagos; a save made in a region or inside a set (a mission was
+	# running, and restarts from its checkpoint) puts Dayo back home.
+	if p.size() == 2 and String(d.get("region", "lagos")) == "lagos" and not bool(d.get("offmap", false)):
 		player.position = Vector3(float(p[0]), terrain.height_at(Vector3(float(p[0]), 0, float(p[1]))), float(p[1]))
+	else:
+		player.position = home_pos()
+	player.reset_physics_interpolation()
 	player.set_model(String(d.get("model", "dayo")))
+	if bool(d.get("armed", false)):
+		combat.give_gun(int(d.get("reserve", 24)))
 
 
 func _save_game() -> void:
@@ -167,25 +187,221 @@ func _continue_game() -> void:
 	in_menu = false
 	SaveGame.load_local()
 	Sound.music("")
-	# A mission interrupted by quitting starts again from its beginning.
+	roam.on_continue()
+	# A mission interrupted by quitting starts again from its last checkpoint.
 	var id := Story.current
 	if id != "" and Story.playable(id):
-		missions.run(id)
+		missions.run(id, Story.checkpoint)
 	else:
 		_next_mission_marker()
 
 
 func _on_mission_done(id: String) -> void:
+	# Free roam happens in Lagos: come home from a story region first.
+	if region != "lagos":
+		await load_region("lagos")
+		place_player(home_pos())
 	_save_game()
 	var nxt := Story.next_mission()
 	if nxt == "":
-		notify("You've played every chapter so far. More of the story is coming.")
+		# The story is over: post-game free roam in the world the ending made (D-028).
+		roam.start_postgame(Story.ending())
+		set_objective("", null)
 		return
 	var m: Dictionary = Story.mission(nxt)
 	if Story.playable(nxt) and not m.has("start"):
 		missions.run(nxt)
 	else:
 		_next_mission_marker()
+
+
+## Where Dayo lives (Mama Àgbà's room in Mushin; the Festac safe house later is a mission set).
+func home_pos() -> Vector3:
+	var at := "landmark:" + String(Life.home) if map.landmarks.has(Life.home) else "node:mushin_c"
+	return resolve({ "at": at, "offset": [2, 2] })
+
+
+# ---------- building the world (staged) and regions ----------
+
+## The map for a region, parsed on a worker thread so the loading screen keeps moving.
+func _map_for(id: String) -> MapData:
+	if _maps.has(id):
+		return _maps[id]
+	var m: MapData
+	if id == "lagos" and MapData._shared != null:
+		m = MapData._shared
+	else:
+		m = MapData.new()
+		var path := "res://data/map/lagos.json" if id == "lagos" else "res://data/map/regions/%s.json" % id
+		var th := Thread.new()
+		th.start(m.load_file.bind(path))
+		while th.is_alive():
+			await get_tree().process_frame
+		th.wait_to_finish()
+		if id == "lagos":
+			MapData._shared = m
+	# Keep Lagos and at most one region in memory.
+	for k in _maps.keys():
+		if k != "lagos" and k != id:
+			_maps.erase(k)
+	_maps[id] = m
+	return m
+
+
+func _build_world() -> void:
+	loading.stage(0.2, "Laying the roads of %s" % map.title)
+	await get_tree().process_frame
+	terrain = Terrain3D.new()
+	add_child(terrain)
+	terrain.build(map)
+	loading.stage(0.35, "Putting up the buildings")
+	await get_tree().process_frame
+	city = City3D.new()
+	add_child(city)
+	city.far_scale = q_far
+	city.staged = true
+	await city.build(map, models)
+	loading.stage(0.75, "Wiring the streetlights")
+	await get_tree().process_frame
+	lights = Lights3D.new()
+	add_child(lights)
+	lights.build(self)
+	signals = Signals3D.new()
+	add_child(signals)
+	signals.build(self)
+	_walk_cells.clear()
+	for y in map.rows:
+		for x in map.cols:
+			if map.surface[y * map.cols + x] == MapData.S.WALK:
+				_walk_cells.append(Vector2i(x, y))
+	if _walk_cells.is_empty():
+		_walk_cells.append(Vector2i(map.cols / 2, map.rows / 2))
+
+
+## Bus stops and checkpoints belong to a map, so they are rebuilt with it.
+func _spawn_map_services() -> void:
+	run = DanfoRun3D.new()
+	add_child(run)
+	run.setup(self)
+	run.message.connect(notify)
+	run.paid.connect(_save_game)
+	run.paid.connect(func() -> void: roam.on_fare_paid())
+	checkpoints = Checkpoint3D.new()
+	add_child(checkpoints)
+	checkpoints.setup(self)
+	checkpoints.message.connect(notify)
+	checkpoints.charged.connect(_save_game)
+	checkpoints.charged.connect(func() -> void:
+		if ride and absf(ride.speed) > 3.0:
+			police.raise(1.0))
+
+
+## Travel to another map (the story goes to Abeokuta, Kano, the Delta, Anambra and back).
+func load_region(id: String) -> void:
+	if id == region and _built:
+		return
+	_built = false
+	var m: Dictionary = { "lagos": "Lagos", "abeokuta": "Abeokuta", "kano": "Kano", "delta": "the Niger Delta", "anambra": "Anambra" }
+	loading.open("On the road to %s" % String(m.get(id, id)))
+	await get_tree().process_frame
+	if ride:
+		ride = null
+		player.visible = true
+		player.collision_layer = 4
+		hud.act_btn.text = "ENTER"
+	clear_mission_vehicles()
+	for v in vehicles:
+		v.queue_free()
+	vehicles.clear()
+	for p in people:
+		p.queue_free()
+	people.clear()
+	police.clear()
+	for n: Node in [terrain, city, lights, signals, checkpoints, run]:
+		if is_instance_valid(n):
+			n.queue_free()
+	await get_tree().process_frame
+	region = id
+	loading.stage(0.05, "Drawing the map")
+	map = await _map_for(id)
+	await _build_world()
+	_spawn_map_services()
+	signals.message.connect(notify)
+	run.enabled = missions.running == ""
+	player.position = cell_pos(_nearest_walk(map.player_start))
+	player.reset_physics_interpolation()
+	var n_traffic := traffic_n if id == "lagos" else traffic_n / 3
+	for i in n_traffic:
+		var v := Vehicle3D.new()
+		add_child(v)
+		v.setup(models, (Models3D.TRAFFIC_MIX if id == "lagos" else Models3D.REGION_MIX)[i % (Models3D.TRAFFIC_MIX if id == "lagos" else Models3D.REGION_MIX).size()], self)
+		vehicles.append(v)
+		_reroute(v, 20.0, 160.0)
+	var keep := people_n
+	if id != "lagos":
+		people_n = people_n / 2
+	_spawn_people()
+	people_n = keep
+	hud.minimap.setup(self)
+	roam.on_region()
+	_day_night()
+	_built = true
+	await loading.close()
+
+
+func _nearest_walk(px: Vector2) -> Vector2i:
+	var best := _walk_cells[0]
+	var bd := INF
+	for c in _walk_cells:
+		var d := (Vector2(c) * 64.0 + Vector2(32, 32)).distance_squared_to(px)
+		if d < bd:
+			bd = d
+			best = c
+	return best
+
+
+## The ground under a point: a deck or set floor (Makoko walkways, rooftops, the yacht) if one is
+## within a step, else the terrain; NAN over open water (nobody walks on the lagoon).
+func ground_at(pos: Vector3, from_y := 0.0) -> float:
+	var best := -INF
+	var xz := Vector2(pos.x, pos.z)
+	for list: Array in [city.platforms, sets.platforms]:
+		for pl: Dictionary in list:
+			var y: float = pl["y"]
+			if y <= from_y + 0.75 and y > best and (pl["rect"] as Rect2).has_point(xz):
+				best = y
+	if best > -INF:
+		return best
+	if is_water_at(pos):
+		return NAN
+	return terrain.height_at(pos)
+
+
+func is_water_at(pos: Vector3) -> bool:
+	var c := Vector2i(int(floor(pos.x / CELL_M)), int(floor(pos.z / CELL_M)))
+	if not map.in_bounds(c):
+		return true
+	return map.is_water(map.surface[c.y * map.cols + c.x])
+
+
+# ---------- phone life cycle ----------
+
+func _notification(what: int) -> void:
+	if not _built:
+		return
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			# Switching apps, a call, the power button: save, and come back to the pause menu.
+			if not in_menu and _save_ok:
+				SaveGame.save_now()
+			if not in_menu and not get_tree().paused and not hud.menu_open() and _save_ok and not "--shots" in str(OS.get_cmdline_user_args()):
+				hud.open_pause()
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			if not in_menu:
+				if get_tree().paused:
+					hud.pause.close()
+				else:
+					hud.open_pause()
 
 
 ## Free roam until the player reaches the next mission's marker.
@@ -210,6 +426,11 @@ func _quality() -> void:
 	q_far = [0.65, 0.65, 0.85, 1.0][dd]
 	people_n = [10, 10, 18, 30][dd] # phones: fewer animated people on Low/Medium
 	traffic_n = [10, 10, 16, 26][dd]
+	# Heat and battery: Low (and the battery saver) cap the frame rate at 30.
+	var cap := String(g.get("preset", "medium")) == "low" or bool(Settings.get_pref("battery_saver", false))
+	Engine.max_fps = 30 if cap else 60
+	if "--perf" in OS.get_cmdline_user_args():
+		Engine.max_fps = 0
 
 
 func _apply_quality_env() -> void:
@@ -255,6 +476,9 @@ func clear_ahead(v: Vehicle3D) -> float:
 	var bodies: Array = []
 	bodies.append_array(vehicles)
 	bodies.append(player)
+	for p in people:
+		if p.state == Person3D.State.CROSS:
+			bodies.append(p)
 	for o in bodies:
 		if o == v or not (o as Node3D).visible:
 			continue
@@ -272,10 +496,12 @@ func clear_ahead(v: Vehicle3D) -> float:
 
 # ---------- the story's stage directions (Mission3D calls these) ----------
 
-## A step's position: "landmark:id", "node:id", "player", or [x, z] metres; plus "offset" [dx, dz].
+## A step's position: "landmark:id", "node:id", "set:anchor", "player", or [x, z] metres; plus
+## "offset" [dx, dz]. Set anchors and decks keep their height.
 func resolve(st: Dictionary) -> Vector3:
 	var at: Variant = st.get("at", "player")
 	var p := player.position
+	var keep_y := false
 	if at is Array and (at as Array).size() == 2:
 		p = Vector3(float(at[0]), 0, float(at[1]))
 	elif at is String:
@@ -284,14 +510,23 @@ func resolve(st: Dictionary) -> Vector3:
 			p = Terrain3D.w(map.landmarks[s.substr(9)]["pos"])
 		elif s.begins_with("node:") and map.road_nodes.has(s.substr(5)):
 			p = Terrain3D.w(map.road_nodes[s.substr(5)])
+		elif s.begins_with("set:"):
+			p = sets.anchor(s.substr(4))
+			keep_y = true
+		elif s == "player":
+			keep_y = true
 	var off: Array = st.get("offset", [0, 0])
 	p += Vector3(float(off[0]), 0, float(off[1]))
-	p.y = terrain.height_at(p)
+	if not keep_y:
+		var g := ground_at(p, 0.0)
+		p.y = 0.0 if is_nan(g) else g
 	return p
 
 
 ## Put Dayo somewhere: on foot, or at the wheel of a fresh vehicle (with its painted slogan).
-func place_player(pos: Vector3, vehicle_kind := "", slogan := "") -> void:
+## Land vehicles go onto the nearest road, pointing along it; boats (and anything off the map) go
+## exactly where asked, facing `yaw` degrees.
+func place_player(pos: Vector3, vehicle_kind := "", slogan := "", yaw := 0.0) -> void:
 	if ride and vehicle_kind == "":
 		_action() # get out first
 	if vehicle_kind == "":
@@ -301,18 +536,23 @@ func place_player(pos: Vector3, vehicle_kind := "", slogan := "") -> void:
 	var v := Vehicle3D.new()
 	add_child(v)
 	v.setup(models, vehicle_kind, self)
-	# Onto the nearest road, pointing along it.
 	var best := ""
 	var bd := INF
-	for id in map.road_nodes:
-		var d := Terrain3D.w(map.road_nodes[id]).distance_squared_to(pos)
-		if d < bd and not (map.road_graph.get(id, []) as Array).is_empty():
-			bd = d
-			best = id
+	if not v.on_water and map.in_bounds(Vector2i(int(pos.x / CELL_M), int(pos.z / CELL_M))):
+		for id in map.road_nodes:
+			var d := Terrain3D.w(map.road_nodes[id]).distance_squared_to(pos)
+			if d < bd and not (map.road_graph.get(id, []) as Array).is_empty():
+				bd = d
+				best = id
+	if v.on_water:
+		pos = water_near(pos)
 	if best != "":
 		v.place_on_road(best, map.road_graph[best][0], 0.15)
 	else:
-		v.position = pos
+		v.position = Vector3(pos.x, -0.18 if v.on_water else pos.y, pos.z)
+		v.heading = deg_to_rad(yaw)
+		v.rotation.y = v.heading
+		v.reset_physics_interpolation()
 	v.mode = Vehicle3D.Mode.PARKED
 	v.speed = 0.0
 	if slogan != "":
@@ -350,6 +590,9 @@ func spawn_mission_vehicle(kind: String, pos: Vector3, mode: int, slogan := "") 
 		if d < bd and not (map.road_graph.get(id, []) as Array).is_empty():
 			bd = d
 			best = id
+	if v.on_water:
+		best = ""
+		pos = water_near(pos)
 	if best != "" and mode != Vehicle3D.Mode.CHASE:
 		var nbs: Array = map.road_graph[best]
 		# Head away from the player (a getaway driver) or along the first road.
@@ -367,6 +610,36 @@ func spawn_mission_vehicle(kind: String, pos: Vector3, mode: int, slogan := "") 
 	vehicles.append(v)
 	mission_vehicles.append(v)
 	return v
+
+
+## A vehicle Dayo owns, parked (bought at the dealer, or waiting by the house).
+func spawn_owned(kind: String, pos: Vector3) -> Vehicle3D:
+	var v := Vehicle3D.new()
+	add_child(v)
+	v.setup(models, kind, self)
+	if v.on_water:
+		v.position = Vector3(pos.x, -0.18, pos.z)
+	else:
+		var c := _nearest_walk(Vector2(pos.x, pos.z) / Terrain3D.K)
+		v.position = cell_pos(c) + Vector3(0, -Terrain3D.WALK_H, 0)
+	v.mode = Vehicle3D.Mode.PARKED
+	v.speed = 0.0
+	v.reset_physics_interpolation()
+	vehicles.append(v)
+	return v
+
+
+## The nearest open water to a point (boats are launched there, not on the shore).
+func water_near(pos: Vector3) -> Vector3:
+	if is_water_at(pos) and map.in_bounds(Vector2i(int(pos.x / CELL_M), int(pos.z / CELL_M))):
+		return pos
+	for r in range(1, 30):
+		for k in 16:
+			var q := pos + Vector3(cos(k * TAU / 16.0), 0, sin(k * TAU / 16.0)) * r * 3.0
+			if is_water_at(q) and map.in_bounds(Vector2i(int(q.x / CELL_M), int(q.z / CELL_M))):
+				# One more cell out, clear of the shore.
+				return q + (q - pos).normalized() * 3.0
+	return pos
 
 
 func clear_mission_vehicles() -> void:
@@ -448,6 +721,8 @@ func retry_from(snap: Vector3) -> void:
 
 
 func shake(amount: float) -> void:
+	if bool(Settings.get_pref("motion_off", false)):
+		return
 	_shake = maxf(_shake, amount)
 
 
@@ -609,6 +884,8 @@ func _controls_locked() -> bool:
 
 
 func _physics_process(delta: float) -> void:
+	if not _built:
+		return
 	var inp := Vector2.ZERO if _controls_locked() else _input_vec()
 	if ride:
 		var d := demo_drive if demo_drive != Vector2.ZERO else Vector2(inp.x, -inp.y)
@@ -628,14 +905,21 @@ func _physics_process(delta: float) -> void:
 		_action() # out of the wreck
 	for p in people:
 		p.step(delta)
+	_crossings(delta)
 	_anim_lod(delta)
 	if ride and absf(ride.speed) > 3.0:
 		_scatter(ride)
 	run.step(delta)
 	lights.step(delta, _dark)
+	signals.step(delta)
 	checkpoints.step(delta)
 	stage.step(delta)
+	sets.step(delta)
+	stealth.step(delta)
+	fx.step(delta)
+	roam.step(delta)
 	combat.step(delta)
+	hud.prompt(prompt_text if not _controls_locked() else "")
 	hud.fight_mode(combat.active, combat.player_hp)
 	hud.gun_mode(combat.armed and (combat.active or ride == null), combat.clip, combat.reserve)
 	player.show_gun(combat.armed and ride == null)
@@ -649,11 +933,35 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _built:
+		return
 	_place_camera(delta)
+	_dynamic_resolution(delta)
+
+
+## Keep the frame rate up on weak or hot phones: render the 3D world at a lower resolution while
+## frames run slow (the HUD stays sharp), and back up when there's headroom.
+func _dynamic_resolution(delta: float) -> void:
+	_res_t += delta
+	_res_frames += 1
+	if _res_t < 2.0:
+		return
+	var fps := _res_frames / _res_t
+	_res_t = 0.0
+	_res_frames = 0
+	var vp := get_viewport()
+	var target := 28.0 if Engine.max_fps == 30 else 50.0
+	if String(Settings.current.get("preset", "medium")) == "high" or in_menu:
+		vp.scaling_3d_scale = 1.0
+		return
+	if fps < target * 0.85:
+		vp.scaling_3d_scale = maxf(0.6, vp.scaling_3d_scale - 0.1)
+	elif fps > target * 1.1 and vp.scaling_3d_scale < 1.0:
+		vp.scaling_3d_scale = minf(1.0, vp.scaling_3d_scale + 0.05)
 
 
 func _sounds() -> void:
-	Sound.world(_dark > 0.5, true, ride != null, absf(ride.speed) if ride else 0.0, 1.0 if stage.raining else 0.0)
+	Sound.world(_dark > 0.5, roam.nepa_on() if roam else true, ride != null, absf(ride.speed) if ride else 0.0, 1.0 if stage.raining else 0.0)
 
 
 ## Animation level of detail: people near the camera animate every frame, further ones every 2nd
@@ -666,8 +974,11 @@ func _anim_lod(delta: float) -> void:
 	_lod_frame += 1
 	var c := cam.global_position
 	var fwd := -cam.global_transform.basis.z
-	var crowd: Array = people.duplicate()
-	crowd.append_array(stage.actors.values())
+	var crowd: Array = []
+	crowd.append_array(people)
+	for a: Variant in stage.actors.values():
+		if is_instance_valid(a):
+			crowd.append(a)
 	for p in crowd:
 		if not is_instance_valid(p) or p.ap == null:
 			continue
@@ -684,6 +995,39 @@ func _anim_lod(delta: float) -> void:
 		if every > 0 and (_lod_frame + id) % every == 0:
 			ap.advance(_lod_acc[id])
 			_lod_acc[id] = 0.0
+
+
+var _cross_t := 4.0
+
+
+## Now and then someone near you crosses the road to the pavement opposite.
+func _crossings(delta: float) -> void:
+	_cross_t -= delta
+	if _cross_t > 0.0 or people.is_empty():
+		return
+	_cross_t = _rng.randf_range(3.0, 7.0)
+	var f := focus()
+	for attempt in 6:
+		var p: Person3D = people[_rng.randi() % people.size()]
+		if p.state != Person3D.State.WALK or p.position.distance_to(f) > 45.0:
+			continue
+		var c := Vector2i(int(p.position.x / CELL_M), int(p.position.z / CELL_M))
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var k := 1
+			var saw_road := false
+			while k < 12:
+				var q: Vector2i = c + d * k
+				if not map.in_bounds(q):
+					break
+				var s2 := map.surface[q.y * map.cols + q.x]
+				if map.is_roadlike(s2):
+					saw_road = true
+				elif saw_road and s2 == MapData.S.WALK:
+					p.cross(cell_pos(q))
+					return
+				elif map.is_water(s2) or (not saw_road and s2 != MapData.S.WALK and s2 != MapData.S.GUTTER):
+					break
+				k += 1
 
 
 ## People in front of a moving player vehicle dive out of the way.
@@ -774,6 +1118,15 @@ func _recycle(delta: float) -> void:
 			p.reset_physics_interpolation()
 
 
+## PUNCH: a silent takedown from behind in stealth, else a punch.
+func _punch() -> void:
+	if _controls_locked():
+		return
+	if stealth.active and stealth.try_takedown():
+		return
+	combat.player_attack()
+
+
 ## Fire the pistol. Shooting in the street outside a mission draws the police.
 func _shoot() -> void:
 	if not combat.armed or _controls_locked():
@@ -783,9 +1136,15 @@ func _shoot() -> void:
 		police.raise(0.3)
 
 
-## Enter the nearest vehicle, or get out of the one you're driving.
+## Enter the nearest vehicle, or get out of the one you're driving. A context prompt (a mission's
+## "Snap photo", a stall's "Eat", a fuel pump) takes the button first.
 func _action() -> void:
-	if _controls_locked() or combat.active:
+	if _controls_locked():
+		return
+	if prompt_text != "" and prompt_cb.is_valid():
+		prompt_cb.call()
+		return
+	if combat.active:
 		return
 	if ride:
 		var side := Vector3(-ride.forward().z, 0, ride.forward().x) * -1.0 # driver's door (left)
@@ -842,17 +1201,56 @@ func _update_hud(delta: float) -> void:
 		return
 	var f := focus()
 	var dist: Dictionary = map.district_at(Vector2(f.x, f.z) / Terrain3D.K)
-	var where := String(dist.get("name", "Lagos"))
+	var where := String(dist.get("name", map.title))
 	var line := "%s · %s" % [where, ("%d km/h" % int(absf(ride.speed) * 3.6)) if ride else "on foot"]
 	hud.info.text = "%s · %d fps" % [line, int(round(_frames / _fps_t))]
 	var job := ""
 	if run.dest >= 0:
 		job = " · %d on board → %s %d m" % [run.passengers, run.stops[run.dest]["name"], int(f.distance_to(run.stops[run.dest]["pos"]))]
 	var stars := "★".repeat(int(ceil(Story.wanted - 0.01)))
-	hud.money.text = "₦%s  %s  Respect %d%s%s" % [_naira(int(Life.money)), String(Clock.label()), Story.respect, ("  WANTED " + stars) if stars != "" else "", job]
+	var extra := ""
+	if ride and int(FreeRoam3D.TANK.get(ride.kind, 0)) > 0:
+		extra = "  Fuel %d%%" % int(ride.fuel * 100.0) + ("  DAMAGED" if ride.health < 40.0 else "")
+	elif roam and roam.delivery_due() and missions.running == "" and region == "lagos":
+		extra = "  Delivery ₦%s/₦%s" % [_naira(mini(roam.today, FreeRoam3D.DELIVERY)), _naira(FreeRoam3D.DELIVERY)]
+	hud.money.text = "₦%s  %s  Respect %d%s%s%s" % [_naira(int(Life.money)), String(Clock.label()), Story.respect, ("  WANTED " + stars) if stars != "" else "", extra, job]
 	_frames = 0
 	_fps_t = 0.0
 	_day_night()
+	_hints()
+
+
+## First-time tips (each shows once): the controls as they're first needed.
+func _hints() -> void:
+	if in_menu or hud.dialogue.visible:
+		return
+	if missions.running == "" and not Story.done.is_empty():
+		hud.hint("look", "Drag on the right side of the screen to look around: left and right to turn, up and down to raise the camera.")
+		hud.hint("roam", "Free roam: run danfo fares, take side jobs at the blue JOBS boards, or head for the red marker to play the next mission.")
+	if ride == null:
+		for v in vehicles:
+			if v.position.distance_to(player.position) < ENTER_RANGE + 1.0:
+				hud.hint("enter", "Press ENTER to get in. Take any vehicle you like... but the owner won't be happy.")
+				break
+	else:
+		if ride.kind == "danfo" and missions.running == "":
+			hud.hint("danfo", "Stop at a yellow BUS STOP sign: passengers climb in. Drive them to their stop and stop again to get paid.")
+		if ride.fuel < 0.25:
+			hud.hint("fuel", "Fuel is low. Stop under a FILLING STATION canopy and press FUEL.")
+		if ride.on_water:
+			hud.hint("boat", "Boats only go on water. Ease off the throttle in the turns: they slide.")
+	if combat.active:
+		hud.hint("fight", "PUNCH whoever is in front of you. Don't let them surround you. Stand still against a wall when they shoot: cover.")
+	if combat.armed:
+		hud.hint("gun", "SHOOT fires at the target with the red ring. Shooting in the street brings the police.")
+	if Story.wanted >= 1.0:
+		hud.hint("wanted", "The police want you. Get out of their sight for a while and the stars fade.")
+	if stealth.active:
+		hud.hint("stealth", "Stay out of the torch beams and the pale cones. Walk, don't run. From behind, PUNCH is a silent takedown.")
+	if roam and roam.cut != "" and _dark > 0.4:
+		hud.hint("nepa", "NEPA has taken light: streetlights are off in one district. Darkness hides you; generators make noise and light.")
+	if player.stamina < 0.3:
+		hud.hint("stamina", "Out of breath: walk a moment. Mama Àgbà's amala and ewedu make you run longer.")
 
 
 func _naira(n: int) -> String:
@@ -891,7 +1289,7 @@ func _day_night() -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if in_menu:
+	if in_menu or not _built:
 		return
 	# Drag anywhere free (or move the mouse with the right button) to look around.
 	var sens := float(Settings.get_pref("cam_sens", 1.0))
@@ -915,8 +1313,8 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_ESCAPE: hud.open_pause()
 			KEY_E, KEY_F: _action()
 			KEY_J, KEY_SPACE:
-				if combat.active:
-					combat.player_attack()
+				if combat.active or stealth.active:
+					_punch()
 			KEY_K:
 				_shoot()
 
@@ -938,8 +1336,25 @@ func _shots(dir: String) -> void:
 	missions.autopilot = true
 	hud.dialogue.autoplay = true
 	missions.mission_done.disconnect(_on_mission_done)
-	for id: String in (["p0"] if "--p0" in OS.get_cmdline_user_args() else ["p0", "m01", "m02", "m03", "m04", "m05", "m06"]):
-		missions.run(id)
+	var args := OS.get_cmdline_user_args()
+	var list: Array = ["p0", "m01", "m02", "m03", "m04", "m05", "m06"]
+	if "--p0" in args:
+		list = ["p0"]
+	elif "--all" in args:
+		list = Story.order.duplicate()
+	for a in args:
+		if a.begins_with("--from="):
+			list = Story.order.slice(Story.order.find(a.trim_prefix("--from=")))
+			for prev in Story.order.slice(0, Story.order.find(a.trim_prefix("--from="))):
+				Story.done[prev] = true
+		if a.begins_with("--choice="):
+			hud.dialogue.auto_choice = int(a.trim_prefix("--choice="))
+	var resume := 0
+	for a in args:
+		if a.begins_with("--resume="):
+			resume = int(a.trim_prefix("--resume="))
+	for id: String in list:
+		missions.run(id, resume if id == list[0] else 0)
 		var t := 0.0
 		var took := 0
 		while missions.running == id or Story.current == id:
@@ -949,10 +1364,12 @@ func _shots(dir: String) -> void:
 			if took < 2 and t >= [3.0, 9.0][took]:
 				await _save(dir + "/e-%s-%d.png" % [id, took])
 				took += 1
-			if t > 120.0:
-				print("story3d: TIMEOUT in ", id, " at step ", Story.checkpoint)
+			if t > 240.0:
+				print("story3d: TIMEOUT in ", id, " at step ", Story.checkpoint, " running=", missions.running)
 				break
-		print("story3d: %s done=%s" % [id, Story.done.has(id)])
+		print("story3d: %s done=%s region=%s set=%s" % [id, Story.done.has(id), region, sets.active])
+		if region != "lagos" and missions.running == "":
+			await load_region("lagos")
 	await get_tree().create_timer(2.6).timeout # let the last title card finish
 	# Free roam with two stars: police units come after Dayo.
 	Story.wanted = 2.0
@@ -996,6 +1413,9 @@ func _perf() -> void:
 			for p in people:
 				p.visible = on
 				p.process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED,
+		"signals": func(on: bool) -> void: signals.visible = on,
+		"roam stations": func(on: bool) -> void: roam.visible = on,
+		"lights": func(on: bool) -> void: lights.visible = on,
 		"traffic": func(on: bool) -> void:
 			for v in vehicles:
 				v.visible = on
@@ -1027,6 +1447,59 @@ func _look(dir: String) -> void:
 		_menu_t = 0.8 + i * 1.3
 		await get_tree().create_timer(1.5).timeout
 		await _save(dir + "/look-%d.png" % i)
+	get_tree().quit()
+
+
+## QA: every built set and every region, from the player's camera and from above.
+##   Godot --path game -- --shots=DIR --sets
+func _look_sets(dir: String) -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	in_menu = false
+	hud._close_menu() if hud.menu_open() else null
+	DirAccess.make_dir_recursive_absolute(dir)
+	for kind in ["police_cell", "owambe", "stilt_house", "home", "safehouse", "cellar", "gala", "yacht", "rooftops"]:
+		sets.enter(kind)
+		cam_pitch = 0.5
+		await get_tree().create_timer(1.2).timeout
+		await _save(dir + "/set-%s.png" % kind)
+		cam_pitch = 1.1
+		await get_tree().create_timer(0.8).timeout
+		await _save(dir + "/set-%s-top.png" % kind)
+		sets.leave()
+	cam_pitch = 0.45
+	for r in ["abeokuta", "kano", "delta", "anambra"]:
+		await load_region(r)
+		var first: String = map.landmarks.keys()[0]
+		for i in 2:
+			var lm: String = map.landmarks.keys()[mini(i, map.landmarks.size() - 1)]
+			player.position = resolve({ "at": "landmark:" + lm, "offset": [6, 6] })
+			player.reset_physics_interpolation()
+			in_menu = true
+			_menu_t = 0.6 + i * 2.0
+			await get_tree().create_timer(1.5).timeout
+			await _save(dir + "/region-%s-%d.png" % [r, i])
+			in_menu = false
+		if r == "abeokuta":
+			sets.enter("olumo")
+			await get_tree().create_timer(1.0).timeout
+			await _save(dir + "/region-olumo-start.png")
+			player.position = sets.anchor("top")
+			player.reset_physics_interpolation()
+			await get_tree().create_timer(1.0).timeout
+			await _save(dir + "/region-olumo-top.png")
+			sets.leave()
+	await load_region("lagos")
+	# Makoko from the jetty, and a speedboat on the lagoon.
+	player.position = resolve({ "at": "landmark:makoko-jetty", "offset": [0, 4] })
+	player.reset_physics_interpolation()
+	await get_tree().create_timer(1.5).timeout
+	await _save(dir + "/makoko-jetty.png")
+	place_player(resolve({ "at": "landmark:makoko-jetty", "offset": [0, 12] }), "speedboat")
+	demo_drive = Vector2(0, 1)
+	await get_tree().create_timer(2.5).timeout
+	await _save(dir + "/makoko-boat.png")
+	demo_drive = Vector2.ZERO
 	get_tree().quit()
 
 

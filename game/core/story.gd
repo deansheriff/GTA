@@ -12,6 +12,7 @@ var cast := {} # id -> {name, model, colour}
 var acts: Array = [] # [{id, title}]
 var missions := {} # id -> mission dictionary
 var order: Array = [] # mission ids in story order
+var endings := {} # ending id -> {title, steps} (played by the last mission's "ending" step)
 
 var done := {} # mission id -> true
 var current := "" # mission in progress ("" = free roam)
@@ -34,6 +35,7 @@ func load_data() -> void:
 		return
 	cast = parsed.get("cast", {})
 	acts = parsed.get("acts", [])
+	endings = parsed.get("endings", {})
 	missions.clear()
 	order.clear()
 	for m: Dictionary in parsed.get("missions", []):

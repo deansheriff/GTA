@@ -1,0 +1,271 @@
+{
+ "_comment": "Kano during Sallah: the old city gate, the emir's palace, the Durbar ground, the truck park and the airstrip (Act III, M16).",
+ "region": "kano",
+ "name": "Kano",
+ "size": [
+  96,
+  72
+ ],
+ "ground": "sand",
+ "inland": true,
+ "land": {
+  "land": [
+   [
+    0,
+    0
+   ],
+   [
+    96,
+    0
+   ],
+   [
+    96,
+    72
+   ],
+   [
+    0,
+    72
+   ]
+  ]
+ },
+ "lagoon": [
+  [
+   200,
+   200
+  ],
+  [
+   201,
+   200
+  ],
+  [
+   201,
+   201
+  ],
+  [
+   200,
+   201
+  ]
+ ],
+ "road_classes": {
+  "expressway": {
+   "width": 148,
+   "speed": 1.0
+  },
+  "main": {
+   "width": 112,
+   "speed": 0.85
+  },
+  "street": {
+   "width": 80,
+   "speed": 0.6
+  }
+ },
+ "nodes": {
+  "gate": [
+   18,
+   36
+  ],
+  "old_city": [
+   36,
+   36
+  ],
+  "palace": [
+   36,
+   22
+  ],
+  "durbar": [
+   54,
+   36
+  ],
+  "truck_park": [
+   70,
+   52
+  ],
+  "airstrip_w": [
+   74,
+   20
+  ],
+  "airstrip_e": [
+   92,
+   20
+  ],
+  "south": [
+   36,
+   62
+  ]
+ },
+ "roads": [
+  {
+   "id": "kano-main",
+   "class": "main",
+   "nodes": [
+    "gate",
+    "old_city",
+    "durbar",
+    "truck_park"
+   ]
+  },
+  {
+   "id": "palace-road",
+   "class": "street",
+   "nodes": [
+    "old_city",
+    "palace"
+   ]
+  },
+  {
+   "id": "airstrip-road",
+   "class": "main",
+   "nodes": [
+    "durbar",
+    "airstrip_w",
+    "airstrip_e"
+   ]
+  },
+  {
+   "id": "kano-south",
+   "class": "street",
+   "nodes": [
+    "old_city",
+    "south"
+   ]
+  }
+ ],
+ "districts": [
+  {
+   "id": "kano-old-city",
+   "name": "Kano old city",
+   "center": [
+    34,
+    40
+   ],
+   "density": 0.85,
+   "buildings": {
+    "bungalow": 6,
+    "canteen": 2,
+    "provision-store": 2
+   },
+   "props": {
+    "tyres": 2,
+    "kiosk": 2,
+    "drum-chairs": 2
+   }
+  },
+  {
+   "id": "truck-park",
+   "name": "Kano truck park",
+   "center": [
+    70,
+    54
+   ],
+   "density": 0.5,
+   "buildings": {
+    "canteen": 2,
+    "pos-shop": 1
+   },
+   "props": {
+    "tyres": 3,
+    "generator": 2
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "kano-gate",
+   "name": "Kofar Mata gate",
+   "district": "kano-old-city",
+   "cell": [
+    18,
+    33
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "emir-palace",
+   "name": "Emir's palace",
+   "district": "kano-old-city",
+   "cell": [
+    36,
+    18
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "durbar-ground",
+   "name": "Durbar ground",
+   "district": "kano-old-city",
+   "cell": [
+    54,
+    32
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "kano-truck-park",
+   "name": "Truck park",
+   "district": "truck-park",
+   "cell": [
+    70,
+    48
+   ],
+   "kind": "park"
+  },
+  {
+   "id": "kano-airstrip",
+   "name": "Private airstrip",
+   "district": "truck-park",
+   "cell": [
+    88,
+    18
+   ],
+   "kind": "spot"
+  }
+ ],
+ "start": {
+  "player": [
+   12,
+   38
+  ],
+  "danfo": [
+   12,
+   36
+  ]
+ },
+ "set_pieces": [
+  {
+   "model": "gate",
+   "cell": [
+    18,
+    36
+   ],
+   "size": 14.0,
+   "yaw": 0
+  },
+  {
+   "model": "free:tent",
+   "cell": [
+    56,
+    28
+   ],
+   "size": 5.0
+  },
+  {
+   "model": "free:tent",
+   "cell": [
+    60,
+    30
+   ],
+   "size": 5.0
+  },
+  {
+   "model": "free:gazebo",
+   "cell": [
+    52,
+    28
+   ],
+   "size": 6.0
+  }
+ ],
+ "beach_props": {},
+ "beach_buildings": {}
+}

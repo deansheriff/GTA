@@ -862,3 +862,157 @@ asset as it is.")**
 - **Polish:** ACES tone mapping with slightly lower exposure and a touch more saturation and
   contrast, a soft sun disc, and dustier yards.
 - **Cost:** about 126 draw calls (from 87). The kit buildings have about 12 material parts each.
+
+
+## D-028 · Map v2, the four regions, and phones: loading, life cycle, frame rate · 2026-10-21
+**Owner:** "Implement everything left to get this to production … I want us to be done with the
+game before I start game testing on real device."
+
+**Map v2 (`data/map/lagos.json`, 256 × 140 cells):**
+- Lagos widened west by 64 cells for Alaba, Festac, Ajegunle and Badagry. The Lagos–Badagry
+  expressway runs from Surulere through Mile 2, Festac and Badagry to the Seme border.
+- New places:
+  - Banana Island, joined to Ikoyi by a causeway.
+  - Makoko, a stilt village in the lagoon west of the Third Mainland Bridge. Its houses stand on
+    stilts, with plank walkways you can walk along and canoes tied up.
+  - Landmarks: Computer Village, LUTH, Alaba market, Uncle Obi's warehouse, the Festac safe house,
+    the Ajegunle beer parlour, the Badagry church, the Seme border post, the Banana Island villa
+    and the Makoko jetty.
+- Act I's Seme Run now drives the real road to the real border, instead of stand-ins.
+
+**Regions (`data/map/regions/*.json`, written by `tools/make_regions.py`):**
+- The four regions are Abeokuta (Olumo Rock, Itoku market, Baba Fakunle's shrine), Kano (the
+  city gate, the palace, the Durbar ground, the truck park and the airstrip), the Niger Delta
+  creeks (Okoroba, the kpo-fire refinery, Tonye's camp) and Obinna's village in Anambra.
+- Each region is a map file in the same format, plus `ground`, `inland` and `set_pieces`.
+- `Street3D.load_region()` tears down the old map and builds the new one behind the loading
+  screen. A mission's `"region"` field travels there, and free roam always returns to Lagos.
+- Memory holds Lagos plus at most one region.
+
+**Phones:**
+- **Loading screen:** shown at boot and when travelling.
+  - The map is parsed on a worker thread.
+  - The city builds 60 buildings per frame, so the bar, tips and a little danfo keep moving and
+    the phone never sits on a frozen frame.
+- **Life cycle:** switching apps, a call or the power button saves the game and opens the pause
+  menu. The Android back button opens or closes pause. The safe area (notch) is re-fitted when
+  the window changes size.
+- **Frame rate and heat:**
+  - Low, and the new Battery saver option, cap the game at 30 fps.
+  - Dynamic resolution renders the 3D world at down to 60% while frames run slow; the HUD stays
+    sharp.
+- **Size:** see D-031.
+
+
+## D-029 · The rest of the story: Acts II–V, the endings and the post-game · 2026-10-21
+**All 27 missions are playable.** Steps are in `data/story/eko/campaign.json`, written from
+`docs/story/eko-oni-baje.md`.
+- **New step kinds:**
+  - `region` · `set`/`leave` · `checkpoint` · `if` (branch on a choice, flag or item)
+  - `anim` · `walk` · `stealth` · `rooftop` · `photo` · `blend` · `explode` · `fire` · `waves`
+  - `boatfight` · `board` · `radio` · `music` · `nepa` · `time` · `buff` · `spend` · `ending`
+    · `credits`
+- **Built sets (`Sets3D`):** made from boxes and our models, using MegaKit textures. They stand
+  off the map's west edge.
+  - The Yaba police station and Cell Four, and the owambe under its striped canopy.
+  - A Makoko stilt house, Mama Àgbà's face-me-I-face-you room, the Festac safe house and the
+    Anambra cellar.
+  - The Banana Island gala hall and Obinna's yacht deck.
+  - The rooftops for foot chases, and steps winding up Olumo Rock along its real surface.
+- **Act II:**
+  - Cell Four: the cell president, Hauwa's deal, the hit squad.
+  - Computer Village: the rooftop chase.
+  - Owambe: blend, photo, gunfight, wedding-convoy escape.
+  - Makoko: canoe fight, burning stilt house, captives.
+  - Olumo Rock: the Ifá riddle, the climb, the Ìrókò charm.
+  - Third Mainland: the okada pursuit, boarding the tanker, the fight on its roof, Kongi's
+    confession and the sniper.
+- **Act III:**
+  - Janazah: the no-weapon escape and the eight days.
+  - Ballot Box: Big Choice 1, either the swap (stealth and filming) or the snatch.
+  - LUTH: the ambulance against the clock in rush-hour go-slow.
+  - Durbar: a horse chase after the cattle truck, Sadiq found.
+  - Kpo-Fire: Tonye remembers, the speedboat battle, the refinery explodes.
+  - Alaba International: the safe house, the raid in waves, Mama Àgbà, Kemi taken, Hauwa's
+    badge.
+- **Act IV:**
+  - Sego: the rooftop chase and the choice to kill or spare him.
+  - Papa's Phone: the iron box, the recording, the voice match, the walk home past the advert.
+  - Badge: Hauwa, Ladipo's raid, the city-bus escape.
+  - Brotherhood: the loudspeaker, and the crew on the radio.
+  - Iri Ji: Mmanwu crowd, stealth, the cellar, Obinna on the balcony, the yam-farm escape.
+- **Act V:**
+  - Blackout: the gateman and stealth between generator pools.
+  - Lagos Rises: the three fronts reported over the radio while Dayo storms the gala.
+  - The Lion Staff: the gunboats; Sego in the canoe if he was spared; the boss fight with the
+    staff; Big Choice 2.
+- **Endings** (campaign `endings`): Ọba Ìta; Ìdájọ́ fair (the ballots were swapped) or bitter
+  (snatched); Japa. Then a credits roll.
+- **Post-game free roam:**
+  - Ọba Ìta: ₦20,000 a day from the parks.
+  - Ìdájọ́: ₦8,000 in union dues.
+  - Japa: a neutral driver again; side jobs pay 1.5× and the daily delivery is back.
+- **Checkpoints:** quitting mid-mission resumes at the last `checkpoint`. The world-setting steps
+  before it are replayed silently. The pause menu also has "Restart from checkpoint".
+- **Naming:** brands and agencies stay out. "Papa's Phone" and "the recording from his phone"
+  replace the handset brand; a "city bus" replaces the bus brand; a "traffic warden" replaces the
+  agency.
+- **Cast:** 18 new cast entries (Musa, Sadiq, the imam, CP Ladipo, the aide, guards and others)
+  stand in with restyled shared models. The 14 story characters are queued in
+  `tools/art/meshy-spec.json` (`"queue": "cast-2026-11-18"`) for when the Meshy credits reset.
+  Once `art3d/chars/<id>.glb` exists, the game uses it instead of the stand-in automatically.
+
+
+## D-030 · Systems: combat, driving, free roam, street life, onboarding · 2026-10-21
+- **Combat:**
+  - Enemy types: thug, brute (hits for 2, sometimes shrugs off a punch), gunman, rifleman (bursts)
+    and the boss.
+  - The boss telegraphs a staff sweep, blocks frontal punches and calls his men at half health.
+  - Locked target ring, hit flashes, floating damage, hit-stop, hit marker, red vignette,
+    vibration, and enemy health bars.
+  - Cover: stand still against a wall and gunmen hit 35% as often.
+  - Gunfire scatters the street.
+  - The Ìrókò charm makes 30% of blows miss.
+  - Difficulty: Easy 0.6×, Normal and Hard 1.4× damage.
+- **Driving:**
+  - Steering eases in and turns less at speed, with a little drift in hard turns.
+  - Hard crashes bounce you back.
+  - Boats (canoe, speedboat) stay on water and cars on land; boats rock on the swell.
+  - The horse walks and gallops.
+  - Fuel: a tank lasts about 26 km, and an empty tank leaves only a crawl.
+- **Traffic:**
+  - Lights at busy junctions; AI waits at the line on red.
+  - Some junctions have a warden, who fines you for running his red.
+  - People cross the road, and traffic stops for them.
+  - Rush hour (7–10, 16–20) slows the main roads into go-slow.
+- **Free roam:**
+  - The daily delivery: ₦8,000 at midnight while Dayo has the danfo.
+  - Filling stations (FUEL) and mechanics (REPAIR).
+  - The Alaba dealer and the Makoko boat yard sell vehicles, which wait parked by the house.
+  - Side jobs at the blue JOBS boards: deliveries, okada fares, street fights, carrying a load.
+  - Respect perks at 10, 25, 40, 60 and 80.
+  - People greet a respected Dayo.
+- **Street life:**
+  - NEPA cuts one district at a time: its streetlights go dark and generators hum.
+  - Hawkers come to the window in a go-slow.
+  - Mama Àgbà's stall by the house: ewa agoyin heals and doubles regen; amala and ewedu make
+    sprinting tire you far less. It is closed after Act III.
+  - Radio Gbedu in any vehicle: DJ lines, news that follows the story, and Uncle Obi's adverts.
+  - Stamina: running tires you.
+- **Onboarding:**
+  - One-time tips the first time something comes up (look, enter, danfo, fuel, fight, gun,
+    wanted, stealth, NEPA, stamina).
+  - "How to play" in the main menu and the pause menu, and a "Street life" page in pause.
+- **Accessibility settings:** difficulty, text size (100/115/130%), reduce motion (no shake or
+  hit-stop), left-handed controls, vibration, battery saver and colour-blind markers.
+
+
+## D-031 · Distribution size and device testing · 2026-10-21
+- **AAB:** the "Android Release (AAB)" preset (Gradle, SDK 35, min 24) builds the Play bundle.
+  Version 3.0.0 (code 300).
+- **Asset packs:** not needed yet. The regions are map files, not extra art; they reuse the same
+  models. Google Play's limit for an app bundle's base module is 200 MB per device download. A
+  per-architecture release download is well under that.
+  - If later art pushes it past about 150 MB, move `art3d/free` and the region textures into a
+    Play Asset Delivery pack (a Godot plugin is needed; it's not built in).
+- **Device testing checklist:** see `docs/qa/DEVICE_QA.md`.

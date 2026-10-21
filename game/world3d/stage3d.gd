@@ -80,17 +80,28 @@ func step(delta: float) -> void:
 			n.position.y = absf(sin(_t * 3.0 + i * 1.7)) * 0.08
 
 
-## A festival crowd of unrigged figures (Eyo masquerades) around a place.
-func crowd(id: String, model: String, at: Vector3, count: int, radius: float, height: float) -> void:
+## A festival crowd around a place: Eyo masquerades, Durbar horses ("free:horse"), or Mmanwu
+## (the Eyo figure recoloured with `look`, our own model). Rigged figures play their idle.
+func crowd(id: String, model: String, at: Vector3, count: int, radius: float, height: float, look: Dictionary = {}) -> void:
 	clear_crowd(id)
 	var list := []
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
 	for i in count:
-		var m: Node3D = world.models.make(model)
+		var m: Node3D = world.models.make(model.trim_prefix("free:"), "res://art3d/free/" if model.begins_with("free:") else Models3D.ART)
 		if m == null:
 			break
 		Models3D.fit_height(m, height * rng.randf_range(0.93, 1.07))
+		if not look.is_empty() and not model.begins_with("free:"):
+			Models3D.restyle(m, look)
+		var ap := Models3D.find_player(m)
+		if ap:
+			for a in ap.get_animation_list():
+				if String(a).ends_with("Idle"):
+					ap.get_animation(a).loop_mode = Animation.LOOP_LINEAR
+					ap.play(a)
+					ap.seek(rng.randf() * 2.0, true)
+					break
 		var h := Node3D.new()
 		h.add_child(m)
 		var ang := rng.randf() * TAU
@@ -111,7 +122,8 @@ func clear_crowd(id: String) -> void:
 
 
 ## A one-off building or prop placed for a mission (the Seme border post, a Badagry church).
-func setpiece(id: String, model: String, at: Vector3, label: String, yaw: float) -> void:
+## "free:x" models come from the free folder; `size` is the footprint in metres.
+func setpiece(id: String, model: String, at: Vector3, label: String, yaw: float, size := 9.0) -> void:
 	if _sets.has(id):
 		(_sets[id] as Node).queue_free()
 	var root := Node3D.new()
@@ -120,10 +132,10 @@ func setpiece(id: String, model: String, at: Vector3, label: String, yaw: float)
 	add_child(root)
 	if model == "gutter" or model == "overpass" or model == "lamp":
 		_build_piece(root, model)
-	var m: Node3D = world.models.make(model) if model != "" and not model in ["gutter", "overpass", "lamp"] else null
+	var m: Node3D = world.models.make(model.trim_prefix("free:"), "res://art3d/free/" if model.begins_with("free:") else Models3D.ART) if model != "" and not model in ["gutter", "overpass", "lamp"] else null
 	if m:
 		var bb := Models3D.aabb(m)
-		var k := 9.0 / maxf(bb.size.x, maxf(bb.size.z, 0.1))
+		var k := size / maxf(bb.size.x, maxf(bb.size.z, 0.1))
 		m.scale = Vector3.ONE * k
 		m.position = Vector3(-bb.get_center().x * k, -bb.position.y * k, -bb.get_center().z * k)
 		root.add_child(m)
@@ -159,6 +171,10 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	despawn(id)
 	var info: Dictionary = Story.who(who)
 	var key := model if model != "" else String(info.get("model", who))
+	# A cast member's own model, once it exists (art3d/chars/<id>.glb), replaces the stand-in.
+	var own: bool = model == "" and who != key and world.models.has(who, Models3D.CHARS)
+	if own:
+		key = who
 	var p := Person3D.new()
 	add_child(p)
 	var cell := Vector2i(int(pos.x / Terrain3D.CELL_M), int(pos.z / Terrain3D.CELL_M))
@@ -170,9 +186,10 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	if not ok:
 		p.free()
 		return null
-	if model == "":
+	if model == "" and not own:
 		Models3D.restyle(p, info.get("look", {})) # stand-in cast get their own colours
-	p.position = Vector3(pos.x, world.terrain.height_at(pos), pos.z)
+	var gy: float = world.ground_at(pos, pos.y + 0.1)
+	p.position = Vector3(pos.x, pos.y if is_nan(gy) else gy, pos.z)
 	p.state = Person3D.State.PAUSE
 	p.pause_left = 1e9
 	Models3D.far_cull(p, 120.0)

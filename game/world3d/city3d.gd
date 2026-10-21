@@ -21,13 +21,24 @@ var _batch := {} # model key -> {xforms: Array[Transform3D], far: float, shadow:
 var _templates := {} # model key -> {parts: [[mesh, xform]], aabb: AABB}
 
 
+var platforms: Array = [] # walkable decks off the ground: {rect: Rect2 (x, z metres), y}
+var staged := false # build over several frames (the loading screen keeps animating)
+
+
 func build(m: MapData, lib: Models3D) -> void:
 	map = m
 	models = lib
-	_buildings()
+	await _buildings()
 	_props()
 	_street_furniture()
+	_stilt_villages()
+	_set_pieces()
 	_build_batches()
+
+
+func _yield(i: int, every: int) -> void:
+	if staged and i % every == every - 1:
+		await get_tree().process_frame
 
 
 func _buildings() -> void:
@@ -35,7 +46,9 @@ func _buildings() -> void:
 	roof_mat.albedo_color = Color("#8a5a3c")
 	roof_mat.roughness = 0.55
 	roof_mat.metallic = 0.35
-	for b in map.buildings:
+	for bi in map.buildings.size():
+		await _yield(bi, 60)
+		var b: Layout.BuildingSpec = map.buildings[bi]
 		var fp: Rect2 = b.footprint()
 		var size := Vector3(fp.size.x * K - 0.6, clampf(b.height * K * 1.25, 3.2, 7.5), fp.size.y * K - 0.6)
 		var body := StaticBody3D.new()
@@ -339,3 +352,230 @@ func _street_furniture() -> void:
 			var sx := w / maxf(bb.size.z, 0.1)
 			var xf := Transform3D(Basis(Vector3.UP, -dir2.angle()) * Basis.from_scale(Vector3(1.0, 1.0, sx)), Vector3(c.x, Terrain3D.ROAD_Y + 0.025, c.y))
 			_queue("crosswalk", xf, PROP_FAR, false)
+
+
+## Makoko (Map v2, D-028): a village of fishing families' houses on stilts in the lagoon, joined by
+## plank walkways you can walk along, with canoes tied up between them.
+func _stilt_villages() -> void:
+	if map.stilt_villages.is_empty():
+		return
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color("#5b4632")
+	wood.roughness = 0.95
+	var stilt := CylinderMesh.new()
+	stilt.top_radius = 0.09
+	stilt.bottom_radius = 0.11
+	stilt.height = 2.4
+	stilt.radial_segments = 5
+	stilt.rings = 1
+	stilt.material = wood
+	_templates["stilt"] = { "parts": [[stilt, Transform3D()]], "aabb": AABB(Vector3(-0.1, -1.2, -0.1), Vector3(0.2, 2.4, 0.2)) }
+	var plank := BoxMesh.new()
+	plank.size = Vector3(1.0, 0.08, 1.0)
+	plank.material = wood
+	_templates["plank"] = { "parts": [[plank, Transform3D()]], "aabb": AABB(Vector3(-0.5, -0.04, -0.5), Vector3(1, 0.08, 1)) }
+	const DECK := 1.3
+	for v: Dictionary in map.stilt_villages:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(v["id"])
+		var c: Vector3 = Terrain3D.w(v["center"])
+		var r: float = float(v["radius"]) * K
+		var spots: Array[Vector3] = []
+		var tries := 0
+		while spots.size() < int(v["count"]) and tries < 400:
+			tries += 1
+			var ang := rng.randf() * TAU
+			var d := sqrt(rng.randf()) * r
+			var p := c + Vector3(cos(ang) * d, 0, sin(ang) * d)
+			var ok := map.is_water(map.surface_at(Vector2(p.x, p.z) / K))
+			for q in spots:
+				if q.distance_to(p) < 6.5:
+					ok = false
+			if ok:
+				spots.append(p)
+		for i in spots.size():
+			var p := spots[i]
+			var yaw := rng.randf() * TAU
+			var base := Transform3D(Basis(Vector3.UP, yaw), p + Vector3(0, DECK, 0))
+			_queue_fit("fisher_hut", 3.4, base, BUILDING_FAR, true)
+			for k in 4: # four stilts under the deck
+				var o := Vector3(1.6 if k % 2 == 0 else -1.6, 0, 1.4 if k < 2 else -1.4)
+				_queue("stilt", Transform3D(Basis(Vector3.UP, yaw), p + o.rotated(Vector3.UP, yaw) + Vector3(0, 0.1, 0)), BUILDING_FAR, false)
+			_queue("plank", Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(4.6, 1, 4.0)), p + Vector3(0, DECK - 0.05, 0)), BUILDING_FAR, false)
+			platforms.append({ "rect": Rect2(p.x - 2.5, p.z - 2.5, 5.0, 5.0), "y": DECK })
+			var body := StaticBody3D.new()
+			var cs := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(3.2, 3.2, 2.8)
+			cs.shape = box
+			body.add_child(cs)
+			body.position = p + Vector3(0, DECK + 1.6, 0)
+			body.rotation.y = yaw
+			add_child(body)
+			# A walkway to the nearest neighbour, and a canoe tied up beside some houses.
+			var best := -1
+			var bd := INF
+			for j in i:
+				var dd := spots[j].distance_to(p)
+				if dd < bd:
+					bd = dd
+					best = j
+			if best >= 0 and bd < 16.0:
+				var q := spots[best]
+				var mid := (p + q) * 0.5
+				var dir := (q - p).normalized()
+				var ang := atan2(-dir.z, dir.x)
+				_queue("plank", Transform3D(Basis(Vector3.UP, ang) * Basis.from_scale(Vector3(bd, 1, 1.1)), mid + Vector3(0, DECK - 0.1, 0)), BUILDING_FAR, false)
+				for t in range(1, int(bd / 2.0)):
+					var sp := p + dir * t * 2.0
+					platforms.append({ "rect": Rect2(sp.x - 1.1, sp.z - 1.1, 2.2, 2.2), "y": DECK - 0.06 })
+			if i % 3 == 0:
+				_queue_fit("canoe", 0.7, Transform3D(Basis(Vector3.UP, yaw + 0.6), p + Vector3(3.6, -0.25, 0).rotated(Vector3.UP, yaw)), PROP_FAR, false)
+		# The jetty where the Makoko canoes land: a deck from the shore out to the nearest house.
+		var lm: Dictionary = map.landmarks.get(String(v["id"]) + "-jetty", {})
+		if not lm.is_empty() and not spots.is_empty():
+			var a := Terrain3D.w(lm["pos"])
+			var nearest := spots[0]
+			for q in spots:
+				if q.distance_to(a) < nearest.distance_to(a):
+					nearest = q
+			var dir := nearest - a
+			dir.y = 0.0
+			var n := int(dir.length() / 2.0)
+			for t in n:
+				var sp := a + dir.normalized() * t * 2.0
+				# The first planks ramp up from the shore, so you can walk on.
+				platforms.append({ "rect": Rect2(sp.x - 1.2, sp.z - 1.2, 2.4, 2.4), "y": minf(DECK - 0.06, 0.2 + t * 0.35) })
+			_queue("plank", Transform3D(Basis(Vector3.UP, atan2(-dir.z, dir.x)) * Basis.from_scale(Vector3(dir.length(), 1, 1.6)), (a + nearest) * 0.5 + Vector3(0, DECK - 0.1, 0)), BUILDING_FAR, false)
+
+
+## Fixed models a region's map places (Olumo Rock, Kano's city gate, the refinery's tanks).
+func _set_pieces() -> void:
+	for sp: Dictionary in map.set_pieces:
+		var key := String(sp["model"])
+		var pos := Terrain3D.w(sp["pos"])
+		var size := float(sp["size"])
+		var root := Node3D.new()
+		root.position = pos
+		root.rotation.y = deg_to_rad(float(sp["yaw"]))
+		add_child(root)
+		if key == "gate":
+			_gate(root, size)
+			continue
+		if key == "yams":
+			_yam_field(root, size)
+			continue
+		var m: Node3D = models.make(key.trim_prefix("free:"), "res://art3d/free/" if key.begins_with("free:") else Models3D.ART)
+		if m == null:
+			continue
+		var bb := Models3D.aabb(m)
+		var k := size / maxf(0.01, maxf(bb.size.x, bb.size.z))
+		m.scale = Vector3.ONE * k
+		m.position = Vector3(-bb.get_center().x * k, -bb.position.y * k, -bb.get_center().z * k)
+		root.add_child(m)
+		if String(sp["tint"]) != "":
+			for c in m.find_children("*", "MeshInstance3D", true, false):
+				var mi := c as MeshInstance3D
+				for si in mi.get_surface_override_material_count():
+					var mat: Material = mi.get_active_material(si)
+					if mat is BaseMaterial3D:
+						var d: BaseMaterial3D = mat.duplicate()
+						d.albedo_color = Color(String(sp["tint"]))
+						mi.set_surface_override_material(si, d)
+		if size > 20.0:
+			# A big rock (Olumo): collision in the exact shape of its mesh, so it can be climbed round.
+			for mi in m.find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).create_trimesh_collision()
+			obstacles.append(Vector3(pos.x, pos.z, size * 0.3))
+		elif size > 3.0:
+			var body := StaticBody3D.new()
+			var cs := CollisionShape3D.new()
+			var cyl := CylinderShape3D.new()
+			cyl.radius = size * 0.36
+			cyl.height = maxf(1.0, bb.size.y * k)
+			cs.shape = cyl
+			cs.position.y = cyl.height * 0.5
+			body.add_child(cs)
+			root.add_child(body)
+			obstacles.append(Vector3(pos.x, pos.z, cyl.radius))
+		Models3D.far_cull(root, BUILDING_FAR * 2.0 * far_scale)
+
+
+## Kano's old city gate: a thick mud-brick wall with an opening and pointed merlons on top.
+func _gate(root: Node3D, w: float) -> void:
+	var mud := StandardMaterial3D.new()
+	mud.albedo_color = Color("#b9814f")
+	mud.roughness = 1.0
+	var h := 7.0
+	for side in [-1.0, 1.0]:
+		var tower := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(3.2, h, w * 0.32)
+		tower.mesh = bm
+		tower.material_override = mud
+		tower.position = Vector3(0, h * 0.5, side * w * 0.34)
+		root.add_child(tower)
+		var body := StaticBody3D.new()
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = bm.size
+		cs.shape = box
+		body.add_child(cs)
+		body.position = tower.position
+		root.add_child(body)
+		for k in 3:
+			var m := MeshInstance3D.new()
+			var pm := PrismMesh.new()
+			pm.size = Vector3(3.2, 1.2, 1.2)
+			m.mesh = pm
+			m.material_override = mud
+			m.position = Vector3(0, h + 0.6, side * w * 0.34 + (k - 1) * 1.5)
+			root.add_child(m)
+	var lintel := MeshInstance3D.new()
+	var lb := BoxMesh.new()
+	lb.size = Vector3(3.2, 2.0, w * 0.4)
+	lintel.mesh = lb
+	lintel.material_override = mud
+	lintel.position = Vector3(0, h - 1.0, 0)
+	root.add_child(lintel)
+
+
+## The yam farms: rows of earth mounds with green vines on top.
+func _yam_field(root: Node3D, size: float) -> void:
+	var earth := SphereMesh.new()
+	earth.radius = 0.55
+	earth.height = 0.6
+	earth.radial_segments = 6
+	earth.rings = 3
+	var em := StandardMaterial3D.new()
+	em.albedo_color = Color("#6a4630")
+	earth.material = em
+	var leaf := SphereMesh.new()
+	leaf.radius = 0.35
+	leaf.height = 0.7
+	leaf.radial_segments = 5
+	leaf.rings = 3
+	var lm := StandardMaterial3D.new()
+	lm.albedo_color = Color("#3f7a2e")
+	leaf.material = lm
+	var xs: Array[Transform3D] = []
+	var ls: Array[Transform3D] = []
+	var n := int(size / 1.8)
+	for i in n:
+		for j in n:
+			var p := Vector3((i - n * 0.5) * 1.8, 0.0, (j - n * 0.5) * 1.8)
+			xs.append(Transform3D(Basis(), p))
+			ls.append(Transform3D(Basis(), p + Vector3(0, 0.75, 0)))
+	for pair in [[earth, xs], [leaf, ls]]:
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = pair[0]
+		var list: Array[Transform3D] = pair[1]
+		mm.instance_count = list.size()
+		for i in list.size():
+			mm.set_instance_transform(i, list[i])
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mmi.visibility_range_end = PROP_FAR * 1.5
+		root.add_child(mmi)

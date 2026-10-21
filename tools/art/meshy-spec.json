@@ -1,5 +1,5 @@
 {
- "_comment": "3D assets made with the Meshy API (owner's Pro plan, 2026-10-18). Run: node --env-file=.env tools/art/meshy.mjs [--budget=N] [--only=a,b]. Prompts must stay unbranded: no real brands, logos, agencies, politicians or people.",
+ "_comment": "3D assets made with the Meshy API (owner's Pro plan, 2026-10-18). Run: node --env-file=.env tools/art/meshy.mjs [--budget=N] [--only=a,b]. Prompts must stay unbranded: no real brands, logos, agencies, politicians or people. Cast queue (D-028): the 14 story characters marked \"queue\": \"cast-2026-11-18\" replace their restyled stand-ins once the Meshy credits reset; run with --only=kemi,obinna,wire,rasheed,hauwa,amaka,bigz,senator,tonye,fakunle,musa,sadiq,ladipo,bayo.",
  "style": "stylized hand-painted game asset, warm Lagos colours, clean readable shapes, no text, no logos, no brand names",
  "character_style": "full body game character standing in an A-pose, arms held away from the body, legs apart, facing forward, empty hands, stylized hand-painted look, no text, no logos",
  "kinds": {
@@ -461,6 +461,118 @@
    "polycount": 5000,
    "prompt": "An Eyo masquerade figure from the Lagos Eyo festival, a standing person completely covered in flowing white cloth robes from head to feet, a wide-brimmed white hat with a white veil hiding the face, holding a long straight wooden staff upright, respectful traditional costume",
    "texture": "Bright clean white cloth robes and veil with soft folds, white wide-brimmed hat, plain brown wooden staff"
+  },
+  {
+   "key": "kemi",
+   "kind": "character",
+   "height": 1.66,
+   "prompt": "Kemi, a Nigerian law student of twenty, slim, braided hair in a bun, fitted blouse, knee-length skirt, flat shoes, a canvas tote bag strap across her chest",
+   "texture": "Dark brown skin, black braids in a bun, white fitted blouse, navy knee-length skirt, black flat shoes, beige canvas strap",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "obinna",
+   "kind": "character",
+   "height": 1.76,
+   "prompt": "Uncle Obi, a prosperous Igbo businessman in his late fifties, embroidered isiagu tunic with a red cap, wrapper trousers, gold wristwatch, warm smile, solid build",
+   "texture": "Dark brown skin, short grey hair, black isiagu tunic with gold lion-head print, red cap, black trousers, gold watch, brown leather shoes",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "wire",
+   "kind": "character",
+   "height": 1.78,
+   "prompt": "Wire, a wiry Lagos motor park enforcer in his thirties, sleeveless vest, cargo trousers, sneakers, a thin scar on his cheek, mean look",
+   "texture": "Dark brown skin, shaved head, faded black sleeveless vest, olive cargo trousers, white sneakers",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "rasheed",
+   "kind": "character",
+   "height": 1.8,
+   "prompt": "Rasheed, a hot-headed young Nigerian man in his twenties, athletic, fitted kaftan top over jeans, white cap, determined face",
+   "texture": "Dark brown skin, short black hair, cream fitted kaftan top, dark blue jeans, white cap, black sneakers",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "hauwa",
+   "kind": "character",
+   "height": 1.7,
+   "prompt": "ACP Hauwa Danjuma, a stern Hausa police officer in her thirties, plain dark green uniform blouse and trousers, black hijab, boots, no badges or insignia text",
+   "texture": "Dark brown skin, black hijab, plain dark green uniform shirt and trousers, black belt, black boots",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "amaka",
+   "kind": "character",
+   "height": 1.65,
+   "prompt": "Amaka Eze, a sharp young Igbo journalist in her twenties, short natural hair, denim jacket over a t-shirt, jeans, a camera on a strap",
+   "texture": "Dark brown skin, short natural black hair, light blue denim jacket, white t-shirt, black jeans, black camera on a strap",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "bigz",
+   "kind": "character",
+   "height": 1.77,
+   "prompt": "Bigz Jupiter, a flashy young Lagos hacker in his twenties, bright patterned shirt, gold chain, sunglasses pushed up on his head, slim trousers, loafers",
+   "texture": "Dark brown skin, low fade haircut, bright teal and orange patterned shirt, thin gold chain, sunglasses on head, black slim trousers, tan loafers",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "senator",
+   "kind": "character",
+   "height": 1.79,
+   "prompt": "Senator Coker-Bankole, a smooth Nigerian politician in his sixties, flowing purple agbada with matching cap, polished shoes, confident smile",
+   "texture": "Dark brown skin, short grey hair, rich purple agbada with gold embroidery, matching purple fila cap, black polished shoes",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "tonye",
+   "kind": "character",
+   "height": 1.82,
+   "prompt": "General Tonye, a weathered Ijaw ex-militant leader in his fifties, long open shirt over a singlet, wrapper tied at the waist, walking stick, bush hat",
+   "texture": "Dark brown skin, grey stubble, red and white checked open shirt, white singlet, dark wrapper, brown bush hat, wooden walking stick",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "fakunle",
+   "kind": "character",
+   "height": 1.7,
+   "prompt": "Baba Fakunle, an elderly Yoruba herbalist in his seventies, plain white robe and wrapper, beaded necklace, bare feet, kind old face",
+   "texture": "Dark brown skin, white hair and short white beard, white cotton robe, white wrapper, red and white beaded necklace",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "musa",
+   "kind": "character",
+   "height": 1.8,
+   "prompt": "Musa, a royal Hausa horseman in his thirties, flowing white riding robe, embroidered turban, leather riding boots",
+   "texture": "Dark brown skin, white riding robe with blue embroidery, white and blue turban, brown leather riding boots",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "sadiq",
+   "kind": "character",
+   "height": 1.72,
+   "prompt": "Sadiq, a thin young Hausa man in his twenties, worn simple kaftan, tired face, barefoot",
+   "texture": "Dark brown skin, short black hair, worn beige kaftan with dust stains, bare feet",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "ladipo",
+   "kind": "character",
+   "height": 1.8,
+   "prompt": "A corrupt police commissioner in his fifties, heavy build, plain dark blue uniform with no insignia text, peaked cap, sunglasses",
+   "texture": "Dark brown skin, plain dark navy uniform shirt and trousers, black peaked cap, dark sunglasses, black shoes",
+   "queue": "cast-2026-11-18"
+  },
+  {
+   "key": "bayo",
+   "kind": "character",
+   "height": 1.8,
+   "prompt": "Chief Bayo Balogun, a dignified Nigerian motor park chairman in his forties in 2011, gold-coloured agbada with a fila cap, upright posture",
+   "texture": "Dark brown skin, short black hair, gold-yellow agbada with brown embroidery, matching fila cap, brown shoes",
+   "queue": "cast-2026-11-18"
   }
  ]
 }

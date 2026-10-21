@@ -16,6 +16,9 @@ var _pool: Array[OmniLight3D] = []
 var _head: SpotLight3D
 var _t := 0.0
 var _dark := 0.0
+var lamp_district: Array[String] = [] # each lamp's district (NEPA cuts whole districts)
+var cut := "" # the district with no light
+var _glow_mm: MultiMesh
 
 
 func build(w) -> void:
@@ -53,6 +56,7 @@ func build(w) -> void:
 				var yaw := atan2(dir.y, -dir.x) - PI * 0.5
 				poles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, 0, p.y)))
 				lamps.append(Vector3(p.x, LAMP_H, p.y) - Vector3(-dir.y, 0, dir.x) * 1.2)
+				lamp_district.append(String(map.district_at(p / Terrain3D.K).get("id", "")))
 			carry = t - seg
 	_batch_model("streetlight", poles, LAMP_H)
 	_glow(lamps)
@@ -120,17 +124,30 @@ func _glow(at: Array[Vector3]) -> void:
 	_glow_mat.emission_enabled = true
 	_glow_mat.emission = Color("#ffcf86")
 	_glow_mat.emission_energy_multiplier = 0.0
+	_glow_mat.vertex_color_use_as_albedo = true
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
 	mm.mesh = sm
 	mm.instance_count = at.size()
 	for i in at.size():
 		mm.set_instance_transform(i, Transform3D(Basis(), at[i]))
+		mm.set_instance_color(i, Color.WHITE)
+	_glow_mm = mm
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
 	mmi.material_override = _glow_mat
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mmi)
+
+
+## NEPA has taken light in a district ("" = light everywhere): its lamps go dark.
+func set_cut(district: String) -> void:
+	cut = district
+	if _glow_mm == null:
+		return
+	for i in lamps.size():
+		_glow_mm.set_instance_color(i, Color(0.05, 0.05, 0.05) if lamp_district[i] == cut and cut != "" else Color.WHITE)
 
 
 ## dark: 0 (day) .. 1 (night), from the game clock.
@@ -151,7 +168,11 @@ func step(delta: float, dark: float) -> void:
 		return
 	# Real lights on the lamps nearest the player.
 	var f: Vector3 = world.focus()
-	var near := lamps.filter(func(p: Vector3) -> bool: return absf(p.x - f.x) < 60.0 and absf(p.z - f.z) < 60.0)
+	var near: Array[Vector3] = []
+	for i in lamps.size():
+		var p := lamps[i]
+		if absf(p.x - f.x) < 60.0 and absf(p.z - f.z) < 60.0 and (cut == "" or lamp_district[i] != cut):
+			near.append(p)
 	near.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.distance_squared_to(f) < b.distance_squared_to(f))
 	for i in _pool.size():
 		var l := _pool[i]

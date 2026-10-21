@@ -8,7 +8,7 @@ const CELL_M := Terrain3D.CELL_M
 const WALK_SPEED := 1.35
 const RUN_SPEED := 4.2
 
-enum State { WALK, PAUSE, FLEE }
+enum State { WALK, PAUSE, FLEE, CROSS }
 
 var key := "walker"
 var ap: AnimationPlayer
@@ -18,6 +18,7 @@ var to := Vector2i.ZERO
 var t := 0.0
 var pause_left := 0.0
 var flee_dir := Vector3.ZERO
+var cross_to := Vector3.ZERO # crossing the road to here
 var world # Street3D
 var rng := RandomNumberGenerator.new()
 
@@ -48,6 +49,8 @@ func _anim() -> void:
 			Models3D.play(ap, "walk", "idle")
 		State.FLEE:
 			Models3D.play(ap, "run", "walk", 1.1)
+		State.CROSS:
+			Models3D.play(ap, "walk", "idle", 1.2)
 		State.PAUSE:
 			Models3D.play(ap, ["talk", "phone", "idle", "wave", "argue"][rng.randi() % 5], "idle")
 
@@ -72,6 +75,20 @@ func step(delta: float) -> void:
 				t = 0.0
 				state = State.WALK
 				_anim()
+		State.CROSS:
+			var d := cross_to - position
+			d.y = 0.0
+			if d.length() < 0.4:
+				var c := Vector2i(int(position.x / CELL_M), int(position.z / CELL_M))
+				from = c if world.is_walk(c) else from
+				to = _next(from, from)
+				t = 0.0
+				state = State.WALK
+				_anim()
+				return
+			position += d.normalized() * WALK_SPEED * 1.35 * delta
+			position.y = world.terrain.height_at(position)
+			rotation.y = lerp_angle(rotation.y, atan2(d.x, d.z), minf(1.0, delta * 8.0))
 		State.WALK:
 			if from == to:
 				to = _next(from, from)
@@ -95,6 +112,13 @@ func step(delta: float) -> void:
 			var dir := pb - pa
 			if dir.length_squared() > 0.01:
 				rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), minf(1.0, delta * 8.0))
+
+
+## Walk straight across the road to the pavement opposite (traffic stops for you, mostly).
+func cross(target: Vector3) -> void:
+	cross_to = target
+	state = State.CROSS
+	_anim()
 
 
 ## A vehicle is coming: get out of the way, at a run.

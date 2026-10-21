@@ -219,6 +219,176 @@
     "sat": 0.5,
     "val": 0.55
    }
+  },
+  "musa": {
+   "name": "Musa",
+   "model": "chief",
+   "colour": "#2a6fb0",
+   "look": {
+    "hue": 0.58,
+    "sat": 1.1,
+    "val": 1.0
+   }
+  },
+  "sadiq": {
+   "name": "Sadiq Danjuma",
+   "model": "walker",
+   "colour": "#7a8a3a",
+   "look": {
+    "hue": 0.2,
+    "sat": 0.7,
+    "val": 0.8
+   }
+  },
+  "imam": {
+   "name": "The imam",
+   "model": "elder",
+   "colour": "#e8e4d8",
+   "look": {
+    "hue": 0,
+    "sat": 0.2,
+    "val": 1.5
+   }
+  },
+  "ladipo": {
+   "name": "CP Ladipo",
+   "model": "taskforce",
+   "colour": "#1f2f5a",
+   "look": {
+    "hue": 0.6,
+    "sat": 0.9,
+    "val": 0.6
+   }
+  },
+  "aide": {
+   "name": "The senator's aide",
+   "model": "businessman",
+   "colour": "#6a4a8a",
+   "look": {
+    "hue": 0.75,
+    "sat": 0.8,
+    "val": 1.0
+   }
+  },
+  "doctor": {
+   "name": "Doctor",
+   "model": "businessman",
+   "colour": "#d8e4ea",
+   "look": {
+    "hue": 0,
+    "sat": 0.1,
+    "val": 1.8
+   }
+  },
+  "president": {
+   "name": "Cell president",
+   "model": "agbero",
+   "colour": "#7a3a2a",
+   "look": {
+    "hue": 0.05,
+    "sat": 1.2,
+    "val": 0.7
+   }
+  },
+  "inmate": {
+   "name": "Inmate",
+   "model": "walker",
+   "colour": "#6a6a6a",
+   "look": {
+    "hue": 0,
+    "sat": 0.3,
+    "val": 0.7
+   }
+  },
+  "boy": {
+   "name": "The boy",
+   "model": "walker",
+   "colour": "#9a9a6a",
+   "look": {
+    "hue": 0.12,
+    "sat": 0.6,
+    "val": 1.1
+   }
+  },
+  "thief": {
+   "name": "Laptop thief",
+   "model": "agbero",
+   "colour": "#3a6a8a",
+   "look": {
+    "hue": 0.55,
+    "sat": 1.2,
+    "val": 0.9
+   }
+  },
+  "aunty": {
+   "name": "Aunty",
+   "model": "aunty_boss",
+   "colour": "#c8a02a"
+  },
+  "guard": {
+   "name": "Private security",
+   "model": "taskforce",
+   "colour": "#3a3a3a",
+   "look": {
+    "hue": 0,
+    "sat": 0.1,
+    "val": 0.5
+   }
+  },
+  "merc": {
+   "name": "Mercenary",
+   "model": "agbero",
+   "colour": "#4a5a2a",
+   "look": {
+    "hue": 0.25,
+    "sat": 0.8,
+    "val": 0.6
+   }
+  },
+  "captive": {
+   "name": "Captive",
+   "model": "young_woman",
+   "colour": "#8a7a6a",
+   "look": {
+    "hue": 0.08,
+    "sat": 0.4,
+    "val": 0.8
+   }
+  },
+  "gateman": {
+   "name": "Gateman",
+   "model": "elder",
+   "colour": "#6a5a3a"
+  },
+  "neighbour": {
+   "name": "Neighbour",
+   "model": "market_woman",
+   "colour": "#2f8a52"
+  },
+  "guest": {
+   "name": "Guest",
+   "model": "businessman",
+   "colour": "#c8a02a",
+   "look": {
+    "hue": 0.1,
+    "sat": 1.3,
+    "val": 1.1
+   }
+  },
+  "boatman": {
+   "name": "Tonye's boatman",
+   "model": "agbero",
+   "colour": "#22806f",
+   "look": {
+    "hue": 0.48,
+    "sat": 0.9,
+    "val": 0.8
+   }
+  },
+  "elder": {
+   "name": "Elder",
+   "model": "elder",
+   "colour": "#7a6a4a"
   }
  },
  "acts": [
@@ -1017,7 +1187,7 @@
    "id": "m05",
    "act": 1,
    "title": "Seme Run",
-   "where": "Lagos–Badagry expressway",
+   "where": "Lagos–Badagry expressway to Seme",
    "summary": "A night convoy of smuggled rice. One sack moves: Tolu Adeyemi. Turn the convoy around.",
    "steps": [
     {
@@ -1037,7 +1207,7 @@
     },
     {
      "do": "place",
-     "at": "node:oshodi_c",
+     "at": "node:surulere_w",
      "vehicle": "truck",
      "slogan": "NO TELLING ME"
     },
@@ -1045,7 +1215,7 @@
      "do": "setpiece",
      "id": "border",
      "model": "station",
-     "at": "node:oshodi_w",
+     "at": "landmark:seme-border",
      "offset": [
       -6,
       6
@@ -1065,8 +1235,9 @@
      "do": "follow",
      "vehicle": "pickup",
      "path": [
-      "oshodi_c",
-      "osh_sw"
+      "surulere_w",
+      "mile2",
+      "festac_c"
      ],
      "gap": 70,
      "text": "Follow the escort pickup. Don't fall behind."
@@ -1077,8 +1248,8 @@
       "pickup",
       "pickup"
      ],
-     "at": "node:oshodi_w",
-     "radius": 14,
+     "at": "landmark:seme-border",
+     "radius": 16,
      "text": "Customs patrol on your tail! Make it to the border post."
     },
     {
@@ -1140,22 +1311,11 @@
      ]
     },
     {
-     "do": "setpiece",
-     "id": "church",
-     "model": "church",
-     "at": "node:mushin_w",
-     "offset": [
-      6,
-      -6
-     ],
-     "label": "BADAGRY · ST. MICHAEL'S CHURCH"
-    },
-    {
      "do": "pursuit",
      "chasers": [
       "pickup"
      ],
-     "at": "node:mushin_w",
+     "at": "landmark:badagry-church",
      "radius": 14,
      "text": "Get the four victims to the church in Badagry."
     },
@@ -1406,7 +1566,374 @@
    "title": "Cell Four",
    "where": "Yaba police station",
    "summary": "Hauwa's deal: a staged escape that a real hit squad turns deadly.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Cell Four",
+     "sub": "Yaba police station",
+     "s": 2.5
+    },
+    {
+     "do": "set",
+     "kind": "police_cell"
+    },
+    {
+     "do": "spawn",
+     "id": "president",
+     "who": "president",
+     "at": "set:president",
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "boy",
+     "who": "boy",
+     "at": "set:boy",
+     "anim": "idle",
+     "face": "president"
+    },
+    {
+     "do": "spawn",
+     "id": "in1",
+     "who": "inmate",
+     "at": "set:president",
+     "anim": "sit",
+     "face": "player",
+     "offset": [
+      1.5,
+      2.0
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "in2",
+     "who": "inmate",
+     "at": "set:boy",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2.5,
+      -0.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Cell Four. Forty men in a room built for ten, and one of them runs it."
+      },
+      {
+       "who": "president",
+       "text": "New boy! Your people bring food? Na me dey chop first. Na me be president for here."
+      },
+      {
+       "who": "boy",
+       "text": "Please... na my mama food. I never chop since yesterday."
+      },
+      {
+       "who": "president",
+       "text": "You dey argue with president? Oya, bring am."
+      },
+      {
+       "who": "dayo",
+       "text": "Leave the boy alone."
+      }
+     ]
+    },
+    {
+     "do": "fight",
+     "text": "Stop the cell president.",
+     "enemies": [
+      {
+       "id": "pres",
+       "who": "president",
+       "type": "brute",
+       "at": "set:president"
+      },
+      {
+       "id": "crony",
+       "who": "inmate",
+       "type": "thug",
+       "at": "set:president",
+       "offset": [
+        1,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "boy",
+       "text": "Thank you, sir. God go bless you."
+      },
+      {
+       "who": "inmate",
+       "text": "(from the corner) That one na soldier. See as he dey fight."
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 3
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "title",
+     "text": "That night",
+     "sub": "",
+     "s": 1.8
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "set:cell_door",
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "Balogun. Up. Quietly."
+      },
+      {
+       "who": "hauwa",
+       "text": "I know you freed those girls at Seme. The rice sacks. The church in Badagry."
+      },
+      {
+       "who": "dayo",
+       "text": "So why am I in this cell?"
+      },
+      {
+       "who": "hauwa",
+       "text": "Because somebody wanted you here. My brother Sadiq vanished from Oshodi park three years ago. Nobody looked for him. I am looking."
+      },
+      {
+       "who": "hauwa",
+       "text": "My deal: I stage your escape tonight. You go back inside, close to the people who move people. You tell me everything."
+      }
+     ]
+    },
+    {
+     "do": "choice",
+     "id": "hauwa_deal",
+     "text": "Take ACP Hauwa's deal?",
+     "options": [
+      {
+       "id": "yes",
+       "text": "\"Get me out.\""
+      },
+      {
+       "id": "yes",
+       "text": "\"For the girls. Not for you.\""
+      }
+     ]
+    },
+    {
+     "do": "walk",
+     "id": "hauwa",
+     "at": "set:corridor",
+     "then": "idle"
+    },
+    {
+     "do": "goto",
+     "at": "set:corridor",
+     "radius": 2.5,
+     "text": "Follow Hauwa out of the cell."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "Through the yard. The gate is unlocked for five minutes. Run, and don't look back."
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "goto",
+     "at": "set:yard",
+     "radius": 3,
+     "text": "Cross the station yard to the gate."
+    },
+    {
+     "do": "sfx",
+     "name": "siren"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Headlights at the gate. Men in plain clothes with rifles. This was not the plan."
+      },
+      {
+       "who": "hauwa",
+       "text": "Those are not my men! Take this!"
+      }
+     ]
+    },
+    {
+     "do": "gun",
+     "rounds": 36,
+     "text": "Hauwa slides you her service pistol"
+    },
+    {
+     "do": "waves",
+     "text": "A hit squad! Survive the shootout in the compound.",
+     "waves": [
+      [
+       {
+        "id": "h1",
+        "who": "gunman",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:gate"
+       },
+       {
+        "id": "h2",
+        "who": "gunman",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:gate",
+        "offset": [
+         3,
+         0
+        ]
+       },
+       {
+        "id": "h3",
+        "who": "gunman",
+        "type": "thug",
+        "at": "set:yard",
+        "offset": [
+         -6,
+         6
+        ]
+       }
+      ],
+      [
+       {
+        "id": "h4",
+        "who": "gunman",
+        "type": "rifle",
+        "gun": true,
+        "at": "set:gate",
+        "offset": [
+         -2,
+         2
+        ]
+       },
+       {
+        "id": "h5",
+        "who": "gunman",
+        "type": "rifle",
+        "gun": true,
+        "at": "set:gate",
+        "offset": [
+         2,
+         2
+        ]
+       },
+       {
+        "id": "h6",
+        "who": "gunman",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:outside"
+       }
+      ]
+     ],
+     "between": [
+      [
+       {
+        "who": "hauwa",
+        "text": "More coming! Use the pickup for cover!"
+       }
+      ]
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "(breathing hard) Somebody in my own command sent them. They were going to shoot you \"while escaping\"."
+      },
+      {
+       "who": "hauwa",
+       "text": "Go. Call me on this number. Nobody else."
+      },
+      {
+       "who": "dayo",
+       "text": "And if your somebody finds me first?"
+      },
+      {
+       "who": "hauwa",
+       "text": "Then run faster."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "hauwa_number",
+     "text": "ACP Hauwa's private number"
+    },
+    {
+     "do": "leave",
+     "at": "landmark:yaba-police",
+     "offset": [
+      6,
+      8
+     ]
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "escape",
+     "at": "landmark:sabi-phones",
+     "radius": 6,
+     "text": "Get away from the station: lose them in the Yaba streets.",
+     "chasers": [
+      "gunman",
+      "gunman"
+     ]
+    },
+    {
+     "do": "flag",
+     "set": "hauwa_deal"
+    }
+   ],
+   "start": "landmark:yaba-police"
   },
   {
    "id": "m08",
@@ -1414,7 +1941,211 @@
    "title": "Computer Village",
    "where": "Ikeja",
    "summary": "Meet Bigz. A foot chase through the phone stalls for a stolen laptop.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Computer Village",
+     "sub": "Ikeja",
+     "s": 2.5
+    },
+    {
+     "do": "spawn",
+     "id": "amaka",
+     "who": "amaka",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      3,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "bigz",
+     "who": "bigz",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "amaka",
+     "offset": [
+      4.5,
+      2.5
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:computer-village",
+     "radius": 3,
+     "text": "Meet Amaka at Computer Village.",
+     "offset": [
+      2,
+      3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "amaka",
+       "text": "No more aso-ebi seller. I work for The Lagos Ledger. I've been following people who vanish from motor parks for a year."
+      },
+      {
+       "who": "dayo",
+       "text": "You could have told me on the bridge."
+      },
+      {
+       "who": "amaka",
+       "text": "You could have been one of them. This is Bigz. He can trace the phones from the Seme convoy."
+      },
+      {
+       "who": "bigz",
+       "text": "Sabi! Correct guy. My fee is small: some Allen Avenue boys stole my laptop. Everything is inside. Help me collect am back."
+      },
+      {
+       "who": "bigz",
+       "text": "Look, see am there! The one in the blue shirt!"
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "thief",
+     "who": "thief",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      10,
+      -4
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "thief",
+       "text": "Wahala! Na Bigz!"
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "thief"
+    },
+    {
+     "do": "rooftop",
+     "who": "thief",
+     "text": "He's gone up onto the shop roofs. Catch the laptop thief!"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "thief",
+       "text": "Oga, no vex! Na dem send me!"
+      }
+     ]
+    },
+    {
+     "do": "fight",
+     "text": "His friends climb up after you. Deal with them.",
+     "enemies": [
+      {
+       "id": "t2",
+       "who": "agbero",
+       "type": "thug",
+       "at": "set:end",
+       "offset": [
+        1,
+        0
+       ]
+      },
+      {
+       "id": "t3",
+       "who": "agbero",
+       "type": "thug",
+       "at": "set:end",
+       "offset": [
+        -1,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "bigz_laptop",
+     "text": "Bigz's laptop"
+    },
+    {
+     "do": "leave",
+     "at": "landmark:computer-village",
+     "offset": [
+      4,
+      3
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "bigz",
+     "who": "bigz",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      5,
+      4
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "amaka",
+     "who": "amaka",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "bigz",
+     "offset": [
+      6,
+      2.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "My baby! Give me two minutes."
+      },
+      {
+       "who": "bigz",
+       "text": "Your Seme numbers... every one of them pings the same place on weekends. An event centre in Lekki."
+      },
+      {
+       "who": "amaka",
+       "text": "Saturday is the senator's daughter's wedding there. Every big man in Lagos will be inside."
+      },
+      {
+       "who": "dayo",
+       "text": "Then we're going to a wedding."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "traced_numbers",
+     "text": "The traced numbers"
+    }
+   ],
+   "start": "landmark:computer-village"
   },
   {
    "id": "m09",
@@ -1422,7 +2153,260 @@
    "title": "Owambe",
    "where": "Lekki event centre",
    "summary": "Infiltrate the senator's daughter's wedding in aso-ebi. Photograph the big men. Escape in the wedding convoy.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Owambe",
+     "sub": "The senator's daughter's wedding, Lekki",
+     "s": 2.5
+    },
+    {
+     "do": "set",
+     "kind": "owambe"
+    },
+    {
+     "do": "spawn",
+     "id": "amaka",
+     "who": "amaka",
+     "at": "set:start",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      1.2,
+      0.6
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "g1",
+     "who": "guest",
+     "at": "set:guest0",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g2",
+     "who": "aunty",
+     "at": "set:guest2",
+     "anim": "talk",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g3",
+     "who": "guest",
+     "at": "set:guest5",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g4",
+     "who": "guest",
+     "at": "set:dance",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g5",
+     "who": "aunty",
+     "at": "set:dance",
+     "anim": "cheer",
+     "face": "player",
+     "offset": [
+      2,
+      1
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "senator",
+     "who": "senator",
+     "at": "set:band",
+     "anim": "talk",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "aide",
+     "who": "aide",
+     "at": "set:backroom",
+     "anim": "idle",
+     "face": ""
+    },
+    {
+     "do": "spawn",
+     "id": "wire",
+     "who": "wire",
+     "at": "set:backroom",
+     "anim": "idle",
+     "face": "aide",
+     "offset": [
+      1.5,
+      0.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "amaka",
+       "text": "Matching aso-ebi. Smile like you're family. Spray money, dance when the drummer calls, and keep away from the aunties."
+      },
+      {
+       "who": "amaka",
+       "text": "The back room. That's where the big men meet. We need a photo of whoever goes in."
+      },
+      {
+       "who": "dayo",
+       "text": "And the aunties?"
+      },
+      {
+       "who": "amaka",
+       "text": "They know everybody's face. Everybody's."
+      }
+     ]
+    },
+    {
+     "do": "blend",
+     "s": 35,
+     "aunties": 2,
+     "text": "Blend in at the owambe: spray money, dance when the drummer calls, dodge the aunties."
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "photo",
+     "at": "set:photo",
+     "of": "aide",
+     "radius": 2.5,
+     "text": "Slip to the back room window and photograph the meeting.",
+     "got": "Click. Wire, taking a fat envelope from the senator's aide."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Tiamiyu \"Wire\", Kongi's lieutenant, takes an envelope from the senator's aide."
+      },
+      {
+       "who": "wire",
+       "text": "...Na who dey for window? NA YOU! SABI!"
+      },
+      {
+       "who": "amaka",
+       "text": "Run!"
+      }
+     ]
+    },
+    {
+     "do": "fight",
+     "text": "Wire's men open fire under the canopy. Take cover behind the tables!",
+     "enemies": [
+      {
+       "id": "w",
+       "who": "wire",
+       "type": "gunman",
+       "gun": true,
+       "at": "set:backroom_door",
+       "hp": 6
+      },
+      {
+       "id": "o1",
+       "who": "gunman",
+       "type": "gunman",
+       "gun": true,
+       "at": "set:band"
+      },
+      {
+       "id": "o2",
+       "who": "gunman",
+       "type": "gunman",
+       "gun": true,
+       "at": "set:table"
+      },
+      {
+       "id": "o3",
+       "who": "gunman",
+       "type": "thug",
+       "at": "set:dance"
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "leave",
+     "at": "landmark:lekki-event-centre",
+     "offset": [
+      6,
+      6
+     ]
+    },
+    {
+     "do": "place",
+     "at": "landmark:lekki-event-centre",
+     "offset": [
+      8,
+      8
+     ],
+     "vehicle": "suv",
+     "slogan": "OUR FOREVER #JK2026"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "amaka",
+       "text": "(leaning out of the back with Dayo's pistol) Drive! I've got the camera and I've got their tyres!"
+      }
+     ]
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "suv",
+      "pickup"
+     ],
+     "shoot": true,
+     "at": "node:ikoyi_c",
+     "radius": 16,
+     "text": "Escape the wedding convoy down the expressway to Ikoyi!"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "amaka",
+       "text": "Wire. Kongi's lieutenant. Taking the senator's money."
+      },
+      {
+       "who": "dayo",
+       "text": "So it's Kongi."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "owambe_photos",
+     "text": "Photos from the back room"
+    }
+   ],
+   "start": "landmark:lekki-event-centre"
   },
   {
    "id": "m10",
@@ -1430,7 +2414,229 @@
    "title": "Makoko",
    "where": "Lagos lagoon",
    "summary": "Canoe chase to a stilt house full of captives and red calabashes.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Makoko",
+     "sub": "The stilt town on the lagoon",
+     "s": 2.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "(phone) Wire's phone is in Makoko. One house, far end, near the open water. It hasn't moved since morning."
+      }
+     ]
+    },
+    {
+     "do": "place",
+     "at": "landmark:makoko-jetty",
+     "offset": [
+      0,
+      10
+     ],
+     "vehicle": "canoe",
+     "yaw": -90
+    },
+    {
+     "do": "boatfight",
+     "text": "Wire's boys come at you in canoes through the water lanes. Sink them!",
+     "boats": [
+      {
+       "vehicle": "canoe",
+       "gunners": 1,
+       "hp": 30
+      },
+      {
+       "vehicle": "canoe",
+       "gunners": 1,
+       "hp": 30
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:makoko-jetty",
+     "radius": 10,
+     "text": "Paddle to the house at the far end of Makoko.",
+     "offset": [
+      6,
+      26
+     ],
+     "on": "vehicle"
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "set",
+     "kind": "stilt_house"
+    },
+    {
+     "do": "spawn",
+     "id": "c1",
+     "who": "captive",
+     "at": "set:captives",
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "c2",
+     "who": "captive",
+     "at": "set:captives",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      1.2,
+      0.4
+     ],
+     "model": "market_woman"
+    },
+    {
+     "do": "spawn",
+     "id": "c3",
+     "who": "captive",
+     "at": "set:captives",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -0.6,
+      1.2
+     ],
+     "model": "walker"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Chained captives waiting for transport, and calabashes painted red."
+      },
+      {
+       "who": "captive",
+       "text": "Please... don't kill us."
+      },
+      {
+       "who": "dayo",
+       "text": "I'm here to take you home. Who brought you?"
+      },
+      {
+       "who": "captive",
+       "text": "The men say the Chairman of Oshodi go collect us. Tonight."
+      }
+     ]
+    },
+    {
+     "do": "fight",
+     "text": "Wire's men come up the ladder!",
+     "enemies": [
+      {
+       "id": "m1",
+       "who": "gunman",
+       "type": "gunman",
+       "gun": true,
+       "at": "set:door"
+      },
+      {
+       "id": "m2",
+       "who": "gunman",
+       "type": "thug",
+       "at": "set:door",
+       "offset": [
+        1,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "wire",
+       "text": "(outside) Burn am! Burn everything!"
+      },
+      {
+       "who": "story",
+       "text": "Petrol splashes the walls. Fire."
+      }
+     ]
+    },
+    {
+     "do": "explode",
+     "at": "set:calabash",
+     "size": 0.6,
+     "burn": 40
+    },
+    {
+     "do": "escort",
+     "id": "c1",
+     "at": "set:canoe",
+     "radius": 3,
+     "text": "Get the captives out of the burning house to the canoe!",
+     "enemies": [
+      {
+       "id": "m3",
+       "who": "gunman",
+       "type": "gunman",
+       "gun": true,
+       "at": "set:canoe",
+       "offset": [
+        4,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "The house sinks into the lagoon behind them. A bullet has found Dayo's side."
+      },
+      {
+       "who": "dayo",
+       "text": "...I'm fine. Go. Go!"
+      }
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "landmark:makoko-jetty"
+    },
+    {
+     "do": "item",
+     "give": "red_calabash",
+     "text": "A red calabash"
+    },
+    {
+     "do": "black",
+     "s": 1.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "mama_agba",
+       "text": "(phone) Dayo? You're bleeding? Listen to me. Go to Abeokuta. Baba Fakunle. Go now."
+      }
+     ]
+    }
+   ],
+   "start": "landmark:makoko-jetty"
   },
   {
    "id": "m11",
@@ -1438,7 +2644,148 @@
    "title": "Under Olumo Rock",
    "where": "Abeokuta",
    "summary": "Baba Fakunle heals Dayo and casts Ifá: the hand that washes your face dirtied it.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Under Olumo Rock",
+     "sub": "Abeokuta, Ogun State",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "landmark:fakunle-shrine",
+     "offset": [
+      0,
+      3
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "fakunle",
+     "who": "fakunle",
+     "at": "landmark:fakunle-shrine",
+     "anim": "sit",
+     "face": "player",
+     "offset": [
+      1.5,
+      1
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "mama",
+     "who": "mama_agba",
+     "at": "landmark:fakunle-shrine",
+     "anim": "idle",
+     "face": "fakunle",
+     "offset": [
+      -1.5,
+      1.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "fakunle",
+       "text": "So this is Bayo's son. Lie down. The bullet is out; now the fever must go."
+      },
+      {
+       "who": "story",
+       "text": "Baba Fakunle casts Ifá: the palm nuts fall."
+      },
+      {
+       "who": "fakunle",
+       "text": "The hand that washes your face is the same hand that dirtied it."
+      },
+      {
+       "who": "dayo",
+       "text": "Riddles, Baba?"
+      },
+      {
+       "who": "fakunle",
+       "text": "Your father was not killed over union politics. He found something, and he was going to the press. That is all Ifá will say today."
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "time",
+     "h": 6,
+     "m": 0
+    },
+    {
+     "do": "title",
+     "text": "Dawn",
+     "sub": "Climb the rock",
+     "s": 1.8
+    },
+    {
+     "do": "set",
+     "kind": "olumo"
+    },
+    {
+     "do": "goto",
+     "at": "set:top",
+     "radius": 3,
+     "text": "Climb Olumo Rock before the sun."
+    },
+    {
+     "do": "black",
+     "s": 0.8
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "At the top, the fever comes back as memory."
+      },
+      {
+       "who": "voice",
+       "text": "No witness."
+      },
+      {
+       "who": "story",
+       "text": "Rain. A lion-head walking stick. A hand with a gold ring. A gutter, and a boy in it."
+      },
+      {
+       "who": "dayo",
+       "text": "...I know that hand."
+      }
+     ]
+    },
+    {
+     "do": "buff",
+     "id": "iroko",
+     "text": "Baba Fakunle's Ìrókò charm: some blows just don't land. Magic or adrenaline? Who knows."
+    },
+    {
+     "do": "leave"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "fakunle",
+       "text": "Go back to Lagos, son of Bayo. And look closely at those who love you."
+      }
+     ]
+    }
+   ],
+   "start": "landmark:balogun-compound",
+   "region": "abeokuta"
   },
   {
    "id": "m12",
@@ -1446,7 +2793,211 @@
    "title": "Third Mainland",
    "where": "Third Mainland Bridge",
    "summary": "Corner Kongi on the bridge. He didn't kill your father. A sniper kills him mid-sentence.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Third Mainland",
+     "sub": "Midnight. Peak go-slow.",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "node:yaba_s",
+     "vehicle": "okada"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "Kongi. Tonight we finish this."
+      },
+      {
+       "who": "rasheed",
+       "text": "(radio, Kongi's boys) Sabi dey come for Papa! Stop am for bridge!"
+      }
+     ]
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "pickup",
+      "pickup"
+     ],
+     "shoot": true,
+     "at": "node:tmb_mid",
+     "radius": 20,
+     "text": "Kongi's boys are on you. Weave through the bridge traffic!"
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "chase",
+     "vehicle": "tanker",
+     "at": "node:tmb_mid",
+     "catch": true,
+     "text": "Kongi's men are on that tanker. Get alongside it!"
+    },
+    {
+     "do": "board",
+     "roof": 3.2,
+     "text": "You leap from the okada onto the tanker!"
+    },
+    {
+     "do": "fight",
+     "text": "Fight on top of the moving tanker!",
+     "enemies": [
+      {
+       "id": "k1",
+       "who": "agbero",
+       "type": "thug",
+       "roof": true
+      },
+      {
+       "id": "k2",
+       "who": "agbero",
+       "type": "brute",
+       "roof": true
+      },
+      {
+       "id": "k3",
+       "who": "agbero",
+       "type": "thug",
+       "roof": true
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "black",
+     "s": 0.8
+    },
+    {
+     "do": "place",
+     "at": "node:tmb_mid",
+     "offset": [
+      6,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "kongi",
+     "who": "kongi",
+     "at": "node:tmb_mid",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      9,
+      2
+     ],
+     "prop": "lion_staff"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "The tanker jack-knifes across the lanes. Kongi stumbles to the railing, the lagoon black below him."
+      },
+      {
+       "who": "kongi",
+       "text": "(drops his gun) Sabi... Listen to me. I no kill your papa."
+      },
+      {
+       "who": "kongi",
+       "text": "I carry your papa body for my hand. This stick? Dem dash me am one year after. Make e look like say na me."
+      },
+      {
+       "who": "kongi",
+       "text": "The man wey dash me na—"
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "gunshot_far"
+    },
+    {
+     "do": "anim",
+     "id": "kongi",
+     "anim": "dead"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "A sniper's bullet. Kongi falls into Dayo's arms."
+      },
+      {
+       "who": "story",
+       "text": "Headlights. Rasheed, Kongi's son, sees Dayo holding his father's body."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "rasheed",
+     "who": "rasheed",
+     "at": "node:tmb_mid",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      14,
+      6
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "rasheed",
+       "text": "PAPA! You kill my papa! Sabi, you are a dead man!"
+      }
+     ]
+    },
+    {
+     "do": "wanted",
+     "set": 2
+    },
+    {
+     "do": "escape",
+     "at": "node:island_n",
+     "radius": 14,
+     "text": "Run! Rasheed's boys are coming.",
+     "chasers": [
+      "agbero",
+      "agbero",
+      "agbero"
+     ]
+    },
+    {
+     "do": "news",
+     "headline": "BREAKING",
+     "text": "Oshodi park chairman Alhaji Rasaki Adio shot dead on Third Mainland Bridge.",
+     "s": 4.0
+    },
+    {
+     "do": "title",
+     "text": "END OF ACT II",
+     "sub": "No Condition Is Permanent",
+     "s": 3.0
+    }
+   ],
+   "start": "node:yaba_s"
   },
   {
    "id": "m13",
@@ -1454,7 +3005,162 @@
    "title": "Janazah",
    "where": "Oshodi",
    "summary": "Kongi's burial. Rasheed gives Dayo eight days.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Janazah",
+     "sub": "Oshodi. Kongi is buried before sunset.",
+     "s": 2.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo comes in a borrowed kaftan and cap, his head down. No gun. Not today."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "imam",
+     "who": "imam",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -6,
+      -2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "rasheed",
+     "who": "rasheed",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "imam",
+     "offset": [
+      -4,
+      -3
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "mo1",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "imam",
+     "offset": [
+      -8,
+      0
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "mo2",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "imam",
+     "offset": [
+      -2,
+      0
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "mo3",
+     "who": "passenger",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "imam",
+     "offset": [
+      -7,
+      -5
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "mo4",
+     "who": "elder",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "imam",
+     "offset": [
+      -3,
+      -6
+     ],
+     "model": "elder"
+    },
+    {
+     "do": "goto",
+     "at": "landmark:oshodi-park",
+     "radius": 2.5,
+     "text": "Get close to Rasheed at the graveside.",
+     "offset": [
+      -3,
+      -1
+     ],
+     "on": "foot"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "Rasheed. I need to talk to you. I didn't—"
+      },
+      {
+       "who": "rasheed",
+       "text": "(gun to Dayo's head) You come here? To my papa burial?"
+      },
+      {
+       "who": "imam",
+       "text": "Not here. Not today. Put it down, my son."
+      },
+      {
+       "who": "rasheed",
+       "text": "...Eight days. After my papa Fidau prayer, I go find you. Run, Sabi."
+      }
+     ]
+    },
+    {
+     "do": "flag",
+     "set": "eight_days"
+    },
+    {
+     "do": "escape",
+     "at": "landmark:oshodi-market",
+     "radius": 7,
+     "speed": 4.4,
+     "text": "Walk out through the crowd. Don't fire a shot. Rasheed's boys are following.",
+     "chasers": [
+      "agbero",
+      "agbero"
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "Eight days."
+      }
+     ]
+    }
+   ],
+   "start": "landmark:oshodi-park"
   },
   {
    "id": "m14",
@@ -1462,7 +3168,291 @@
    "title": "Ballot Box",
    "where": "Surulere",
    "summary": "Election day. Snatch the boxes, or swap them and film it (Big Choice 1).",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Ballot Box",
+     "sub": "Election day",
+     "s": 2.5
+    },
+    {
+     "do": "spawn",
+     "id": "aide",
+     "who": "aide",
+     "at": "landmark:ward-collation",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      3,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "pb1",
+     "who": "agbero",
+     "at": "landmark:ward-collation",
+     "anim": "idle",
+     "face": "aide",
+     "offset": [
+      5,
+      3
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "pb2",
+     "who": "agbero",
+     "at": "landmark:ward-collation",
+     "anim": "idle",
+     "face": "aide",
+     "offset": [
+      4,
+      4.5
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:ward-collation",
+     "radius": 3,
+     "text": "Join the park boys the senator's campaign is hiring.",
+     "offset": [
+      2,
+      3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "aide",
+       "text": "Listen. The opposition wards: the polling units by the stadium. Carry the boxes to the bus. Nobody gets hurt if nobody is stupid."
+      },
+      {
+       "who": "aide",
+       "text": "Fifty thousand each. Cash. Today."
+      }
+     ]
+    },
+    {
+     "do": "choice",
+     "id": "ballot",
+     "who": "dayo",
+     "text": "What does Dayo do with the ballot boxes?",
+     "options": [
+      {
+       "id": "swap",
+       "text": "Swap them for marked decoys, and film it all for Amaka (stealth)"
+      },
+      {
+       "id": "snatch",
+       "text": "Snatch them with the boys (big payout, the senator's people trust you)"
+      }
+     ]
+    },
+    {
+     "do": "if",
+     "choice": "ballot",
+     "is": "swap",
+     "then": [
+      {
+       "do": "say",
+       "lines": [
+        {
+         "who": "amaka",
+         "text": "(earpiece) The decoys are in the blue bag. Swap the boxes in the truck and keep the phone recording."
+        }
+       ]
+      },
+      {
+       "do": "stealth",
+       "at": "landmark:ward-stadium",
+       "offset": [
+        2,
+        2
+       ],
+       "radius": 3,
+       "text": "Sneak to the box truck by the stadium and swap the boxes. Stay out of their sight.",
+       "spotted": "fight",
+       "guards": [
+        {
+         "who": "police",
+         "path": [
+          "landmark:ward-stadium",
+          {
+           "at": "landmark:ward-stadium",
+           "offset": [
+            12,
+            0
+           ]
+          }
+         ]
+        },
+        {
+         "who": "agbero",
+         "path": [
+          {
+           "at": "landmark:ward-stadium",
+           "offset": [
+            -6,
+            6
+           ]
+          },
+          {
+           "at": "landmark:ward-stadium",
+           "offset": [
+            6,
+            8
+           ]
+          }
+         ]
+        }
+       ],
+       "enemies": [
+        {
+         "id": "s1",
+         "who": "police",
+         "type": "gunman",
+         "gun": true
+        },
+        {
+         "id": "s2",
+         "who": "agbero",
+         "type": "gunman",
+         "gun": true
+        },
+        {
+         "id": "s3",
+         "who": "agbero",
+         "type": "thug"
+        }
+       ]
+      },
+      {
+       "do": "photo",
+       "at": "landmark:ward-stadium",
+       "offset": [
+        4,
+        2
+       ],
+       "of": "aide",
+       "radius": 3,
+       "text": "Film the snatching for Amaka.",
+       "got": "Recording saved: faces, the bus, the aide counting cash."
+      },
+      {
+       "do": "item",
+       "give": "ballot_footage",
+       "text": "Footage of the ballot snatching"
+      },
+      {
+       "do": "respect",
+       "n": 3
+      }
+     ],
+     "else": [
+      {
+       "do": "fight",
+       "text": "The polling agents and their boys fight back.",
+       "enemies": [
+        {
+         "id": "a1",
+         "who": "agbero",
+         "type": "thug",
+         "at": "landmark:ward-stadium"
+        },
+        {
+         "id": "a2",
+         "who": "agbero",
+         "type": "brute",
+         "at": "landmark:ward-stadium",
+         "offset": [
+          2,
+          1
+         ]
+        }
+       ]
+      },
+      {
+       "do": "place",
+       "at": "landmark:ward-stadium",
+       "offset": [
+        6,
+        6
+       ],
+       "vehicle": "pickup"
+      },
+      {
+       "do": "pursuit",
+       "chasers": [
+        "pickup"
+       ],
+       "at": "landmark:ward-collation",
+       "radius": 12,
+       "text": "Police! Get the boxes back to the collation centre."
+      },
+      {
+       "do": "pay",
+       "amount": 150000,
+       "reason": "Election day 'logistics' (3D)"
+      },
+      {
+       "do": "respect",
+       "n": -3
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "aide",
+     "who": "aide",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2,
+      1
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "aide",
+       "text": "(counting notes into Dayo's hand) Good work. Oga Ọkpụ say make we take care of you."
+      },
+      {
+       "who": "dayo",
+       "text": "Oga who?"
+      },
+      {
+       "who": "aide",
+       "text": "Don't worry yourself. Big man. Very big man."
+      }
+     ]
+    },
+    {
+     "do": "pay",
+     "amount": 50000,
+     "reason": "The aide's envelope (3D)"
+    },
+    {
+     "do": "news",
+     "headline": "ELECTION DAY",
+     "text": "Violence and ballot snatching reported in several Lagos wards.",
+     "s": 3.5
+    }
+   ],
+   "start": "landmark:ward-collation"
   },
   {
    "id": "m15",
@@ -1470,7 +3460,146 @@
    "title": "LUTH",
    "where": "Lagos University Teaching Hospital",
    "summary": "Race Sego's mother to theatre through gridlock.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "time",
+     "h": 8
+    },
+    {
+     "do": "title",
+     "text": "LUTH",
+     "sub": "Lagos University Teaching Hospital",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "node:mushin_c",
+     "offset": [
+      4,
+      4
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "sego",
+     "who": "sego",
+     "at": "node:mushin_c",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      6,
+      5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "Sabi... my mama. The doctors say surgery today today, or... I no get the money. I no get anything."
+      },
+      {
+       "who": "dayo",
+       "text": "Take it. All of it."
+      },
+      {
+       "who": "sego",
+       "text": "(crying) Sabi, na you be my brother. Anything. Anything."
+      }
+     ]
+    },
+    {
+     "do": "spend",
+     "amount": 60000,
+     "reason": "Sego's mother's surgery (3D)"
+    },
+    {
+     "do": "place",
+     "at": "node:mushin_c",
+     "vehicle": "ambulance",
+     "slogan": "AMBULANCE"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Sego's mother is in the back. Rush hour has the whole mainland standing still."
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:luth",
+     "radius": 9,
+     "text": "Race Sego's mother to LUTH through the go-slow!",
+     "on": "vehicle",
+     "time": 150
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "spawn",
+     "id": "doctor",
+     "who": "doctor",
+     "at": "landmark:luth",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2,
+      1
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "doctor",
+       "text": "We'll take her from here. Theatre is ready."
+      },
+      {
+       "who": "sego",
+       "text": "God bless you, Sabi."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "aide",
+     "who": "aide",
+     "at": "landmark:luth",
+     "anim": "talk",
+     "face": "doctor",
+     "offset": [
+      12,
+      -3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "(Behind them, a man in a campaign cap steps up to the doctor and leans close.)"
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 4
+    }
+   ],
+   "start": "landmark:luth"
   },
   {
    "id": "m16",
@@ -1478,7 +3607,198 @@
    "title": "Durbar",
    "where": "Kano",
    "summary": "Chase the ring's trucks through the Sallah Durbar. Find Sadiq alive.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Durbar",
+     "sub": "Kano, at Sallah",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "landmark:kano-gate",
+     "offset": [
+      6,
+      4
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "landmark:kano-gate",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      8,
+      6
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "musa",
+     "who": "musa",
+     "at": "landmark:kano-gate",
+     "anim": "idle",
+     "face": "hauwa",
+     "offset": [
+      9,
+      3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "(phone) The cattle trucks leave Lagos full and come back empty. This week they're in Kano, hiding in the Durbar crowds."
+      },
+      {
+       "who": "hauwa",
+       "text": "My cousin Musa. He rides for the emir."
+      },
+      {
+       "who": "musa",
+       "text": "Can you ride, Lagos boy?"
+      },
+      {
+       "who": "dayo",
+       "text": "I can drive anything."
+      },
+      {
+       "who": "musa",
+       "text": "A horse is not a danfo. Hold on with your knees."
+      }
+     ]
+    },
+    {
+     "do": "crowd",
+     "id": "durbar",
+     "model": "free:horse",
+     "at": "landmark:durbar-ground",
+     "count": 12,
+     "radius": 16,
+     "height": 2.3
+    },
+    {
+     "do": "place",
+     "at": "node:gate",
+     "vehicle": "horse"
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "follow",
+     "vehicle": "truck",
+     "path": [
+      "old_city",
+      "durbar",
+      "airstrip_w",
+      "airstrip_e"
+     ],
+     "flee": true,
+     "speed": 12,
+     "gap": 80,
+     "text": "There! The cattle truck! Ride after it through the Durbar!"
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "fight",
+     "text": "The truck's guards turn on you at the airstrip.",
+     "enemies": [
+      {
+       "id": "d1",
+       "who": "gunman",
+       "type": "gunman",
+       "gun": true
+      },
+      {
+       "id": "d2",
+       "who": "gunman",
+       "type": "rifle",
+       "gun": true
+      },
+      {
+       "id": "d3",
+       "who": "agbero",
+       "type": "thug"
+      },
+      {
+       "id": "d4",
+       "who": "agbero",
+       "type": "brute"
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "sadiq",
+     "who": "sadiq",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      3,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "player",
+     "anim": "idle",
+     "face": "sadiq",
+     "offset": [
+      -2,
+      2
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Inside the truck: fourteen people. One of them looks up."
+      },
+      {
+       "who": "sadiq",
+       "text": "...Hauwa?"
+      },
+      {
+       "who": "hauwa",
+       "text": "Sadiq. Sadiq! Allah, Sadiq!"
+      },
+      {
+       "who": "story",
+       "text": "Hauwa breaks down in Dayo's arms."
+      },
+      {
+       "who": "sadiq",
+       "text": "The buyers are foreigners. But the seller... an Igbo businessman. They call him Ọkpụ."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "sadiq_testimony",
+     "text": "Sadiq's testimony"
+    }
+   ],
+   "start": "landmark:oshodi-park",
+   "region": "kano"
   },
   {
    "id": "m17",
@@ -1486,7 +3806,188 @@
    "title": "Kpo-Fire",
    "where": "Niger Delta creeks",
    "summary": "General Tonye remembers the soldier who refused to burn his village.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Kpo-Fire",
+     "sub": "The Niger Delta creeks",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "landmark:okoroba-jetty",
+     "offset": [
+      0,
+      6
+     ],
+     "vehicle": "speedboat",
+     "yaw": 0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "(to himself) Okoroba. I swore I'd never come back to these creeks."
+      },
+      {
+       "who": "bigz",
+       "text": "(phone) The money goes through General Tonye's refineries. Find him."
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:tonye-camp",
+     "radius": 14,
+     "text": "Take the speedboat through the mangroves to General Tonye's camp.",
+     "offset": [
+      -4,
+      8
+     ],
+     "on": "vehicle"
+    },
+    {
+     "do": "exit"
+    },
+    {
+     "do": "spawn",
+     "id": "tonye",
+     "who": "tonye",
+     "at": "landmark:tonye-camp",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      1,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "bm1",
+     "who": "boatman",
+     "at": "landmark:tonye-camp",
+     "anim": "idle",
+     "face": "tonye",
+     "offset": [
+      3,
+      3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "tonye",
+       "text": "Who send you here? You come to die?"
+      },
+      {
+       "who": "tonye",
+       "text": "...Wait. Wait. I know this face."
+      },
+      {
+       "who": "tonye",
+       "text": "Na you be the soldier wey refuse burn Okoroba. My mama still dey alive because of you."
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 5
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Engines on the water. The senator's hired mercenaries."
+      },
+      {
+       "who": "tonye",
+       "text": "Dem follow you! Oya, enter boat!"
+      }
+     ]
+    },
+    {
+     "do": "place",
+     "at": "landmark:tonye-camp",
+     "offset": [
+      0,
+      10
+     ],
+     "vehicle": "speedboat",
+     "yaw": 180
+    },
+    {
+     "do": "gun",
+     "rounds": 60,
+     "text": "Tonye throws you a rifle magazine"
+    },
+    {
+     "do": "boatfight",
+     "text": "Speedboat battle through the mangroves! Sink the mercenaries.",
+     "boats": [
+      {
+       "vehicle": "speedboat",
+       "gunners": 2,
+       "hp": 45
+      },
+      {
+       "vehicle": "speedboat",
+       "gunners": 1,
+       "hp": 40
+      },
+      {
+       "vehicle": "speedboat",
+       "gunners": 1,
+       "hp": 40
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "A stray round finds the refinery's tanks."
+      }
+     ]
+    },
+    {
+     "do": "explode",
+     "at": "landmark:kpo-refinery",
+     "size": 3.0,
+     "burn": 120
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "tonye",
+       "text": "(watching the creek burn) Your senator na puppet. The man wey dey hold the rope dey Alaba. Na trader, not politician."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "tonye_word",
+     "text": "General Tonye's word"
+    }
+   ],
+   "start": "landmark:makoko-jetty",
+   "region": "delta"
   },
   {
    "id": "m18",
@@ -1494,7 +3995,331 @@
    "title": "Alaba International",
    "where": "Alaba and Festac",
    "summary": "Uncle Obi's safe house is raided. Mama Àgbà is shot. Kemi is taken.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Alaba International",
+     "sub": "Uncle Obi's warehouse",
+     "s": 2.5
+    },
+    {
+     "do": "spawn",
+     "id": "obinna",
+     "who": "obinna",
+     "at": "landmark:obinna-warehouse",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2,
+      2
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:obinna-warehouse",
+     "radius": 3,
+     "text": "Go to Uncle Obi. The only man who has never failed the family.",
+     "offset": [
+      1,
+      3
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "dayo",
+       "text": "Uncle. They're coming for us. The ring, the senator... a trader in Alaba is behind it all."
+      },
+      {
+       "who": "obinna",
+       "text": "(horrified) In MY market? Dayo... come here. Come here, my son."
+      },
+      {
+       "who": "story",
+       "text": "He hugs him for a long time."
+      },
+      {
+       "who": "obinna",
+       "text": "Nobody touches my sister's children. I have a house in Festac. Take Mama and Kemi there tonight. Money, guns, anything."
+      }
+     ]
+    },
+    {
+     "do": "pay",
+     "amount": 200000,
+     "reason": "Uncle Obi's money (3D)"
+    },
+    {
+     "do": "gun",
+     "rounds": 96,
+     "text": "Uncle Obi's guns"
+    },
+    {
+     "do": "set",
+     "kind": "safehouse"
+    },
+    {
+     "do": "spawn",
+     "id": "mama",
+     "who": "mama_agba",
+     "at": "set:mama",
+     "anim": "sit",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "kemi",
+     "who": "kemi",
+     "at": "set:kemi",
+     "anim": "idle",
+     "face": "mama"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kemi",
+       "text": "Uncle Obi did all this for us? See, Dayo. Family."
+      },
+      {
+       "who": "mama_agba",
+       "text": "(her iron box on her knees, as always) Sit, Dayo. For one night, let us be a family that is not afraid."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "sego",
+     "who": "sego",
+     "at": "set:front",
+     "anim": "idle",
+     "face": "kemi"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "I bring food! Jollof and chicken. How una dey?"
+      },
+      {
+       "who": "kemi",
+       "text": "Sego! Who told you we were here?"
+      },
+      {
+       "who": "sego",
+       "text": "(a beat) ...Sabi tell me now. Abi?"
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "sego"
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "title",
+     "text": "That night",
+     "sub": "",
+     "s": 1.8
+    },
+    {
+     "do": "sfx",
+     "name": "siren"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Engines in the street. Men in police uniform pour through the gate."
+      }
+     ]
+    },
+    {
+     "do": "waves",
+     "text": "Defend the safe house!",
+     "waves": [
+      [
+       {
+        "id": "r1",
+        "who": "police",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:gate"
+       },
+       {
+        "id": "r2",
+        "who": "police",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:yard",
+        "offset": [
+         -6,
+         2
+        ]
+       },
+       {
+        "id": "r3",
+        "who": "police",
+        "type": "thug",
+        "at": "set:front"
+       }
+      ],
+      [
+       {
+        "id": "r4",
+        "who": "police",
+        "type": "rifle",
+        "gun": true,
+        "at": "set:gate",
+        "offset": [
+         3,
+         0
+        ]
+       },
+       {
+        "id": "r5",
+        "who": "police",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:back"
+       },
+       {
+        "id": "r6",
+        "who": "police",
+        "type": "brute",
+        "at": "set:front"
+       },
+       {
+        "id": "r7",
+        "who": "police",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:yard",
+        "offset": [
+         6,
+         2
+        ]
+       }
+      ]
+     ],
+     "between": [
+      [
+       {
+        "who": "kemi",
+        "text": "Dayo! The back door!"
+       }
+      ]
+     ]
+    },
+    {
+     "do": "anim",
+     "id": "mama",
+     "anim": "dead"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "A last shot from the dark. Mama Àgbà falls."
+      },
+      {
+       "who": "dayo",
+       "text": "MAMA! No, no, no..."
+      },
+      {
+       "who": "mama_agba",
+       "text": "(pointing at her iron box) Wo ọwọ́ tó ń bọ́ ẹ... Look at the hand that feeds you..."
+      },
+      {
+       "who": "story",
+       "text": "In the yard, Kemi screams. They drag her into a van."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "kemi"
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "set:gate",
+     "anim": "idle",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Hauwa runs in, in full uniform, the same badge as the raiders."
+      },
+      {
+       "who": "hauwa",
+       "text": "Dayo! Wait—"
+      },
+      {
+       "who": "dayo",
+       "text": "You! YOU!"
+      }
+     ]
+    },
+    {
+     "do": "escape",
+     "at": "set:street",
+     "radius": 4,
+     "text": "Trust no one. Run.",
+     "chasers": [
+      "police",
+      "police"
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "landmark:festac-safehouse",
+     "offset": [
+      6,
+      6
+     ]
+    },
+    {
+     "do": "flag",
+     "set": "mama_dead"
+    },
+    {
+     "do": "item",
+     "give": "iron_box",
+     "text": "Mama Àgbà's iron box"
+    },
+    {
+     "do": "title",
+     "text": "END OF ACT III",
+     "sub": "Who Get Lagos?",
+     "s": 3.0
+    }
+   ],
+   "start": "landmark:obinna-warehouse"
   },
   {
    "id": "m19",
@@ -1502,7 +4327,166 @@
    "title": "Sego",
    "where": "Ajegunle",
    "summary": "Hunt down the informant. Kill Sego or let him go.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Sego",
+     "sub": "Ajegunle",
+     "s": 2.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Mama Àgbà is buried in Mushin. Everybody comes. Sego does not."
+      },
+      {
+       "who": "dayo",
+       "text": "He knew where we were. Only Sego knew."
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:ajegunle-parlour",
+     "radius": 4,
+     "text": "Hunt Sego through Ajegunle: the beer parlour.",
+     "offset": [
+      2,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "sego",
+     "who": "sego",
+     "at": "landmark:ajegunle-parlour",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      6,
+      4
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "Sabi... Sabi, I fit explain—"
+      },
+      {
+       "who": "story",
+       "text": "He runs."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "sego"
+    },
+    {
+     "do": "rooftop",
+     "who": "sego",
+     "speed": 5.0,
+     "text": "Sego is up on the rooftops. Don't let him get away!"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "sego",
+       "text": "(through tears) Dem pay for my mama surgery! Then dem say the doctor go \"make mistake\" if I no tell them where you dey hide."
+      },
+      {
+       "who": "sego",
+       "text": "I no know say dem go shoot Mama. I swear to God. I swear!"
+      }
+     ]
+    },
+    {
+     "do": "choice",
+     "id": "sego",
+     "who": "dayo",
+     "text": "Sego is on his knees at the edge of the roof.",
+     "options": [
+      {
+       "id": "spare",
+       "text": "Let him go. \"Get out of Lagos.\""
+      },
+      {
+       "id": "kill",
+       "text": "Mama is dead because of him."
+      }
+     ]
+    },
+    {
+     "do": "if",
+     "choice": "sego",
+     "is": "spare",
+     "then": [
+      {
+       "do": "say",
+       "lines": [
+        {
+         "who": "dayo",
+         "text": "Go. Get out of my sight. If you ever pray, pray for Mama."
+        },
+        {
+         "who": "sego",
+         "text": "I go make am up to you. I swear, Sabi."
+        }
+       ]
+      },
+      {
+       "do": "respect",
+       "n": 3
+      }
+     ],
+     "else": [
+      {
+       "do": "black",
+       "s": 1.5
+      },
+      {
+       "do": "say",
+       "lines": [
+        {
+         "who": "story",
+         "text": "The beer parlour's music is loud. Nobody hears anything."
+        },
+        {
+         "who": "story",
+         "text": "Dayo walks down alone."
+        }
+       ]
+      },
+      {
+       "do": "respect",
+       "n": -5
+      }
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "landmark:ajegunle-parlour",
+     "offset": [
+      3,
+      3
+     ]
+    }
+   ],
+   "start": "landmark:ajegunle-parlour"
   },
   {
    "id": "m20",
@@ -1510,7 +4494,204 @@
    "title": "Papa's Phone",
    "where": "Mushin and Ikeja",
    "summary": "Mama Àgbà's iron box. Bigz restores the recording. The voice is Uncle Obi's.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Papa's Phone",
+     "sub": "Mushin",
+     "s": 2.5
+    },
+    {
+     "do": "set",
+     "kind": "home"
+    },
+    {
+     "do": "goto",
+     "at": "set:box",
+     "radius": 2,
+     "text": "Open Mama Àgbà's iron box."
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Inside: Chief Bayo's handwritten ledger of buses \"borrowed\" by the ring. Photographs. And, wrapped in a handkerchief, a tiny memory card."
+      },
+      {
+       "who": "dayo",
+       "text": "From Papa's phone. Mama, you kept it fifteen years..."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "ledger",
+     "text": "Papa's ledger"
+    },
+    {
+     "do": "item",
+     "give": "memory_card",
+     "text": "The memory card from Papa's phone"
+    },
+    {
+     "do": "leave",
+     "at": "landmark:computer-village",
+     "offset": [
+      4,
+      4
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "bigz",
+     "who": "bigz",
+     "at": "landmark:computer-village",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      5,
+      5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "Old card, old phone. Give me one hour."
+      }
+     ]
+    },
+    {
+     "do": "black",
+     "s": 1.2
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "(Over black) Rain. Gunshots."
+      },
+      {
+       "who": "voice",
+       "text": "Bayo, you for just collect the money. Make una finish am. No witness."
+      },
+      {
+       "who": "voice",
+       "text": "(in Igbo, to someone else) Ọ dị mma. Give Rasaki the stick next year. Let them look at him."
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "I ran the voice against every voice I have. Radio adverts too."
+      },
+      {
+       "who": "bigz",
+       "text": "One match. Chief Obinna Nwankwo. \"Ọkpụ of Alaba\"."
+      },
+      {
+       "who": "dayo",
+       "text": "Uncle Obi."
+      },
+      {
+       "who": "story",
+       "text": "The man who paid Kemi's fees. The man who bought NO KING AS GOD. The man who has Kemi now."
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "place",
+     "at": "node:mushin_c",
+     "offset": [
+      3,
+      3
+     ]
+    },
+    {
+     "do": "title",
+     "text": "Mushin, night",
+     "sub": "",
+     "s": 2.0
+    },
+    {
+     "do": "spawn",
+     "id": "n1",
+     "who": "neighbour",
+     "at": "node:mushin_c",
+     "anim": "wave",
+     "face": "player",
+     "offset": [
+      8,
+      2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "n2",
+     "who": "elder",
+     "at": "node:mushin_c",
+     "anim": "wave",
+     "face": "player",
+     "offset": [
+      12,
+      -2
+     ],
+     "model": "elder"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "neighbour",
+       "text": "Sabi! Welcome o. How Mama? We never see am for market this week."
+      }
+     ]
+    },
+    {
+     "do": "radio",
+     "text": "From a shop radio: \"Okpu Electronics, Alaba International! Chief Obinna Nwankwo, your brother in business. E no dey spoil!\"",
+     "s": 4.0
+    },
+    {
+     "do": "goto",
+     "at": "landmark:balogun-compound",
+     "radius": 4,
+     "text": "Walk home.",
+     "offset": [
+      2,
+      2
+     ],
+     "on": "foot"
+    },
+    {
+     "do": "flag",
+     "set": "okpu_revealed"
+    }
+   ],
+   "start": "landmark:balogun-compound"
   },
   {
    "id": "m21",
@@ -1518,7 +4699,160 @@
    "title": "Badge",
    "where": "Yaba",
    "summary": "Hauwa was never the enemy. Escape CP Ladipo's raid in a stolen city bus.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Badge",
+     "sub": "Yaba",
+     "s": 2.5
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "landmark:yaba-barbershop",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      3,
+      2
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:yaba-barbershop",
+     "radius": 3,
+     "text": "Hauwa wants to meet. Alone.",
+     "offset": [
+      2,
+      2
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Hauwa puts her gun on the table first."
+      },
+      {
+       "who": "hauwa",
+       "text": "I got the tip-off too late. I came to stop it. The raiders in uniform were CP Ladipo's men. My commissioner. He is on Ọkpụ's payroll."
+      },
+      {
+       "who": "hauwa",
+       "text": "He has declared me wanted this morning."
+      },
+      {
+       "who": "dayo",
+       "text": "So now we are both fugitives."
+      },
+      {
+       "who": "hauwa",
+       "text": "Alliance of outcasts."
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "siren"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "Ladipo's unit! They followed me. Through the market, go!"
+      }
+     ]
+    },
+    {
+     "do": "wanted",
+     "set": 3
+    },
+    {
+     "do": "fight",
+     "text": "Fighting retreat through Yaba market!",
+     "enemies": [
+      {
+       "id": "l1",
+       "who": "ladipo",
+       "type": "gunman",
+       "gun": true,
+       "hp": 5
+      },
+      {
+       "id": "l2",
+       "who": "police",
+       "type": "gunman",
+       "gun": true
+      },
+      {
+       "id": "l3",
+       "who": "police",
+       "type": "rifle",
+       "gun": true
+      },
+      {
+       "id": "l4",
+       "who": "police",
+       "type": "brute"
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "place",
+     "at": "node:yaba_c",
+     "vehicle": "bus",
+     "slogan": "CITY BUS · CMS–OSHODI"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "hauwa",
+       "text": "A city bus? Seriously?"
+      },
+      {
+       "who": "dayo",
+       "text": "I drive anything with wheels."
+      }
+     ]
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "pickup",
+      "pickup",
+      "suv"
+     ],
+     "shoot": true,
+     "at": "node:surulere_c",
+     "radius": 16,
+     "text": "Lose Ladipo's men in the stolen city bus!"
+    },
+    {
+     "do": "wanted",
+     "set": 0
+    },
+    {
+     "do": "flag",
+     "set": "alliance"
+    }
+   ],
+   "start": "landmark:yaba-barbershop"
   },
   {
    "id": "m22",
@@ -1526,7 +4860,192 @@
    "title": "Brotherhood",
    "where": "Oshodi",
    "summary": "Play the recording over the park loudspeaker. Rasheed joins. Assemble the crew.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Brotherhood",
+     "sub": "Oshodi. The eight days are up.",
+     "s": 2.5
+    },
+    {
+     "do": "spawn",
+     "id": "rasheed",
+     "who": "rasheed",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -6,
+      -4
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "ag1",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -9,
+      -2
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "ag2",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -3,
+      -6
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "ag3",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -10,
+      -6
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "ag4",
+     "who": "agbero",
+     "at": "landmark:oshodi-park",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      -4,
+      -1
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Every agbero in Oshodi. Rasheed in front. Dayo walks in unarmed."
+      }
+     ]
+    },
+    {
+     "do": "goto",
+     "at": "landmark:oshodi-park",
+     "radius": 3,
+     "text": "Walk into the park. Unarmed.",
+     "offset": [
+      -4,
+      -3
+     ],
+     "on": "foot"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "rasheed",
+       "text": "You get mind. Talk your last talk."
+      },
+      {
+       "who": "dayo",
+       "text": "Not my talk. My father's. Listen."
+      },
+      {
+       "who": "story",
+       "text": "The union loudspeaker crackles. The recording plays across the whole park."
+      },
+      {
+       "who": "voice",
+       "text": "Make una finish am. No witness... Give Rasaki the stick next year. Let them look at him."
+      },
+      {
+       "who": "story",
+       "text": "Silence across Oshodi."
+      },
+      {
+       "who": "rasheed",
+       "text": "(lowering his gun) ...Na the same man kill both our papa."
+      },
+      {
+       "who": "rasheed",
+       "text": "Oshodi dey with you, Sabi."
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 10
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "title",
+     "text": "The crew",
+     "sub": "",
+     "s": 1.6
+    },
+    {
+     "do": "radio",
+     "text": "Rasheed: \"Every danfo for Oshodi go block road when you say.\"",
+     "s": 2.6
+    },
+    {
+     "do": "radio",
+     "text": "General Tonye: \"My boatmen dey ready. Lagos lagoon na small water.\"",
+     "s": 2.6
+    },
+    {
+     "do": "radio",
+     "text": "Bigz: \"Give me the distribution company's password and I fit off light for the whole of Ikoyi.\"",
+     "s": 2.6
+    },
+    {
+     "do": "radio",
+     "text": "Hauwa: \"Sadiq will testify. With the ledger, I can arrest Ladipo myself.\"",
+     "s": 2.6
+    },
+    {
+     "do": "radio",
+     "text": "Amaka: \"When it happens, The Lagos Ledger goes live.\"",
+     "s": 2.6
+    },
+    {
+     "do": "if",
+     "choice": "sego",
+     "is": "spare",
+     "then": [
+      {
+       "do": "radio",
+       "text": "A text from an unknown number: \"I dey Lagos still. Anything you need. — S\"",
+       "s": 3.0
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "crew",
+     "text": "The crew"
+    }
+   ],
+   "start": "landmark:oshodi-park"
   },
   {
    "id": "m23",
@@ -1534,7 +5053,287 @@
    "title": "Iri Ji",
    "where": "Obinna's village, Anambra",
    "summary": "Rescue Kemi during the New Yam festival among the masquerades.",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Iri Ji",
+     "sub": "The New Yam festival, Obinna's village",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "landmark:village-square",
+     "offset": [
+      -10,
+      6
+     ]
+    },
+    {
+     "do": "crowd",
+     "id": "mmanwu",
+     "model": "eyo",
+     "at": "landmark:village-square",
+     "count": 16,
+     "radius": 14,
+     "height": 2.2,
+     "look": {
+      "hue": 0.0,
+      "sat": 1.6,
+      "val": 0.7,
+      "tint": "#a8231c",
+      "tint_mix": 0.55
+     }
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Today Obinna takes the community's highest title and breaks the first yam before the whole town. Kemi is in his cellar."
+      },
+      {
+       "who": "dayo",
+       "text": "(in a masquerade attendant's raffia) Nobody looks twice at the man who walks behind a masquerade."
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "stealth",
+     "at": "landmark:obinna-village-mansion",
+     "offset": [
+      0,
+      3
+     ],
+     "radius": 3,
+     "text": "Slip from the festival to the mansion. Avoid the guards.",
+     "spotted": "fight",
+     "guards": [
+      {
+       "who": "guard",
+       "path": [
+        {
+         "at": "landmark:obinna-village-mansion",
+         "offset": [
+          -8,
+          6
+         ]
+        },
+        {
+         "at": "landmark:obinna-village-mansion",
+         "offset": [
+          8,
+          6
+         ]
+        }
+       ]
+      },
+      {
+       "who": "guard",
+       "path": [
+        {
+         "at": "landmark:obinna-village-mansion",
+         "offset": [
+          10,
+          -2
+         ]
+        },
+        {
+         "at": "landmark:obinna-village-mansion",
+         "offset": [
+          10,
+          10
+         ]
+        }
+       ]
+      }
+     ],
+     "enemies": [
+      {
+       "id": "v1",
+       "who": "guard",
+       "type": "gunman",
+       "gun": true
+      },
+      {
+       "id": "v2",
+       "who": "guard",
+       "type": "gunman",
+       "gun": true
+      }
+     ]
+    },
+    {
+     "do": "set",
+     "kind": "cellar"
+    },
+    {
+     "do": "spawn",
+     "id": "kemi",
+     "who": "kemi",
+     "at": "set:kemi",
+     "anim": "sit",
+     "face": "player"
+    },
+    {
+     "do": "fight",
+     "text": "The cellar guard.",
+     "enemies": [
+      {
+       "id": "cg",
+       "who": "guard",
+       "type": "brute",
+       "at": "set:guard"
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kemi",
+       "text": "Dayo! Uncle Obi will kill them when he knows—"
+      },
+      {
+       "who": "dayo",
+       "text": "Kemi. It's him. Uncle Obi is Ọkpụ."
+      },
+      {
+       "who": "kemi",
+       "text": "No. No, you're lying. He paid my fees. He—"
+      }
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "landmark:obinna-village-mansion",
+     "offset": [
+      0,
+      6
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "kemi",
+     "who": "kemi",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      1.5,
+      0.5
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "obinna",
+     "who": "obinna",
+     "at": "landmark:obinna-village-mansion",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      0,
+      -2
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "obinna",
+       "text": "(from the balcony) Kemi-Kemi! My Ada! Where are you going with that boy?"
+      },
+      {
+       "who": "kemi",
+       "text": "...Uncle?"
+      },
+      {
+       "who": "obinna",
+       "text": "(to his men) Shoot the car."
+      },
+      {
+       "who": "kemi",
+       "text": "(barely a whisper) It's true."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "obinna"
+    },
+    {
+     "do": "despawn",
+     "id": "kemi"
+    },
+    {
+     "do": "place",
+     "at": "node:mansion",
+     "vehicle": "car"
+    },
+    {
+     "do": "pursuit",
+     "chasers": [
+      "pickup",
+      "pickup"
+     ],
+     "shoot": true,
+     "at": "landmark:yam-farms",
+     "radius": 14,
+     "text": "Escape through the yam farms under fire!"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "A helicopter lifts off from the mansion and turns south, towards Lagos."
+      }
+     ]
+    },
+    {
+     "do": "news",
+     "headline": "BREAKING",
+     "text": "Senator Coker-Bankole declared governor-elect. Victory gala tomorrow night at his Banana Island home.",
+     "s": 4.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kemi",
+       "text": "He'll be there. Before they both fly out."
+      },
+      {
+       "who": "dayo",
+       "text": "Then so will we."
+      }
+     ]
+    },
+    {
+     "do": "item",
+     "give": "kemi_safe",
+     "text": "Kemi, safe"
+    },
+    {
+     "do": "title",
+     "text": "END OF ACT IV",
+     "sub": "The Hand That Feeds You",
+     "s": 3.0
+    }
+   ],
+   "start": "landmark:oshodi-park",
+   "region": "anambra"
   },
   {
    "id": "m24",
@@ -1542,7 +5341,182 @@
    "title": "Blackout",
    "where": "Ikoyi and Banana Island",
    "summary": "Bigz kills the power. Sneak through dark estates between generator lights.",
-   "steps": []
+   "steps": [
+    {
+     "do": "time",
+     "h": 23
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "Blackout",
+     "sub": "Ikoyi and Banana Island, 11pm",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "node:banana_c",
+     "offset": [
+      -26,
+      10
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "bigz",
+       "text": "(radio) Three. Two. One."
+      }
+     ]
+    },
+    {
+     "do": "sfx",
+     "name": "power_off"
+    },
+    {
+     "do": "nepa",
+     "district": "banana-island"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "The whole of Ikoyi and Banana Island goes dark. Generators roar on, one after another. All but one."
+      },
+      {
+       "who": "dayo",
+       "text": "(radio) The senator's gateman took the suya and the money. His generator is dead."
+      }
+     ]
+    },
+    {
+     "do": "spend",
+     "amount": 50000,
+     "reason": "The gateman's carton of suya and ₦50,000 (3D)"
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "stealth",
+     "at": "landmark:banana-mansion",
+     "offset": [
+      0,
+      2
+     ],
+     "radius": 3,
+     "text": "Sneak through the dark estate. Avoid the torches and the generators' light.",
+     "guards": [
+      {
+       "who": "guard",
+       "path": [
+        {
+         "at": "node:banana_c",
+         "offset": [
+          -12,
+          0
+         ]
+        },
+        {
+         "at": "node:banana_c",
+         "offset": [
+          -12,
+          14
+         ]
+        }
+       ]
+      },
+      {
+       "who": "guard",
+       "path": [
+        {
+         "at": "landmark:banana-mansion",
+         "offset": [
+          -8,
+          6
+         ]
+        },
+        {
+         "at": "landmark:banana-mansion",
+         "offset": [
+          8,
+          6
+         ]
+        }
+       ]
+      },
+      {
+       "who": "guard",
+       "path": [
+        {
+         "at": "landmark:banana-mansion",
+         "offset": [
+          10,
+          -4
+         ]
+        },
+        {
+         "at": "landmark:banana-mansion",
+         "offset": [
+          10,
+          8
+         ]
+        }
+       ]
+      }
+     ],
+     "pools": [
+      {
+       "at": "node:banana_c",
+       "offset": [
+        -8,
+        6
+       ],
+       "radius": 7
+      },
+      {
+       "at": "landmark:banana-mansion",
+       "offset": [
+        -12,
+        -4
+       ],
+       "radius": 6
+      },
+      {
+       "at": "landmark:banana-mansion",
+       "offset": [
+        12,
+        2
+       ],
+       "radius": 6
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "From the wall, Dayo sees the roof: the senator's helicopter, rotors turning slowly."
+      },
+      {
+       "who": "dayo",
+       "text": "(radio) They're not leaving tomorrow. They're leaving tonight. Everybody, now!"
+      }
+     ]
+    }
+   ],
+   "start": "node:iko_b"
   },
   {
    "id": "m25",
@@ -1550,7 +5524,204 @@
    "title": "Lagos Rises",
    "where": "Banana Island",
    "summary": "Land, water and law: the crew hits everything at once while Dayo storms the gala.",
-   "steps": []
+   "steps": [
+    {
+     "do": "time",
+     "h": 23,
+     "m": 30
+    },
+    {
+     "do": "env",
+     "night": true,
+     "rain": false
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "nepa",
+     "district": "banana-island"
+    },
+    {
+     "do": "title",
+     "text": "Lagos Rises",
+     "sub": "One night. Three fronts.",
+     "s": 2.5
+    },
+    {
+     "do": "radio",
+     "text": "LAND · Rasheed: \"Danfo don block every road round the estate, and the exits off Third Mainland. Nobody dey pass!\"",
+     "s": 3.0
+    },
+    {
+     "do": "radio",
+     "text": "WATER · Tonye: \"My boys don cut the private jetty. Anything wey float, na we get am.\"",
+     "s": 3.0
+    },
+    {
+     "do": "radio",
+     "text": "LAW · Amaka: \"We are live on The Lagos Ledger. ACP Hauwa Danjuma is walking into the police command...\"",
+     "s": 3.0
+    },
+    {
+     "do": "set",
+     "kind": "gala"
+    },
+    {
+     "do": "spawn",
+     "id": "g1",
+     "who": "guest",
+     "at": "set:guest0",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g2",
+     "who": "aunty",
+     "at": "set:guest1",
+     "anim": "talk",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g3",
+     "who": "guest",
+     "at": "set:guest2",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "spawn",
+     "id": "g4",
+     "who": "aunty",
+     "at": "set:guest5",
+     "anim": "cheer",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Gala guests in agbada and gele. Money still on the floor from the spraying. Then the guards see Dayo."
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "waves",
+     "text": "Storm the mansion!",
+     "waves": [
+      [
+       {
+        "id": "x1",
+        "who": "guard",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:enemy0"
+       },
+       {
+        "id": "x2",
+        "who": "guard",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:enemy2"
+       },
+       {
+        "id": "x3",
+        "who": "guard",
+        "type": "thug",
+        "at": "set:enemy4"
+       }
+      ],
+      [
+       {
+        "id": "x4",
+        "who": "guard",
+        "type": "rifle",
+        "gun": true,
+        "at": "set:enemy1"
+       },
+       {
+        "id": "x5",
+        "who": "guard",
+        "type": "rifle",
+        "gun": true,
+        "at": "set:enemy3"
+       },
+       {
+        "id": "x6",
+        "who": "guard",
+        "type": "brute",
+        "at": "set:enemy5"
+       },
+       {
+        "id": "x7",
+        "who": "guard",
+        "type": "gunman",
+        "gun": true,
+        "at": "set:stairs"
+       }
+      ]
+     ],
+     "between": [
+      [
+       {
+        "who": "amaka",
+        "text": "(radio) LIVE: CP Ladipo is in handcuffs! Hauwa did it!"
+       },
+       {
+        "who": "dayo",
+        "text": "One more floor."
+       }
+      ]
+     ]
+    },
+    {
+     "do": "news",
+     "headline": "LIVE · THE LAGOS LEDGER",
+     "text": "CP Ladipo arrested on air. Sadiq Danjuma's testimony and a dead man's ledger read out in full.",
+     "s": 4.0
+    },
+    {
+     "do": "spawn",
+     "id": "senator",
+     "who": "senator",
+     "at": "set:senator",
+     "anim": "sit",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "senator",
+       "text": "(on his knees) Please! Please, I'm only a politician! It was Ọkpụ, it was all Ọkpụ!"
+      },
+      {
+       "who": "story",
+       "text": "Behind him, through the window, the helicopter lifts off from the roof."
+      },
+      {
+       "who": "dayo",
+       "text": "Obinna?"
+      },
+      {
+       "who": "senator",
+       "text": "He's not on it. The yacht. The jetty. He said: \"Tell my nephew I'll be waiting for him.\""
+      }
+     ]
+    },
+    {
+     "do": "respect",
+     "n": 5
+    }
+   ],
+   "start": "landmark:banana-mansion"
   },
   {
    "id": "m26",
@@ -1558,7 +5729,540 @@
    "title": "The Lion Staff",
    "where": "Lagos lagoon",
    "summary": "The yacht, the rain, the staff. Take it, drag him to shore, or walk away (Big Choice 2).",
-   "steps": []
+   "steps": [
+    {
+     "do": "env",
+     "night": true,
+     "rain": true
+    },
+    {
+     "do": "player",
+     "as": "dayo"
+    },
+    {
+     "do": "title",
+     "text": "The Lion Staff",
+     "sub": "The Lagos lagoon",
+     "s": 2.5
+    },
+    {
+     "do": "place",
+     "at": "node:banana_c",
+     "offset": [
+      0,
+      18
+     ],
+     "vehicle": "speedboat",
+     "yaw": 90
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "The yacht's lights head for open water. The skyline is lit only by generators."
+      }
+     ]
+    },
+    {
+     "do": "boatfight",
+     "text": "Obinna's gunboats! Sink them and catch the yacht.",
+     "boats": [
+      {
+       "vehicle": "speedboat",
+       "gunners": 2,
+       "hp": 45
+      },
+      {
+       "vehicle": "speedboat",
+       "gunners": 2,
+       "hp": 45
+      }
+     ]
+    },
+    {
+     "do": "if",
+     "choice": "sego",
+     "is": "spare",
+     "then": [
+      {
+       "do": "say",
+       "lines": [
+        {
+         "who": "story",
+         "text": "A shot from the yacht's stern. A fishing canoe cuts across. Sego, in the canoe, takes the bullet meant for Dayo."
+        },
+        {
+         "who": "sego",
+         "text": "(clutching his shoulder, laughing) Sabi... we don dey even."
+        },
+        {
+         "who": "dayo",
+         "text": "Sego! You fool. You beautiful fool."
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "do": "checkpoint"
+    },
+    {
+     "do": "set",
+     "kind": "yacht"
+    },
+    {
+     "do": "spawn",
+     "id": "obinna_talk",
+     "who": "obinna",
+     "at": "set:boss",
+     "anim": "idle",
+     "face": "player",
+     "prop": "lion_staff"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "obinna",
+       "text": "(the lion staff in his hand: he took it back from Kongi's grave) Your father was my brother too. He wanted to bring police into my business."
+      },
+      {
+       "who": "obinna",
+       "text": "Lagos eats righteous men, Dayo. I fed your family for fifteen years. Your bus? Mine. Your sister's books? Mine."
+      },
+      {
+       "who": "obinna",
+       "text": "You are standing on my money."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "obinna_talk"
+    },
+    {
+     "do": "fight",
+     "text": "Fight Obinna on the yacht deck. Watch the staff!",
+     "enemies": [
+      {
+       "id": "obinna",
+       "who": "obinna",
+       "type": "boss",
+       "at": "set:boss",
+       "prop": "lion_staff"
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "obinna_down",
+     "who": "obinna",
+     "at": "set:boss",
+     "anim": "sit",
+     "face": "player"
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Obinna is on the deck, beaten. The yacht is taking water. The lion staff rolls to Dayo's feet."
+      }
+     ]
+    },
+    {
+     "do": "choice",
+     "id": "final",
+     "who": "dayo",
+     "text": "Dayo holds the staff over his uncle.",
+     "options": [
+      {
+       "id": "staff",
+       "text": "Take the staff. The city's power passes to you."
+      },
+      {
+       "id": "judgment",
+       "text": "Drag him to shore. Hand him to Hauwa alive."
+      },
+      {
+       "id": "japa",
+       "text": "Walk away. Leave him to the lagoon. Take Kemi and go."
+      }
+     ]
+    },
+    {
+     "do": "ending"
+    },
+    {
+     "do": "credits"
+    }
+   ],
+   "start": "landmark:banana-mansion"
   }
- ]
+ ],
+ "endings": {
+  "staff": {
+   "title": "Ọba Ìta (King of the Street)",
+   "steps": [
+    {
+     "do": "black",
+     "s": 1.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo brings the staff down. Obinna's body goes into the dark lagoon."
+      }
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "landmark:oshodi-park",
+     "offset": [
+      -6,
+      -4
+     ]
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "title",
+     "text": "Six months later",
+     "sub": "",
+     "s": 2.2
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo is chairman of Oshodi. He owns Obinna's Alaba warehouses. The new governor's office calls him \"Oga\". Danfos are painted with his face."
+      }
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "kemi",
+     "who": "kemi",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2.5,
+      1.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Kemi visits his office. She sees the lion-head staff on his desk."
+      },
+      {
+       "who": "story",
+       "text": "She leaves without a word."
+      }
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo looks out at Oshodi: the same window Kongi once watched him from."
+      }
+     ]
+    },
+    {
+     "do": "title",
+     "text": "ỌBA ÌTA",
+     "sub": "King of the Street",
+     "s": 3.5
+    }
+   ]
+  },
+  "judgment": {
+   "title": "Ìdájọ́ (Judgment)",
+   "steps": [
+    {
+     "do": "black",
+     "s": 1.2
+    },
+    {
+     "do": "leave",
+     "at": "landmark:lagos-ledger",
+     "offset": [
+      4,
+      4
+     ]
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "spawn",
+     "id": "hauwa",
+     "who": "hauwa",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      2,
+      1
+     ]
+    },
+    {
+     "do": "spawn",
+     "id": "amaka",
+     "who": "amaka",
+     "at": "player",
+     "anim": "idle",
+     "face": "hauwa",
+     "offset": [
+      -2,
+      1.5
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo drags Obinna to shore and hands him to Hauwa, alive."
+      },
+      {
+       "who": "story",
+       "text": "Amaka's ballot footage, Bayo's ledger and the recording from his phone go public together."
+      }
+     ]
+    },
+    {
+     "do": "news",
+     "headline": "ELECTION ANNULLED",
+     "text": "Obinna Nwankwo and CP Ladipo to stand trial. ACP Danjuma to lead a new police unit.",
+     "s": 4.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Oshodi elects Dayo chairman in a fair vote. He repaints the union office in his father's colours."
+      }
+     ]
+    },
+    {
+     "do": "title",
+     "text": "ÌDÁJỌ́",
+     "sub": "Judgment",
+     "s": 3.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "(Months later, a sealed envelope arrives on the trial judge's desk. It carries the stamp of the Alaba traders' union.)"
+      }
+     ]
+    }
+   ]
+  },
+  "judgment_bitter": {
+   "title": "Ìdájọ́ (Judgment, bitter)",
+   "steps": [
+    {
+     "do": "black",
+     "s": 1.2
+    },
+    {
+     "do": "leave",
+     "at": "landmark:lagos-ledger",
+     "offset": [
+      4,
+      4
+     ]
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo hands Obinna to Hauwa, alive."
+      },
+      {
+       "who": "story",
+       "text": "But Obinna's lawyers have Dayo's own election-day footage: Sabi, snatching ballot boxes with the park boys. They paint him as a thug."
+      }
+     ]
+    },
+    {
+     "do": "news",
+     "headline": "COURT",
+     "text": "Alaba businessman Obinna Nwankwo granted bail. \"A political witch-hunt,\" says his counsel.",
+     "s": 4.0
+    },
+    {
+     "do": "spawn",
+     "id": "obinna",
+     "who": "obinna",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      4,
+      2
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "On the courthouse steps, Obinna smiles at Dayo."
+      }
+     ]
+    },
+    {
+     "do": "black",
+     "s": 1.5
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "(Over black: a danfo engine starts.)"
+      }
+     ]
+    },
+    {
+     "do": "title",
+     "text": "ÌDÁJỌ́",
+     "sub": "Judgment... for now",
+     "s": 3.0
+    }
+   ]
+  },
+  "japa": {
+   "title": "Japa (Leave)",
+   "steps": [
+    {
+     "do": "black",
+     "s": 1.2
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Dayo walks away and lets the lagoon decide."
+      }
+     ]
+    },
+    {
+     "do": "leave",
+     "at": "node:badagry_c"
+    },
+    {
+     "do": "env",
+     "night": false,
+     "rain": false
+    },
+    {
+     "do": "time",
+     "h": 6
+    },
+    {
+     "do": "place",
+     "at": "node:badagry_c",
+     "vehicle": "danfo",
+     "slogan": "NO KING AS GOD"
+    },
+    {
+     "do": "spawn",
+     "id": "kemi_seat",
+     "who": "kemi",
+     "at": "player",
+     "anim": "idle",
+     "face": "player",
+     "offset": [
+      1.5,
+      0
+     ]
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "kemi",
+       "text": "Where are we going?"
+      },
+      {
+       "who": "dayo",
+       "text": "Across."
+      }
+     ]
+    },
+    {
+     "do": "despawn",
+     "id": "kemi_seat"
+    },
+    {
+     "do": "goto",
+     "at": "landmark:seme-border",
+     "radius": 14,
+     "text": "Drive Kemi through the Seme border at dawn.",
+     "on": "vehicle"
+    },
+    {
+     "do": "title",
+     "text": "Months later",
+     "sub": "",
+     "s": 2.0
+    },
+    {
+     "do": "say",
+     "lines": [
+      {
+       "who": "story",
+       "text": "Kemi is studying abroad. Dayo stayed in Cotonou a while, then came back to sit on Badagry beach and watch the Lagos skyline."
+      },
+      {
+       "who": "story",
+       "text": "His phone rings. Rasheed."
+      },
+      {
+       "who": "rasheed",
+       "text": "Sabi, Oshodi need you."
+      },
+      {
+       "who": "story",
+       "text": "Dayo smiles, doesn't answer. His father's old phone ringtone plays on."
+      }
+     ]
+    },
+    {
+     "do": "title",
+     "text": "JAPA",
+     "sub": "Leave",
+     "s": 3.0
+    }
+   ]
+  }
+ }
 }

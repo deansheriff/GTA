@@ -50,6 +50,12 @@ var player_start := Vector2.ZERO
 var danfo_start := Vector2.ZERO
 var land_polys: Array[PackedVector2Array] = []
 var lagoon_poly := PackedVector2Array()
+var stilt_villages: Array = [] # [{id, name, center(px), radius(px), count}] (Map v2: Makoko)
+var set_pieces: Array = [] # [{model, pos(px), size(m), yaw, tint}] fixed models a region map places (Olumo Rock, gates)
+var ground := "grass" # what bare land looks like: grass, sand (regions differ)
+var region := "lagos"
+var title := "Lagos"
+var inland := false # land runs past the map edge (no sea on the horizon)
 
 var _road_bins := {} # Vector2i bin -> Array[int] segment indices
 var _segments: Array = [] # [{a, b, half, road}]
@@ -93,6 +99,14 @@ func load_file(path: String) -> void:
 	_place_roadside()
 	_fill_districts()
 	_place_props(data)
+	for v in data.get("stilt_villages", []):
+		stilt_villages.append({ "id": v["id"], "name": v["name"], "center": _cellpx(v["center"]), "radius": float(v["radius"]) * CELL, "count": int(v["count"]) })
+	for sp in data.get("set_pieces", []):
+		set_pieces.append({ "model": sp["model"], "pos": _cellpx(sp["cell"]), "size": float(sp.get("size", 4.0)), "yaw": float(sp.get("yaw", 0.0)), "tint": String(sp.get("tint", "")) })
+	ground = String(data.get("ground", "grass"))
+	region = String(data.get("region", "lagos"))
+	title = String(data.get("name", "Lagos"))
+	inland = bool(data.get("inland", false))
 	player_start = _cellpx(data["start"]["player"])
 	danfo_start = _cellpx(data["start"]["danfo"])
 	_index_chunks()
@@ -473,8 +487,8 @@ func _place_props(data: Dictionary) -> void:
 				var dist := district_at(p)
 				if not dist.is_empty():
 					_add_prop(_pick(dist["props"], r), p, seed)
-			elif surface[i] == S.BEACH and r.randf() < 0.85:
-				if r.randf() < 0.12:
+			elif surface[i] == S.BEACH and r.randf() < 0.85 and not (data["beach_props"] as Dictionary).is_empty():
+				if r.randf() < 0.12 and not (data["beach_buildings"] as Dictionary).is_empty():
 					var b := _try_building(_pick(data["beach_buildings"], r), Vector2i(x, y), seed)
 					if b:
 						continue

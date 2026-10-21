@@ -12,6 +12,7 @@ var _roads: Array = [] # PackedVector2Array in metres (x, z)
 
 func setup(w) -> void:
 	world = w
+	_roads.clear() # a new region's map
 	# Roads cut into ~8 m pieces, so the map can draw only the pieces inside its circle.
 	for r: Dictionary in world.map.roads:
 		var src: PackedVector2Array = r["points"]
@@ -51,7 +52,7 @@ func _to_screen(p: Vector2, f: Vector3, yaw: float) -> Vector2:
 
 
 func _draw() -> void:
-	if world == null:
+	if world == null or not world._built or not is_instance_valid(world.run):
 		return
 	var c := Vector2(RADIUS, RADIUS)
 	draw_circle(c, RADIUS, Color(0.1, 0.09, 0.07, 0.72))

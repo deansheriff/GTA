@@ -2,118 +2,178 @@
 export interface Landmark { x: number; y: number; district: string; name: string }
 export const LANDMARKS: Record<string, Landmark> = {
   "ojuelegba-buka": {
-    "x": 2592,
+    "x": 6688,
     "y": 5280,
     "district": "surulere",
     "name": "Iya Basira Buka (Ojuelegba)"
   },
   "yaba-police": {
-    "x": 7072,
+    "x": 11168,
     "y": 4000,
     "district": "yaba",
     "name": "Yaba Police Division"
   },
   "lekki-event-centre": {
-    "x": 10784,
+    "x": 14880,
     "y": 7456,
     "district": "lekki",
     "name": "Royal Pavilion Event Centre"
   },
   "obalende-motor-park": {
-    "x": 5664,
+    "x": 9760,
     "y": 7200,
     "district": "lagos-island",
     "name": "Obalende Motor Park"
   },
   "oshodi-market": {
-    "x": 3872,
+    "x": 7968,
     "y": 1952,
     "district": "oshodi",
     "name": "Oshodi Market"
   },
   "oshodi-park": {
-    "x": 4256,
+    "x": 8352,
     "y": 2848,
     "district": "oshodi",
     "name": "Oshodi Motor Park (Union Office)"
   },
   "coker-bankole-house": {
-    "x": 7328,
+    "x": 11424,
     "y": 6432,
     "district": "ikoyi",
     "name": "Coker-Bankole residence"
   },
   "ward-collation": {
-    "x": 10144,
+    "x": 14240,
     "y": 1824,
     "district": "agbado-ketu",
     "name": "Ward 7 Collation Centre"
   },
   "radio-gbedu": {
-    "x": 7072,
+    "x": 11168,
     "y": 1056,
     "district": "ikeja",
     "name": "Radio Gbedu 101.5"
   },
   "mushin-station": {
-    "x": 3616,
+    "x": 7712,
     "y": 3616,
     "district": "mushin",
     "name": "Mushin filling station"
   },
   "ojota-bus-stop": {
-    "x": 8992,
+    "x": 13088,
     "y": 1632,
     "district": "agbado-ketu",
     "name": "Ojota bus stop"
   },
   "yaba-barbershop": {
-    "x": 6240,
+    "x": 10336,
     "y": 3552,
     "district": "yaba",
     "name": "Sharp Cut Barbing Saloon"
   },
   "yaba-church": {
-    "x": 6880,
+    "x": 10976,
     "y": 3488,
     "district": "yaba",
     "name": "Overflowing Grace Assembly"
   },
   "sabi-phones": {
-    "x": 6176,
+    "x": 10272,
     "y": 4064,
     "district": "yaba",
     "name": "Sabi Phones & Accessories"
   },
   "balogun-compound": {
-    "x": 2592,
+    "x": 6688,
     "y": 4064,
     "district": "mushin",
     "name": "Balogun compound (Mushin)"
   },
   "lagos-ledger": {
-    "x": 7456,
+    "x": 11552,
     "y": 7712,
     "district": "victoria-island",
     "name": "The Lagos Ledger"
   },
   "mallam-suya": {
-    "x": 8224,
+    "x": 12320,
     "y": 7456,
     "district": "victoria-island",
     "name": "Mallam Garba Suya Spot"
   },
   "ward-stadium": {
-    "x": 10400,
+    "x": 14496,
     "y": 2336,
     "district": "agbado-ketu",
     "name": "Agbado-Ketu Central Mini Stadium"
   },
   "ikoyi-substation": {
-    "x": 11040,
+    "x": 15136,
     "y": 2720,
     "district": "agbado-ketu",
     "name": "Power distribution substation"
+  },
+  "computer-village": {
+    "x": 10784,
+    "y": 1696,
+    "district": "ikeja",
+    "name": "Computer Village"
+  },
+  "luth": {
+    "x": 8096,
+    "y": 4256,
+    "district": "mushin",
+    "name": "Lagos University Teaching Hospital"
+  },
+  "alaba-market": {
+    "x": 1824,
+    "y": 3616,
+    "district": "alaba",
+    "name": "Alaba International Market"
+  },
+  "obinna-warehouse": {
+    "x": 2336,
+    "y": 3104,
+    "district": "alaba",
+    "name": "Okpu Electronics warehouse"
+  },
+  "festac-safehouse": {
+    "x": 2464,
+    "y": 5408,
+    "district": "festac",
+    "name": "Festac safe house"
+  },
+  "ajegunle-parlour": {
+    "x": 4000,
+    "y": 6304,
+    "district": "ajegunle",
+    "name": "Tonic Beer Parlour"
+  },
+  "badagry-church": {
+    "x": 1184,
+    "y": 5920,
+    "district": "badagry",
+    "name": "St. Michael's Church, Badagry"
+  },
+  "seme-border": {
+    "x": 480,
+    "y": 5920,
+    "district": "badagry",
+    "name": "Seme border post"
+  },
+  "banana-mansion": {
+    "x": 12512,
+    "y": 5408,
+    "district": "banana-island",
+    "name": "The Coker-Bankole villa, Banana Island"
+  },
+  "makoko-jetty": {
+    "x": 8992,
+    "y": 4960,
+    "district": "yaba",
+    "name": "Makoko jetty"
   }
 };
 export interface Route { id: string; name: string; from: string; to: string; fare: number }

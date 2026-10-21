@@ -24,6 +24,13 @@ const LANDMARKS := {
 	"yaba-church": "church", "lagos-ledger": "office_tower", "radio-gbedu": "office_tower",
 	"ward-collation": "office_tower", "yaba-police": "apartment", "coker-bankole-house": "mansion",
 	"balogun-compound": "apartment", "oshodi-park": "motor_park",
+	# Map v2 (D-028)
+	"computer-village": "market", "alaba-market": "market", "luth": "office_tower",
+	"obinna-warehouse": "city_large", "festac-safehouse": "bungalow", "ajegunle-parlour": "canteen",
+	"badagry-church": "church", "banana-mansion": "mansion",
+	# Regions
+	"fakunle-shrine": "shack", "itoku-market": "market", "emir-palace": "mansion",
+	"obinna-village-mansion": "mansion",
 }
 ## District flavour: rich districts get duplexes and towers, crowded ones get shacks, and the old
 ## commercial centres get the Downtown City MegaKit's brick blocks (CC0 Quaternius, D-027).
@@ -36,6 +43,11 @@ const DISTRICT_SWAP := {
 	"yaba": { "two-storey": "city_small" },
 	"mushin": { "bungalow": "shack" },
 	"agbado-ketu": { "bungalow": "shack" },
+	"ajegunle": { "bungalow": "shack", "canteen": "shack" },
+	"banana-island": { "bungalow": "mansion", "two-storey": "mansion" },
+	"alaba": { "two-storey": "city_medium", "provision-store": "city_small" },
+	"festac": { "two-storey": "apartment" },
+	"okoroba": { "bungalow": "fisher_hut" },
 }
 ## Downtown City MegaKit models (glTF with their textures beside them), by our key.
 const CITYKIT := {
@@ -68,7 +80,16 @@ const VEHICLES := {
 	"truck": { "model": "truck", "size": Vector2(7.5, 2.4), "top": 13.0, "accel": 4.0, "turn": 1.2 },
 	"pickup": { "model": "pickup", "size": Vector2(5.0, 1.9), "top": 19.0, "accel": 8.0, "turn": 1.9 },
 	"van": { "model": "van", "size": Vector2(4.8, 1.9), "top": 16.0, "accel": 6.0, "turn": 1.8 },
+	# D-028: the ambulance (LUTH), boats (the lagoon, the creeks) and the Durbar horses. "water":
+	# drives only on water; "dir": a free model's folder; "anim": walk/gallop clips by speed.
+	"ambulance": { "model": "ambulance", "dir": "res://art3d/free/", "size": Vector2(5.0, 2.0), "top": 20.0, "accel": 8.5, "turn": 1.9 },
+	"speedboat": { "model": "speedboat", "dir": "res://art3d/free/", "size": Vector2(6.5, 2.4), "top": 24.0, "accel": 8.0, "turn": 1.6, "water": true },
+	"canoe": { "model": "canoe", "size": Vector2(5.2, 1.2), "top": 7.5, "accel": 3.0, "turn": 1.5, "water": true },
+	"yacht": { "model": "yacht", "dir": "res://art3d/free/", "size": Vector2(22.0, 6.0), "top": 12.0, "accel": 2.0, "turn": 0.6, "water": true },
+	"horse": { "model": "horse", "dir": "res://art3d/free/", "size": Vector2(2.6, 0.9), "top": 13.5, "accel": 6.5, "turn": 2.6, "anim": true },
 }
+## Regions: fewer danfos, more trucks and okadas.
+const REGION_MIX := ["truck", "pickup", "okada", "okada", "car", "keke", "bus", "taxi"]
 ## How often each kind turns up in traffic (Lagos: danfos, kekes and okadas everywhere).
 const TRAFFIC_MIX := ["danfo", "danfo", "danfo", "keke", "keke", "okada", "okada", "car", "car", "taxi", "suv", "bus", "truck", "tanker", "pickup", "van"]
 
@@ -88,7 +109,8 @@ const FREE_ANIMS := {
 	"idle": "Idle", "walk": "Walk", "run": "Run", "punch": "Punch_Right", "hit": "HitRecieve",
 	"dead": "Death", "wave": "Wave", "talk": "Interact", "argue": "Interact", "phone": "Idle_Neutral",
 	"cheer": "Wave", "sit": "Idle_Neutral", "kick": "Kick_Right", "gun_idle": "Idle_Gun_Pointing",
-	"shoot": "Gun_Shoot", "run_shoot": "Run_Shoot",
+	"shoot": "Gun_Shoot", "run_shoot": "Run_Shoot", "jump": "Jump", "roll": "Roll",
+	"crouch": "Idle_Neutral",
 }
 
 var _scenes := {}

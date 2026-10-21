@@ -216,7 +216,7 @@ func _show(line: Dictionary) -> void:
 	_text.text = String(line.get("text", ""))
 	_text.add_theme_color_override("font_color", DANFO.lightened(0.4) if who == "tip" else PAPER)
 	_hint.visible = true
-	if _skipping or autoplay or Settings.get_value("reduced_motion", false):
+	if _skipping or autoplay or Settings.get_value("reduced_motion", false) or bool(Settings.get_pref("motion_off", false)):
 		_typing = false
 		_text.visible_characters = -1
 	else:

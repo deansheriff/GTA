@@ -1,0 +1,285 @@
+{
+ "_comment": "The Niger Delta: mangrove creeks, Okoroba village, the kpo-fire refinery island and Tonye's camp (Act III, M17).",
+ "region": "delta",
+ "name": "Niger Delta creeks",
+ "size": [
+  96,
+  72
+ ],
+ "ground": "grass",
+ "inland": false,
+ "land": {
+  "okoroba": [
+   [
+    8,
+    8
+   ],
+   [
+    30,
+    6
+   ],
+   [
+    34,
+    22
+   ],
+   [
+    22,
+    30
+   ],
+   [
+    6,
+    24
+   ]
+  ],
+  "refinery": [
+   [
+    52,
+    34
+   ],
+   [
+    76,
+    30
+   ],
+   [
+    82,
+    46
+   ],
+   [
+    70,
+    56
+   ],
+   [
+    50,
+    50
+   ]
+  ],
+  "camp": [
+   [
+    80,
+    6
+   ],
+   [
+    92,
+    8
+   ],
+   [
+    92,
+    22
+   ],
+   [
+    80,
+    20
+   ]
+  ]
+ },
+ "lagoon": [
+  [
+   0,
+   0
+  ],
+  [
+   96,
+   0
+  ],
+  [
+   96,
+   72
+  ],
+  [
+   0,
+   72
+  ]
+ ],
+ "road_classes": {
+  "expressway": {
+   "width": 148,
+   "speed": 1.0
+  },
+  "main": {
+   "width": 112,
+   "speed": 0.85
+  },
+  "street": {
+   "width": 80,
+   "speed": 0.6
+  }
+ },
+ "nodes": {
+  "okoroba_c": [
+   18,
+   16
+  ],
+  "okoroba_s": [
+   20,
+   26
+  ],
+  "refinery_c": [
+   66,
+   42
+  ],
+  "refinery_w": [
+   54,
+   42
+  ],
+  "camp_c": [
+   86,
+   14
+  ]
+ },
+ "roads": [
+  {
+   "id": "okoroba-path",
+   "class": "street",
+   "nodes": [
+    "okoroba_c",
+    "okoroba_s"
+   ]
+  },
+  {
+   "id": "refinery-path",
+   "class": "street",
+   "nodes": [
+    "refinery_w",
+    "refinery_c"
+   ]
+  }
+ ],
+ "districts": [
+  {
+   "id": "okoroba",
+   "name": "Okoroba",
+   "center": [
+    18,
+    16
+   ],
+   "density": 0.8,
+   "buildings": {
+    "fisher-hut": 4,
+    "bungalow": 2
+   },
+   "props": {
+    "canoe": 2,
+    "nets": 2,
+    "palm": 3,
+    "fish-baskets": 2
+   }
+  },
+  {
+   "id": "refinery",
+   "name": "Kpo-fire refinery",
+   "center": [
+    66,
+    42
+   ],
+   "density": 0.4,
+   "buildings": {
+    "fisher-hut": 1
+   },
+   "props": {
+    "palm": 2
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "okoroba-jetty",
+   "name": "Okoroba jetty",
+   "district": "okoroba",
+   "cell": [
+    22,
+    28
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "kpo-refinery",
+   "name": "Kpo-fire refinery",
+   "district": "refinery",
+   "cell": [
+    66,
+    40
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "tonye-camp",
+   "name": "General Tonye's camp",
+   "district": "refinery",
+   "cell": [
+    86,
+    12
+   ],
+   "kind": "spot"
+  }
+ ],
+ "start": {
+  "player": [
+   18,
+   18
+  ],
+  "danfo": [
+   20,
+   18
+  ]
+ },
+ "set_pieces": [
+  {
+   "model": "free:gas_tank",
+   "cell": [
+    64,
+    38
+   ],
+   "size": 3.0
+  },
+  {
+   "model": "free:gas_tank",
+   "cell": [
+    68,
+    44
+   ],
+   "size": 3.0
+  },
+  {
+   "model": "free:barrel",
+   "cell": [
+    62,
+    44
+   ],
+   "size": 1.0
+  },
+  {
+   "model": "free:barrel",
+   "cell": [
+    63,
+    45
+   ],
+   "size": 1.0
+  },
+  {
+   "model": "free:barrel",
+   "cell": [
+    70,
+    40
+   ],
+   "size": 1.0
+  },
+  {
+   "model": "free:tent",
+   "cell": [
+    86,
+    14
+   ],
+   "size": 5.0
+  },
+  {
+   "model": "free:tent",
+   "cell": [
+    60,
+    46
+   ],
+   "size": 5.0
+  }
+ ],
+ "beach_props": {},
+ "beach_buildings": {}
+}

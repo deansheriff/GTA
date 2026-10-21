@@ -27,6 +27,17 @@ var a := ""
 var b := ""
 var cruise := 11.0
 var world # Street3D: map, terrain and the list of vehicles (to keep a gap)
+var on_water := false # boats: drive only on the lagoon and creeks
+var fuel := 1.0 # 0..1 of a tank (the player's rides use it up; D-028)
+var hostile := false # a mission's enemy boat or car: shoots at Dayo, can be shot
+var gunners := 0 # how many armed men ride in it (hostile vehicles fire this often)
+var hp_max := 100.0
+var _steer := 0.0
+var _slip := Vector3.ZERO # sideways slide left over from the last turn (drifting)
+var _ap: AnimationPlayer # horses: walk/gallop
+var _bob := 0.0
+var _model: Node3D
+var _gun_cool := 0.0
 
 
 func setup(lib: Models3D, k: String, w) -> void:
@@ -35,6 +46,7 @@ func setup(lib: Models3D, k: String, w) -> void:
 	spec = Models3D.VEHICLES.get(k, Models3D.VEHICLES["car"])
 	var size: Vector2 = spec["size"]
 	length = size.x
+	on_water = bool(spec.get("water", false))
 	cruise = float(spec["top"]) * randf_range(0.55, 0.75)
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -42,14 +54,21 @@ func setup(lib: Models3D, k: String, w) -> void:
 	shape.shape = box
 	shape.position.y = box.size.y * 0.5 + 0.1
 	add_child(shape)
-	var m := lib.make(spec["model"])
+	var m := lib.make(spec["model"], String(spec.get("dir", Models3D.ART)))
 	var model: Node3D
 	if m:
+		_ap = Models3D.find_player(m)
 		model = Models3D.fit_vehicle(m, size)
-		Models3D.glossy(model)
+		if not bool(spec.get("anim", false)):
+			Models3D.glossy(model)
 	else:
 		model = _box_model(size)
 	add_child(model)
+	_model = model
+	if _ap:
+		for a in _ap.get_animation_list():
+			_ap.get_animation(a).loop_mode = Animation.LOOP_LINEAR
+		Models3D.play(_ap, "Idle", "")
 	Models3D.far_cull(model, 200.0)
 	collision_layer = 2
 	collision_mask = 1 | 2
@@ -85,24 +104,43 @@ func place_on_road(from: String, to: String, t: float) -> void:
 	reset_physics_interpolation()
 
 
-## Player driving: throttle -1..1, steer -1..1 (positive = right).
+## Player driving: throttle -1..1, steer -1..1 (positive = right). Steering eases in (no twitchy
+## phone thumbs), turns less at speed, and fast turns slide a little before the tyres bite
+## (boats slide a lot). An empty tank leaves only a crawl.
 func drive(throttle: float, steer: float, delta: float) -> void:
-	var top: float = spec["top"]
+	var top: float = spec["top"] * (0.25 if fuel <= 0.0 else 1.0)
 	var accel: float = spec["accel"]
 	if absf(throttle) > 0.05:
 		var braking := throttle * speed < 0.0
 		speed = move_toward(speed, top * throttle * (1.0 if throttle > 0.0 else 0.35), (accel * 2.2 if braking else accel) * delta)
 	else:
-		speed = move_toward(speed, 0.0, 4.0 * delta)
-	heading -= steer * float(spec["turn"]) * delta * clampf(absf(speed) / 5.0, 0.0, 1.0) * signf(speed if speed != 0.0 else 1.0)
+		speed = move_toward(speed, 0.0, (1.6 if on_water else 4.0) * delta)
+	_steer = move_toward(_steer, steer, delta * 5.0)
+	var at_speed := clampf(absf(speed) / float(spec["top"]), 0.0, 1.0)
+	var turn := _steer * float(spec["turn"]) * delta * clampf(absf(speed) / 5.0, 0.0, 1.0) * (1.15 - at_speed * 0.4)
+	heading -= turn * signf(speed if speed != 0.0 else 1.0)
+	# Drift: part of a hard turn at speed carries on sideways, then grips again.
+	var grip := 2.2 if on_water else (9.0 if kind in ["okada", "horse"] else 6.0)
+	var side := Vector3(-sin(heading), 0, -cos(heading))
+	_slip += side * turn * speed * (0.9 if on_water else 0.45)
+	_slip = _slip.lerp(Vector3.ZERO, minf(1.0, delta * grip))
+	fuel = maxf(0.0, fuel - absf(speed) * delta / 26000.0) # a tank lasts about 26 km
 	_move(delta)
 
 
 func _move(delta: float) -> void:
 	rotation.y = heading
-	velocity = Vector3(cos(heading), 0, -sin(heading)) * speed
+	velocity = Vector3(cos(heading), 0, -sin(heading)) * speed + _slip
+	# Boats stay on the water and cars on land (the lagoon has no collision of its own).
+	if world and world.map and absf(speed) > 0.1:
+		var ahead := position + Vector3(cos(heading), 0, -sin(heading)) * signf(speed) * (length * 0.5 + 0.6) + velocity * delta
+		if world.is_water_at(ahead) != on_water and not (not on_water and _bridge_at(ahead)):
+			speed = -speed * 0.2
+			_slip = Vector3.ZERO
+			velocity = Vector3.ZERO
 	var impact := absf(speed)
 	move_and_slide()
+	_animate(delta)
 	_bump_t = maxf(0.0, _bump_t - delta)
 	if get_slide_collision_count() > 0:
 		for i in get_slide_collision_count():
@@ -118,8 +156,25 @@ func _move(delta: float) -> void:
 				_bump_t = 0.5
 				damage(impact * 0.8)
 				Sound.sfx("crash", 0.8)
-		speed *= 0.5
-	position.y = lerpf(position.y, world.terrain.height_at(position), minf(1.0, delta * 10.0))
+		speed *= -0.25 if impact > 6.0 else 0.5 # a hard hit bounces you back a little
+	var ground: float = -0.18 if on_water else world.terrain.height_at(position)
+	position.y = lerpf(position.y, ground, minf(1.0, delta * 10.0))
+
+
+func _bridge_at(p: Vector3) -> bool:
+	var s: int = world.map.surface_at(Vector2(p.x, p.z) / Terrain3D.K)
+	return s == MapData.S.BRIDGE
+
+
+## Horses walk, trot and gallop with their speed; boats rock on the swell.
+func _animate(delta: float) -> void:
+	if _ap:
+		var s := absf(speed)
+		Models3D.play(_ap, "Gallop" if s > 7.0 else ("Walk" if s > 0.6 else "Idle"), "Idle", clampf(s / (11.0 if s > 7.0 else 2.5), 0.6, 1.6) if s > 0.6 else 1.0)
+	if on_water and _model:
+		_bob += delta * (1.4 + absf(speed) * 0.05)
+		_model.rotation.x = sin(_bob) * 0.03
+		_model.rotation.z = sin(_bob * 0.7) * 0.025 + clampf(-_steer * absf(speed) * 0.004, -0.08, 0.08)
 
 
 func damage(amount: float) -> void:
@@ -197,9 +252,14 @@ func ai_step(delta: float) -> void:
 		var ahead: float = world.clear_ahead(self)
 		if ahead < 14.0:
 			limit = cruise * clampf((ahead - 4.0) / 10.0, 0.0, 1.0)
+		# Red light at the junction ahead: stop at the line (D-028 junction rules).
+		if world.signals and world.signals.must_stop(self, to.length()):
+			limit = minf(limit, clampf((to.length() - 9.0) * 0.8, 0.0, cruise))
+		limit *= float(world.roam.goslow_k(position)) if world.roam else 1.0
 	speed = move_toward(speed, limit, (6.0 if limit > speed else 14.0) * delta)
 	rotation.y = heading
 	position += forward() * speed * delta
+	_animate(delta)
 
 
 ## CHASE: follow the roads towards the player, then go straight for them when close (and ram).
@@ -225,11 +285,21 @@ func chase_step(delta: float) -> void:
 			b = best if best != b else (nbs[randi() % nbs.size()] if not nbs.is_empty() else b)
 			pb = Terrain3D.w(map.road_nodes[b])
 		target = pb
+	if on_water:
+		target = f # boats cut straight across the water
 	var to := target - position
 	to.y = 0.0
 	heading = lerp_angle(heading, -Vector2(to.x, to.z).angle(), minf(1.0, delta * 2.2))
-	speed = move_toward(speed, float(spec["top"]) * 0.85, float(spec["accel"]) * delta)
+	var want := float(spec["top"]) * 0.85
+	if hostile and to_f.length() < 14.0:
+		want = float(spec["top"]) * 0.45 # gunboats hold off and shoot rather than ram
+	speed = move_toward(speed, want, float(spec["accel"]) * delta)
 	_move(delta)
+	if hostile and gunners > 0:
+		_gun_cool -= delta
+		if _gun_cool <= 0.0 and to_f.length() < 34.0:
+			_gun_cool = randf_range(1.2, 2.2) / gunners
+			world.combat.vehicle_fires(self)
 
 
 func _nearest_node() -> void:

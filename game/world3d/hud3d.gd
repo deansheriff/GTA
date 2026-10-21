@@ -34,6 +34,20 @@ var _title_sub: Label
 var _black: ColorRect
 var _menu: Control
 var _theme: Theme
+var radio_btn: Button
+var _radio: Label
+var _timer: Label
+var _alarm: ProgressBar
+var _stamina: ProgressBar
+var _buffs: Label
+var _hit: Label
+var _vignette: ColorRect
+var _white: ColorRect
+var _hint: PanelContainer
+var _hint_text: Label
+var _hint_t := 0.0
+var _hint_queue: Array = []
+var _prompt_shown := ""
 
 
 func setup(w) -> void:
@@ -104,9 +118,304 @@ func setup(w) -> void:
 	_root.add_child(dialogue)
 	_build_title()
 	pause = PauseMenu.new()
+	pause.extra = [
+		["How to play", func(root: Control) -> void: root.add_child(_help_panel())],
+		["Street life", func(root: Control) -> void: root.add_child(_street_panel())],
+		["Restart from checkpoint", func(_root: Control) -> void: _restart_checkpoint()],
+	]
 	add_child(pause)
 	pause.use_theme(_theme)
 	pause.open_settings.connect(func(root: Control) -> void: root.add_child(_settings_panel()))
+	_build_extras()
+	apply_layout()
+
+
+# ---------- D-028: prompts, radio, timer, alarm, hit feedback, hints ----------
+
+func _build_extras() -> void:
+	radio_btn = _button("RADIO", Vector2(-340, -370))
+	radio_btn.custom_minimum_size = Vector2(150, 64)
+	radio_btn.offset_bottom = radio_btn.offset_top + 64
+	radio_btn.pressed.connect(func() -> void:
+		world.roam.radio_on = not world.roam.radio_on
+		Sound.sfx("static")
+		notify("Radio Gbedu on." if world.roam.radio_on else "Radio off."))
+	radio_btn.visible = false
+	_radio = Label.new()
+	_radio.anchor_left = 0.18
+	_radio.anchor_right = 0.82
+	_radio.anchor_top = 1.0
+	_radio.anchor_bottom = 1.0
+	_radio.offset_top = -64
+	_radio.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_radio.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_style(_radio, 18, Color("#ffe9b0"))
+	_root.add_child(_radio)
+	_timer = Label.new()
+	_timer.anchor_left = 0.4
+	_timer.anchor_right = 0.6
+	_timer.offset_top = 64
+	_timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_timer.add_theme_font_override("font", UiStyle.display())
+	_style(_timer, 34, Color("#f6d04d"))
+	_timer.visible = false
+	_root.add_child(_timer)
+	_alarm = ProgressBar.new()
+	_alarm.max_value = 1.0
+	_alarm.show_percentage = false
+	_alarm.anchor_left = 0.38
+	_alarm.anchor_right = 0.62
+	_alarm.offset_top = 150
+	_alarm.offset_bottom = 164
+	var af := StyleBoxFlat.new()
+	af.bg_color = Color("#e8483a")
+	_alarm.add_theme_stylebox_override("fill", af)
+	_alarm.visible = false
+	_root.add_child(_alarm)
+	_stamina = ProgressBar.new()
+	_stamina.max_value = 1.0
+	_stamina.show_percentage = false
+	_stamina.custom_minimum_size = Vector2(160, 8)
+	_stamina.position = Vector2(16, 122)
+	var sf := StyleBoxFlat.new()
+	sf.bg_color = Color("#4fb3d9")
+	_stamina.add_theme_stylebox_override("fill", sf)
+	_stamina.visible = false
+	_root.add_child(_stamina)
+	_buffs = _label(Vector2(16, 150), 17, Color("#9fe0ff"))
+	_hit = Label.new()
+	_hit.text = "✕"
+	_hit.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_hit.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_hit.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_style(_hit, 40, Color(1, 1, 1))
+	_hit.modulate.a = 0.0
+	_root.add_child(_hit)
+	_vignette = ColorRect.new()
+	_vignette.color = Color(0.8, 0.05, 0.02, 0.0)
+	_vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_vignette)
+	_root.move_child(_vignette, 0)
+	_white = ColorRect.new()
+	_white.color = Color(1, 1, 1, 0.0)
+	_white.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_white.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_white)
+	_hint = PanelContainer.new()
+	_hint.anchor_left = 0.5
+	_hint.anchor_right = 0.5
+	_hint.offset_left = -300
+	_hint.offset_right = 300
+	_hint.offset_top = 190
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var hs := StyleBoxFlat.new()
+	hs.bg_color = Color(0.08, 0.06, 0.04, 0.85)
+	hs.border_color = UiStyle.DANFO
+	hs.set_border_width_all(2)
+	hs.set_corner_radius_all(8)
+	hs.set_content_margin_all(12)
+	_hint.add_theme_stylebox_override("panel", hs)
+	_hint_text = Label.new()
+	_hint_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_hint_text.custom_minimum_size = Vector2(576, 0)
+	_style(_hint_text, 20, UiStyle.PAPER)
+	_hint.add_child(_hint_text)
+	_hint.visible = false
+	_root.add_child(_hint)
+
+
+## Left-handed layout swaps the stick and the buttons; Text size scales the whole interface.
+func apply_layout() -> void:
+	var left := bool(Settings.get_pref("left_handed", false))
+	for b: Button in [act_btn, run_btn, punch_btn, shoot_btn, radio_btn]:
+		if b == null:
+			continue
+		if not b.has_meta("x"):
+			b.set_meta("x", b.offset_left)
+		var x: float = b.get_meta("x")
+		var w := b.custom_minimum_size.x
+		b.anchor_left = 0.0 if left else 1.0
+		b.anchor_right = b.anchor_left
+		b.offset_left = (-x - w) if left else x
+		b.offset_right = b.offset_left + w
+	if joy:
+		var jw: float = joy.custom_minimum_size.x
+		joy.anchor_left = 1.0 if left else 0.0
+		joy.anchor_right = joy.anchor_left
+		joy.offset_left = (-20.0 - jw) if left else 20.0
+		joy.offset_right = joy.offset_left + jw
+	get_tree().root.content_scale_factor = clampf(float(Settings.get_pref("text_scale", 1.0)), 0.8, 1.4)
+
+
+func prompt(text: String) -> void:
+	var want := text if text != "" else ("EXIT" if world.ride else "ENTER")
+	if want != _prompt_shown:
+		_prompt_shown = want
+		act_btn.text = want
+		act_btn.add_theme_color_override("font_color", Color("#f6d04d") if text != "" else UiStyle.PAPER)
+		act_btn.add_theme_font_size_override("font_size", 24 if want.length() <= 8 else (18 if want.length() <= 13 else 14))
+	radio_btn.visible = world.ride != null and not menu_open() and not dialogue.visible
+	var st: float = world.player.stamina
+	_stamina.visible = st < 0.99 and world.ride == null and not menu_open()
+	_stamina.value = st
+	var b: Array = []
+	if world.roam:
+		for k: String in world.roam.buffs:
+			var left: float = float(world.roam.buffs[k])
+			var name: String = { "regen": "Ewa agoyin", "stamina": "Amala", "iroko": "Ìrókò charm" }.get(k, k)
+			b.append(name if left > 1e8 else "%s %d:%02d" % [name, int(left) / 60, int(left) % 60])
+	if world.player.in_cover and world.combat.active:
+		b.append("IN COVER")
+	_buffs.text = " · ".join(b)
+
+
+func radio(text: String) -> void:
+	_radio.text = text
+
+
+func timer(secs: float) -> void:
+	_timer.visible = secs >= 0.0
+	if secs >= 0.0:
+		_timer.text = "%d:%02d" % [int(secs) / 60, int(secs) % 60]
+		_timer.add_theme_color_override("font_color", Color("#e8483a") if secs < 15.0 else Color("#f6d04d"))
+
+
+## The stealth or blend meter (-1 hides it).
+func alarm(v: float) -> void:
+	_alarm.visible = v >= 0.0
+	_alarm.value = maxf(0.0, v)
+
+
+func hurt() -> void:
+	var tw := create_tween()
+	_vignette.color.a = 0.28
+	tw.tween_property(_vignette, "color:a", 0.0, 0.35)
+
+
+func hitmark() -> void:
+	_hit.modulate.a = 1.0
+	var tw := create_tween()
+	tw.tween_property(_hit, "modulate:a", 0.0, 0.25)
+
+
+func flash_white() -> void:
+	_white.color.a = 0.85
+	var tw := create_tween()
+	tw.tween_property(_white, "color:a", 0.0, 0.4)
+
+
+## A tip card the first time something comes up (saved, so each shows once).
+func hint(id: String, text: String) -> void:
+	var seen: Array = Settings.get_pref("hints_seen", [])
+	if id in seen or "--shots" in str(OS.get_cmdline_user_args()):
+		return
+	seen.append(id)
+	Settings.set_pref("hints_seen", seen)
+	_hint_queue.append(text)
+
+
+func _process(delta: float) -> void:
+	if _hint.visible:
+		_hint_t -= delta
+		if _hint_t <= 0.0:
+			_hint.visible = false
+	elif not _hint_queue.is_empty() and not dialogue.visible and not menu_open():
+		_hint_text.text = "TIP  " + String(_hint_queue.pop_front())
+		_hint.visible = true
+		_hint_t = 6.0
+
+
+func credits_roll() -> void:
+	var c := ColorRect.new()
+	c.color = Color(0.03, 0.02, 0.02, 0.92)
+	c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.add_child(c)
+	var l := Label.new()
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.anchor_left = 0.1
+	l.anchor_right = 0.9
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_style(l, 24, UiStyle.PAPER)
+	l.text = "ÈKÓ Ò NÍ BÀJẸ́\n\nNaija Street Life\n\nStory by Sheriff Usman\n\nDayo \"Sabi\" Balogun · Mama Àgbà · Kemi · Sego · Uncle Obi\nAlhaji Kongi · Rasheed · ACP Hauwa Danjuma · Amaka Eze · Bigz Jupiter\nGeneral Tonye · Baba Fakunle · Senator Coker-Bankole\n\n3D models: Meshy, Quaternius (CC0), Poly Pizza contributors (CC-BY)\nMusic and sound synthesised for this game\nMade with Godot Engine\n\nAll characters and businesses are fictional.\nLagos is real. Lagos will not spoil.\n\nThank you for playing."
+	c.add_child(l)
+	var h := get_viewport().get_visible_rect().size.y
+	l.position.y = h
+	var tw := create_tween()
+	tw.tween_property(l, "position:y", -900.0, 14.0 if not "--shots" in str(OS.get_cmdline_user_args()) else 0.5)
+	await tw.finished
+	c.queue_free()
+
+
+func _restart_checkpoint() -> void:
+	pause.close()
+	var id: String = world.missions.running
+	if id == "" or id == "side":
+		notify("No mission to restart.")
+		return
+	world.missions.abort()
+	await get_tree().create_timer(0.3).timeout
+	world.combat.clear()
+	world.stealth.end()
+	world.clear_actors()
+	world.clear_mission_vehicles()
+	world.missions.running = ""
+	world.missions.run(id, Story.checkpoint)
+
+
+## How to play: the controls, touch and keyboard.
+func _help_panel() -> Control:
+	var p := _panel("How to play")
+	var v: VBoxContainer = p.get_node("Body")
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(600, 420)
+	var l := Label.new()
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(570, 0)
+	l.text = """MOVE: the stick bottom left (WASD or arrow keys). Push it all the way to run, or hold RUN (Shift).
+LOOK: drag on the right of the screen (right mouse button): left/right turns the camera, up/down raises or lowers it.
+ENTER / EXIT: get into the nearest vehicle or out of it (E or F). The button also does what the moment needs: FUEL, REPAIR, SNAP PHOTO, EAT, SIDE JOB, DANCE...
+PUNCH (J or Space) in a fight; from behind, a guard goes down silently.
+SHOOT (K or left click) once you have the pistol: it aims at the target with the red ring.
+RADIO in a vehicle: Radio Gbedu on or off.
+PAUSE: the II button (Esc, or your phone's back button).
+
+DANFO: stop at a bus stop and passengers climb in; drive to their stop (the yellow beacon) and stop to collect. The bus owner wants ₦8,000 delivery every day.
+CHECKPOINTS: slow down and you settle the roger; blast through and they take your number.
+WANTED: stars bring police pickups. Get out of sight to lose them.
+FUEL: every ride burns it. Stop at a filling station. Mechanics fix damage.
+FOOD: Mama Àgbà's stall by the house heals and keeps you running.
+COVER: stand still against a wall in a gunfight and they hit you far less.
+ROOFTOPS: run at a gap to jump it. Walking stops at the edge.
+STEALTH: darkness hides you, light gives you away; walk, don't run."""
+	_style(l, 19, UiStyle.PAPER)
+	scroll.add_child(l)
+	v.add_child(scroll)
+	return p
+
+
+## Street life: the delivery, what you own, perks and food.
+func _street_panel() -> Control:
+	var p := _panel("Street life")
+	var v: VBoxContainer = p.get_node("Body")
+	var r = world.roam
+	var lines: Array = []
+	if r.delivery_due():
+		lines.append("Daily delivery to the bus owner: ₦%s due at midnight (₦%s earned today%s)." % [Life.fmt_naira(r.DELIVERY), Life.fmt_naira(r.today), (", ₦%s owed" % Life.fmt_naira(r.debt)) if r.debt > 0 else ""])
+	else:
+		lines.append("No more deliveries: nobody collects for Ọkpụ again." if r.postgame == "" else "Post-game: %s" % r.postgame)
+	lines.append("Respect %d · Wanted %d" % [Story.respect, int(ceil(Story.wanted - 0.01))])
+	lines.append("Vehicles you own: %s" % (", ".join(r.owned) if not r.owned.is_empty() else "the danfo (Uncle Obi's)"))
+	lines.append("")
+	lines.append("RESPECT PERKS")
+	lines.append_array(r.perk_lines())
+	var l := Label.new()
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(570, 0)
+	l.text = "\n".join(lines)
+	_style(l, 19, UiStyle.PAPER)
+	v.add_child(l)
+	return p
 
 
 func _label(at: Vector2, size: int, col: Color) -> Label:
@@ -262,6 +571,7 @@ func show_menu(has_save: bool) -> void:
 		items.append(["Continue", func() -> void: _close_menu(); continue_game.emit()])
 	items.append(["New game", func() -> void: _close_menu(); new_game.emit()])
 	items.append(["Missions", func() -> void: _menu.add_child(_missions_panel())])
+	items.append(["How to play", func() -> void: _menu.add_child(_help_panel())])
 	items.append(["Settings", func() -> void: _menu.add_child(_settings_panel())])
 	items.append(["Credits", func() -> void: _menu.add_child(_credits_panel())])
 	items.append(["Quit", func() -> void: get_tree().quit()])
@@ -274,6 +584,8 @@ func show_menu(has_save: bool) -> void:
 		v.add_child(b)
 	for c in [info, money, objective, act_btn, run_btn, pause_btn, minimap]:
 		(c as CanvasItem).visible = false
+	if radio_btn:
+		radio_btn.visible = false
 
 
 func menu_open() -> bool:
@@ -335,6 +647,37 @@ func _settings_panel() -> Control:
 					(o as Button).button_pressed = o == b)
 		row.add_child(b)
 	v.add_child(row)
+	# Accessibility and comfort (D-028).
+	var acc := GridContainer.new()
+	acc.columns = 2
+	for spec: Array in [["Difficulty", "difficulty", ["Easy", "Normal", "Hard"]], ["Text size", "text_scale", ["100%", "115%", "130%"]]]:
+		var lab := Label.new()
+		lab.text = spec[0]
+		lab.custom_minimum_size = Vector2(170, 0)
+		acc.add_child(lab)
+		var ob := OptionButton.new()
+		for o: String in spec[2]:
+			ob.add_item(o)
+		var key: String = spec[1]
+		var vals: Array = [0, 1, 2] if key == "difficulty" else [1.0, 1.15, 1.3]
+		var cur: Variant = Settings.get_pref(key, vals[1] if key == "difficulty" else 1.0)
+		ob.selected = maxi(0, vals.find(cur))
+		ob.custom_minimum_size = Vector2(200, 46)
+		ob.item_selected.connect(func(i: int) -> void:
+			Settings.set_pref(key, vals[i])
+			apply_layout())
+		acc.add_child(ob)
+	for spec: Array in [["Reduce motion (no shake)", "motion_off"], ["Left-handed controls", "left_handed"], ["Vibration", "vibration"], ["Battery saver (30 fps)", "battery_saver"], ["Colour-blind markers", "colorblind"]]:
+		var cb := CheckButton.new()
+		cb.text = spec[0]
+		var key: String = spec[1]
+		cb.button_pressed = bool(Settings.get_pref(key, key == "vibration"))
+		cb.toggled.connect(func(on: bool) -> void:
+			Settings.set_pref(key, on)
+			apply_layout()
+			world.apply_quality())
+		acc.add_child(cb)
+	v.add_child(acc)
 	for spec: Array in [["Music", "vol_music"], ["Sound effects", "vol_sfx"], ["Street sounds", "vol_ambience"], ["Camera speed", "cam_sens"]]:
 		var r := HBoxContainer.new()
 		var l := Label.new()

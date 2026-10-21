@@ -1,0 +1,214 @@
+{
+ "_comment": "Obinna's hometown in Anambra: the village square for the New Yam festival, his country house, yam farms (Act IV, M23).",
+ "region": "anambra",
+ "name": "Obinna's village, Anambra",
+ "size": [
+  96,
+  72
+ ],
+ "ground": "grass",
+ "inland": true,
+ "land": {
+  "land": [
+   [
+    0,
+    0
+   ],
+   [
+    96,
+    0
+   ],
+   [
+    96,
+    72
+   ],
+   [
+    0,
+    72
+   ]
+  ]
+ },
+ "lagoon": [
+  [
+   200,
+   200
+  ],
+  [
+   201,
+   200
+  ],
+  [
+   201,
+   201
+  ],
+  [
+   200,
+   201
+  ]
+ ],
+ "road_classes": {
+  "expressway": {
+   "width": 148,
+   "speed": 1.0
+  },
+  "main": {
+   "width": 112,
+   "speed": 0.85
+  },
+  "street": {
+   "width": 80,
+   "speed": 0.6
+  }
+ },
+ "nodes": {
+  "village_w": [
+   6,
+   36
+  ],
+  "square": [
+   40,
+   36
+  ],
+  "mansion": [
+   62,
+   26
+  ],
+  "farms": [
+   40,
+   58
+  ],
+  "helipad": [
+   80,
+   30
+  ]
+ },
+ "roads": [
+  {
+   "id": "village-road",
+   "class": "main",
+   "nodes": [
+    "village_w",
+    "square",
+    "mansion",
+    "helipad"
+   ]
+  },
+  {
+   "id": "farm-road",
+   "class": "street",
+   "nodes": [
+    "square",
+    "farms"
+   ]
+  }
+ ],
+ "districts": [
+  {
+   "id": "village",
+   "name": "Obinna's village",
+   "center": [
+    36,
+    34
+   ],
+   "density": 0.7,
+   "buildings": {
+    "bungalow": 6,
+    "canteen": 1,
+    "provision-store": 1
+   },
+   "props": {
+    "mango": 4,
+    "palm": 3,
+    "generator": 1
+   }
+  }
+ ],
+ "landmarks": [
+  {
+   "id": "village-square",
+   "name": "Village square",
+   "district": "village",
+   "cell": [
+    40,
+    32
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "obinna-village-mansion",
+   "name": "Chief Obinna's country house",
+   "district": "village",
+   "cell": [
+    62,
+    22
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "yam-farms",
+   "name": "Yam farms",
+   "district": "village",
+   "cell": [
+    40,
+    58
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "village-helipad",
+   "name": "Helipad",
+   "district": "village",
+   "cell": [
+    80,
+    30
+   ],
+   "kind": "spot"
+  }
+ ],
+ "start": {
+  "player": [
+   8,
+   38
+  ],
+  "danfo": [
+   8,
+   36
+  ]
+ },
+ "set_pieces": [
+  {
+   "model": "free:gazebo",
+   "cell": [
+    38,
+    30
+   ],
+   "size": 7.0
+  },
+  {
+   "model": "free:gazebo",
+   "cell": [
+    44,
+    30
+   ],
+   "size": 7.0
+  },
+  {
+   "model": "yams",
+   "cell": [
+    40,
+    58
+   ],
+   "size": 24.0
+  },
+  {
+   "model": "free:helicopter",
+   "cell": [
+    80,
+    30
+   ],
+   "size": 10.0
+  }
+ ],
+ "beach_props": {},
+ "beach_buildings": {}
+}

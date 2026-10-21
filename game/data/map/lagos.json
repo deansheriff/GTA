@@ -1,381 +1,467 @@
 {
- "_comment": "Tropical-island Lagos (decisions D-007, D-008). All coordinates are in cells (64 px). Real neighbourhood names; every business and venue is fictional.",
+ "_comment": "Lagos, Map v2 (D-028): the tropical-island Lagos widened west for Alaba, Festac, Ajegunle and the Lagos-Badagry Expressway to Seme, plus Banana Island and Makoko on the lagoon. Coordinates are cells (64 px = 4 m). Real place names; every business and venue is fictional.",
  "size": [
-  192,
-  132
+  256,
+  140
  ],
  "land": {
   "mainland": [
    [
-    8,
+    72,
     4
    ],
    [
-    60,
+    124,
     2
    ],
    [
-    120,
+    184,
     3
    ],
    [
-    176,
+    240,
     6
    ],
    [
-    188,
+    252,
     20
    ],
    [
-    190,
+    254,
     48
    ],
    [
-    178,
+    242,
     62
    ],
    [
-    150,
+    214,
     66
    ],
    [
-    124,
+    188,
     68
    ],
    [
-    110,
+    174,
     73
    ],
    [
-    92,
+    156,
     75
    ],
    [
-    72,
+    136,
     80
    ],
    [
-    62,
+    126,
     86
    ],
    [
-    56,
+    120,
     96
    ],
    [
-    44,
+    108,
     104
    ],
    [
-    24,
+    88,
     106
    ],
    [
-    10,
-    96
+    70,
+    110
    ],
    [
-    4,
-    60
+    48,
+    112
    ],
    [
-    4,
-    24
+    26,
+    110
+   ],
+   [
+    8,
+    104
+   ],
+   [
+    3,
+    74
+   ],
+   [
+    3,
+    34
+   ],
+   [
+    8,
+    8
+   ],
+   [
+    40,
+    3
    ]
   ],
   "island": [
    [
-    66,
+    130,
     98
    ],
    [
-    80,
+    144,
     96
    ],
    [
-    96,
+    160,
     96
    ],
    [
-    110,
+    174,
     94
    ],
    [
-    126,
+    190,
     96
    ],
    [
-    146,
+    210,
     98
    ],
    [
-    166,
+    230,
     98
    ],
    [
-    186,
+    250,
     100
    ],
    [
-    190,
+    254,
     112
    ],
    [
-    186,
+    250,
     122
    ],
    [
-    166,
+    230,
     126
    ],
    [
-    140,
+    204,
     127
    ],
    [
-    116,
+    180,
     126
    ],
    [
-    96,
+    160,
     124
    ],
    [
-    80,
+    144,
     120
    ],
    [
-    68,
+    132,
     114
    ],
    [
-    64,
+    128,
     106
+   ]
+  ],
+  "banana_island": [
+   [
+    188,
+    80
+   ],
+   [
+    196,
+    78
+   ],
+   [
+    204,
+    80
+   ],
+   [
+    207,
+    86
+   ],
+   [
+    203,
+    91
+   ],
+   [
+    194,
+    92
+   ],
+   [
+    187,
+    88
    ]
   ]
  },
  "lagoon": [
   [
-   56,
+   120,
    70
   ],
   [
-   191,
+   255,
    60
   ],
   [
-   191,
+   255,
    99
   ],
   [
-   56,
+   120,
    100
   ]
  ],
  "nodes": {
   "oshodi_w": [
-   22,
+   86,
    40
   ],
   "oshodi_c": [
-   60,
+   124,
    34
   ],
   "ikeja_c": [
-   100,
+   164,
    22
   ],
   "ketu_c": [
-   150,
+   214,
    24
   ],
   "ketu_e": [
-   178,
+   242,
    30
   ],
   "ikeja_w": [
-   80,
+   144,
    14
   ],
   "ikeja_e": [
-   122,
+   186,
    14
   ],
   "ikeja_n": [
-   100,
+   164,
    8
   ],
   "mushin_w": [
-   18,
+   82,
    62
   ],
   "mushin_c": [
-   48,
+   112,
    60
   ],
   "yaba_c": [
-   104,
+   168,
    58
   ],
   "east_mid": [
-   148,
+   212,
    56
   ],
   "ketu_se": [
-   176,
+   240,
    46
   ],
   "ketu_s": [
-   152,
+   216,
    40
   ],
   "yaba_n": [
-   102,
+   166,
    42
   ],
   "yaba_s": [
-   102,
+   166,
    70
   ],
   "surulere_c": [
-   46,
+   110,
    84
   ],
   "surulere_s": [
-   46,
+   110,
    98
   ],
   "surulere_w": [
-   26,
+   90,
    92
   ],
   "tmb_mid": [
-   98,
+   162,
    84
   ],
   "island_n": [
-   90,
+   154,
    100
   ],
   "obalende": [
-   84,
+   148,
    108
   ],
   "lagos_island_w": [
-   70,
+   134,
    104
   ],
   "eko_mid": [
-   60,
+   124,
    92
   ],
   "ikoyi_c": [
-   106,
+   170,
    102
   ],
   "lekki_w": [
-   136,
+   200,
    106
   ],
   "lekki_c": [
-   160,
+   224,
    108
   ],
   "lekki_e": [
-   184,
+   248,
    110
   ],
   "vi_c": [
-   112,
+   176,
    116
   ],
   "lekki_beach": [
-   150,
+   214,
    120
   ],
   "yaba_nw": [
-   94,
+   158,
    50
   ],
   "yaba_ne": [
-   114,
+   178,
    50
   ],
   "yaba_se": [
-   114,
+   178,
    66
   ],
   "yaba_sw": [
-   94,
+   158,
    66
   ],
   "osh_nw": [
-   52,
+   116,
    28
   ],
   "osh_ne": [
-   68,
+   132,
    28
   ],
   "osh_se": [
-   68,
+   132,
    40
   ],
   "osh_sw": [
-   52,
+   116,
    40
   ],
   "sur_a": [
-   34,
+   98,
    80
   ],
   "sur_b": [
-   58,
+   122,
    80
   ],
   "mus_a": [
-   36,
+   100,
    52
   ],
   "mus_b": [
-   36,
+   100,
    70
   ],
   "mus_c": [
-   60,
+   124,
    52
   ],
   "mus_d": [
-   60,
+   124,
    70
   ],
   "lek_a": [
-   160,
+   224,
    120
   ],
   "lek_b": [
-   172,
+   236,
    108
   ],
   "lek_c": [
-   172,
+   236,
    120
   ],
   "iko_a": [
-   106,
+   170,
    97
   ],
   "iko_b": [
-   120,
+   184,
    100
   ],
   "vi_a": [
-   112,
+   176,
    108
   ],
   "vi_b": [
-   126,
+   190,
    112
+  ],
+  "mile2": [
+   70,
+   92
+  ],
+  "festac_c": [
+   36,
+   88
+  ],
+  "badagry_c": [
+   16,
+   96
+  ],
+  "seme": [
+   6,
+   94
+  ],
+  "alaba_e": [
+   58,
+   58
+  ],
+  "alaba_c": [
+   30,
+   52
+  ],
+  "ajegunle_c": [
+   60,
+   102
+  ],
+  "alaba_s": [
+   32,
+   72
+  ],
+  "banana_c": [
+   197,
+   85
   ]
  },
  "roads": [
@@ -577,6 +663,44 @@
     "vi_c",
     "vi_b"
    ]
+  },
+  {
+   "id": "lagos-badagry-expressway",
+   "class": "expressway",
+   "nodes": [
+    "surulere_w",
+    "mile2",
+    "festac_c",
+    "badagry_c",
+    "seme"
+   ]
+  },
+  {
+   "id": "alaba-road",
+   "class": "main",
+   "nodes": [
+    "mushin_w",
+    "alaba_e",
+    "alaba_c",
+    "alaba_s",
+    "festac_c"
+   ]
+  },
+  {
+   "id": "ajegunle-road",
+   "class": "street",
+   "nodes": [
+    "mile2",
+    "ajegunle_c"
+   ]
+  },
+  {
+   "id": "banana-causeway",
+   "class": "main",
+   "nodes": [
+    "iko_b",
+    "banana_c"
+   ]
   }
  ],
  "road_classes": {
@@ -598,7 +722,7 @@
    "id": "ikeja",
    "name": "Ikeja",
    "center": [
-    100,
+    164,
     18
    ],
    "buildings": {
@@ -620,7 +744,7 @@
    "id": "agbado-ketu",
    "name": "Agbado-Ketu",
    "center": [
-    152,
+    216,
     30
    ],
    "buildings": {
@@ -642,7 +766,7 @@
    "id": "oshodi",
    "name": "Oshodi",
    "center": [
-    60,
+    124,
     34
    ],
    "buildings": {
@@ -663,7 +787,7 @@
    "id": "mushin",
    "name": "Mushin",
    "center": [
-    44,
+    108,
     60
    ],
    "buildings": {
@@ -684,7 +808,7 @@
    "id": "yaba",
    "name": "Yaba",
    "center": [
-    104,
+    168,
     56
    ],
    "buildings": {
@@ -705,7 +829,7 @@
    "id": "surulere",
    "name": "Surulere",
    "center": [
-    44,
+    108,
     88
    ],
    "buildings": {
@@ -726,7 +850,7 @@
    "id": "lagos-island",
    "name": "Lagos Island",
    "center": [
-    80,
+    144,
     108
    ],
    "buildings": {
@@ -745,7 +869,7 @@
    "id": "ikoyi",
    "name": "Ikoyi",
    "center": [
-    108,
+    172,
     104
    ],
    "buildings": {
@@ -763,7 +887,7 @@
    "id": "victoria-island",
    "name": "Victoria Island",
    "center": [
-    118,
+    182,
     118
    ],
    "buildings": {
@@ -782,7 +906,7 @@
    "id": "lekki",
    "name": "Lekki",
    "center": [
-    164,
+    228,
     112
    ],
    "buildings": {
@@ -796,6 +920,105 @@
     "mango": 1
    },
    "density": 0.5
+  },
+  {
+   "id": "alaba",
+   "name": "Alaba",
+   "center": [
+    32,
+    54
+   ],
+   "density": 0.85,
+   "buildings": {
+    "provision-store": 4,
+    "pos-shop": 4,
+    "two-storey": 3,
+    "canteen": 2
+   },
+   "props": {
+    "kiosk": 4,
+    "umbrella": 4,
+    "generator": 2,
+    "tyres": 1
+   }
+  },
+  {
+   "id": "festac",
+   "name": "Festac Town",
+   "center": [
+    34,
+    86
+   ],
+   "density": 0.7,
+   "buildings": {
+    "bungalow": 4,
+    "two-storey": 3,
+    "provision-store": 2,
+    "canteen": 1
+   },
+   "props": {
+    "mango": 2,
+    "generator": 2,
+    "kiosk": 1,
+    "umbrella": 1
+   }
+  },
+  {
+   "id": "ajegunle",
+   "name": "Ajegunle",
+   "center": [
+    60,
+    100
+   ],
+   "density": 0.9,
+   "buildings": {
+    "bungalow": 4,
+    "canteen": 2,
+    "pos-shop": 2,
+    "provision-store": 1
+   },
+   "props": {
+    "tyres": 2,
+    "drum-chairs": 2,
+    "generator": 1,
+    "umbrella": 2
+   }
+  },
+  {
+   "id": "badagry",
+   "name": "Badagry",
+   "center": [
+    16,
+    94
+   ],
+   "density": 0.55,
+   "buildings": {
+    "bungalow": 3,
+    "two-storey": 1,
+    "canteen": 1
+   },
+   "props": {
+    "palm": 3,
+    "coconut-cart": 1,
+    "canoe": 1
+   }
+  },
+  {
+   "id": "banana-island",
+   "name": "Banana Island",
+   "center": [
+    197,
+    85
+   ],
+   "density": 0.6,
+   "buildings": {
+    "bungalow": 3,
+    "two-storey": 1
+   },
+   "props": {
+    "palm": 3,
+    "generator": 1
+   }
   }
  ],
  "beach_props": {
@@ -818,7 +1041,7 @@
    "name": "Iya Basira Buka (Ojuelegba)",
    "district": "surulere",
    "cell": [
-    40,
+    104,
     82
    ],
    "kind": "canteen"
@@ -828,7 +1051,7 @@
    "name": "Yaba Police Division",
    "district": "yaba",
    "cell": [
-    110,
+    174,
     62
    ],
    "kind": "two-storey"
@@ -838,7 +1061,7 @@
    "name": "Royal Pavilion Event Centre",
    "district": "lekki",
    "cell": [
-    168,
+    232,
     116
    ],
    "kind": "beach-bar"
@@ -848,7 +1071,7 @@
    "name": "Obalende Motor Park",
    "district": "lagos-island",
    "cell": [
-    88,
+    152,
     112
    ],
    "kind": "park"
@@ -858,7 +1081,7 @@
    "name": "Oshodi Market",
    "district": "oshodi",
    "cell": [
-    60,
+    124,
     30
    ],
    "kind": "market"
@@ -868,7 +1091,7 @@
    "name": "Oshodi Motor Park (Union Office)",
    "district": "oshodi",
    "cell": [
-    66,
+    130,
     44
    ],
    "kind": "park"
@@ -878,7 +1101,7 @@
    "name": "Coker-Bankole residence",
    "district": "ikoyi",
    "cell": [
-    114,
+    178,
     100
    ],
    "kind": "bungalow"
@@ -888,7 +1111,7 @@
    "name": "Ward 7 Collation Centre",
    "district": "agbado-ketu",
    "cell": [
-    158,
+    222,
     28
    ],
    "kind": "two-storey"
@@ -898,7 +1121,7 @@
    "name": "Radio Gbedu 101.5",
    "district": "ikeja",
    "cell": [
-    110,
+    174,
     16
    ],
    "kind": "two-storey"
@@ -908,7 +1131,7 @@
    "name": "Mushin filling station",
    "district": "mushin",
    "cell": [
-    56,
+    120,
     56
    ],
    "kind": "station"
@@ -918,7 +1141,7 @@
    "name": "Ojota bus stop",
    "district": "agbado-ketu",
    "cell": [
-    140,
+    204,
     25
    ],
    "kind": "park"
@@ -928,7 +1151,7 @@
    "name": "Sharp Cut Barbing Saloon",
    "district": "yaba",
    "cell": [
-    97,
+    161,
     55
    ],
    "kind": "pos-shop"
@@ -938,7 +1161,7 @@
    "name": "Overflowing Grace Assembly",
    "district": "yaba",
    "cell": [
-    107,
+    171,
     54
    ],
    "kind": "two-storey"
@@ -948,7 +1171,7 @@
    "name": "Sabi Phones & Accessories",
    "district": "yaba",
    "cell": [
-    96,
+    160,
     63
    ],
    "kind": "provision-store"
@@ -958,7 +1181,7 @@
    "name": "Balogun compound (Mushin)",
    "district": "mushin",
    "cell": [
-    40,
+    104,
     63
    ],
    "kind": "bungalow"
@@ -968,7 +1191,7 @@
    "name": "The Lagos Ledger",
    "district": "victoria-island",
    "cell": [
-    116,
+    180,
     120
    ],
    "kind": "two-storey"
@@ -978,7 +1201,7 @@
    "name": "Mallam Garba Suya Spot",
    "district": "victoria-island",
    "cell": [
-    128,
+    192,
     116
    ],
    "kind": "provision-store"
@@ -988,7 +1211,7 @@
    "name": "Agbado-Ketu Central Mini Stadium",
    "district": "agbado-ketu",
    "cell": [
-    162,
+    226,
     36
    ],
    "kind": "park"
@@ -998,20 +1221,132 @@
    "name": "Power distribution substation",
    "district": "agbado-ketu",
    "cell": [
-    172,
+    236,
     42
    ],
    "kind": "park"
+  },
+  {
+   "id": "computer-village",
+   "name": "Computer Village",
+   "district": "ikeja",
+   "cell": [
+    168,
+    26
+   ],
+   "kind": "market"
+  },
+  {
+   "id": "luth",
+   "name": "Lagos University Teaching Hospital",
+   "district": "mushin",
+   "cell": [
+    126,
+    66
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "alaba-market",
+   "name": "Alaba International Market",
+   "district": "alaba",
+   "cell": [
+    28,
+    56
+   ],
+   "kind": "market"
+  },
+  {
+   "id": "obinna-warehouse",
+   "name": "Okpu Electronics warehouse",
+   "district": "alaba",
+   "cell": [
+    36,
+    48
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "festac-safehouse",
+   "name": "Festac safe house",
+   "district": "festac",
+   "cell": [
+    38,
+    84
+   ],
+   "kind": "bungalow"
+  },
+  {
+   "id": "ajegunle-parlour",
+   "name": "Tonic Beer Parlour",
+   "district": "ajegunle",
+   "cell": [
+    62,
+    98
+   ],
+   "kind": "canteen"
+  },
+  {
+   "id": "badagry-church",
+   "name": "St. Michael's Church, Badagry",
+   "district": "badagry",
+   "cell": [
+    18,
+    92
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "seme-border",
+   "name": "Seme border post",
+   "district": "badagry",
+   "cell": [
+    7,
+    92
+   ],
+   "kind": "spot"
+  },
+  {
+   "id": "banana-mansion",
+   "name": "The Coker-Bankole villa, Banana Island",
+   "district": "banana-island",
+   "cell": [
+    195,
+    84
+   ],
+   "kind": "two-storey"
+  },
+  {
+   "id": "makoko-jetty",
+   "name": "Makoko jetty",
+   "district": "yaba",
+   "cell": [
+    140,
+    77
+   ],
+   "kind": "spot"
   }
  ],
  "start": {
   "player": [
-   44,
+   108,
    90
   ],
   "danfo": [
-   46,
+   110,
    86
   ]
- }
+ },
+ "stilt_villages": [
+  {
+   "id": "makoko",
+   "name": "Makoko",
+   "center": [
+    140,
+    82
+   ],
+   "radius": 7,
+   "count": 26
+  }
+ ]
 }

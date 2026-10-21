@@ -48,45 +48,48 @@ Original plan:
   border post, and the Lagos Island festival zone (no vehicles, a white-robed Eyo crowd).
 - **Cutscene tools:** scripted actor walks, a vehicle convoy, arrest and news-report beats.
 
-## P3 · Act II (missions 7–12)
-- An interior for the police station (Cell Four) and Computer Village's stall maze, with a foot
-  chase over rooftops.
-- Owambe social stealth: aso-ebi disguise, money spraying and talking-drum dance prompts.
-- Water: canoes and Makoko on stilts (M10). Regions: Abeokuta and Olumo Rock (climbing, the Ìrókò
-  charm).
-- A bridge chase on an okada, jumping onto trailers and a fight on a moving tanker (M12).
+## P3–P6 · Acts II–V, the endings and the post-game ✅ (2026-10-21, D-029)
+- **All 27 missions are playable**, from the prologue to "The Lion Staff".
+- **Both big choices branch:**
+  - Ballot Box: swap or snatch. This decides whether Judgment is fair or bitter.
+  - Sego: spare or kill. A spared Sego saves Dayo in the finale.
+- **Three endings:** Ọba Ìta, Ìdájọ́ (fair or bitter) and Japa. Each has its own post-game free
+  roam and a credits roll.
+- **New play:**
+  - Built sets: the police cell, the owambe, the Makoko stilt house, the home, the safe house, the
+    cellar, the gala and the yacht.
+  - Rooftop chases and stealth with torches and sight cones.
+  - Owambe blending, photos, boat fights and boarding a tanker.
+  - Defending in waves, explosions and fire, horses, the ambulance against the clock, and the
+    boss with the staff.
+- **Checkpoints:** quitting resumes at the last checkpoint, and "Restart from checkpoint" is in
+  the pause menu.
+- **Autopilot** plays the whole story end to end on both branches of every choice.
 
-## P4 · Act III (missions 13–18) and Big Choice 1
-- A no-weapon crowd escape (Janazah), the Ballot Box choice (snatch or swap, with filming) and an
-  ambulance run.
-- Regions: Kano and the Durbar (a horseback chase), and the Niger Delta creeks (speedboats, a
-  refinery explosion).
-- The Festac safe-house raid (defending it), with Mama Àgbà's death scene and the "no jokes"
-  rule.
-
-## P5 · Act IV (missions 19–23)
-- The Ajegunle chase and the choice over Sego, and the Nokia recording walk (walk only, the
-  radio advert).
-- A city-bus escape, the Oshodi loudspeaker scene and assembling the crew.
-- Region: Obinna's village in Anambra, with the New Yam festival and the Mmanwu masquerades.
-
-## P6 · Act V, endings and post-game
-- The blackout stealth (generator pools of light), the three-front assault and the yacht boss
-  fight with the staff.
-- **Endings:** Ọba Ìta, Ìdájọ́ (fair or bitter, depending on the ballot choice) and Japa.
-- Post-game free roam that depends on the ending: kingpin territory, a neutral driver, and so on.
-
-## Cross-cutting work (runs through every phase)
-- **Map v2:** a closer-to-real Lagos layout, with the lagoon and Third Mainland Bridge, the
-  Island, Ikeja, Alaba, Festac, Ajegunle and Makoko. Regions outside Lagos are separate scenes.
-- **Cast models:** about 14 more characters: Obinna, Hauwa, Amaka, Bigz, Kemi, Wire, Rasheed,
-  the senator, Tonye, Baba Fakunle, CP Ladipo, Musa, Tolu and Sadiq. At about 20 Meshy credits
-  each that's roughly 300 credits, from the monthly reset on 2026-11-18 or a credit pack 🔒.
-- **Story systems:** Respect, Wanted, NEPA cuts, go-slow hawkers, Mama Àgbà's food buffs (until
-  Act III) and the radio station with Uncle Obi's adverts.
-- **Language:** a native-speaker review of the Pidgin, Yoruba, Igbo and Hausa lines 🔒, with
-  subtitles throughout.
-- **Phone performance** on a real device 🔒 (a debug APK once P2 lands).
+## Cross-cutting work
+- **Map v2 ✅ (D-028):**
+  - Lagos widened: Alaba, Festac, Ajegunle, Badagry and the Seme border, Banana Island, and Makoko
+    on stilts.
+  - Four regions with their own maps: Abeokuta, Kano, the Niger Delta and Anambra.
+- **Systems ✅ (D-030):**
+  - Combat types and feel, cover.
+  - Driving feel, boats, horses, fuel and repairs.
+  - Traffic lights and wardens, people crossing.
+  - The daily delivery, buying vehicles, side jobs and Respect perks.
+  - NEPA cuts, go-slow hawkers, Mama Àgbà's food and Radio Gbedu.
+- **Onboarding and accessibility ✅:** one-time tips, "How to play", difficulty, text size, reduce
+  motion, left-handed controls, vibration, battery saver.
+- **Phones ✅ (D-028, D-031):**
+  - A loading screen with a staged build.
+  - Save and pause on switching apps; the back button.
+  - A 30 fps cap on Low or Battery saver, and dynamic resolution.
+  - The AAB preset at 3.0.0 (code 300).
+- **Cast models 🔒:** 14 characters are queued in `tools/art/meshy-spec.json` for the Meshy
+  credit reset on 2026-11-18. Restyled stand-ins play them until then, and the game switches to
+  the real models automatically.
+- **Language 🔒:** a native-speaker review of the Pidgin, Yoruba, Igbo and Hausa lines in
+  `docs/review/eko-lines-for-review.csv`.
+- **Device testing 🔒:** `docs/qa/DEVICE_QA.md`.
 - **Age rating:** guns, kidnapping and ritual crime mean an IARC Mature (16+/18+) rating. The
   old prize and skill-challenge features stay switched off 🔒.
 - **Online:** the server's features were built for the 2D game. Deciding what returns (chat,

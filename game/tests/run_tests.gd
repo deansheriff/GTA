@@ -79,7 +79,7 @@ func _test_map() -> void:
 	check(ms < 8000, "map builds in under 8 s on desktop (%d ms)" % ms)
 	check(m.buildings.size() > 250, "a full city of buildings (%d)" % m.buildings.size())
 	check(m.props.size() > 400, "streets are furnished (%d props)" % m.props.size())
-	check(m.landmarks.size() == 19, "all story landmarks placed (%d)" % m.landmarks.size())
+	check(m.landmarks.size() == 29, "all story landmarks placed (%d)" % m.landmarks.size())
 	# Street poles are solid only where the pole is, not across their whole 64 px cell (owner
 	# report: the bus got stuck next to a pole and couldn't turn away).
 	var pole: Variant = null
@@ -132,9 +132,23 @@ func _test_map() -> void:
 			if not seen.has(nb):
 				seen[nb] = true
 				stack.append(nb)
-	var main_nodes := ["yaba_c", "ikeja_c", "ketu_c", "lekki_e", "surulere_c", "oshodi_c", "mushin_c", "vi_c"]
+	var main_nodes := ["yaba_c", "ikeja_c", "ketu_c", "lekki_e", "surulere_c", "oshodi_c", "mushin_c", "vi_c", "festac_c", "seme", "alaba_c", "ajegunle_c", "banana_c"]
 	for n in main_nodes:
 		check(seen.has(n), "%s connected to Obalende by road" % n)
+	# Map v2 (D-028): the west (Alaba, Festac, Ajegunle, Badagry), Banana Island and Makoko.
+	check(m.cols == 256 and m.rows == 140, "Map v2 is 256 x 140 cells (%d x %d)" % [m.cols, m.rows])
+	check(m.district_at(m.road_nodes["festac_c"]).get("id", "") == "festac", "Festac is where Festac should be")
+	check(m.district_at(m.road_nodes["badagry_c"]).get("id", "") == "badagry", "Badagry is on the road to Seme")
+	check(m.stilt_villages.size() == 1 and m.is_water(m.surface_at(m.stilt_villages[0]["center"])), "Makoko stands in the lagoon")
+	check(not m.is_blocked(m.road_nodes["banana_c"]), "the Banana Island causeway is drivable")
+	# The four story regions load as maps of their own.
+	for r in ["abeokuta", "kano", "delta", "anambra"]:
+		var rm := MapData.new()
+		rm.load_file("res://data/map/regions/%s.json" % r)
+		check(rm.region == r and rm.landmarks.size() >= 3 and not rm.road_graph.is_empty(), "region %s loads (%d landmarks)" % [r, rm.landmarks.size()])
+		for id in rm.landmarks:
+			check(not rm.is_blocked(rm.landmarks[id]["pos"]), "region %s: landmark %s is reachable" % [r, id])
+		check(not rm.is_blocked(rm.player_start), "region %s: the start is walkable" % r)
 
 
 
@@ -215,10 +229,13 @@ func _test_street() -> void:
 func _test_campaign() -> void:
 	var story: Node = root.get_node("Story")
 	check(story.order.size() == 27 and story.order[0] == "p0" and story.order[26] == "m26", "the campaign lists the prologue and 26 missions")
-	var known := ["env", "player", "place", "spawn", "despawn", "clear", "title", "say", "item", "still", "escape", "goto", "fares", "fight", "exit", "cam", "black", "sfx", "respect", "choice", "flag", "wait", "chase", "pursuit", "follow", "escort", "roger", "gun", "news", "wanted", "crowd", "setpiece", "pay"]
-	var m := MapData.shared()
+	var maps := { "lagos": MapData.shared() }
+	for r in ["abeokuta", "kano", "delta", "anambra"]:
+		maps[r] = MapData.new()
+		(maps[r] as MapData).load_file("res://data/map/regions/%s.json" % r)
 	var bad := []
 	var playable := 0
+	var sets := ["police_cell", "owambe", "stilt_house", "home", "safehouse", "cellar", "gala", "yacht", "rooftops", "olumo"]
 	for id: String in story.order:
 		var mis: Dictionary = story.mission(id)
 		if not mis.has("title") or not mis.has("act"):
@@ -226,24 +243,22 @@ func _test_campaign() -> void:
 		var steps: Array = mis.get("steps", [])
 		if not steps.is_empty():
 			playable += 1
-		for st: Dictionary in steps:
-			if not String(st.get("do", "")) in known:
-				bad.append("%s: unknown step %s" % [id, st.get("do", "")])
-			var at: Variant = st.get("at", "")
-			if at is String and String(at).begins_with("landmark:") and not m.landmarks.has(String(at).substr(9)):
-				bad.append("%s: no landmark %s" % [id, at])
-			if at is String and String(at).begins_with("node:") and not m.road_nodes.has(String(at).substr(5)):
-				bad.append("%s: no road node %s" % [id, at])
-			for line: Dictionary in st.get("lines", []):
-				if not story.cast.has(String(line.get("who", ""))):
-					bad.append("%s: unknown speaker %s" % [id, line.get("who", "")])
-			for e: Dictionary in st.get("enemies", []):
-				if not story.cast.has(String(e.get("who", ""))):
-					bad.append("%s: unknown fighter %s" % [id, e.get("who", "")])
-			if st.has("who") and not story.cast.has(String(st["who"])):
-				bad.append("%s: unknown actor %s" % [id, st["who"]])
+		var ctx := { "map": maps[String(mis.get("region", "lagos"))] }
+		_check_steps(story, id, steps, maps, ctx, sets, bad)
+	for e: String in story.endings:
+		_check_steps(story, "ending " + e, story.endings[e].get("steps", []), maps, { "map": maps["lagos"] }, sets, bad)
 	check(bad.is_empty(), "campaign data is consistent %s" % [bad])
-	check(playable >= 7, "the prologue and Act I's opening are playable (%d)" % playable)
+	check(playable == 27, "every mission of the story is playable (%d of 27)" % playable)
+	for e in ["staff", "judgment", "judgment_bitter", "japa"]:
+		check(story.endings.has(e) and not (story.endings[e].get("steps", []) as Array).is_empty(), "the %s ending plays" % e)
+	var kinds := {}
+	for id: String in story.order:
+		if story.mission(id).has("region"):
+			kinds["region"] = true # a mission set in another map travels there first
+		for st: Dictionary in story.mission(id).get("steps", []):
+			kinds[String(st.get("do", ""))] = true
+	for k in ["region", "set", "stealth", "rooftop", "photo", "blend", "boatfight", "board", "waves", "explode", "checkpoint", "if", "ending"]:
+		check(kinds.has(k), "the story uses the %s step" % k)
 	story.reset()
 	story.complete("p0")
 	story.choose("ballot", "swap")
@@ -258,6 +273,57 @@ func _test_campaign() -> void:
 	story.reset()
 
 
+const KNOWN_STEPS := ["env", "player", "place", "spawn", "despawn", "clear", "title", "say", "item", "still", "escape", "goto", "fares", "fight", "exit", "cam", "black", "sfx", "respect", "choice", "flag", "wait", "chase", "pursuit", "follow", "escort", "roger", "gun", "news", "wanted", "crowd", "setpiece", "pay", "region", "set", "leave", "checkpoint", "if", "anim", "walk", "stealth", "rooftop", "photo", "blend", "explode", "fire", "waves", "boatfight", "board", "radio", "music", "nepa", "time", "buff", "ending", "credits", "spend"]
+
+
+## Every step is known, and every place it names exists on the map it will be on (a "region" step
+## switches maps; "if" branches are checked too).
+func _check_steps(story: Node, id: String, steps: Array, maps: Dictionary, ctx: Dictionary, sets: Array, bad: Array) -> void:
+	for st: Dictionary in steps:
+		var kind := String(st.get("do", ""))
+		if not kind in KNOWN_STEPS:
+			bad.append("%s: unknown step %s" % [id, kind])
+		if kind == "region":
+			if not maps.has(String(st.get("id", ""))):
+				bad.append("%s: no region %s" % [id, st.get("id", "")])
+			else:
+				ctx["map"] = maps[String(st["id"])]
+		if kind == "set" and not String(st.get("kind", "")) in sets:
+			bad.append("%s: no set %s" % [id, st.get("kind", "")])
+		var m: MapData = ctx["map"]
+		var places: Array = [st.get("at", "")]
+		for e: Dictionary in st.get("enemies", []):
+			places.append(e.get("at", ""))
+		for g: Dictionary in st.get("guards", []):
+			places.append_array(g.get("path", []))
+		for p: Dictionary in st.get("pools", []):
+			places.append(p.get("at", ""))
+		for w: Array in st.get("waves", []):
+			for e: Dictionary in w:
+				places.append(e.get("at", ""))
+				if not story.cast.has(String(e.get("who", ""))):
+					bad.append("%s: unknown fighter %s" % [id, e.get("who", "")])
+		for at: Variant in places:
+			if at is String and String(at).begins_with("landmark:") and not m.landmarks.has(String(at).substr(9)):
+				bad.append("%s: no landmark %s on %s" % [id, at, m.region])
+			if at is String and String(at).begins_with("node:") and not m.road_nodes.has(String(at).substr(5)):
+				bad.append("%s: no road node %s on %s" % [id, at, m.region])
+		for n: String in st.get("path", []) if kind == "follow" else []:
+			if not m.road_nodes.has(n):
+				bad.append("%s: follow path node %s not on %s" % [id, n, m.region])
+		for line: Dictionary in st.get("lines", []):
+			if not story.cast.has(String(line.get("who", ""))):
+				bad.append("%s: unknown speaker %s" % [id, line.get("who", "")])
+		for e: Dictionary in st.get("enemies", []):
+			if not story.cast.has(String(e.get("who", ""))):
+				bad.append("%s: unknown fighter %s" % [id, e.get("who", "")])
+		if st.has("who") and not story.cast.has(String(st["who"])):
+			bad.append("%s: unknown actor %s" % [id, st["who"]])
+		if kind == "if":
+			_check_steps(story, id, st.get("then", []), maps, ctx, sets, bad)
+			_check_steps(story, id, st.get("else", []), maps, ctx, sets, bad)
+
+
 ## 3D Lagos (D-020): every model the 3D tables name exists, people are rigged with the shared
 ## action pack, and the 3D scripts compile.
 func _test_world3d() -> void:
@@ -267,15 +333,21 @@ func _test_world3d() -> void:
 		for k: String in M.BUILDINGS[art]:
 			if not ResourceLoader.exists("res://art3d/%s.glb" % k):
 				missing.append(k)
+	var lib0: RefCounted = M.new()
 	for k: String in M.LANDMARKS:
-		if not ResourceLoader.exists("res://art3d/%s.glb" % M.LANDMARKS[k]):
+		if not lib0.has(M.LANDMARKS[k]):
 			missing.append(M.LANDMARKS[k])
+	for d: String in M.DISTRICT_SWAP:
+		for art: String in M.DISTRICT_SWAP[d]:
+			if not lib0.has(M.DISTRICT_SWAP[d][art]):
+				missing.append(M.DISTRICT_SWAP[d][art])
 	for kind: String in M.PROPS:
 		if not ResourceLoader.exists("res://art3d/%s.glb" % M.PROPS[kind][0]):
 			missing.append(M.PROPS[kind][0])
 	for kind: String in M.VEHICLES:
-		if not ResourceLoader.exists("res://art3d/%s.glb" % M.VEHICLES[kind]["model"]):
-			missing.append(M.VEHICLES[kind]["model"])
+		var spec: Dictionary = M.VEHICLES[kind]
+		if not ResourceLoader.exists(String(spec.get("dir", "res://art3d/")) + "%s.glb" % spec["model"]):
+			missing.append(spec["model"])
 	for k: String in M.PEOPLE + ["tunde"]:
 		for f in ["%s.glb", "%s_run.glb"]:
 			if not ResourceLoader.exists("res://art3d/chars/" + f % k):
@@ -290,7 +362,7 @@ func _test_world3d() -> void:
 	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
 	if got[0]:
 		(got[0] as Node).free()
-	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d"]:
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d", "loading3d", "sets3d", "fx3d", "stealth3d", "signals3d", "freeroam3d"]:
 		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 

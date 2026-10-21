@@ -9,7 +9,7 @@ var current: Dictionary = DeviceProfile.from_preset("medium")
 var suggestion: Dictionary = {}
 var first_run := true
 ## Non-graphics preferences, e.g. "news_chatter" (proposal F8: a player toggle for news banter).
-var prefs := { "news_chatter": true, "age_ok": -1, "telemetry": false, "vol_music": 0.6, "vol_sfx": 0.8, "vol_ambience": 0.8, "dialogue_speed": 1.0, "hold_as_toggle": false } # age_ok: -1 unknown, 0 under 18, 1 adult
+var prefs := { "news_chatter": true, "age_ok": -1, "telemetry": false, "vol_music": 0.6, "vol_sfx": 0.8, "vol_ambience": 0.8, "dialogue_speed": 1.0, "hold_as_toggle": false, "cam_sens": 1.0, "difficulty": 1, "motion_off": false, "text_scale": 1.0, "left_handed": false, "vibration": true, "battery_saver": false, "colorblind": false, "hints_seen": [], "auto_aim": true } # age_ok: -1 unknown, 0 under 18, 1 adult
 
 
 func _ready() -> void:

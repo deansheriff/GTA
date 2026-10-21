@@ -74,7 +74,7 @@ func _cells() -> void:
 		MapData.S.BRIDGE: tex_mat("ground/asphalt.png", Color(0.75, 0.75, 0.75), 0.75),
 		MapData.S.WALK: concrete if concrete else tex_mat("ground/interlock.png", Color(0.92, 0.9, 0.86)),
 		MapData.S.GUTTER: tex_mat("ground/interlock.png", Color(0.45, 0.45, 0.45)),
-		MapData.S.GROUND: tex_mat("ground/grass.png", Color(0.5, 0.5, 0.4)), # dusty Lagos yards, not lawn green
+		MapData.S.GROUND: _ground_mat(), # dusty Lagos yards, Kano sand, Delta bush
 		MapData.S.BEACH: tex_mat("ground/sand.png"),
 	}
 	var water := _water_material()
@@ -112,10 +112,20 @@ func _cells() -> void:
 	var pm := PlaneMesh.new()
 	pm.size = Vector2(map.cols * CELL_M * 3.0, map.rows * CELL_M * 3.0)
 	sea.mesh = pm
-	sea.position = Vector3(map.cols * CELL_M * 0.5, -0.4, map.rows * CELL_M * 0.5)
-	sea.material_override = water
+	sea.position = Vector3(map.cols * CELL_M * 0.5, -0.4 if not map.inland else -0.03, map.rows * CELL_M * 0.5)
+	sea.material_override = water if not map.inland else mats[MapData.S.GROUND]
 	sea.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(sea)
+
+
+## Bare land by region: Lagos yards are dusty, Kano is sand and laterite, the Delta is green bush.
+func _ground_mat() -> StandardMaterial3D:
+	match map.ground:
+		"sand":
+			return tex_mat("ground/sand.png", Color(0.93, 0.74, 0.55))
+	if map.region == "delta" or map.region == "anambra":
+		return tex_mat("ground/grass.png", Color(0.48, 0.58, 0.36))
+	return tex_mat("ground/grass.png", Color(0.5, 0.5, 0.4))
 
 
 func _water_material() -> ShaderMaterial:
@@ -142,6 +152,10 @@ void fragment() {
 """
 	var m := ShaderMaterial.new()
 	m.shader = sh
+	if map and map.region == "delta":
+		# Mangrove creeks: brown-green water, not the lagoon's blue.
+		m.set_shader_parameter("deep", Color(0.13, 0.2, 0.12))
+		m.set_shader_parameter("shallow", Color(0.27, 0.33, 0.19))
 	return m
 
 
