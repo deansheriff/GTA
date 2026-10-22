@@ -33,6 +33,9 @@ func build(m: MapData, lib: Models3D) -> void:
 	_street_furniture()
 	_stilt_villages()
 	_set_pieces()
+	if not "--no-detail" in OS.get_cmdline_user_args():
+		var preset := String(Settings.current.get("preset", "medium"))
+		StreetDetail3D.build(self, 0 if preset == "low" else (2 if preset == "high" else 1))
 	_build_batches()
 
 
@@ -73,12 +76,20 @@ func _buildings() -> void:
 			_place_row(key, local, base, key in ["office_tower", "apartment"], key.begins_with("city_"))
 		else:
 			_box(holder, local, b.wall, roof_mat)
+		Models3D.far_cull(body, BUILDING_FAR * far_scale)
 		if b.sign_text != "":
-			_sign(holder, b.sign_text, local)
+			_sign(holder, b.sign_text, local, BUILDING_FAR * far_scale)
+		elif b.art in SHOP_NAMES and not key.begins_with("city_") and b.seed % 2 == 0:
+			var names: Array = SHOP_NAMES[b.art]
+			_sign(holder, names[b.seed % names.size()], local, 55.0)
+		# A shop front's window glows warm after dark.
+		if b.art in ["canteen", "pos-shop", "provision-store", "beach-bar"] and not key.begins_with("city_"):
+			_queue("window_glow", base * Transform3D(Basis().scaled(Vector3(local.x * 0.45, 0.9, 1.0)), Vector3(0, 1.45, local.z * 0.5 + 0.06)), BUILDING_FAR * 0.6, false)
+		# Their contact shadow: a soft dark fringe round the foot of the walls.
+		_queue("blob", base * Transform3D(Basis().scaled(Vector3(local.x + 2.6, 1.0, local.z + 2.6)), Vector3(0, 0.025, 0)), BUILDING_FAR * 0.5, false)
 		if b.generator:
 			_queue_fit("generator", 0.9, base * Transform3D(Basis(), Vector3(local.x * 0.5 + 0.6, 0, local.z * 0.5 - 0.8)), PROP_FAR, false)
 		_yard(base, key, local, b.seed)
-		Models3D.far_cull(body, BUILDING_FAR * far_scale)
 
 
 ## Lived-in details: an overhead water tank behind some houses, plastic tables out front of
@@ -139,11 +150,26 @@ func _place_row(key: String, size: Vector3, base: Transform3D, tall := false, re
 		_queue(key, base * Transform3D(Basis().scaled(Vector3.ONE * k), off), BUILDING_FAR, true)
 
 
-## A model's parts (mesh + transform under its root) and bounds, read once from its GLB.
+## Shop names for the plain roadside shops (all made up).
+const SHOP_NAMES := {
+	"canteen": ["MAMA PUT", "IYA BASIRA KITCHEN", "AMALA SPOT", "BUKATERIA", "CHOP AND GO"],
+	"pos-shop": ["POS · TRANSFER · WITHDRAWAL", "MONEY POINT", "QUICK CASH POS"],
+	"provision-store": ["PROVISION STORE", "GOD'S GRACE STORES", "MAMA EMEKA PROVISIONS", "BLESSED SUPERMARKET", "NO WAHALA STORES"],
+	"beach-bar": ["BEACH BAR", "COOL SPOT"],
+}
+## The night's warm window glow (Lights3D turns it up after dark).
+var window_mat: StandardMaterial3D
+
+
+## A model's parts (mesh + transform under its root) and bounds, read once from its GLB, or built in
+## code: the contact-shadow blob, the window glow, Kano's mud-brick houses.
 func _template(key: String) -> Variant:
 	if _templates.has(key):
 		return _templates[key]
-	var m := models.make(key)
+	if key in ["blob", "window_glow", "mud_house", "mud_shop", "signboard"] or key in DETAIL:
+		_templates[key] = _code_template(key)
+		return _templates[key]
+	var m := models.make(key.trim_prefix("free:"), "res://art3d/free/" if key.begins_with("free:") else Models3D.ART)
 	if m == null:
 		_templates[key] = null
 		return null
@@ -162,6 +188,187 @@ func _template(key: String) -> Variant:
 	_templates[key] = { "parts": parts, "aabb": Models3D.aabb(m) }
 	m.free()
 	return _templates[key]
+
+
+## Street detail pieces (StreetDetail3D) and the puddles' material (shown only when wet).
+const DETAIL := ["patch", "puddle", "gutter_water", "gutter_lip", "cable", "litter_sachet", "litter_bag", "litter_can", "litter_paper"]
+var puddle_mat: StandardMaterial3D
+
+
+## Rain: the puddles fill and shine (0 dry .. 1 soaked).
+func set_wet(k: float) -> void:
+	if puddle_mat:
+		puddle_mat.albedo_color.a = 0.75 * k
+
+
+func _detail_template(key: String) -> Dictionary:
+	var mesh: PrimitiveMesh
+	var mat := StandardMaterial3D.new()
+	match key:
+		"patch":
+			var q := QuadMesh.new()
+			q.size = Vector2.ONE
+			q.orientation = PlaneMesh.FACE_Y
+			mesh = q
+			var pm: BaseMaterial3D = Terrain3D.pbr_mat("T_Concrete_Asphalt_BaseColor.png", "T_Concrete_Normal.png", "T_Concrete_ORM.png", 3.0)
+			if pm:
+				pm.albedo_color = Color(0.78, 0.78, 0.8)
+				mesh.material = pm
+				return { "parts": [[mesh, Transform3D()]], "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3(1, 0.01, 1)) }
+			mat.albedo_color = Color(0.18, 0.18, 0.2)
+		"puddle":
+			var q := QuadMesh.new()
+			q.size = Vector2.ONE
+			q.orientation = PlaneMesh.FACE_Y
+			mesh = q
+			var g := Gradient.new()
+			g.set_color(0, Color(1, 1, 1, 1))
+			g.add_point(0.7, Color(1, 1, 1, 0.9))
+			g.set_color(1, Color(1, 1, 1, 0))
+			var t := GradientTexture2D.new()
+			t.gradient = g
+			t.fill = GradientTexture2D.FILL_RADIAL
+			t.fill_from = Vector2(0.5, 0.5)
+			t.fill_to = Vector2(1.0, 0.5)
+			mat.albedo_texture = t
+			mat.albedo_color = Color(0.12, 0.14, 0.16, 0.0)
+			mat.roughness = 0.02
+			mat.metallic = 0.6
+			mat.metallic_specular = 1.0
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+			puddle_mat = mat
+		"gutter_water":
+			var b := BoxMesh.new()
+			b.size = Vector3(2.0, 0.01, 0.5)
+			mesh = b
+			mat.albedo_color = Color(0.08, 0.09, 0.07)
+			mat.roughness = 0.05
+			mat.metallic = 0.4
+		"gutter_lip":
+			var b := BoxMesh.new()
+			b.size = Vector3(2.0, 0.14, 0.12)
+			mesh = b
+			mat.albedo_color = Color(0.6, 0.58, 0.54)
+			mat.roughness = 0.95
+		"cable":
+			var b := BoxMesh.new()
+			b.size = Vector3(0.025, 0.025, 1.0)
+			mesh = b
+			mat.albedo_color = Color(0.05, 0.05, 0.05)
+			mat.roughness = 0.6
+		"litter_sachet":
+			var q := QuadMesh.new()
+			q.size = Vector2(0.14, 0.2)
+			q.orientation = PlaneMesh.FACE_Y
+			mesh = q
+			mat.albedo_color = Color(0.92, 0.95, 0.97)
+			mat.roughness = 0.3
+			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		"litter_bag":
+			var sm := SphereMesh.new()
+			sm.radius = 0.13
+			sm.height = 0.12
+			sm.radial_segments = 6
+			sm.rings = 3
+			mesh = sm
+			mat.albedo_color = Color(0.1, 0.1, 0.12)
+			mat.roughness = 0.35
+		"litter_can":
+			var c := CylinderMesh.new()
+			c.top_radius = 0.035
+			c.bottom_radius = 0.035
+			c.height = 0.12
+			c.radial_segments = 6
+			c.rings = 1
+			mesh = c
+			mat.albedo_color = Color(0.75, 0.12, 0.1)
+			mat.roughness = 0.25
+			mat.metallic = 0.7
+			mesh.material = mat
+			return { "parts": [[mesh, Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0, 0.035, 0))]], "aabb": AABB(Vector3(-0.06, 0, -0.04), Vector3(0.12, 0.07, 0.08)) }
+		"litter_paper":
+			var b := BoxMesh.new()
+			b.size = Vector3(0.2, 0.004, 0.28)
+			mesh = b
+			mat.albedo_color = Color(0.88, 0.86, 0.8)
+	mesh.material = mat
+	return { "parts": [[mesh, Transform3D()]], "aabb": mesh.get_aabb() }
+
+
+func _code_template(key: String) -> Dictionary:
+	if key in DETAIL:
+		return _detail_template(key)
+	match key:
+		"blob":
+			var q := QuadMesh.new()
+			q.size = Vector2.ONE
+			q.orientation = PlaneMesh.FACE_Y
+			q.material = Blob3D.material()
+			return { "parts": [[q, Transform3D()]], "aabb": AABB(Vector3(-0.5, 0, -0.5), Vector3(1, 0.01, 1)) }
+		"window_glow":
+			var q := QuadMesh.new()
+			q.size = Vector2.ONE
+			window_mat = StandardMaterial3D.new()
+			window_mat.albedo_color = Color(0.3, 0.22, 0.12)
+			window_mat.emission_enabled = true
+			window_mat.emission = Color("#ffc46e")
+			window_mat.emission_energy_multiplier = 0.0
+			q.material = window_mat
+			return { "parts": [[q, Transform3D()]], "aabb": AABB(Vector3(-0.5, -0.5, 0), Vector3(1, 1, 0.01)) }
+		"signboard":
+			var bm := BoxMesh.new()
+			bm.size = Vector3(1, 1, 0.08)
+			var mat := StandardMaterial3D.new()
+			mat.albedo_color = Color("#f1e6c8")
+			mat.roughness = 0.7
+			bm.material = mat
+			return { "parts": [[bm, Transform3D()]], "aabb": AABB(Vector3(-0.5, -0.5, -0.04), Vector3(1, 1, 0.08)) }
+	# Kano mud brick: a flat-roofed block with a raised parapet, horned corners (zanko), a dark
+	# doorway and small windows. The shop has a wider opening and a shade over it.
+	var mud := StandardMaterial3D.new()
+	mud.albedo_color = Color("#c08a58") if key == "mud_house" else Color("#b98050")
+	mud.roughness = 1.0
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0.12, 0.08, 0.06)
+	var parts: Array = []
+	var w := 6.0
+	var d := 5.0
+	var h := 3.4
+	var body := BoxMesh.new()
+	body.size = Vector3(w, h, d)
+	body.material = mud
+	parts.append([body, Transform3D(Basis(), Vector3(0, h * 0.5, 0))])
+	var lip := BoxMesh.new()
+	lip.size = Vector3(w + 0.2, 0.45, 0.25)
+	lip.material = mud
+	for z in [-d * 0.5, d * 0.5]:
+		parts.append([lip, Transform3D(Basis(), Vector3(0, h + 0.2, z))])
+	var horn := PrismMesh.new()
+	horn.size = Vector3(0.45, 0.7, 0.45)
+	horn.material = mud
+	for x in [-w * 0.5, w * 0.5]:
+		for z in [-d * 0.5, d * 0.5]:
+			parts.append([horn, Transform3D(Basis(), Vector3(x, h + 0.75, z))])
+	var door := BoxMesh.new()
+	door.size = Vector3(1.0 if key == "mud_house" else 2.4, 2.0, 0.05)
+	door.material = dark
+	parts.append([door, Transform3D(Basis(), Vector3(0, 1.0, d * 0.5 + 0.02))])
+	var win := BoxMesh.new()
+	win.size = Vector3(0.5, 0.5, 0.05)
+	win.material = dark
+	for x in [-1.9, 1.9]:
+		parts.append([win, Transform3D(Basis(), Vector3(x, 2.1, d * 0.5 + 0.02))])
+	if key == "mud_shop":
+		var shade := BoxMesh.new()
+		shade.size = Vector3(3.2, 0.08, 1.4)
+		var zinc := StandardMaterial3D.new()
+		zinc.albedo_color = Color(0.6, 0.62, 0.62)
+		zinc.metallic = 0.6
+		zinc.roughness = 0.5
+		shade.material = zinc
+		parts.append([shade, Transform3D(Basis(Vector3.RIGHT, -0.15), Vector3(0, 2.4, d * 0.5 + 0.7))])
+	return { "parts": parts, "aabb": AABB(Vector3(-w * 0.5, 0, -d * 0.5), Vector3(w, h + 1.1, d)) }
 
 
 ## The MegaKit stores a wear mask in its vertex colours for its own shader; Godot's importer would
@@ -203,7 +410,7 @@ func _build_batches() -> void:
 			if _batch.has(k):
 				debug_spots.append((_batch[k]["xforms"][0] as Transform3D).origin)
 	for key: String in _batch:
-		var t: Variant = _templates.get(key)
+		var t: Variant = _template(key) # code-built pieces (detail, blobs) are made on first use
 		if t == null:
 			continue
 		var b: Dictionary = _batch[key]
@@ -252,16 +459,17 @@ func _box(parent: Node3D, size: Vector3, wall_col: Color, roof_mat: Material) ->
 
 
 ## The shop's painted sign board over its front, like the 2D game's signs.
-func _sign(parent: Node3D, text: String, size: Vector3) -> void:
+func _sign(parent: Node3D, text: String, size: Vector3, far := 0.0) -> void:
 	var board := MeshInstance3D.new()
 	var bm := BoxMesh.new()
 	var bw := clampf(text.length() * 0.32, 2.4, size.x - 0.4)
 	bm.size = Vector3(bw, 0.75, 0.08)
 	board.mesh = bm
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color("#f1e6c8")
-	mat.roughness = 0.7
-	board.material_override = mat
+	if _sign_mat == null:
+		_sign_mat = StandardMaterial3D.new()
+		_sign_mat.albedo_color = Color("#f1e6c8")
+		_sign_mat.roughness = 0.7
+	board.material_override = _sign_mat
 	board.position = Vector3(0, minf(size.y * 0.55, 3.2), size.z * 0.5 + 0.35)
 	parent.add_child(board)
 	var lbl := Label3D.new()
@@ -276,6 +484,12 @@ func _sign(parent: Node3D, text: String, size: Vector3) -> void:
 	var fs := minf(64.0, bw / 0.006 / maxf(1.0, text.length() * 0.62))
 	lbl.font_size = int(fs)
 	board.add_child(lbl)
+	if far > 0.0:
+		board.visibility_range_end = far
+		lbl.visibility_range_end = far
+
+
+var _sign_mat: StandardMaterial3D
 
 
 func _props() -> void:
@@ -288,6 +502,8 @@ func _props() -> void:
 		var count := 3 if p.kind == "palm-cluster" else 1
 		var big: bool = float(spec[1]) > 3.0
 		var far := PROP_FAR * (1.5 if big else 1.0)
+		var bs := clampf(float(spec[1]) * 0.45, 0.8, 3.2)
+		_queue("blob", Transform3D(Basis().scaled(Vector3(bs, 1.0, bs)), pos + Vector3(0, 0.03, 0)), PROP_FAR * 0.6, false)
 		for i in count:
 			var off := Vector3(cos(i * 2.1) * 1.6, 0, sin(i * 2.1) * 1.6) if i > 0 else Vector3.ZERO
 			_queue_fit(spec[0], float(spec[1]) * (1.0 - 0.12 * i), Transform3D(Basis(Vector3.UP, yaw + i * 1.3), pos + off), far, big)

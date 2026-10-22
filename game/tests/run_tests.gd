@@ -339,10 +339,11 @@ func _test_world3d() -> void:
 			missing.append(M.LANDMARKS[k])
 	for d: String in M.DISTRICT_SWAP:
 		for art: String in M.DISTRICT_SWAP[d]:
-			if not lib0.has(M.DISTRICT_SWAP[d][art]):
+			if not lib0.has(M.DISTRICT_SWAP[d][art]) and not M.DISTRICT_SWAP[d][art] in M.PROCEDURAL:
 				missing.append(M.DISTRICT_SWAP[d][art])
 	for kind: String in M.PROPS:
-		if not ResourceLoader.exists("res://art3d/%s.glb" % M.PROPS[kind][0]):
+		var pk: String = M.PROPS[kind][0]
+		if not ResourceLoader.exists(("res://art3d/free/%s.glb" % pk.trim_prefix("free:")) if pk.begins_with("free:") else ("res://art3d/%s.glb" % pk)):
 			missing.append(M.PROPS[kind][0])
 	for kind: String in M.VEHICLES:
 		var spec: Dictionary = M.VEHICLES[kind]
@@ -362,7 +363,7 @@ func _test_world3d() -> void:
 	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
 	if got[0]:
 		(got[0] as Node).free()
-	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d", "loading3d", "sets3d", "fx3d", "stealth3d", "signals3d", "freeroam3d"]:
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d", "loading3d", "sets3d", "fx3d", "stealth3d", "signals3d", "freeroam3d", "blob3d", "guide3d", "street_detail3d"]:
 		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 

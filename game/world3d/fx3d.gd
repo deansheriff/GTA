@@ -82,7 +82,7 @@ func explosion(at: Vector3, size := 1.0, burn := 0.0) -> void:
 			if int(e["hp"]) > 0 and is_instance_valid(e["node"]) and (e["node"] as Node3D).global_position.distance_to(at) < 5.0 * size:
 				c.hurt_enemy(e, 4)
 	if world.player.global_position.distance_to(at) < 3.0 * size and world.ride == null:
-		c.hurt_player(2)
+		c.hurt_player(2, at)
 
 
 ## A fire that keeps burning for `secs` (refinery tanks, a burning stilt house).
@@ -111,7 +111,8 @@ func dust(at: Vector3) -> void:
 func flash(n: Node, secs := 0.12) -> void:
 	if n == null or not is_instance_valid(n):
 		return
-	var meshes := n.find_children("*", "GeometryInstance3D", true, false)
+	# Only the body's meshes: not its shadow blob, labels or particles.
+	var meshes := n.find_children("*", "MeshInstance3D", true, false).filter(func(m: Node) -> bool: return m.name != "Blob" and (m as MeshInstance3D).mesh != null)
 	for g in meshes:
 		(g as GeometryInstance3D).material_overlay = _flash_mat
 	_flash.append({ "meshes": meshes, "t": secs })

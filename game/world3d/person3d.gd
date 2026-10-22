@@ -32,6 +32,7 @@ func setup(lib: Models3D, k: String, w, cell: Vector2i, seed: int) -> bool:
 		return false
 	add_child(got[0])
 	ap = got[1]
+	Blob3D.add(self, Vector2(0.95, 0.95))
 	Models3D.far_cull(self, 70.0)
 	from = cell
 	to = _next(cell, cell)
@@ -112,6 +113,17 @@ func step(delta: float) -> void:
 			var dir := pb - pa
 			if dir.length_squared() > 0.01:
 				rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), minf(1.0, delta * 8.0))
+
+
+## Knocked down by a vehicle: down for a moment, then up and shouting.
+func knock(along: Vector3) -> void:
+	position += along.normalized() * 1.5
+	state = State.PAUSE
+	pause_left = 3.5
+	Models3D.play(ap, "dead", "hit")
+	var tw := create_tween()
+	tw.tween_interval(2.2)
+	tw.tween_callback(func() -> void: Models3D.play(ap, "argue", "idle"))
 
 
 ## Walk straight across the road to the pavement opposite (traffic stops for you, mostly).

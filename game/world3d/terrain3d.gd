@@ -13,6 +13,7 @@ const WALK_H := 0.12
 const ROAD_Y := 0.035
 
 var map: MapData
+var _wet_mats: Array = [] # [material, dry colour, dry roughness]: roads, pavements and shoulders
 
 
 func build(m: MapData) -> void:
@@ -20,6 +21,14 @@ func build(m: MapData) -> void:
 	_cells()
 	_roads()
 	_bounds()
+
+
+## Rain: darker, shinier roads and pavements (0 dry .. 1 soaked). Restrained: not mirrors.
+func set_wet(k: float) -> void:
+	for e: Array in _wet_mats:
+		var m: BaseMaterial3D = e[0]
+		m.albedo_color = (e[1] as Color).darkened(0.22 * k)
+		m.roughness = lerpf(float(e[2]), 0.34, k)
 
 
 static func w(p: Vector2, y := 0.0) -> Vector3:
@@ -77,6 +86,8 @@ func _cells() -> void:
 		MapData.S.GROUND: _ground_mat(), # dusty Lagos yards, Kano sand, Delta bush
 		MapData.S.BEACH: tex_mat("ground/sand.png"),
 	}
+	for m in [mats[MapData.S.ROAD], mats[MapData.S.WALK], mats[MapData.S.GUTTER]]:
+		_wet_mats.append([m, (m as BaseMaterial3D).albedo_color, (m as BaseMaterial3D).roughness])
 	var water := _water_material()
 	mats[MapData.S.SEA] = water
 	mats[MapData.S.LAGOON] = water
@@ -165,6 +176,7 @@ func _roads() -> void:
 	var asphalt: BaseMaterial3D = pbr_mat("T_Concrete_Asphalt_BaseColor.png", "T_Concrete_Normal.png", "T_Concrete_ORM.png", 6.0)
 	if asphalt == null:
 		asphalt = tex_mat("ground/asphalt.png", Color(0.8, 0.8, 0.8), 0.72, 0.2)
+	_wet_mats.append([asphalt, asphalt.albedo_color, asphalt.roughness])
 	var line_mat := StandardMaterial3D.new()
 	line_mat.albedo_color = Color(0.9, 0.88, 0.82)
 	line_mat.roughness = 1.0

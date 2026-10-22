@@ -48,6 +48,10 @@ const DISTRICT_SWAP := {
 	"alaba": { "two-storey": "city_medium", "provision-store": "city_small" },
 	"festac": { "two-storey": "apartment" },
 	"okoroba": { "bungalow": "fisher_hut" },
+	# Regions (D-032): Kano's old city is mud brick; Abeokuta keeps its colonial two-storeys.
+	"kano-old-city": { "bungalow": "mud_house", "canteen": "mud_shop", "provision-store": "mud_shop", "two-storey": "mud_house" },
+	"truck-park": { "canteen": "mud_shop", "pos-shop": "mud_shop" },
+	"abeokuta": { "bungalow": "island_cottage" },
 }
 ## Downtown City MegaKit models (glTF with their textures beside them), by our key.
 const CITYKIT := {
@@ -56,6 +60,8 @@ const CITYKIT := {
 	"planter": "Prop_Planter_Single", "crosswalk": "Decal_Crosswalk",
 }
 const CITYKIT_DIR := "res://art3d/citykit/"
+## Buildings built in code (City3D) where no model fits the place: Kano's mud-brick houses.
+const PROCEDURAL := ["mud_house", "mud_shop"]
 
 ## Map prop kind -> [model key, height in metres].
 const PROPS := {
@@ -65,6 +71,7 @@ const PROPS := {
 	"orange-tray": ["orange_tray", 1.1], "canoe": ["canoe", 0.9], "nets": ["nets", 2.2],
 	"fish-baskets": ["fish_baskets", 0.7], "coconut-cart": ["coconut_cart", 1.3],
 	"umbrella": ["umbrella", 2.6], "beach-umbrella": ["umbrella", 2.6],
+	"rock": ["free:rock_large", 1.8],
 }
 
 ## Vehicle kinds: model key, length x width (m), top speed (m/s), acceleration, turn rate.
@@ -143,7 +150,7 @@ func building_key(art: String, seed: int, district: String, landmark := "") -> S
 	if LANDMARKS.has(landmark) and has(LANDMARKS[landmark]):
 		return LANDMARKS[landmark]
 	var swap: Dictionary = DISTRICT_SWAP.get(district, {})
-	if swap.has(art) and seed % 3 != 0 and has(swap[art]):
+	if swap.has(art) and seed % 3 != 0 and (has(swap[art]) or swap[art] in PROCEDURAL):
 		return swap[art]
 	var opts: Array = BUILDINGS.get(art, ["shop"])
 	var pick: String = opts[seed % opts.size()]

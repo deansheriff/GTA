@@ -168,7 +168,7 @@ func _watch_player() -> void:
 				var fine := 2000
 				Life.spend(mini(fine, int(Life.money)), "Traffic warden: ran a red light (3D)")
 				Story.wanted = minf(5.0, Story.wanted + 0.4)
-				Sound.sfx("siren", 1.4)
+				Sound.sfx("whistle")
 				message.emit("A traffic warden saw you run the red light. ₦%d fine." % fine)
 			return
 		elif d > 14.0 and _player_in == id:

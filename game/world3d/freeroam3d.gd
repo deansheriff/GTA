@@ -70,6 +70,9 @@ var _mama: Person3D
 var _stall_sign: Label3D
 var _respect_wave_t := 0.0
 var _side_running := false
+var found := {} # Lagos Stories and stashes found (Explore3D)
+var board_rep := {} # job board -> how many good jobs it remembers
+var _streak := 0
 var _prompt_owner := "" # which station set the current prompt
 var _rng := RandomNumberGenerator.new()
 
@@ -195,10 +198,15 @@ func _station(pos: Vector3, kind: String, yaw: float) -> void:
 func step(delta: float) -> void:
 	for b in buffs.keys():
 		buffs[b] = float(buffs[b]) - delta
-		if float(buffs[b]) <= 0.0 and b != "iroko":
+		if float(buffs[b]) <= 0.0 and b != "iroko" and b != "jerrycan":
 			buffs.erase(b)
 			world.notify("The food's goodness has worn off.")
 	world.player.stamina_k = 0.4 if buffs.has("stamina") else 1.0
+	# The jerrycan from a stash: an empty tank gets filled once.
+	if buffs.has("jerrycan") and world.ride and world.ride.fuel < 0.08 and int(TANK.get(world.ride.kind, 0)) > 0:
+		buffs.erase("jerrycan")
+		world.ride.fuel = 1.0
+		world.notify("You empty the jerrycan into the tank. Full.")
 	if world.in_menu or world.region != "lagos":
 		_set_prompt("", Callable())
 		return
@@ -214,15 +222,17 @@ func step(delta: float) -> void:
 	_station_prompts()
 
 
-func _set_prompt(text: String, cb: Callable, owner := "roam") -> void:
+func _set_prompt(text: String, cb: Callable, owner := "roam", at: Variant = null) -> void:
 	if text == "":
 		if _prompt_owner != "":
 			world.prompt_text = ""
 			world.prompt_cb = Callable()
+			world.prompt_at = null
 			_prompt_owner = ""
 		return
 	world.prompt_text = text
 	world.prompt_cb = cb
+	world.prompt_at = at
 	_prompt_owner = owner
 
 
@@ -233,32 +243,33 @@ func _station_prompts() -> void:
 		var d := Vector2(f.x - st["pos"].x, f.z - st["pos"].z).length()
 		if d > 7.0:
 			continue
+		var tag: Vector3 = (st["pos"] as Vector3) + Vector3(0, 2.6, 0)
 		match String(st["kind"]):
 			"fuel":
 				if ride and absf(ride.speed) < 1.0 and ride.fuel < 0.98 and int(TANK.get(ride.kind, 0)) > 0:
 					var cost := int(ceil((1.0 - ride.fuel) * int(TANK.get(ride.kind, 4000)) / 50.0)) * 50
-					_set_prompt("FUEL ₦%s" % _n(cost), func() -> void: _refuel(cost))
+					_set_prompt("FUEL ₦%s" % _n(cost), func() -> void: _refuel(cost), "roam", tag)
 					return
 			"mechanic":
 				if ride and absf(ride.speed) < 1.0 and ride.health < 99.0:
 					var cost := int((100.0 - ride.health) * 45.0 * (0.7 if perk("mechanic") else 1.0) / 50.0) * 50 + 500
-					_set_prompt("REPAIR ₦%s" % _n(cost), func() -> void: _repair(cost))
+					_set_prompt("REPAIR ₦%s" % _n(cost), func() -> void: _repair(cost), "roam", tag)
 					return
 			"dealer":
 				if ride == null:
-					_set_prompt("BUY A RIDE", func() -> void: _shop(FOR_SALE, st["pos"]))
+					_set_prompt("BUY A RIDE", func() -> void: _shop(FOR_SALE, st["pos"]), "roam", tag)
 					return
 			"boats":
 				if ride == null and Story.done.has("m10"):
-					_set_prompt("BUY A BOAT", func() -> void: _shop(BOATS, st["pos"]))
+					_set_prompt("BUY A BOAT", func() -> void: _shop(BOATS, st["pos"]), "roam", tag)
 					return
 			"jobs":
 				if ride == null or d < 5.0:
-					_set_prompt("SIDE JOB", func() -> void: _side_job(st))
+					_set_prompt("SIDE JOB", func() -> void: _side_job(st), "roam", tag)
 					return
 			"stall":
 				if ride == null and _stall_open():
-					_set_prompt("EAT AT MAMA ÀGBÀ'S", _eat)
+					_set_prompt("EAT AT MAMA ÀGBÀ'S", _eat, "roam", tag)
 					return
 	_set_prompt("", Callable())
 
@@ -565,61 +576,117 @@ func _eat() -> void:
 
 # ---------- side jobs ----------
 
+## A side job from a JOBS board. Kinds: deliveries (one to three drops, some fragile, all against
+## the clock), passengers with requests (careful driving, "I'm late", a stop on the way), street
+## fights for the traders, and carrying a market woman's load. Each board remembers how well you've
+## done: a streak of good jobs pays a bonus and raises what that board pays; a failure costs Respect.
 func _side_job(st: Dictionary) -> void:
-	var kinds := ["delivery", "fight", "carry"]
-	if world.ride and world.ride.kind in ["okada", "keke"]:
-		kinds = ["fare"]
+	var board := "%d,%d" % [int(st["pos"].x), int(st["pos"].z)]
+	var rep := int(board_rep.get(board, 0))
+	var kinds := ["delivery", "delivery", "fight", "carry"]
+	if world.ride and not world.ride.on_water:
+		kinds = ["fare", "fare", "delivery"]
 	var kind: String = kinds[_rng.randi() % kinds.size()]
-	var lms: Array = world.map.landmarks.keys().filter(func(k: String) -> bool:
-		return Terrain3D.w(world.map.landmarks[k]["pos"]).distance_to(st["pos"]) > 250.0 and Terrain3D.w(world.map.landmarks[k]["pos"]).distance_to(st["pos"]) < 700.0)
-	if lms.is_empty():
-		lms = world.map.landmarks.keys()
-	var dest: String = lms[_rng.randi() % lms.size()]
+	var picks := _job_stops(st["pos"], 3)
+	var dest: String = picks[0]
 	var dname := String(world.map.landmarks[dest]["name"])
 	var pay := 0
 	var steps: Array = []
+	var fragile := false
+	var careful := false
+	var late := false
 	match kind:
 		"delivery":
-			var dist: float = Terrain3D.w(world.map.landmarks[dest]["pos"]).distance_to(st["pos"])
-			var secs := int(dist / 7.0) + 45
-			pay = int(dist * 4.0 / 100.0) * 100 + 1500
-			steps = [
-				{ "do": "say", "lines": [{ "who": "story", "text": "\"Take this parcel to %s. Quick quick, before %d seconds. Don't open am!\"" % [dname, secs] }] },
-				{ "do": "goto", "at": "landmark:" + dest, "radius": 8, "time": secs, "text": "Deliver the parcel to %s." % dname },
-			]
+			var drops := 1 + _rng.randi() % 3
+			fragile = _rng.randf() < 0.4
+			var route: Array = picks.slice(0, drops)
+			var dist := 0.0
+			var prev: Vector3 = st["pos"]
+			for d: String in route:
+				var q := Terrain3D.w(world.map.landmarks[d]["pos"])
+				dist += prev.distance_to(q)
+				prev = q
+			var secs := int(dist / 7.5) + 40 * drops
+			pay = int(dist * 4.0 / 100.0) * 100 + 1200 * drops + (1500 if fragile else 0)
+			var names := ", ".join(route.map(func(d: String) -> String: return String(world.map.landmarks[d]["name"])))
+			steps.append({ "do": "say", "lines": [{ "who": "story", "text": "\"%s: %s. %d seconds for all of it.%s\"" % ["One parcel" if drops == 1 else "%d drops" % drops, names, secs, " Handle with care: na glass!" if fragile else ""] }] })
+			for i in route.size():
+				steps.append({ "do": "goto", "at": "landmark:" + String(route[i]), "radius": 8, "time": secs if i == 0 else maxi(30, secs / 2), "text": "%s parcel %d of %d to %s." % ["Fragile:" if fragile else "Deliver", i + 1, route.size(), String(world.map.landmarks[route[i]]["name"])] })
 		"fare":
-			pay = 1200 + _rng.randi_range(0, 8) * 100
-			steps = [
-				{ "do": "say", "lines": [{ "who": "passenger", "text": "\"%s! How much? Oya, carry me.\"" % dname }] },
-				{ "do": "goto", "at": "landmark:" + dest, "radius": 8, "on": "vehicle", "time": 240, "text": "Carry the passenger to %s." % dname },
-			]
+			var req: String = ["careful", "late", "stop", "plain"][_rng.randi() % 4]
+			pay = 1400 + _rng.randi_range(0, 8) * 100
+			var line := "\"%s! How much? Oya, carry me.\"" % dname
+			match req:
+				"careful":
+					careful = true
+					line = "\"%s. Drive gently o, I just do surgery. Any jam-jam, I no go pay full.\"" % dname
+				"late":
+					late = true
+					pay += 1000
+					line = "\"%s! Fast fast, I don late for interview! Get me there and I go add ₦1,000.\"" % dname
+				"stop":
+					pay += 600
+					line = "\"Stop for %s first, I wan collect something. Then %s.\"" % [String(world.map.landmarks[picks[1]]["name"]), dname]
+			steps.append({ "do": "say", "lines": [{ "who": "passenger", "text": line }] })
+			if req == "stop":
+				steps.append({ "do": "goto", "at": "landmark:" + String(picks[1]), "radius": 8, "on": "vehicle", "time": 200, "text": "The passenger's stop: %s." % String(world.map.landmarks[picks[1]]["name"]) })
+			var d0: float = Terrain3D.w(world.map.landmarks[dest]["pos"]).distance_to(world.focus())
+			steps.append({ "do": "goto", "at": "landmark:" + dest, "radius": 8, "on": "vehicle", "time": int(d0 / 9.0) + 30 if late else 240, "text": "Carry the passenger to %s.%s" % [dname, " Hurry!" if late else (" Gently!" if careful else "")] })
 		"fight":
-			pay = 3000
+			pay = 3000 + rep * 300
 			steps = [
 				{ "do": "say", "lines": [{ "who": "agbero", "text": "\"Some boys dey disturb our traders. Na you be Sabi? Show them.\"" }] },
-				{ "do": "fight", "text": "Run the troublemakers out of the market.", "enemies": [{ "id": "s1", "who": "agbero", "hp": 3 }, { "id": "s2", "who": "agbero", "hp": 3 }, { "id": "s3", "who": "agbero", "hp": 4, "type": "brute" }] },
-				{ "do": "respect", "n": 2 },
+				{ "do": "fight", "text": "Run the troublemakers out of the market.", "enemies": [{ "id": "s1", "who": "agbero", "hp": 3 }, { "id": "s2", "who": "agbero", "hp": 3 }, { "id": "s3", "who": "agbero", "hp": 4, "type": "brute" if rep > 1 else "thug" }] },
 			]
 		"carry":
 			pay = 2000
 			steps = [
 				{ "do": "spawn", "id": "mw", "who": "passenger", "at": "player", "offset": [1.5, 1.0], "face": "player" },
-				{ "do": "say", "lines": [{ "who": "passenger", "text": "\"My son, help me carry this load to the bus stop. God go bless you.\"" }] },
+				{ "do": "say", "lines": [{ "who": "passenger", "text": "\"My son, help me carry this load to %s. God go bless you.\"" % dname }] },
 				{ "do": "escort", "id": "mw", "at": "landmark:" + dest, "radius": 8, "text": "Walk the market woman to %s." % dname },
-				{ "do": "respect", "n": 1 },
 			]
+	pay = int(pay * (1.0 + mini(rep, 6) * 0.05))
 	if postgame == "japa":
 		pay = int(pay * 1.5)
 	_side_running = true
 	_set_prompt("", Callable())
-	var ok: bool = await world.missions.run_side(steps, "Side job")
+	var hp0: float = world.ride.health if world.ride else 100.0
+	var ok: bool = await world.missions.run_side(steps, "Side job" + (" · board reputation %d" % rep if rep > 0 else ""))
 	_side_running = false
+	var hit: float = hp0 - (world.ride.health if world.ride else hp0)
+	if ok and fragile and hit > 8.0:
+		pay = int(pay * 0.3)
+		world.notify("You hear glass breaking in the parcel. They pay you only ₦%s." % _n(pay))
+	elif ok and careful and hit > 5.0:
+		pay = int(pay * 0.5)
+		world.notify("\"Na so you dey drive? My stitches!\" Half fare.")
 	if ok:
 		Life.earn(pay, "Side job: %s (3D)" % kind)
 		Sound.sfx("cash")
-		world.notify("Side job done: ₦%s." % _n(pay))
+		Story.add_respect(1)
+		_streak += 1
+		board_rep[board] = rep + 1
+		world.notify("Side job done: ₦%s. (Respect +1)" % _n(pay))
+		if _streak % 3 == 0:
+			var bonus := 1500 * (_streak / 3)
+			Life.earn(bonus, "Side job streak bonus (3D)")
+			world.notify("%d jobs in a row: your name is ringing in the market. Bonus ₦%s." % [_streak, _n(bonus)])
 	else:
-		world.notify("Side job failed.")
+		_streak = 0
+		Story.add_respect(-1)
+		board_rep[board] = maxi(0, rep - 1)
+		world.notify("Side job failed. Word gets round. (Respect -1)")
+
+
+## Landmarks that make a good route from a job board: not too near, not across the whole city.
+func _job_stops(from: Vector3, n: int) -> Array:
+	var lms: Array = world.map.landmarks.keys().filter(func(k: String) -> bool:
+		var d := Terrain3D.w(world.map.landmarks[k]["pos"]).distance_to(from)
+		return d > 200.0 and d < 750.0)
+	if lms.size() < n:
+		lms = world.map.landmarks.keys()
+	lms.shuffle()
+	return lms.slice(0, n)
 
 
 # ---------- Radio Gbedu ----------
@@ -691,7 +758,7 @@ func _postgame_income() -> void:
 # ---------- save ----------
 
 func to_dict() -> Dictionary:
-	return { "owned": owned, "today": today, "debt": debt, "buffs": buffs, "postgame": postgame, "radio": radio_on }
+	return { "owned": owned, "today": today, "debt": debt, "buffs": buffs, "postgame": postgame, "radio": radio_on, "boards": board_rep, "found": found }
 
 
 func from_dict(d: Dictionary) -> void:
@@ -701,6 +768,8 @@ func from_dict(d: Dictionary) -> void:
 	buffs = d.get("buffs", {})
 	postgame = String(d.get("postgame", ""))
 	radio_on = bool(d.get("radio", true))
+	board_rep = d.get("boards", {})
+	found = d.get("found", {})
 	# The Ìrókò charm (Act II) stays for good once Baba Fakunle has given it.
 	if Story.items.has("iroko"):
 		buffs["iroko"] = 1e9

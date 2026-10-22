@@ -324,3 +324,39 @@ groove(96, 8, [196, 196, 175, 175], 0.25, 'music/talk.wav', true); // a soft stu
   mix(x, clap(0.03), 0.09, 0.6);
   wav('sfx/reload.wav', x);
 }
+// D-032: tyre skid (filtered noise with a squeal), a traffic warden's whistle, an air-brake
+// hiss for big vehicles, and a small chime for finding something.
+{
+  const x = len(0.7);
+  let ph = 0;
+  for (let i = 0; i < x.length; i++) {
+    const t = i / SR;
+    ph += (1700 + 300 * Math.sin(t * 40)) / SR;
+    x[i] = (rand() * 0.35 + Math.sin(2 * Math.PI * ph) * 0.3) * Math.min(1, t / 0.02) * Math.exp(-t * 2.2);
+  }
+  wav('sfx/skid.wav', lowpass(x, 4200));
+}
+{
+  const x = len(0.55);
+  let ph = 0;
+  for (let i = 0; i < x.length; i++) {
+    const t = i / SR;
+    ph += (2900 + 160 * Math.sin(t * 2 * Math.PI * 28)) / SR; // the pea rattles
+    x[i] = Math.sin(2 * Math.PI * ph) * 0.45 * Math.min(1, t / 0.01) * Math.min(1, (0.55 - t) / 0.05);
+  }
+  wav('sfx/whistle.wav', x);
+}
+{
+  const x = len(0.5);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * 0.5 * Math.min(1, i / (SR * 0.01)) * Math.exp(-(i / SR) * 5);
+  wav('sfx/airbrake.wav', lowpass(x, 3000));
+}
+{
+  const x = len(0.6);
+  for (const [f, at] of [[1568, 0], [2093, 0.09]]) {
+    const b = len(0.5);
+    for (let i = 0; i < b.length; i++) b[i] = Math.sin(2 * Math.PI * f * i / SR) * Math.exp(-(i / SR) * 7) * 0.35;
+    mix(x, b, at);
+  }
+  wav('sfx/find.wav', x);
+}

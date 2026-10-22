@@ -1016,3 +1016,109 @@ game before I start game testing on real device."
   - If later art pushes it past about 150 MB, move `art3d/free` and the region textures into a
     Play Asset Delivery pack (a Godot plugin is needed; it's not built in).
 - **Device testing checklist:** see `docs/qa/DEVICE_QA.md`.
+
+
+## D-032 · Polish: the interiors, the look of the streets, and deeper play · 2026-10-22
+**Owner:** "Let's polish these: cell, owambe, safe house, gala, yacht", and a list for visuals
+and gameplay.
+
+**Interiors (`Sets3D`):**
+- Furnished from primitives merged into one mesh per material, so a full room costs a few draw
+  calls.
+- Rooms have ceilings that stop the camera, so the camera stays inside.
+- Ceiling fans turn, tired fluorescent tubes flicker, and windows, TV screens and portholes glow
+  after dark.
+- **Cell Four:** the station's blue dado, the concrete ledge, foam mats, the bucket, tally marks,
+  notices ("POLICE IS YOUR FRIEND"), the charge-room desk with its ledger and old monitor, a filing
+  cabinet and a clock. Outside: barred windows, the flag, sandbags, exhibit cars and the
+  floodlight.
+- **Owambe:** a striped canopy with valances; banquet tables in gold and wine; a red carpet; the
+  couple's high table on a stage with gold chairs, a monogram backdrop and balloon arches; the DJ
+  and speaker towers; the buffet with chafing dishes and coolers; strings of bulbs and coloured
+  floor lights. The back room has a leather-chaired desk and the envelope.
+- **Safe house:**
+  - The living room: a rug, a sofa set with cushions, a glass table with a doily, the TV, a fan,
+    family photos, "GOD BLESS OUR HOME" and curtains.
+  - The kitchen corner: gas cylinder, stove, pots, water drum.
+  - Mama Àgbà's room: a bed under a mosquito net, and the banded iron box.
+  - Kemi's room: law books and a desk lamp.
+  - The yard: a sliding gate, a washing line of ankara and a security light.
+- **Gala:** a skirting and gold cornice, columns on plinths, velvet curtains at tall windows,
+  chandeliers, white-and-gold banquet tables with Chiavari chairs, the stage with the campaign
+  banner, and stairs to the gallery where the senator ends up. Money is on the floor and chairs
+  are knocked over. The terrace has a pool and potted palms.
+- **Yacht:** a stepped bow, the boot stripe, lit portholes, a caulked teak deck (shinier in
+  rain), the glowing saloon, a flybridge and radar mast, navigation lights, rails with
+  stanchions, the stern sofa, loungers, life rings and the swim platform.
+
+**Visuals:**
+- **Vehicles:**
+  - Headlights, tail and brake lights that brighten when slowing hard, mirrors and number plates,
+    as one extra mesh per vehicle culled at 70 m.
+  - Boats get navigation lights and a wake.
+  - A soft headlight beam after dark.
+- **Materials:**
+  - Fabric is matt, wood has a low sheen, painted metal and chrome shine, glass is
+    see-through.
+  - Roads and pavements darken and shine when wet, but stay restrained.
+- **Contact shadows** (`Blob3D`, no decals in Compatibility): a soft dark oval under people,
+  Dayo, vehicles, props and stalls, and a dark fringe round every building's base.
+- **Street detail** (`StreetDetail3D`, densest round landmarks), batched into City3D's chunks:
+  - Asphalt patches.
+  - Open gutters with a concrete lip and dark water.
+  - Sagging cables from pole to pole.
+  - Litter: sachets, nylon bags, cans, paper.
+  - Puddles that fill and shine in the rain.
+  - Plain shops get painted signs ("MAMA PUT", "POS · TRANSFER · WITHDRAWAL", "GOD'S GRACE
+    STORES"…).
+  - Shop windows glow warm at night.
+- **Regions:**
+  - Each region has its own haze, sky, sun colour and saturation: Lagos coastal, Abeokuta clear,
+    Kano dusty harmattan, the Delta humid grey-green, Anambra lush.
+  - Vegetation differs: Abeokuta has mangoes and rocks, Kano has no palms, the Delta has palm
+    clusters, Anambra has palm clusters and mangoes.
+  - Kano's old city is built of code-made mud-brick houses and shops with horned parapets
+    (zanko).
+
+**Gameplay:**
+- **Handling per vehicle:**
+  - Danfos are heavy.
+  - Buses, trucks and tankers are slow to stop and hiss their air brakes.
+  - Okadas are agile and lean into turns.
+  - Kekes roll and wobble.
+  - Boats coast and slide, lose speed in turns and lift their bows.
+  - Horses stop on a coin.
+  - Suspension pitches, squats and rolls; tyres squeal on a hard stop or slide.
+- **Traffic:**
+  - AI overtakes slow vehicles when the oncoming lane is clear, eases off at junctions without
+    lights, honks and shouts at Dayo when he blocks it, and moves on when he honks.
+  - HORN (or H) in a vehicle makes people step aside.
+  - A scrape: the other driver stops and shouts. SETTLE ₦2,000 (Respect +1), or drive off
+    (Respect −1).
+  - Hit a pedestrian: they're knocked down, get up angry, and witnesses call the police.
+- **Police in stages:**
+  - SPOTTED, then PURSUIT while a unit can see you (70 m and a clear line).
+  - SEARCH once they lose you: a circle on the minimap round where you were last seen. Units comb
+    it, and swapping vehicles out of sight fools them. The search ends with a star lost.
+  - ESCAPED.
+  - Units have flashing light bars. Boxed in, you choose: settle, or run (another star).
+- **Side jobs:**
+  - Deliveries with one to three drops, some fragile (vehicle damage cuts the pay).
+  - Passengers who want careful driving, are late (a tight clock and a bonus), or want a stop
+    on the way.
+  - Each job board remembers your record: pay rises up to 30%, every third success in a row
+    pays a streak bonus, and a failure costs Respect.
+- **Mission feedback:**
+  - An objective arrow at the screen edge (a marker over the objective when it's on screen),
+    with its distance.
+  - Prompt tags over what you can use.
+  - A red wedge pointing to whoever hit you.
+  - MISSION FAILED says why, with a tip (for example: "A guard spotted you. Keep out of the
+    torch beams, walk, and wait for them to turn.").
+- **Exploration (`Explore3D`):**
+  - 16 Lagos Stories (a gold ✦): lore, Respect, money, papers or rounds.
+  - 12 stashes behind buildings: cash, rounds, a jerrycan, vehicle papers, a charm.
+  - Street encounters: a pickpocket to chase, spilled oranges, a fight to break up, a stalled
+    danfo to push.
+  - Counts are on the Street life page.
+- **New synthesised sounds:** skid, warden's whistle, air brake, and a chime for finds.

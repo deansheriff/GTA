@@ -25,8 +25,8 @@ const CATALOG := {
 ## Props that block movement (umbrellas and beach umbrellas you can walk under).
 ## Collision radius (px) of each solid prop. Props used to block their whole 64 px cell, an
 ## invisible wall that reached into the road beside every pole (owner: "stuck near a street pole").
-const PROP_RADIUS := { "pole": 9.0, "transformer": 16.0, "generator": 20.0, "kiosk": 30.0, "tyres": 18.0, "mango": 16.0, "palm": 12.0, "palm-cluster": 22.0, "drum-chairs": 20.0, "orange-tray": 16.0, "canoe": 30.0, "nets": 20.0, "fish-baskets": 18.0, "coconut-cart": 22.0 }
-const SOLID_PROPS := ["pole", "transformer", "generator", "kiosk", "tyres", "mango", "palm", "palm-cluster", "drum-chairs", "orange-tray", "canoe", "nets", "fish-baskets", "coconut-cart"]
+const PROP_RADIUS := { "rock": 26.0, "pole": 9.0, "transformer": 16.0, "generator": 20.0, "kiosk": 30.0, "tyres": 18.0, "mango": 16.0, "palm": 12.0, "palm-cluster": 22.0, "drum-chairs": 20.0, "orange-tray": 16.0, "canoe": 30.0, "nets": 20.0, "fish-baskets": 18.0, "coconut-cart": 22.0 }
+const SOLID_PROPS := ["rock", "pole", "transformer", "generator", "kiosk", "tyres", "mango", "palm", "palm-cluster", "drum-chairs", "orange-tray", "canoe", "nets", "fish-baskets", "coconut-cart"]
 
 var cols := 0
 var rows := 0

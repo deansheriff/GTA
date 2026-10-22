@@ -3,7 +3,7 @@ extends Node
 ## licences are needed; licensed music can replace the loops later under the same names).
 ## Three buses (Music, SFX, Ambience) with volumes from Settings prefs.
 
-const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify", "siren", "splash", "thunder", "static", "sizzle", "punch", "gunshot", "gunshot_far", "reload"]
+const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify", "siren", "splash", "thunder", "static", "sizzle", "punch", "gunshot", "gunshot_far", "reload", "skid", "whistle", "airbrake", "find"]
 
 var _sfx := {} # name -> AudioStream
 var _pool: Array[AudioStreamPlayer] = []

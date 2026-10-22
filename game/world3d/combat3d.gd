@@ -224,7 +224,7 @@ func _boss_sweep(e: Dictionary) -> void:
 	to.y = 0.0
 	var fwd := Vector3(sin(n.rotation.y), 0, cos(n.rotation.y))
 	if to.length() < 2.9 and to.normalized().dot(fwd) > 0.3:
-		hurt_player(int(TYPES["boss"]["dmg"]))
+		hurt_player(int(TYPES["boss"]["dmg"]), n.position)
 		world.fx.hitstop(0.08)
 
 
@@ -265,10 +265,11 @@ func _enemy_shot(from: Vector3, d: float, after: float) -> void:
 	Sound.sfx("gunshot_far", _rng.randf_range(0.9, 1.1))
 	_panic(from)
 	if hit:
+		world.hud.guide.hit_from(from)
 		if world.ride:
 			world.ride.damage(4.0)
 		else:
-			hurt_player(1)
+			hurt_player(1, from)
 
 
 ## A hostile boat or car's gunner fires at Dayo.
@@ -276,7 +277,9 @@ func vehicle_fires(v: Vehicle3D) -> void:
 	_enemy_shot(v.position + Vector3(0, 1.6, 0), v.position.distance_to(world.focus()), 0.0)
 
 
-func hurt_player(n: int) -> void:
+func hurt_player(n: int, from := Vector3.INF) -> void:
+	if from != Vector3.INF:
+		world.hud.guide.hit_from(from)
 	# The Ìrókò charm (Baba Fakunle): some blows just don't land. Magic or adrenaline? Who knows.
 	if world.roam and world.roam.buffs.has("iroko") and _rng.randf() < 0.3:
 		world.fx.pop(world.player.position, "Ìrókò", Color("#9fe0ff"))
@@ -296,7 +299,7 @@ func _land_enemy_hit(e: Dictionary) -> void:
 	if not active or int(e["hp"]) <= 0 or not is_instance_valid(e["node"]):
 		return
 	if (e["node"] as Node3D).position.distance_to(world.player.position) <= ENEMY_REACH + 0.4:
-		hurt_player(int(TYPES.get(e["type"], TYPES["thug"])["dmg"]))
+		hurt_player(int(TYPES.get(e["type"], TYPES["thug"])["dmg"]), (e["node"] as Node3D).position)
 		Sound.sfx("punch", 0.8)
 
 

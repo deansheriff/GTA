@@ -66,6 +66,23 @@ Original plan:
   the pause menu.
 - **Autopilot** plays the whole story end to end on both branches of every choice.
 
+## P7 · Polish ✅ (2026-10-22, D-032)
+- **Interiors:** the police cell, the owambe, the safe house, the gala and the yacht are fully
+  furnished and lit, with ceilings that keep the camera inside.
+- **Visuals:**
+  - Vehicle lights, mirrors, plates, brake lights and beams.
+  - Contact shadows.
+  - Street detail: patches, gutters, cables, litter, puddles, shop signs and warm windows.
+  - Wet streets in the rain.
+  - Each region has its own light, vegetation and (Kano) mud-brick architecture.
+- **Play:**
+  - Handling per vehicle, with suspension and braking feedback.
+  - Overtaking, horns, scrapes and knocked-down pedestrians.
+  - Police in readable stages with a search circle.
+  - Richer side jobs with board reputation.
+  - Objective arrows, prompt tags, damage direction and failure reasons with tips.
+  - Lagos Stories, stashes and street encounters.
+
 ## Cross-cutting work
 - **Map v2 ✅ (D-028):**
   - Lagos widened: Alaba, Festac, Ajegunle, Badagry and the Seme border, Banana Island, and Makoko

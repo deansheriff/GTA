@@ -39,6 +39,7 @@ func setup(lib: Models3D, w) -> void:
 	shape.position.y = 0.85
 	add_child(shape)
 	_lib = lib
+	Blob3D.add(self, Vector2(1.0, 1.0))
 	set_model("dayo")
 	collision_layer = 4
 	collision_mask = 1 | 2

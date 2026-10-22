@@ -97,6 +97,20 @@ func _draw() -> void:
 		var q := _to_screen(Vector2(v.position.x, v.position.z), f, yaw)
 		if q.distance_to(c) < RADIUS - 3.0:
 			draw_circle(q, 2.5, Color(0.55, 0.75, 0.95, 0.9))
+	# The police: their search circle, and each unit flashing red and blue.
+	var pol: Police3D = world.police
+	if pol and pol.stage == Police3D.Stage.SEARCH:
+		var q := _to_screen(Vector2(pol.last_seen.x, pol.last_seen.z), f, yaw)
+		var r: float = pol.search_r * k
+		var cb := bool(Settings.get_pref("colorblind", false))
+		draw_circle(q, minf(r, RADIUS * 2.0), Color(0.3, 0.5, 1.0, 0.18) if cb else Color(0.95, 0.25, 0.2, 0.16))
+		draw_arc(q, minf(r, RADIUS * 2.0), 0, TAU, 40, Color(0.3, 0.5, 1.0, 0.8) if cb else Color(0.95, 0.3, 0.25, 0.75), 2.0)
+	if pol:
+		for u in pol.units:
+			var q := _to_screen(Vector2(u.position.x, u.position.z), f, yaw)
+			if q.distance_to(c) > RADIUS - 6.0:
+				q = c + (q - c).normalized() * (RADIUS - 6.0)
+			draw_circle(q, 4.5, Color(0.95, 0.15, 0.1) if int(Time.get_ticks_msec() / 250) % 2 == 0 else Color(0.2, 0.35, 1.0))
 	# You: an arrow pointing where you face.
 	var face: float = (world.ride.heading - PI * 0.5) if world.ride else (world.player.facing() + PI)
 	var ang := face - yaw # 0 = towards the camera (down), PI = away (up)

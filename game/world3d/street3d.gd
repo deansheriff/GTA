@@ -40,9 +40,11 @@ var fx: Fx3D
 var stealth: Stealth3D
 var roam: FreeRoam3D
 var signals: Signals3D
+var explore: Explore3D
 var region := "lagos" # which map is built: Lagos, or a story region (D-028)
 var prompt_text := "" # a context action a mission or a stall offers (the ACT button shows it)
 var prompt_cb: Callable
+var prompt_at: Variant = null # where the prompt's tag floats (a stall, a pump), or null
 var _built := false
 var _maps := {} # region id -> MapData (Lagos stays cached; one region at a time besides it)
 var _res_t := 0.0
@@ -118,6 +120,9 @@ func _ready() -> void:
 	roam = FreeRoam3D.new()
 	add_child(roam)
 	roam.setup(self)
+	explore = Explore3D.new()
+	add_child(explore)
+	explore.setup(self)
 	signals.message.connect(notify)
 	_register_save()
 	_apply_quality_env()
@@ -135,6 +140,8 @@ func _ready() -> void:
 		_look(shots)
 	elif shots != "" and "--sets" in OS.get_cmdline_user_args():
 		_look_sets(shots)
+	elif shots != "" and "--roam" in OS.get_cmdline_user_args():
+		_roam_qa(shots)
 	elif shots != "":
 		_shots(shots)
 	else:
@@ -344,6 +351,7 @@ func load_region(id: String) -> void:
 	people_n = keep
 	hud.minimap.setup(self)
 	roam.on_region()
+	explore.on_region()
 	_day_night()
 	_built = true
 	await loading.close()
@@ -494,6 +502,105 @@ func clear_ahead(v: Vehicle3D) -> float:
 	return best
 
 
+## AI: is the thing holding me up Dayo (on foot or in his ride)?
+func blocker_is_player(v: Vehicle3D) -> bool:
+	var o: Node3D = ride if ride else player
+	if o == v:
+		return false
+	var fwd := v.forward()
+	var rel := o.position - v.position
+	rel.y = 0.0
+	var ahead := rel.dot(fwd)
+	return ahead > 0.0 and ahead < 14.0 and absf(rel.dot(Vector3(-fwd.z, 0, fwd.x))) < 2.4
+
+
+## AI: is the oncoming lane clear far enough ahead to overtake?
+func oncoming_clear(v: Vehicle3D) -> bool:
+	var fwd := v.forward()
+	var left := Vector3(fwd.z, 0, -fwd.x)
+	for o in vehicles:
+		if o == v:
+			continue
+		var rel := o.position - v.position
+		rel.y = 0.0
+		var ahead := rel.dot(fwd)
+		var lat := rel.dot(left)
+		if ahead > -6.0 and ahead < 45.0 and lat > 1.0 and lat < 6.5:
+			return false
+	return true
+
+
+func is_junction(id: String) -> bool:
+	return (map.road_graph.get(id, []) as Array).size() >= 3
+
+
+var _bump_v: Vehicle3D
+var _bump_t := 0.0
+
+
+## Dayo's ride hit someone's vehicle: they stop and shout, and he can settle it or drive off.
+func on_bump(other: Variant) -> void:
+	if not other is Vehicle3D or missions.running != "" or _bump_t > 0.0:
+		return
+	var v: Vehicle3D = other
+	if v.mode != Vehicle3D.Mode.AI or v.is_wreck:
+		return
+	v.mode = Vehicle3D.Mode.PARKED
+	v.speed = 0.0
+	v.shout(["Ah! You don jam my motor!", "Who teach you drive?", "Pay for my bumper o!"][_rng.randi() % 3], 5.0)
+	_bump_v = v
+	_bump_t = 7.0
+	prompt_text = "SETTLE ₦2,000"
+	prompt_cb = func() -> void:
+		if Life.spend(2000, "Settled a bumper scrape (3D)"):
+			Story.add_respect(1)
+			notify("You settled it. \"God bless you, oga.\"")
+		_end_bump(true)
+
+
+func _end_bump(settled: bool) -> void:
+	if is_instance_valid(_bump_v):
+		_bump_v.mode = Vehicle3D.Mode.AI
+		if not settled:
+			_bump_v.shout("Ole! Thief! Come back here!", 2.5)
+	if not settled:
+		Story.add_respect(-1)
+		notify("You drove off without settling. People talk. (Respect -1)")
+	_bump_v = null
+	_bump_t = 0.0
+	if prompt_text == "SETTLE ₦2,000":
+		prompt_text = ""
+		prompt_cb = Callable()
+
+
+func _bumps(delta: float) -> void:
+	if _bump_v == null:
+		return
+	_bump_t -= delta
+	var gone := not is_instance_valid(_bump_v) or _bump_v.position.distance_to(focus()) > 30.0
+	if _bump_t <= 0.0 or gone:
+		_end_bump(false)
+
+
+## The horn: traffic ahead hurries on, people in the way step aside.
+func horn() -> void:
+	if ride == null:
+		return
+	Sound.sfx("horn", 1.0)
+	var fwd := ride.forward()
+	for v in vehicles:
+		if v == ride or v.mode != Vehicle3D.Mode.AI:
+			continue
+		var rel := v.position - ride.position
+		if rel.dot(fwd) > 0.0 and rel.length() < 25.0:
+			v.speed = maxf(v.speed, v.cruise)
+			v.shout(["Ehn, I dey go!", "Wetin?", "Patience!"][_rng.randi() % 3], 1.6)
+	for p in people:
+		var rel := p.position - ride.position
+		if rel.dot(fwd) > 0.0 and rel.length() < 14.0:
+			p.flee(ride.position, fwd)
+
+
 # ---------- the story's stage directions (Mission3D calls these) ----------
 
 ## A step's position: "landmark:id", "node:id", "set:anchor", "player", or [x, z] metres; plus
@@ -627,6 +734,19 @@ func spawn_owned(kind: String, pos: Vector3) -> Vehicle3D:
 	v.reset_physics_interpolation()
 	vehicles.append(v)
 	return v
+
+
+## The nearest walkable ground to a point (a story spot that fell in the lagoon comes ashore).
+func land_near(pos: Vector3) -> Vector3:
+	if not is_water_at(pos):
+		return pos
+	for r in range(1, 30):
+		for k in 16:
+			var q := pos + Vector3(cos(k * TAU / 16.0), 0, sin(k * TAU / 16.0)) * r * 2.0
+			if not is_water_at(q):
+				q.y = terrain.height_at(q)
+				return q
+	return pos
 
 
 ## The nearest open water to a point (boats are launched there, not on the shore).
@@ -906,6 +1026,7 @@ func _physics_process(delta: float) -> void:
 	for p in people:
 		p.step(delta)
 	_crossings(delta)
+	_bumps(delta)
 	_anim_lod(delta)
 	if ride and absf(ride.speed) > 3.0:
 		_scatter(ride)
@@ -918,8 +1039,11 @@ func _physics_process(delta: float) -> void:
 	stealth.step(delta)
 	fx.step(delta)
 	roam.step(delta)
+	explore.step(delta)
 	combat.step(delta)
 	hud.prompt(prompt_text if not _controls_locked() else "")
+	if prompt_text == "":
+		prompt_at = null
 	hud.fight_mode(combat.active, combat.player_hp)
 	hud.gun_mode(combat.armed and (combat.active or ride == null), combat.clip, combat.reserve)
 	player.show_gun(combat.armed and ride == null)
@@ -1030,14 +1154,23 @@ func _crossings(delta: float) -> void:
 				k += 1
 
 
-## People in front of a moving player vehicle dive out of the way.
+## People in front of a moving player vehicle dive out of the way; anyone too slow is knocked
+## down (no blood: they get up, angry), and witnesses call the police.
 func _scatter(v: Vehicle3D) -> void:
 	var fwd := v.forward() * signf(v.speed)
 	for p in people:
 		var rel := p.position - v.position
 		rel.y = 0.0
 		var ahead := rel.dot(fwd)
-		if ahead > 0.0 and ahead < 4.0 + absf(v.speed) * 0.6 and absf(rel.dot(Vector3(-fwd.z, 0, fwd.x))) < 2.2:
+		var lat := absf(rel.dot(Vector3(-fwd.z, 0, fwd.x)))
+		if ahead > 0.0 and ahead < v.length * 0.5 + 0.6 and lat < 1.3 and absf(v.speed) > 6.0 and p.state != Person3D.State.PAUSE:
+			p.knock(fwd)
+			Sound.sfx("punch", 0.6)
+			if missions.running == "":
+				police.raise(0.6)
+				Story.add_respect(-1)
+				notify("You hit someone! They're up, but witnesses are calling the police.")
+		elif ahead > 0.0 and ahead < 4.0 + absf(v.speed) * 0.6 and lat < 2.2:
 			p.flee(v.position, fwd)
 
 
@@ -1263,9 +1396,24 @@ func _naira(n: int) -> String:
 
 
 ## Sun, sky and haze follow the game clock; the story can force night (the prologue).
+## Each region's own light and air (D-032): Lagos's coastal haze, Abeokuta's clear green hills,
+## Kano's dusty harmattan, the Delta's humid grey-green, Anambra's lush village light.
+const REGION_LOOK := {
+	"lagos": { "fog": "#d9dcd2", "top": "#4f8fd0", "horizon": "#d6e4ea", "sun": "#fff1d8", "near": 90.0, "far": 175.0, "sat": 1.1, "sun_e": 1.35 },
+	"abeokuta": { "fog": "#dfe6d6", "top": "#4a92d8", "horizon": "#dfeaf0", "sun": "#fff4e0", "near": 110.0, "far": 210.0, "sat": 1.12, "sun_e": 1.35 },
+	"kano": { "fog": "#dcc29a", "top": "#8fa9c0", "horizon": "#e6cfa2", "sun": "#ffe2b0", "near": 55.0, "far": 140.0, "sat": 0.95, "sun_e": 1.45 },
+	"delta": { "fog": "#b8c4b0", "top": "#7896a8", "horizon": "#c4cfc4", "sun": "#f4f0e0", "near": 60.0, "far": 150.0, "sat": 1.05, "sun_e": 1.15 },
+	"anambra": { "fog": "#d6e2cc", "top": "#4c8fcf", "horizon": "#d8e6e0", "sun": "#fff0d4", "near": 100.0, "far": 200.0, "sat": 1.18, "sun_e": 1.3 },
+}
+var wet := 0.0 # how soaked the streets are (rain darkens them and fills the puddles)
+
+
+## Sun, sky and haze follow the game clock and the region; the story can force night (the
+## prologue). Rain darkens the roads and fills the puddles; shop windows glow after dark.
 func _day_night() -> void:
 	if _sun == null:
 		return
+	var look: Dictionary = REGION_LOOK.get(region, REGION_LOOK["lagos"])
 	var hours: float = float(Clock.hour()) + float(Clock.minute()) / 60.0
 	var dark: float = clamp(float(Clock.darkness()), 0.0, 1.0)
 	if stage and stage.night:
@@ -1275,17 +1423,27 @@ func _day_night() -> void:
 	var day_t := clampf((hours - 6.0) / 12.0, 0.0, 1.0)
 	_sun.rotation_degrees.x = -(10.0 + sin(day_t * PI) * 62.0)
 	_sun.rotation_degrees.y = lerpf(-90.0, 90.0, day_t)
+	var raining: bool = stage != null and stage.raining
 	# Night stays readable (phone feedback): a cool moonlight and a blue ambient fill, not black.
-	_sun.light_energy = lerpf(1.35, 0.4, dark)
-	_sun.light_color = Color("#fff1d8").lerp(Color("#9fb4e8"), dark)
+	_sun.light_energy = lerpf(float(look["sun_e"]), 0.4, dark) * (0.6 if raining else 1.0)
+	_sun.light_color = Color(String(look["sun"])).lerp(Color("#9fb4e8"), dark)
 	_env.ambient_light_sky_contribution = lerpf(1.0, 0.25, dark)
 	_env.ambient_light_color = Color(0.34, 0.4, 0.56)
 	_env.ambient_light_energy = lerpf(0.8, 1.0, dark)
 	_env.tonemap_exposure = lerpf(0.95, 1.25, dark)
-	var rain_k := 0.35 if stage and stage.raining else 0.0
-	_sky.sky_top_color = Color("#4f8fd0").lerp(Color("#0b1630"), dark).lerp(Color("#3a4048"), rain_k)
-	_sky.sky_horizon_color = Color("#d6e4ea").lerp(Color("#2a3150"), dark).lerp(Color("#4a5058"), rain_k)
-	_env.fog_light_color = Color("#d9dcd2").lerp(Color("#1c2236"), dark)
+	_env.adjustment_saturation = float(look["sat"]) * (0.85 if raining else 1.0)
+	var rain_k := 0.35 if raining else 0.0
+	_sky.sky_top_color = Color(String(look["top"])).lerp(Color("#0b1630"), dark).lerp(Color("#3a4048"), rain_k)
+	_sky.sky_horizon_color = Color(String(look["horizon"])).lerp(Color("#2a3150"), dark).lerp(Color("#4a5058"), rain_k)
+	_env.fog_light_color = Color(String(look["fog"])).lerp(Color("#1c2236"), dark).lerp(Color("#7a8088"), rain_k * (1.0 - dark))
+	_env.fog_depth_begin = float(look["near"]) * q_far * (0.7 if raining else 1.0)
+	_env.fog_depth_end = float(look["far"]) * q_far * (0.8 if raining else 1.0)
+	# Wet streets: soak in a few seconds of rain, dry over a couple of minutes.
+	wet = clampf(wet + (0.5 / 6.0 if raining else -0.5 / 90.0), 0.0, 1.0)
+	terrain.set_wet(wet)
+	city.set_wet(wet)
+	if city.window_mat:
+		city.window_mat.emission_energy_multiplier = 2.4 * clampf((dark - 0.3) * 2.0, 0.0, 1.0)
 
 
 func _unhandled_input(e: InputEvent) -> void:
@@ -1317,6 +1475,8 @@ func _unhandled_input(e: InputEvent) -> void:
 					_punch()
 			KEY_K:
 				_shoot()
+			KEY_H:
+				horn()
 
 
 # ---------- QA ----------
@@ -1437,9 +1597,13 @@ func _look(dir: String) -> void:
 	SaveGame.set_process(false)
 	in_menu = false
 	DirAccess.make_dir_recursive_absolute(dir)
-	var spots: Array = ["node:vi_c", "node:ikeja_c", "node:yaba_c", "node:obalende", "node:lekki_c"]
+	var spots: Array = ["node:vi_c", "node:ikeja_c", "node:yaba_c", "node:obalende", "node:lekki_c", "landmark:oshodi-market", "landmark:alaba-market"]
 	for p in city.debug_spots:
 		spots.append([p.x + 18.0, p.z + 18.0])
+	if "--night" in OS.get_cmdline_user_args():
+		stage.set_env(true, "--rain" in OS.get_cmdline_user_args())
+		wet = 1.0 if stage.raining else 0.0
+		_day_night()
 	for i in spots.size():
 		player.position = resolve({ "at": spots[i], "offset": [4, 4] })
 		player.reset_physics_interpolation()
@@ -1447,6 +1611,77 @@ func _look(dir: String) -> void:
 		_menu_t = 0.8 + i * 1.3
 		await get_tree().create_timer(1.5).timeout
 		await _save(dir + "/look-%d.png" % i)
+	get_tree().quit()
+
+
+## QA: free-roam systems on autopilot: a Lagos Story, a stash, each street encounter, a side job
+## of each kind, the horn, a bump, the police stages, fuel and a hawker; pictures of each.
+##   Godot --path game -- --shots=DIR --roam
+func _roam_qa(dir: String) -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	hud._close_menu() if hud.menu_open() else null
+	in_menu = false
+	Story.done["p0"] = true
+	missions.autopilot = true
+	hud.dialogue.autoplay = true
+	DirAccess.make_dir_recursive_absolute(dir)
+	var s: Dictionary = Explore3D.STORIES[0]
+	player.position = explore._story_pos[s["id"]]
+	await get_tree().create_timer(1.0).timeout
+	await _save(dir + "/roam-story.png")
+	print("roam: story prompt=", prompt_text)
+	if prompt_cb.is_valid():
+		await prompt_cb.call()
+	var st: Dictionary = explore._stashes[0]
+	player.position = (st["pos"] as Vector3) + Vector3(0.8, 0, 0)
+	await get_tree().create_timer(1.0).timeout
+	await _save(dir + "/roam-stash.png")
+	print("roam: stash prompt=", prompt_text)
+	if prompt_cb.is_valid():
+		prompt_cb.call()
+	print("roam: found=", explore.found_count())
+	for kind in ["pickpocket", "oranges", "fight", "danfo"]:
+		player.position = resolve({ "at": "node:yaba_c", "offset": [6, 6] })
+		explore._enc_t = 0.0
+		explore._end_encounter(false)
+		for i in 10:
+			explore._enc_t = 0.0
+			await get_tree().process_frame
+			if not explore._enc.is_empty() and explore._enc["kind"] == kind:
+				break
+			explore._end_encounter(false)
+		await get_tree().create_timer(1.0).timeout
+		await _save(dir + "/roam-enc-%s.png" % kind)
+		print("roam: encounter ", kind, " active=", not explore._enc.is_empty(), " prompt=", explore._enc.get("prompt", ""))
+		explore._end_encounter(false)
+	# Side jobs at a board.
+	for st2: Dictionary in roam.stations:
+		if st2["kind"] == "jobs":
+			for k in 3:
+				roam._side_job(st2)
+				var t := 0.0
+				while roam._side_running and t < 60.0:
+					await get_tree().create_timer(0.5).timeout
+					t += 0.5
+				print("roam: side job ", k, " done, respect=", Story.respect, " rep=", roam.board_rep)
+			break
+	# Driving: horn, police stages, fuel.
+	place_player(resolve({ "at": "node:surulere_c" }), "danfo")
+	horn()
+	police.raise(2.0)
+	for i in 8:
+		await get_tree().create_timer(1.0).timeout
+	await _save(dir + "/roam-police.png")
+	print("roam: police stage=", police.label(), " units=", police.units.size())
+	Story.wanted = 0.0
+	ride.fuel = 0.05
+	stage.set_env(false, true)
+	wet = 1.0
+	_day_night()
+	await get_tree().create_timer(2.0).timeout
+	await _save(dir + "/roam-rain.png")
+	print("roam: done respect=%d money=%d" % [Story.respect, int(Life.money)])
 	get_tree().quit()
 
 
@@ -1458,7 +1693,16 @@ func _look_sets(dir: String) -> void:
 	in_menu = false
 	hud._close_menu() if hud.menu_open() else null
 	DirAccess.make_dir_recursive_absolute(dir)
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--only="):
+			only = a.trim_prefix("--only=")
+	if "--night" in OS.get_cmdline_user_args():
+		stage.set_env(true, "--rain" in OS.get_cmdline_user_args())
+		_day_night()
 	for kind in ["police_cell", "owambe", "stilt_house", "home", "safehouse", "cellar", "gala", "yacht", "rooftops"]:
+		if only != "" and not kind in only.split(","):
+			continue
 		sets.enter(kind)
 		cam_pitch = 0.5
 		await get_tree().create_timer(1.2).timeout
@@ -1468,6 +1712,9 @@ func _look_sets(dir: String) -> void:
 		await _save(dir + "/set-%s-top.png" % kind)
 		sets.leave()
 	cam_pitch = 0.45
+	if only != "":
+		get_tree().quit()
+		return
 	for r in ["abeokuta", "kano", "delta", "anambra"]:
 		await load_region(r)
 		var first: String = map.landmarks.keys()[0]

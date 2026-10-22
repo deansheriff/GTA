@@ -48,6 +48,9 @@ var _hint_text: Label
 var _hint_t := 0.0
 var _hint_queue: Array = []
 var _prompt_shown := ""
+var guide: Guide3D
+var horn_btn: Button
+var police_label: Label
 
 
 func setup(w) -> void:
@@ -133,6 +136,14 @@ func setup(w) -> void:
 # ---------- D-028: prompts, radio, timer, alarm, hit feedback, hints ----------
 
 func _build_extras() -> void:
+	guide = Guide3D.new()
+	_root.add_child(guide)
+	_root.move_child(guide, 1)
+	guide.setup(world)
+	horn_btn = _button("HORN", Vector2(-340, -130))
+	horn_btn.pressed.connect(func() -> void: world.horn())
+	horn_btn.visible = false
+	police_label = _label(Vector2(16, 176), 20, Color("#ff6a5a"))
 	radio_btn = _button("RADIO", Vector2(-340, -370))
 	radio_btn.custom_minimum_size = Vector2(150, 64)
 	radio_btn.offset_bottom = radio_btn.offset_top + 64
@@ -228,7 +239,7 @@ func _build_extras() -> void:
 ## Left-handed layout swaps the stick and the buttons; Text size scales the whole interface.
 func apply_layout() -> void:
 	var left := bool(Settings.get_pref("left_handed", false))
-	for b: Button in [act_btn, run_btn, punch_btn, shoot_btn, radio_btn]:
+	for b: Button in [act_btn, run_btn, punch_btn, shoot_btn, radio_btn, horn_btn]:
 		if b == null:
 			continue
 		if not b.has_meta("x"):
@@ -254,8 +265,16 @@ func prompt(text: String) -> void:
 		_prompt_shown = want
 		act_btn.text = want
 		act_btn.add_theme_color_override("font_color", Color("#f6d04d") if text != "" else UiStyle.PAPER)
-		act_btn.add_theme_font_size_override("font_size", 24 if want.length() <= 8 else (18 if want.length() <= 13 else 14))
+		act_btn.add_theme_font_size_override("font_size", 24 if want.length() <= 8 else 18)
+		# Long prompts widen the button inwards, away from the screen edge.
+		var w := maxf(150.0, want.length() * 11.5 + 24.0)
+		if act_btn.anchor_left == 1.0:
+			act_btn.offset_left = act_btn.offset_right - w
+		else:
+			act_btn.offset_right = act_btn.offset_left + w
 	radio_btn.visible = world.ride != null and not menu_open() and not dialogue.visible
+	horn_btn.visible = world.ride != null and not world.ride.on_water and not menu_open() and not dialogue.visible and not world.combat.active
+	police_label.text = world.police.label() if world.police else ""
 	var st: float = world.player.stamina
 	_stamina.visible = st < 0.99 and world.ride == null and not menu_open()
 	_stamina.value = st
@@ -377,12 +396,14 @@ LOOK: drag on the right of the screen (right mouse button): left/right turns the
 ENTER / EXIT: get into the nearest vehicle or out of it (E or F). The button also does what the moment needs: FUEL, REPAIR, SNAP PHOTO, EAT, SIDE JOB, DANCE...
 PUNCH (J or Space) in a fight; from behind, a guard goes down silently.
 SHOOT (K or left click) once you have the pistol: it aims at the target with the red ring.
-RADIO in a vehicle: Radio Gbedu on or off.
+RADIO in a vehicle: Radio Gbedu on or off. HORN (H): traffic moves on, people step aside.
 PAUSE: the II button (Esc, or your phone's back button).
 
 DANFO: stop at a bus stop and passengers climb in; drive to their stop (the yellow beacon) and stop to collect. The bus owner wants ₦8,000 delivery every day.
 CHECKPOINTS: slow down and you settle the roger; blast through and they take your number.
-WANTED: stars bring police pickups. Get out of sight to lose them.
+WANTED: stars bring police pickups. PURSUIT while they can see you; break their line of sight and they SEARCH the circle on the minimap. Stay out of it until they give up. Change vehicles out of sight to fool them.
+SCRAPES: hit someone's car and they'll want settling. Drive off and people talk.
+EXPLORE: a gold ✦ marks a Lagos Story; sacks behind buildings hide stashes; people in the street may need a hand.
 FUEL: every ride burns it. Stop at a filling station. Mechanics fix damage.
 FOOD: Mama Àgbà's stall by the house heals and keeps you running.
 COVER: stand still against a wall in a gunfight and they hit you far less.
@@ -406,6 +427,9 @@ func _street_panel() -> Control:
 		lines.append("No more deliveries: nobody collects for Ọkpụ again." if r.postgame == "" else "Post-game: %s" % r.postgame)
 	lines.append("Respect %d · Wanted %d" % [Story.respect, int(ceil(Story.wanted - 0.01))])
 	lines.append("Vehicles you own: %s" % (", ".join(r.owned) if not r.owned.is_empty() else "the danfo (Uncle Obi's)"))
+	if world.explore:
+		var c: Array = world.explore.found_count()
+		lines.append("Lagos Stories found: %d of %d · Stashes found: %d of %d" % c)
 	lines.append("")
 	lines.append("RESPECT PERKS")
 	lines.append_array(r.perk_lines())
@@ -478,6 +502,8 @@ func _build_title() -> void:
 	_title_sub.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_title_sub.offset_top = 56
 	_title_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_title_sub.custom_minimum_size = Vector2(900, 0)
 	_style(_title_sub, 26, UiStyle.PAPER)
 	_title.add_child(_title_sub)
 
@@ -586,6 +612,7 @@ func show_menu(has_save: bool) -> void:
 		(c as CanvasItem).visible = false
 	if radio_btn:
 		radio_btn.visible = false
+		horn_btn.visible = false
 
 
 func menu_open() -> bool:

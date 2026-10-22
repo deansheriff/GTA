@@ -32,6 +32,7 @@ var autopilot := false
 var running := ""
 var _abort := false
 var _roof := {} # the vehicle roof Dayo boarded: {center, fwd, y}
+var _fail := "" # why the last step failed (shown on MISSION FAILED, with a tip)
 
 
 func setup(w) -> void:
@@ -70,7 +71,7 @@ func run(id: String, resume := 0) -> void:
 				Story.checkpoint = i
 				world._save_game()
 		else:
-			await world.show_title("MISSION FAILED", _fail_text(st), 2.2, Color("#e8483a"))
+			await world.show_title("MISSION FAILED", _fail_text(st), 3.4, Color("#e8483a"))
 	world.set_objective("", null)
 	world.clear_actors()
 	world.clear_mission_vehicles()
@@ -116,6 +117,7 @@ func abort() -> void:
 func _run_one(st: Dictionary) -> bool:
 	var snap: Vector3 = world.player.position
 	var set_was: String = world.sets.active
+	_fail = ""
 	var ok: bool = await _step(st)
 	if not ok:
 		world.combat.clear()
@@ -126,12 +128,10 @@ func _run_one(st: Dictionary) -> bool:
 
 
 func _fail_text(st: Dictionary) -> String:
-	match String(st.get("do", "")):
-		"escape", "still", "stealth", "blend": return "They caught you. Try again."
-		"fight", "waves", "escort": return "You were knocked out. Try again."
-		"goto": return "Out of time. Try again." if st.has("time") else "Try again."
-		"rooftop", "chase", "follow": return "You lost them. Try again."
-		"boatfight": return "Your boat went down. Try again."
+	if _fail != "":
+		var t := _fail
+		_fail = ""
+		return t
 	return "Try again."
 
 
@@ -364,6 +364,7 @@ func _goto(st: Dictionary) -> bool:
 			if t > limit:
 				world.hud.timer(-1.0)
 				world.set_objective("", null)
+				_fail = "Out of time. Take the shortest roads, and keep off the go-slow."
 				return false
 	world.hud.timer(-1.0)
 	world.set_objective("", null)
@@ -379,6 +380,7 @@ func _still(st: Dictionary) -> bool:
 		t -= world.get_process_delta_time()
 		if not autopilot and world.player.position.distance_to(start) > 1.2:
 			world.set_objective("", null)
+			_fail = "You moved. Stay still until it passes."
 			return false
 	world.set_objective("", null)
 	return true
@@ -505,6 +507,7 @@ func _waves(st: Dictionary) -> bool:
 		if not won:
 			world.combat.clear()
 			world.set_objective("", null)
+			_fail = "You were knocked out. Stand against a wall when they shoot: cover."
 			return false
 		await world.get_tree().create_timer(1.2).timeout
 		world.combat.clear()
@@ -540,9 +543,11 @@ func _chase(st: Dictionary) -> bool:
 				break
 		if d > 260.0:
 			world.set_objective("", null)
+			_fail = "They got away. Stay close and ram them before they pull ahead."
 			return false
 		if world.ride and world.ride.is_wreck:
 			world.set_objective("", null)
+			_fail = "They got away. Stay close and ram them before they pull ahead."
 			return false
 	world.prompt_text = ""
 	world.set_objective("", null)
@@ -578,6 +583,7 @@ func _pursuit(st: Dictionary) -> bool:
 			world.set_objective("", null)
 			world.combat.hostile_vehicles.clear()
 			world.clear_mission_vehicles()
+			_fail = "Your ride is wrecked. Avoid head-on hits and keep moving."
 			return false
 	world.combat.hostile_vehicles.clear()
 	world.clear_mission_vehicles()
@@ -620,6 +626,7 @@ func _follow(st: Dictionary) -> bool:
 		if far_t > 6.0 and not autopilot:
 			world.set_objective("", null)
 			world.run.story_target = null
+			_fail = "You lost them. Keep the lead vehicle in sight."
 			return false
 	if autopilot:
 		world.teleport_ride(lead.position - lead.forward() * 9.0)
@@ -658,6 +665,7 @@ func _escort(st: Dictionary) -> bool:
 		if world.combat.player_hp <= 0:
 			world.combat.clear()
 			world.set_objective("", null)
+			_fail = "You were knocked out. Deal with the gunmen before you move on."
 			return false
 		if Vector2(p.x - target.x, p.z - target.z).length() <= r:
 			break
@@ -712,6 +720,7 @@ func _stealth(st: Dictionary) -> bool:
 			return await _fight({ "text": "Spotted! Fight your way through.", "enemies": specs })
 		world.stealth.end()
 		world.set_objective("", null)
+		_fail = "A guard spotted you. Keep out of the torch beams, walk, and wait for them to turn."
 		return false
 	world.stealth.end()
 	world.set_objective("", null)
@@ -767,6 +776,7 @@ func _rooftop(st: Dictionary) -> bool:
 			if lost > 5.0:
 				world.set_objective("", null)
 				world.despawn_actor("runner")
+				_fail = "He got away. Run, don't walk: running jumps the gaps."
 				return false
 	Models3D.play(runner.ap, "idle", "")
 	world.set_objective("", null)
@@ -874,6 +884,7 @@ func _blend(st: Dictionary) -> bool:
 			world.set_objective("", null)
 			for k in aunties.size():
 				world.despawn_actor("auntie%d" % k)
+			_fail = "Your cover was blown. Spray money, dance when the drummer calls, avoid the aunties."
 			return false
 	world.prompt_text = ""
 	world.prompt_cb = Callable()
@@ -917,6 +928,7 @@ func _boatfight(st: Dictionary) -> bool:
 			world.clear_mission_vehicles()
 			world.set_objective("", null)
 			world.combat.player_hp = Combat3D.PLAYER_MAX
+			_fail = "Your boat went down. Keep moving so their shots miss."
 			return false
 	world.combat.hostile_vehicles.clear()
 	world.set_objective("", null)

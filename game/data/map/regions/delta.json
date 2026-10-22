@@ -160,7 +160,8 @@
    "props": {
     "canoe": 2,
     "nets": 2,
-    "palm": 3,
+    "palm-cluster": 4,
+    "palm": 2,
     "fish-baskets": 2
    }
   },
@@ -176,7 +177,8 @@
     "fisher-hut": 1
    },
    "props": {
-    "palm": 2
+    "palm-cluster": 3,
+    "generator": 1
    }
   }
  ],
