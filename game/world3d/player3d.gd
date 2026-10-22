@@ -55,7 +55,7 @@ func set_model(key: String) -> void:
 	model_key = key
 	var got: Array = [null, null]
 	for k in [key, "dayo", "tunde", "walker"]:
-		got = _lib.person(k, 1.75)
+		got = _lib.person(k, 1.75, 2) # Dayo's own skin tone
 		if got[0] != null:
 			break
 	model = got[0] if got[0] != null else _figure()

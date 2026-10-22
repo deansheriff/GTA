@@ -83,6 +83,15 @@ Original plan:
   - Objective arrows, prompt tags, damage direction and failure reasons with tips.
   - Lagos Stories, stashes and street encounters.
 
+## P8 · Characters, map, riders, dialogue camera, sound ✅ (2026-10-22, D-033)
+- **Characters:** Quaternius's clothed CC0 characters (skin recoloured to Nigerian tones) replace
+  every Meshy person and the whole cast.
+- **Controls and map:** a floating joystick, and a full-screen map with waypoints.
+- **Riders:** Dayo seated in every vehicle; riders on traffic okadas, kekes and horses.
+- **Dialogue camera:** over-the-shoulder conversation shots.
+- **Sound:** positional sounds and sirens, market, shore and generator ambience, region beds,
+  three radio tracks and a talk station, and character voices.
+
 ## Cross-cutting work
 - **Map v2 ✅ (D-028):**
   - Lagos widened: Alaba, Festac, Ajegunle, Badagry and the Seme border, Banana Island, and Makoko
@@ -101,9 +110,8 @@ Original plan:
   - Save and pause on switching apps; the back button.
   - A 30 fps cap on Low or Battery saver, and dynamic resolution.
   - The AAB preset at 3.0.0 (code 300).
-- **Cast models 🔒:** 14 characters are queued in `tools/art/meshy-spec.json` for the Meshy
-  credit reset on 2026-11-18. Restyled stand-ins play them until then, and the game switches to
-  the real models automatically.
+- **Cast models ✅ (D-033):** the cast now uses the free Quaternius characters. The Meshy queue in
+  `tools/art/meshy-spec.json` is optional now.
 - **Language 🔒:** a native-speaker review of the Pidgin, Yoruba, Igbo and Hausa lines in
   `docs/review/eko-lines-for-review.csv`.
 - **Device testing 🔒:** `docs/qa/DEVICE_QA.md`.

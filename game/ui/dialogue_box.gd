@@ -4,6 +4,9 @@ extends Control
 ## In autoplay (demo, tests) lines advance by themselves and the first choice is taken.
 
 signal _advance
+signal line_shown(who: String) # a new line is on screen (the dialogue camera and voices follow it)
+signal started
+signal finished
 signal _chosen(choice: Dictionary)
 
 const INK := Color("#1d1611")
@@ -13,6 +16,7 @@ const CPS := 55.0 # typewriter characters per second
 
 var autoplay := false
 var auto_choice := 0
+var auto_delay := 0.12 # seconds per line in autoplay
 var _portrait: TextureRect
 var _initial: Label
 var _name: Label
@@ -158,6 +162,7 @@ func _finish_typing() -> void:
 func play(lines: Array) -> Array:
 	var picked: Array = []
 	visible = true
+	started.emit()
 	_skipping = false
 	var queue: Array = lines.duplicate()
 	while not queue.is_empty():
@@ -168,7 +173,7 @@ func play(lines: Array) -> Array:
 			if _skipping:
 				continue
 			if autoplay:
-				await get_tree().create_timer(0.12).timeout
+				await get_tree().create_timer(auto_delay).timeout
 			else:
 				await _advance
 			continue
@@ -198,11 +203,13 @@ func play(lines: Array) -> Array:
 		var reply: Array = chosen.get("reply", [])
 		queue = reply + queue
 	visible = false
+	finished.emit()
 	return picked
 
 
 func _show(line: Dictionary) -> void:
 	var who: String = line.get("who", "")
+	line_shown.emit(who)
 	var info := Story.who(who)
 	_name.text = String(info.get("name", who))
 	var col := Color(String(info.get("colour", "#e0a91c")))

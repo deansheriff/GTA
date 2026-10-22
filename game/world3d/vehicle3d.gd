@@ -52,6 +52,7 @@ var _skid_cool := 0.0
 var _bubble: Label3D
 var _bubble_t := 0.0
 var _overtake := 0.0 # seconds left in an overtake
+var rider: Node3D # whoever sits at the wheel or on the saddle (Seat3D)
 var _lane_off := 0.0
 var _lane_prev := 0.0
 
@@ -226,6 +227,24 @@ static func _beam_mat() -> StandardMaterial3D:
 	return _beam_shared
 
 
+## Put someone in the driver's seat (or on the saddle), seated (Seat3D). key "" empties it.
+func set_rider(lib: Models3D, key: String, tone := 2) -> void:
+	clear_rider()
+	if key == "" or _model == null:
+		return
+	rider = Seat3D.make_rider(lib, key, kind, tone)
+	if rider:
+		_model.add_child(rider)
+		Models3D.far_cull(rider, 70.0)
+		Seat3D.apply.call_deferred(rider)
+
+
+func clear_rider() -> void:
+	if rider and is_instance_valid(rider):
+		rider.queue_free()
+	rider = null
+
+
 ## A line over a vehicle for a moment ("Comot for road!").
 func shout(text: String, secs := 2.0) -> void:
 	if _bubble == null:
@@ -330,7 +349,10 @@ func _move(delta: float) -> void:
 				_bump_t = 0.5
 				(other as Vehicle3D).damage(impact * 2.6)
 				damage(impact * 0.9)
-				Sound.sfx("crash", randf_range(0.9, 1.1))
+				if mode == Mode.PLAYER:
+					Sound.sfx("crash", randf_range(0.9, 1.1))
+				else:
+					Sound.sfx_at("crash", position, randf_range(0.9, 1.1))
 				if world and world.has_method("shake"):
 					world.shake(0.25)
 				if mode == Mode.PLAYER and world.has_method("on_bump"):
@@ -501,7 +523,7 @@ func ai_step(delta: float) -> void:
 				if _honk_t > 2.5:
 					_honk_t = -4.0
 					if position.distance_to(world.focus()) < 30.0:
-						Sound.sfx("horn", randf_range(0.9, 1.1))
+						Sound.sfx_at("horn", position, randf_range(0.9, 1.1))
 					shout(["Comot for road!", "Oga, move now!", "You dey sleep?", "Na your papa get road?"][randi() % 4])
 			# Stuck behind a slow vehicle on a long straight: pull out and overtake.
 			elif ahead < 8.0 and _overtake <= 0.0 and to.length() > 40.0 and world.oncoming_clear(self):

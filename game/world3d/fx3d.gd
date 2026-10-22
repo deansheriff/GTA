@@ -53,8 +53,8 @@ func step(delta: float) -> void:
 
 ## A blast: flash of light, fireball, smoke, a shake and a bang. size 1 = a car, 3 = a refinery.
 func explosion(at: Vector3, size := 1.0, burn := 0.0) -> void:
-	Sound.sfx("crash", 0.6)
-	Sound.sfx("thunder", 1.3)
+	Sound.sfx_at("crash", at, 0.6, 4.0)
+	Sound.sfx_at("thunder", at, 1.3, 6.0)
 	world.shake(0.4 + size * 0.25)
 	var light := OmniLight3D.new()
 	light.light_color = Color(1.0, 0.6, 0.25)

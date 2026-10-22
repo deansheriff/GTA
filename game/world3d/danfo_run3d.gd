@@ -115,7 +115,9 @@ func nearest_stop(pos: Vector3) -> int:
 func target() -> Variant:
 	if story_target != null:
 		return story_target
-	return stops[dest]["pos"] if dest >= 0 else null
+	if dest >= 0:
+		return stops[dest]["pos"]
+	return world.waypoint # the player's own waypoint from the map
 
 
 func step(delta: float) -> void:

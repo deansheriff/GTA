@@ -90,6 +90,126 @@
    "id": "4JxDoxLnRd",
    "tris": 6000,
    "use": "LUTH ambulance run (Act III)"
+  },
+  {
+   "key": "p_man",
+   "id": "HMnuH5geEG",
+   "use": "Townsman",
+   "tris": 9000
+  },
+  {
+   "key": "p_business_man",
+   "id": "JFrLIKqvCH",
+   "use": "Businessman, Uncle Obi",
+   "tris": 9000
+  },
+  {
+   "key": "p_man_suit",
+   "id": "mQnGoME1ez",
+   "use": "The senator, the aide",
+   "tris": 9000
+  },
+  {
+   "key": "p_woman",
+   "id": "AQsd9ngvKU",
+   "use": "Townswoman",
+   "tris": 9000
+  },
+  {
+   "key": "p_woman_casual",
+   "id": "jpKRgGDxhk",
+   "use": "Amaka, students",
+   "tris": 9000
+  },
+  {
+   "key": "p_woman_dress",
+   "id": "zMyPlQXBzq",
+   "use": "Kemi, party guests",
+   "tris": 9000
+  },
+  {
+   "key": "p_woman_tank",
+   "id": "XqzeZGB7iU",
+   "use": "Townswoman",
+   "tris": 9000
+  },
+  {
+   "key": "p_worker",
+   "id": "Yg2bQZO6Hj",
+   "use": "Agberos, labourers",
+   "tris": 9000
+  },
+  {
+   "key": "p_farmer",
+   "id": "7pn3R6hPvE",
+   "use": "Elders, Baba Fakunle, villagers",
+   "tris": 9000
+  },
+  {
+   "key": "p_king",
+   "id": "I1gTjmuK2m",
+   "use": "Chiefs, Kongi",
+   "tris": 9000
+  },
+  {
+   "key": "p_swat",
+   "id": "Btfn3G5Xv4",
+   "use": "Police, task force",
+   "tris": 9000
+  },
+  {
+   "key": "p_soldier",
+   "id": "PpLF4rt4ah",
+   "use": "Gunmen, guards",
+   "tris": 9000
+  },
+  {
+   "key": "p_punk",
+   "id": "BTALZymknF",
+   "use": "Bigz, area boys",
+   "tris": 9000
+  },
+  {
+   "key": "p_beach",
+   "id": "DojKLcO34E",
+   "use": "Fishermen, beach",
+   "tris": 9000
+  },
+  {
+   "key": "p_adventurer",
+   "id": "5EGWBMpuXq",
+   "use": "Townsman",
+   "tris": 9000
+  },
+  {
+   "key": "p_anim_woman",
+   "id": "9kF7eTDbhO",
+   "use": "Market woman",
+   "tris": 9000
+  },
+  {
+   "key": "p_anim_woman2",
+   "id": "nIItLV9nxS",
+   "use": "Townswoman",
+   "tris": 9000
+  },
+  {
+   "key": "p_anim_woman3",
+   "id": "qJ2gsTUBHL",
+   "use": "Townswoman",
+   "tris": 9000
+  },
+  {
+   "key": "p_char_anim",
+   "id": "DgOCW9ZCRJ",
+   "use": "Townsman",
+   "tris": 9000
+  },
+  {
+   "key": "p_anim_human",
+   "id": "c3Ibh9I3udk",
+   "use": "Townsman",
+   "tris": 9000
   }
  ]
 }

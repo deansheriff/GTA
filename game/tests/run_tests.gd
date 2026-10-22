@@ -349,10 +349,14 @@ func _test_world3d() -> void:
 		var spec: Dictionary = M.VEHICLES[kind]
 		if not ResourceLoader.exists(String(spec.get("dir", "res://art3d/")) + "%s.glb" % spec["model"]):
 			missing.append(spec["model"])
-	for k: String in M.PEOPLE + ["tunde"]:
-		for f in ["%s.glb", "%s_run.glb"]:
-			if not ResourceLoader.exists("res://art3d/chars/" + f % k):
-				missing.append(f % k)
+	for k: String in M.TOWNSFOLK + ["p_swat", "p_soldier", "p_king"]:
+		if not ResourceLoader.exists("res://art3d/free/%s.glb" % k):
+			missing.append(k)
+	var story_n: Node = root.get_node("Story")
+	for who: String in story_n.cast:
+		var mk := String(story_n.cast[who].get("model", ""))
+		if mk != "" and not (M.new() as RefCounted).has_person(mk):
+			missing.append("cast %s: %s" % [who, mk])
 	for k in ["horse", "helicopter", "pistol", "rock_large", "mountain", "tent", "gazebo", "barrel", "gas_tank", "speedboat", "yacht", "canopy", "ambulance"]:
 		if not ResourceLoader.exists("res://art3d/free/%s.glb" % k):
 			missing.append("free/" + k)
@@ -360,10 +364,20 @@ func _test_world3d() -> void:
 	var lib: RefCounted = M.new()
 	var got: Array = lib.person("walker")
 	var ap: AnimationPlayer = got[1]
-	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run + the shared action pack")
+	check(ap != null and ap.has_animation("run") and ap.has_animation("idle") and ap.has_animation("talk"), "3D people get run, idle and talk clips")
 	if got[0]:
 		(got[0] as Node).free()
-	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d", "loading3d", "sets3d", "fx3d", "stealth3d", "signals3d", "freeroam3d", "blob3d", "guide3d", "street_detail3d"]:
+		got[0] = null
+	for k in ["p_man", "p_worker", "p_soldier", "dayo"]:
+		var g2: Array = lib.person(k)
+		var ap2: AnimationPlayer = g2[1]
+		check(ap2 != null and ap2.has_animation("walk") and ap2.has_animation("punch") and ap2.has_animation("dead") and ap2.has_animation("ride"), "%s has walk, punch, dead and ride clips" % k)
+		var h := Models3D.aabb(g2[0]).size.y
+		check(h > 1.4 and h < 2.2, "%s is human height (%.2f m)" % [k, h])
+		(g2[0] as Node).free()
+	if got[0]:
+		(got[0] as Node).free()
+	for f in ["street3d", "terrain3d", "city3d", "vehicle3d", "person3d", "player3d", "danfo_run3d", "minimap3d", "lights3d", "checkpoint3d", "stage3d", "combat3d", "mission3d", "hud3d", "police3d", "loading3d", "sets3d", "fx3d", "stealth3d", "signals3d", "freeroam3d", "blob3d", "guide3d", "street_detail3d", "mapscreen3d", "seat3d", "talkcam3d", "ambience3d", "explore3d"]:
 		check((load("res://world3d/%s.gd" % f) as GDScript).can_instantiate(), "world3d/%s.gd compiles" % f)
 
 

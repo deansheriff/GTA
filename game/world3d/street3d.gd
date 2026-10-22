@@ -41,10 +41,13 @@ var stealth: Stealth3D
 var roam: FreeRoam3D
 var signals: Signals3D
 var explore: Explore3D
+var talk: TalkCam3D
+var ambience: Ambience3D
 var region := "lagos" # which map is built: Lagos, or a story region (D-028)
 var prompt_text := "" # a context action a mission or a stall offers (the ACT button shows it)
 var prompt_cb: Callable
-var prompt_at: Variant = null # where the prompt's tag floats (a stall, a pump), or null
+var prompt_at: Variant = null
+var waypoint: Variant = null # the player's map waypoint (Vector3) or null # where the prompt's tag floats (a stall, a pump), or null
 var _built := false
 var _maps := {} # region id -> MapData (Lagos stays cached; one region at a time besides it)
 var _res_t := 0.0
@@ -117,6 +120,14 @@ func _ready() -> void:
 	hud.run_changed.connect(func(h: bool) -> void: _run_held = h)
 	hud.new_game.connect(_new_game)
 	hud.continue_game.connect(_continue_game)
+	talk = TalkCam3D.new(self)
+	hud.dialogue.started.connect(talk.begin)
+	hud.dialogue.line_shown.connect(talk.line)
+	hud.dialogue.finished.connect(talk.end)
+	hud.dialogue.line_shown.connect(Sound.babble)
+	ambience = Ambience3D.new()
+	add_child(ambience)
+	ambience.setup(self)
 	roam = FreeRoam3D.new()
 	add_child(roam)
 	roam.setup(self)
@@ -142,6 +153,10 @@ func _ready() -> void:
 		_look_sets(shots)
 	elif shots != "" and "--roam" in OS.get_cmdline_user_args():
 		_roam_qa(shots)
+	elif shots != "" and "--lineup" in OS.get_cmdline_user_args():
+		_lineup(shots)
+	elif shots != "" and "--seats" in OS.get_cmdline_user_args():
+		_seats_qa(shots)
 	elif shots != "":
 		_shots(shots)
 	else:
@@ -312,6 +327,7 @@ func load_region(id: String) -> void:
 	loading.open("On the road to %s" % String(m.get(id, id)))
 	await get_tree().process_frame
 	if ride:
+		ride.clear_rider()
 		ride = null
 		player.visible = true
 		player.collision_layer = 4
@@ -344,14 +360,18 @@ func load_region(id: String) -> void:
 		v.setup(models, (Models3D.TRAFFIC_MIX if id == "lagos" else Models3D.REGION_MIX)[i % (Models3D.TRAFFIC_MIX if id == "lagos" else Models3D.REGION_MIX).size()], self)
 		vehicles.append(v)
 		_reroute(v, 20.0, 160.0)
+		_traffic_rider(v, i)
 	var keep := people_n
 	if id != "lagos":
 		people_n = people_n / 2
 	_spawn_people()
 	people_n = keep
 	hud.minimap.setup(self)
+	hud.map_screen.rebuild()
+	waypoint = null
 	roam.on_region()
 	explore.on_region()
+	ambience.on_region()
 	_day_night()
 	_built = true
 	await loading.close()
@@ -939,6 +959,14 @@ func _spawn_traffic() -> void:
 		v.setup(models, Models3D.TRAFFIC_MIX[i % Models3D.TRAFFIC_MIX.size()], self)
 		vehicles.append(v)
 		_reroute(v, 20.0, 160.0)
+		_traffic_rider(v, i)
+
+
+## Okadas, kekes and horses in traffic carry a rider you can see (cars keep theirs behind glass).
+func _traffic_rider(v: Vehicle3D, i: int) -> void:
+	if v.kind in ["okada", "keke", "horse"]:
+		var men := ["p_man", "p_worker", "p_beach", "p_punk", "p_farmer", "p_adventurer"]
+		v.set_rider(models, men[i % men.size()], i % Models3D.SKIN_TONES.size())
 
 
 ## Put an AI vehicle on a road edge between `near` and `far` metres from the focus.
@@ -961,7 +989,7 @@ func _reroute(v: Vehicle3D, near: float, far: float) -> void:
 
 
 func _spawn_people() -> void:
-	var keys: Array = Models3D.PEOPLE.filter(func(k: String) -> bool: return models.has(k, Models3D.CHARS))
+	var keys: Array = Models3D.TOWNSFOLK.filter(func(k: String) -> bool: return models.has_person(k))
 	people_keys = keys
 	if keys.is_empty():
 		return
@@ -1027,6 +1055,9 @@ func _physics_process(delta: float) -> void:
 		p.step(delta)
 	_crossings(delta)
 	_bumps(delta)
+	if waypoint != null and Vector2(focus().x - (waypoint as Vector3).x, focus().z - (waypoint as Vector3).z).length() < 12.0:
+		waypoint = null
+		notify("You've reached your waypoint.")
 	_anim_lod(delta)
 	if ride and absf(ride.speed) > 3.0:
 		_scatter(ride)
@@ -1040,6 +1071,7 @@ func _physics_process(delta: float) -> void:
 	fx.step(delta)
 	roam.step(delta)
 	explore.step(delta)
+	ambience.step(delta)
 	combat.step(delta)
 	hud.prompt(prompt_text if not _controls_locked() else "")
 	if prompt_text == "":
@@ -1184,6 +1216,12 @@ func _place_camera(delta: float) -> void:
 		cam.position = c + Vector3(sin(_menu_t) * 24.0, 11.0, cos(_menu_t) * 24.0)
 		cam.look_at(c + Vector3(0, 3, 0))
 		return
+	if stage and stage.cam_override == "fixed":
+		return # a scripted shot (QA) has placed the camera
+	if stage and stage.cam_override == "talk":
+		player.visible = ride == null
+		talk.place(cam, delta)
+		return
 	var target: Vector3
 	var dist: float
 	var height: float
@@ -1283,6 +1321,7 @@ func _action() -> void:
 		var side := Vector3(-ride.forward().z, 0, ride.forward().x) * -1.0 # driver's door (left)
 		ride.mode = Vehicle3D.Mode.PARKED
 		ride.speed = 0.0
+		ride.clear_rider()
 		player.position = ride.position + side * 2.0
 		player.visible = true
 		player.collision_layer = 4
@@ -1305,6 +1344,7 @@ func _enter(v: Vehicle3D) -> void:
 		_drag_out_driver(v)
 	ride = v
 	ride.mode = Vehicle3D.Mode.PLAYER
+	ride.set_rider(models, player.model_key, 2) # Dayo, seated at the wheel
 	player.visible = false
 	player.collision_layer = 0
 	hud.act_btn.text = "EXIT"
@@ -1453,7 +1493,8 @@ func _unhandled_input(e: InputEvent) -> void:
 	var sens := float(Settings.get_pref("cam_sens", 1.0))
 	# Drag right/left to turn the camera round, up/down to raise or lower it.
 	var drag := Vector2.ZERO
-	if e is InputEventScreenDrag and e.position.x > get_viewport().get_visible_rect().size.x * 0.35:
+	# (The stick's side of the screen belongs to the floating joystick, which keeps its own touches.)
+	if e is InputEventScreenDrag and (hud.joy == null or hud.joy._touch != e.index):
 		drag = e.relative
 	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
 		drag = e.relative
@@ -1477,6 +1518,8 @@ func _unhandled_input(e: InputEvent) -> void:
 				_shoot()
 			KEY_H:
 				horn()
+			KEY_M:
+				hud.open_map()
 
 
 # ---------- QA ----------
@@ -1507,6 +1550,10 @@ func _shots(dir: String) -> void:
 			list = Story.order.slice(Story.order.find(a.trim_prefix("--from=")))
 			for prev in Story.order.slice(0, Story.order.find(a.trim_prefix("--from="))):
 				Story.done[prev] = true
+		if a.begins_with("--list="):
+			list = Array(a.trim_prefix("--list=").split(","))
+		if a == "--slowtalk":
+			hud.dialogue.auto_delay = 1.3
 		if a.begins_with("--choice="):
 			hud.dialogue.auto_choice = int(a.trim_prefix("--choice="))
 	var resume := 0
@@ -1521,7 +1568,11 @@ func _shots(dir: String) -> void:
 			await get_tree().create_timer(0.5).timeout
 			t += 0.5
 			# A few frames from each mission, at fixed times into it.
-			if took < 2 and t >= [3.0, 9.0][took]:
+			if "--slowtalk" in args:
+				if took < 10 and hud.dialogue.visible:
+					await _save(dir + "/e-%s-%d.png" % [id, took])
+					took += 1
+			elif took < 2 and t >= [3.0, 9.0][took]:
 				await _save(dir + "/e-%s-%d.png" % [id, took])
 				took += 1
 			if t > 240.0:
@@ -1614,6 +1665,66 @@ func _look(dir: String) -> void:
 	get_tree().quit()
 
 
+## QA: every person model in a row, labelled, in daylight (checking looks and skin).
+func _lineup(dir: String) -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	hud._close_menu() if hud.menu_open() else null
+	in_menu = false
+	DirAccess.make_dir_recursive_absolute(dir)
+	sets.enter("gala")
+	stage.cam_override = "fixed"
+	var keys: Array = ["dayo", "young_dayo"] + Models3D.TOWNSFOLK + ["p_swat", "p_soldier", "p_king"]
+	var origin: Vector3 = sets.anchor("hall") + Vector3(-7, 0, 2)
+	for i in keys.size():
+		var got: Array = models.person(String(keys[i]), 1.75, i)
+		if got[0] == null:
+			continue
+		var n: Node3D = got[0]
+		add_child(n)
+		n.position = origin + Vector3((i % 9) * 1.6, 0, (i / 9) * -9.0)
+		Models3D.play(got[1], "idle", "")
+		var l := Label3D.new()
+		l.text = String(keys[i])
+		l.font_size = 32
+		l.pixel_size = 0.005
+		l.position = Vector3(0, 2.1, 0)
+		n.add_child(l)
+	for row in 2:
+		cam.position = origin + Vector3(6.4, 1.5, row * -9.0 + 6.5)
+		cam.look_at(origin + Vector3(6.4, 1.0, row * -9.0))
+		await get_tree().create_timer(1.0).timeout
+		await _save(dir + "/lineup-%d.png" % row)
+	get_tree().quit()
+
+
+## QA: Dayo seated in each kind of vehicle, side on.
+func _seats_qa(dir: String) -> void:
+	_save_ok = false
+	SaveGame.set_process(false)
+	hud._close_menu() if hud.menu_open() else null
+	in_menu = false
+	DirAccess.make_dir_recursive_absolute(dir)
+	sets.enter("yacht") # a clear deck far from the city's clutter
+	stage.cam_override = "fixed"
+	var kinds := ["okada", "keke", "horse", "car", "danfo", "suv", "speedboat", "bus"]
+	var o: Vector3 = sets.anchor("boat") + Vector3(30, 0.5, 30)
+	for i in kinds.size():
+		var v := Vehicle3D.new()
+		add_child(v)
+		v.setup(models, kinds[i], self)
+		v.mode = Vehicle3D.Mode.PARKED
+		v.position = o + Vector3((i % 4) * 7.0, 0, (i / 4) * 30.0)
+		v.set_rider(models, "dayo", 2)
+	for k in 2:
+		for j in 2:
+			cam.position = o + Vector3(j * 14.0 + 3.5, 1.8, k * 30.0 + 7.5)
+			cam.look_at(o + Vector3(j * 14.0 + 3.5, 0.9, k * 30.0))
+			await get_tree().create_timer(0.8).timeout
+			await _save(dir + "/seats-%d%d.png" % [k, j])
+	get_tree().quit()
+
+
 ## QA: free-roam systems on autopilot: a Lagos Story, a stash, each street encounter, a side job
 ## of each kind, the horn, a bump, the police stages, fuel and a hawker; pictures of each.
 ##   Godot --path game -- --shots=DIR --roam
@@ -1681,6 +1792,14 @@ func _roam_qa(dir: String) -> void:
 	_day_night()
 	await get_tree().create_timer(2.0).timeout
 	await _save(dir + "/roam-rain.png")
+	waypoint = resolve({ "at": "landmark:alaba-market" })
+	hud.open_map()
+	await get_tree().create_timer(0.8).timeout
+	await _save(dir + "/roam-map.png")
+	hud.map_screen._zoom_by(2.5, hud.map_screen.size * 0.5)
+	await get_tree().create_timer(0.4).timeout
+	await _save(dir + "/roam-map-zoom.png")
+	hud.map_screen.close_map()
 	print("roam: done respect=%d money=%d" % [Story.respect, int(Life.money)])
 	get_tree().quit()
 

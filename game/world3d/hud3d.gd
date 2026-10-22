@@ -49,6 +49,8 @@ var _hint_t := 0.0
 var _hint_queue: Array = []
 var _prompt_shown := ""
 var guide: Guide3D
+var map_screen: MapScreen3D
+var map_btn: Button
 var horn_btn: Button
 var police_label: Label
 
@@ -89,9 +91,8 @@ func setup(w) -> void:
 	_root.add_child(health)
 	if DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"):
 		joy = preload("res://ui/joystick.gd").new()
-		joy.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-		joy.position = Vector2(20, -180)
 		_root.add_child(joy)
+		_root.move_child(joy, 0) # behind every button: a press on a button stays the button's
 	act_btn = _button("ENTER", Vector2(-170, -130))
 	act_btn.pressed.connect(func() -> void: action_pressed.emit())
 	run_btn = _button("RUN", Vector2(-170, -250))
@@ -122,6 +123,7 @@ func setup(w) -> void:
 	_build_title()
 	pause = PauseMenu.new()
 	pause.extra = [
+		["Map", func(_root: Control) -> void: open_map()],
 		["How to play", func(root: Control) -> void: root.add_child(_help_panel())],
 		["Street life", func(root: Control) -> void: root.add_child(_street_panel())],
 		["Restart from checkpoint", func(_root: Control) -> void: _restart_checkpoint()],
@@ -144,13 +146,39 @@ func _build_extras() -> void:
 	horn_btn.pressed.connect(func() -> void: world.horn())
 	horn_btn.visible = false
 	police_label = _label(Vector2(16, 176), 20, Color("#ff6a5a"))
+	map_btn = _button("MAP", Vector2(-190, 12), true)
+	map_btn.custom_minimum_size = Vector2(84, 64)
+	map_btn.offset_right = map_btn.offset_left + 84
+	map_btn.offset_bottom = map_btn.offset_top + 64
+	map_btn.add_theme_font_size_override("font_size", 20)
+	map_btn.pressed.connect(open_map)
+	var layer := CanvasLayer.new()
+	layer.layer = 30
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+	map_screen = MapScreen3D.new()
+	var mroot := Control.new()
+	mroot.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mroot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mroot.theme = _theme
+	layer.add_child(mroot)
+	mroot.add_child(map_screen)
+	map_screen.setup(world)
+	var bg := ColorRect.new()
+	bg.color = Color(0.03, 0.05, 0.07)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.show_behind_parent = true
+	map_screen.add_child(bg)
+	map_screen.move_child(bg, 0)
+
+
 	radio_btn = _button("RADIO", Vector2(-340, -370))
 	radio_btn.custom_minimum_size = Vector2(150, 64)
 	radio_btn.offset_bottom = radio_btn.offset_top + 64
 	radio_btn.pressed.connect(func() -> void:
-		world.roam.radio_on = not world.roam.radio_on
 		Sound.sfx("static")
-		notify("Radio Gbedu on." if world.roam.radio_on else "Radio off."))
+		world.roam.next_station())
 	radio_btn.visible = false
 	_radio = Label.new()
 	_radio.anchor_left = 0.18
@@ -236,6 +264,14 @@ func _build_extras() -> void:
 	_root.add_child(_hint)
 
 
+func open_map() -> void:
+	if menu_open() or dialogue.visible or map_screen.visible:
+		return
+	if get_tree().paused:
+		pause.close()
+	map_screen.open_map()
+
+
 ## Left-handed layout swaps the stick and the buttons; Text size scales the whole interface.
 func apply_layout() -> void:
 	var left := bool(Settings.get_pref("left_handed", false))
@@ -251,11 +287,8 @@ func apply_layout() -> void:
 		b.offset_left = (-x - w) if left else x
 		b.offset_right = b.offset_left + w
 	if joy:
-		var jw: float = joy.custom_minimum_size.x
-		joy.anchor_left = 1.0 if left else 0.0
-		joy.anchor_right = joy.anchor_left
-		joy.offset_left = (-20.0 - jw) if left else 20.0
-		joy.offset_right = joy.offset_left + jw
+		joy.left_side = not left
+		joy.layout()
 	get_tree().root.content_scale_factor = clampf(float(Settings.get_pref("text_scale", 1.0)), 0.8, 1.4)
 
 
@@ -391,12 +424,13 @@ func _help_panel() -> Control:
 	var l := Label.new()
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size = Vector2(570, 0)
-	l.text = """MOVE: the stick bottom left (WASD or arrow keys). Push it all the way to run, or hold RUN (Shift).
+	l.text = """MOVE: put your thumb down anywhere on the left of the screen and the stick appears under it (WASD or arrow keys). Push it all the way to run, or hold RUN (Shift).
+MAP (M): the whole city. Drag, pinch to zoom, tap to set a waypoint.
 LOOK: drag on the right of the screen (right mouse button): left/right turns the camera, up/down raises or lowers it.
 ENTER / EXIT: get into the nearest vehicle or out of it (E or F). The button also does what the moment needs: FUEL, REPAIR, SNAP PHOTO, EAT, SIDE JOB, DANCE...
 PUNCH (J or Space) in a fight; from behind, a guard goes down silently.
 SHOOT (K or left click) once you have the pistol: it aims at the target with the red ring.
-RADIO in a vehicle: Radio Gbedu on or off. HORN (H): traffic moves on, people step aside.
+RADIO in a vehicle: Gbedu FM, Naija Talk, or off. HORN (H): traffic moves on, people step aside.
 PAUSE: the II button (Esc, or your phone's back button).
 
 DANFO: stop at a bus stop and passengers climb in; drive to their stop (the yellow beacon) and stop to collect. The bus owner wants ₦8,000 delivery every day.
@@ -613,6 +647,7 @@ func show_menu(has_save: bool) -> void:
 	if radio_btn:
 		radio_btn.visible = false
 		horn_btn.visible = false
+		map_btn.visible = false
 
 
 func menu_open() -> bool:
@@ -624,6 +659,8 @@ func _close_menu() -> void:
 	_menu = null
 	for c in [info, money, objective, act_btn, run_btn, pause_btn, minimap]:
 		(c as CanvasItem).visible = true
+	if map_btn:
+		map_btn.visible = true
 
 
 func _panel(title: String) -> PanelContainer:

@@ -262,7 +262,7 @@ func _enemy_shot(from: Vector3, d: float, after: float) -> void:
 	chance *= [0.7, 1.0, 1.25][clampi(int(Settings.get_pref("difficulty", 1)), 0, 2)]
 	var hit := _rng.randf() < chance
 	tracer(from, target + (Vector3.ZERO if hit else Vector3(_rng.randf_range(-1.5, 1.5), _rng.randf_range(-0.5, 1.0), _rng.randf_range(-1.5, 1.5))))
-	Sound.sfx("gunshot_far", _rng.randf_range(0.9, 1.1))
+	Sound.sfx_at("gunshot", from, _rng.randf_range(0.9, 1.1), -3.0)
 	_panic(from)
 	if hit:
 		world.hud.guide.hit_from(from)

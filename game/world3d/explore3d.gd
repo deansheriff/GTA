@@ -343,7 +343,7 @@ func _encounters(delta: float) -> void:
 
 
 func _person(key: String, pos: Vector3, anim: String) -> Person3D:
-	if not world.models.has(key, Models3D.CHARS):
+	if not world.models.has_person(key):
 		key = String(world.people_keys[0])
 	var p := Person3D.new()
 	add_child(p)

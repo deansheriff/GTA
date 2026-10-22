@@ -27,7 +27,7 @@ func setup(lib: Models3D, k: String, w, cell: Vector2i, seed: int) -> bool:
 	key = k
 	world = w
 	rng.seed = seed
-	var got := lib.person(k, 1.62 if k in ["market_woman", "aunty_boss", "young_woman"] else 1.74)
+	var got := lib.person(k, 1.62 if k in ["market_woman", "aunty_boss", "young_woman"] else 1.74, seed % Models3D.SKIN_TONES.size())
 	if got[0] == null:
 		return false
 	add_child(got[0])

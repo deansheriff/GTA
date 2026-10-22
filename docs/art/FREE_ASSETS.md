@@ -20,16 +20,23 @@ the credit below, which the game's credits screen repeats.
 | `ambulance` | Ambulance Car | Zsky | CC-BY 3.0 | https://poly.pizza/m/4JxDoxLnRd | LUTH ambulance run (Act III) |
 | `dayo` | Casual Character | Quaternius | CC0 | https://poly.pizza/m/kZ3DmIoGip | Dayo, the protagonist (recoloured: dark brown skin, olive T-shirt, black boots; 24 animations incl. gun idle/shoot) |
 | `young_dayo` | Hoodie Character | Quaternius | CC0 | https://poly.pizza/m/gKLBoRsyKe | Young Dayo in the prologue (used exactly as published) |
-
-## Downtown City MegaKit (Quaternius, CC0)
-- **Source:** https://quaternius.com/packs/downtowncitymegakit.html, the free Standard version
-  from itch.io at $0, downloaded 2026-10-19.
-- **Licence:** CC0 1.0, per `License_Standard.txt` in the pack.
-- **In the game** (`game/art3d/citykit/`): the three pre-built buildings (Building_Small_1,
-  Building_Medium_2_001 and Building_Large_2), the props (AC unit, bollard, manhole cover, drain
-  and planter), the crosswalk decal, and the concrete, asphalt and dirt materials with their
-  normal and ORM maps.
-- **Unchanged:** the files are as published. Textures import at 1024 px for phones.
-- **Rendering note:** the kit keeps a wear mask in its vertex colours for its own shader, so we
-  render it without vertex colour as albedo.
-- The full zip is in the git-ignored `art-src/citykit/`.
+| `p_man` | Man | Quaternius | CC0 | https://poly.pizza/m/HMnuH5geEG | Townsman |
+| `p_business_man` | Business Man | Quaternius | CC0 | https://poly.pizza/m/JFrLIKqvCH | Businessman, Uncle Obi |
+| `p_man_suit` | Man in Suit | Quaternius | CC0 | https://poly.pizza/m/mQnGoME1ez | The senator, the aide |
+| `p_woman` | Woman | Quaternius | CC0 | https://poly.pizza/m/AQsd9ngvKU | Townswoman |
+| `p_woman_casual` | Woman Casual | Quaternius | CC0 | https://poly.pizza/m/jpKRgGDxhk | Amaka, students |
+| `p_woman_dress` | Woman in Dress | Quaternius | CC0 | https://poly.pizza/m/zMyPlQXBzq | Kemi, party guests |
+| `p_woman_tank` | Woman in Tank Top | Quaternius | CC0 | https://poly.pizza/m/XqzeZGB7iU | Townswoman |
+| `p_worker` | Worker | Quaternius | CC0 | https://poly.pizza/m/Yg2bQZO6Hj | Agberos, labourers |
+| `p_farmer` | Farmer | Quaternius | CC0 | https://poly.pizza/m/7pn3R6hPvE | Elders, Baba Fakunle, villagers |
+| `p_king` | King | Quaternius | CC0 | https://poly.pizza/m/I1gTjmuK2m | Chiefs, Kongi |
+| `p_swat` | SWAT | Quaternius | CC0 | https://poly.pizza/m/Btfn3G5Xv4 | Police, task force |
+| `p_soldier` | Character Soldier | Quaternius | CC0 | https://poly.pizza/m/PpLF4rt4ah | Gunmen, guards |
+| `p_punk` | Punk | Quaternius | CC0 | https://poly.pizza/m/BTALZymknF | Bigz, area boys |
+| `p_beach` | Beach Character | Quaternius | CC0 | https://poly.pizza/m/DojKLcO34E | Fishermen, beach |
+| `p_adventurer` | Adventurer | Quaternius | CC0 | https://poly.pizza/m/5EGWBMpuXq | Townsman |
+| `p_anim_woman` | Animated Woman | Quaternius | CC0 | https://poly.pizza/m/9kF7eTDbhO | Market woman |
+| `p_anim_woman2` | Animated Woman | Quaternius | CC0 | https://poly.pizza/m/nIItLV9nxS | Townswoman |
+| `p_anim_woman3` | Animated Woman | Quaternius | CC0 | https://poly.pizza/m/qJ2gsTUBHL | Townswoman |
+| `p_char_anim` | Character Animated | Quaternius | CC0 | https://poly.pizza/m/DgOCW9ZCRJ | Townsman |
+| `p_anim_human` | Animated Human | Quaternius | CC0 | https://poly.pizza/m/c3Ibh9I3udk | Townsman |

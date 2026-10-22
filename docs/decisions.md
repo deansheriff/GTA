@@ -1122,3 +1122,81 @@ and gameplay.
     danfo to push.
   - Counts are on the Street life page.
 - **New synthesised sounds:** skid, warden's whistle, air brake, and a chime for finds.
+
+
+## D-033 · Free characters for everyone, the floating stick, the map, riders, the dialogue camera, sound · 2026-10-22
+**Owner:**
+- "Do not wait for Meshy. Use this character pack" (Quaternius Universal Base Characters).
+- "The pose of the meshy assets are weird. Their hands are bent a bit."
+- "Make the joystick control show up anywhere on the left side, not fixed."
+- "Implement the full-screen map, then characters in vehicles, then the dialogue camera, then
+  sound."
+
+**Characters:**
+- **Why not the base pack:** Universal Base Characters is six bodies in underwear, with no clothes
+  and no animations. Asked, the owner chose Quaternius's clothed, animated CC0 characters
+  instead, and allowed skin to be recoloured.
+- **The 20 models** (CC0, Poly Pizza, `art3d/free/p_*.glb`, listed in FREE_ASSETS.md): Man,
+  Business Man, Man in Suit, Woman, Woman Casual, Woman in Dress, Woman in Tank Top, Worker,
+  Farmer, King, SWAT, Character Soldier, Punk, Beach Character, Adventurer, three Animated Women,
+  Character Animated and Animated Human. They replace every Meshy person, the townspeople and the
+  whole cast.
+- **Used as published:** shape, clothes and animations are untouched. Only the materials named
+  Skin… take one of seven Nigerian skin tones. Dayo's tone is fixed.
+- **Scaling:** the 11-clip set and the soldier come in 2–3× too big (other export units), so they
+  are scaled to human height.
+- **Clips:** our names map to the 24-clip set, the 11-clip set (Man_/Female_) and the
+  soldier's 14 clips.
+- **Old keys still work:** `Models3D.LEGACY` maps the old Meshy keys (walker, agbero, sego,
+  kongi…) to the free characters, so old data still plays.
+- **Cast:** the cast in `campaign.json` now names the free models directly. Examples: Kongi and
+  Musa as the King, the senator in the suit, Kemi in the dress, Hauwa in the jacket, Amaka casual,
+  Rasheed the punk, Uncle Obi the businessman, police and guards in SWAT gear.
+
+**The joystick floats:**
+- Put a thumb down anywhere on the left 45% of the screen (the right with left-handed
+  controls) and the stick appears under it.
+- It follows the thumb anywhere until it lifts, and drags its centre along if the thumb goes far
+  past the rim. Released, it fades to a resting hint.
+- It sits behind the HUD's buttons, so a press on a button stays the button's.
+- Camera drags are any touch the stick doesn't own.
+
+**The full-screen map (`MapScreen3D`, the MAP button, M, or the pause menu):**
+- Shows the land, lagoon and sea, every road, the stilt village, district and landmark names,
+  you, the next mission, the objective, filling stations, mechanics, the dealer and boat yard,
+  job boards, Mama Àgbà's stall, the Lagos Stories you've found and the police search circle.
+- Drag to pan; pinch, scroll or +/− to zoom.
+- Tap to drop a waypoint (tap it again to clear it). The waypoint becomes the objective on the
+  minimap and the edge arrow, and clears when you arrive.
+- The game pauses while the map is open.
+
+**Characters in vehicles (`Seat3D`):**
+- Dayo now sits in whatever he drives instead of vanishing. Okadas, kekes and horses in traffic
+  carry visible riders.
+- The free characters have no sitting clip, so the seat pose is set on the skeleton: thighs
+  forward, shins down, the separate foot bones under the knees, hands to the wheel or the bars.
+  Okada and horse riders straddle.
+- Each vehicle kind has its own seat position and hip height. The rider's animation is switched
+  off, so a rider costs no animation time.
+
+**The dialogue camera (`TalkCam3D`):**
+- While people talk, the camera cuts between over-the-shoulder shots: the speaker over the
+  listener's shoulder, the reverse when Dayo answers, and a close shot of Dayo for narration.
+- It pushes in slowly within a shot. Speakers turn to each other and play their talk clip.
+- Walls are kept out of the shot.
+- It also replaces a mission's "look" camera. It stays out of the way in vehicles and under the
+  prologue's low camera.
+
+**Sound:**
+- **From where it happens:** a pool of 3D players for world sounds (traffic horns, crashes,
+  gunfire, explosions). Police cars carry their own looping siren, so you hear them coming and
+  from which side.
+- **Ambience (`Ambience3D`):** market chatter round the markets and parks, waves at the nearest
+  shore, a generator thudding in a nearby yard (louder in a NEPA cut). Each region has a bed:
+  birds in Abeokuta and Anambra, insects and frogs in the creeks.
+- **Radio:** RADIO cycles Gbedu FM (highlife, afrobeat and juju loops in turn, with the DJ, the
+  news and Uncle Obi's adverts), Naija Talk (a studio bed, news and callers) and off.
+- **Voices:** each speaker has a "voice", a few syllables of babble at their own pitch, on every
+  line.
+- All new sounds are synthesised (`tools/audio/synth.mjs`, appended so the older files stay
+  byte-identical).

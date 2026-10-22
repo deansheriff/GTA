@@ -360,3 +360,99 @@ groove(96, 8, [196, 196, 175, 175], 0.25, 'music/talk.wav', true); // a soft stu
   }
   wav('sfx/find.wav', x);
 }
+// D-033: ambience you hear where it happens, more radio music, and the dialogue "voice".
+groove(106, 8, [220, 247, 196, 247], 0.65, 'music/afrobeat.wav'); // A B G B — afrobeat
+groove(120, 8, [294, 247, 262, 220], 0.8, 'music/juju.wav'); // D B C A — bright juju guitars
+{
+  // Market chatter: many voices (noise shaped at syllable rates through vowel-ish bands) and the
+  // odd trader's call rising over them. Loops cleanly (8 s).
+  const x = len(8);
+  const voices = 9;
+  for (let v = 0; v < voices; v++) {
+    const rate = 3.2 + v * 0.41;
+    const f1 = 420 + v * 70;
+    let ph = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / SR;
+      ph += (f1 + 60 * Math.sin(2 * Math.PI * 0.7 * t + v)) / SR;
+      const syl = Math.max(0, Math.sin(2 * Math.PI * rate * t + v * 1.7)) ** 2;
+      x[i] += (Math.sin(2 * Math.PI * ph) * 0.4 + rand() * 0.3) * syl * 0.05;
+    }
+  }
+  for (const [at, f] of [[1.2, 520], [4.1, 610], [6.3, 480]]) {
+    const c = len(0.8);
+    let ph = 0;
+    for (let i = 0; i < c.length; i++) {
+      const t = i / SR;
+      ph += (f + 140 * Math.min(1, t / 0.3)) / SR;
+      c[i] = (Math.sin(2 * Math.PI * ph) + 0.4 * Math.sin(4 * Math.PI * ph)) * 0.12 * env(i, c.length, 0.03, 0.3);
+    }
+    mix(x, c, at);
+  }
+  wav('amb/market.wav', lowpass(x, 3200));
+}
+{
+  // Waves on the lagoon shore: a slow swell of soft noise.
+  const x = len(8);
+  for (let i = 0; i < x.length; i++) {
+    const t = i / SR;
+    const swell = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(2 * Math.PI * t / 4)) ** 3;
+    x[i] = rand() * swell * 0.4;
+  }
+  wav('amb/waves.wav', lowpass(lowpass(x, 900), 700));
+}
+{
+  // Village birds over a light breeze (Abeokuta, Anambra).
+  const x = len(8);
+  for (let i = 0; i < x.length; i++) x[i] = rand() * 0.04;
+  for (let k = 0; k < 14; k++) {
+    const at = (k * 0.57 + (k % 3) * 0.21) % 7.6;
+    const f = 2600 + (k % 5) * 380;
+    const c = len(0.18);
+    let ph = 0;
+    for (let i = 0; i < c.length; i++) {
+      const t = i / SR;
+      ph += (f + 900 * Math.sin(2 * Math.PI * 18 * t)) / SR;
+      c[i] = Math.sin(2 * Math.PI * ph) * 0.18 * env(i, c.length, 0.01, 0.08);
+    }
+    mix(x, c, at);
+  }
+  wav('amb/birds.wav', lowpass(x, 7000));
+}
+{
+  // Insects and frogs in the creeks (the Delta): a pulsing buzz and slow croaks.
+  const x = len(6);
+  let ph = 0;
+  for (let i = 0; i < x.length; i++) {
+    const t = i / SR;
+    ph += 4200 / SR;
+    const pulse = Math.max(0, Math.sin(2 * Math.PI * 22 * t)) * (0.5 + 0.5 * Math.sin(2 * Math.PI * 0.33 * t));
+    x[i] = Math.sin(2 * Math.PI * ph) * pulse * 0.06 + rand() * 0.02;
+  }
+  for (const at of [0.7, 2.9, 4.6]) {
+    const c = len(0.25);
+    for (let i = 0; i < c.length; i++) c[i] = sq(i / SR * 110) * 0.12 * env(i, c.length, 0.01, 0.1);
+    mix(x, lowpass(c, 600), at);
+  }
+  wav('amb/insects.wav', x);
+}
+{
+  // The dialogue "voice": a few syllables of nobody's language (two formants per vowel), pitched
+  // per speaker by the game.
+  const x = len(0.9);
+  const vowels = [[700, 1200], [400, 2000], [550, 900], [300, 2300], [650, 1600], [450, 1000]];
+  for (let s = 0; s < 6; s++) {
+    const [a, b] = vowels[s];
+    const at = s * 0.14;
+    const c = len(0.12);
+    let p0 = 0;
+    for (let i = 0; i < c.length; i++) {
+      p0 += 150 / SR;
+      const glott = saw(p0);
+      const t = i / SR;
+      c[i] = (Math.sin(2 * Math.PI * a * t) * 0.5 + Math.sin(2 * Math.PI * b * t) * 0.3) * (0.6 + 0.4 * glott) * 0.25 * env(i, c.length, 0.01, 0.05);
+    }
+    mix(x, c, at);
+  }
+  wav('sfx/babble.wav', lowpass(x, 3500));
+}

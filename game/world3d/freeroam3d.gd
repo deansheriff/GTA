@@ -488,7 +488,7 @@ func _hawkers(delta: float) -> void:
 		_hawk_cool = 40.0
 		var p := Person3D.new()
 		add_child(p)
-		var key: String = "market_woman" if world.models.has("market_woman", Models3D.CHARS) else String(world.people_keys[0])
+		var key: String = "market_woman" if world.models.has_person("market_woman") else String(world.people_keys[0])
 		if p.setup(world.models, key, world, Vector2i(int(ride.position.x / 4.0), int(ride.position.z / 4.0)), 4040):
 			p.position = ride.position + ride.forward() * 7.0 + Vector3(-ride.forward().z, 0, ride.forward().x) * -2.5
 			p.state = Person3D.State.PAUSE
@@ -538,7 +538,7 @@ func _stall() -> void:
 		var p := Person3D.new()
 		add_child(p)
 		var key := String(Story.who("mama_agba").get("model", "mama_agba"))
-		if world.models.has(key, Models3D.CHARS) and p.setup(world.models, key, world, Vector2i(int(st["pos"].x / 4.0), int(st["pos"].z / 4.0)), 3131):
+		if world.models.has_person(key) and p.setup(world.models, key, world, Vector2i(int(st["pos"].x / 4.0), int(st["pos"].z / 4.0)), 3131):
 			p.position = st["pos"] + Vector3(0.6, 0, -0.4)
 			p.state = Person3D.State.PAUSE
 			p.pause_left = 1e9
@@ -691,28 +691,53 @@ func _job_stops(from: Vector3, n: int) -> Array:
 
 # ---------- Radio Gbedu ----------
 
+## The radio: Gbedu FM (highlife, afrobeat and juju in turn, with the DJ and the adverts), Naija
+## Talk (a quiet studio bed, the news and callers), or off. RADIO cycles through them.
+const STATIONS := ["Radio Gbedu 99.1", "Naija Talk 103.5", "Off"]
+var radio_station := 0
+var _track := 0
+var _track_t := 0.0
+
+
+func next_station() -> void:
+	radio_station = (radio_station + 1) % STATIONS.size()
+	radio_on = radio_station != 2
+	_radio_t = 0.0
+	Sound.music("")
+	world.notify("📻 " + STATIONS[radio_station])
+
+
 func _radio(delta: float) -> void:
 	var ride: Vehicle3D = world.ride
 	if ride == null or not radio_on:
 		world.hud.radio("")
-		if Sound._music_name == "highlife" and not world.in_menu:
+		if Sound._music_name in Sound.RADIO_TRACKS + ["talk"] and not world.in_menu:
 			Sound.music("")
 		return
-	if Sound._music_name == "":
-		Sound.music("highlife")
+	var talk := radio_station == 1
+	_track_t -= delta
+	if talk and Sound._music_name != "talk":
+		Sound.music("talk")
+	elif not talk and (Sound._music_name == "" or Sound._music_name == "talk" or _track_t <= 0.0):
+		if _track_t <= 0.0:
+			_track = (_track + 1) % Sound.RADIO_TRACKS.size()
+			_track_t = 110.0
+		Sound.music(Sound.RADIO_TRACKS[_track])
 	_radio_t -= delta
 	if _radio_t > 0.0:
 		return
-	_radio_t = 9.0
+	_radio_t = 9.0 if not talk else 7.0
 	_radio_i += 1
 	var line := ""
-	if _radio_i % 3 == 0:
+	if talk:
+		line = _news() if _radio_i % 2 == 0 else ["CALLER: \"Abeg, why NEPA no fit give us light for one full day?\"", "CALLER: \"I wan greet my mama for Ajegunle!\"", "HOST: \"Fuel price don rise again. Danfo drivers, how una dey cope?\"", "CALLER: \"Those agberos for Oshodi, dem don too much!\""][_rng.randi() % 4]
+	elif _radio_i % 3 == 0:
 		line = RADIO_ADS[_rng.randi() % RADIO_ADS.size()]
 	elif _radio_i % 3 == 1:
 		line = _news()
 	else:
 		line = RADIO_DJ[_rng.randi() % RADIO_DJ.size()]
-	world.hud.radio("📻 " + line)
+	world.hud.radio("📻 %s · %s" % [STATIONS[radio_station], line])
 
 
 ## The news follows the story.
@@ -758,7 +783,7 @@ func _postgame_income() -> void:
 # ---------- save ----------
 
 func to_dict() -> Dictionary:
-	return { "owned": owned, "today": today, "debt": debt, "buffs": buffs, "postgame": postgame, "radio": radio_on, "boards": board_rep, "found": found }
+	return { "owned": owned, "today": today, "debt": debt, "buffs": buffs, "postgame": postgame, "radio": radio_on, "station": radio_station, "boards": board_rep, "found": found }
 
 
 func from_dict(d: Dictionary) -> void:
@@ -768,6 +793,7 @@ func from_dict(d: Dictionary) -> void:
 	buffs = d.get("buffs", {})
 	postgame = String(d.get("postgame", ""))
 	radio_on = bool(d.get("radio", true))
+	radio_station = int(d.get("station", 0 if radio_on else 2))
 	board_rep = d.get("boards", {})
 	found = d.get("found", {})
 	# The Ìrókò charm (Act II) stays for good once Baba Fakunle has given it.

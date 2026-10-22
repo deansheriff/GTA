@@ -3,7 +3,9 @@ extends Node
 ## licences are needed; licensed music can replace the loops later under the same names).
 ## Three buses (Music, SFX, Ambience) with volumes from Settings prefs.
 
-const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify", "siren", "splash", "thunder", "static", "sizzle", "punch", "gunshot", "gunshot_far", "reload", "skid", "whistle", "airbrake", "find"]
+const SFX := ["horn", "tap", "cash", "power_on", "power_off", "crash", "success", "fail", "stare", "whoosh", "notify", "siren", "splash", "thunder", "static", "sizzle", "punch", "gunshot", "gunshot_far", "reload", "skid", "whistle", "airbrake", "find", "babble"]
+## Radio Gbedu's music, in turn (D-033).
+const RADIO_TRACKS := ["highlife", "afrobeat", "juju"]
 
 var _sfx := {} # name -> AudioStream
 var _pool: Array[AudioStreamPlayer] = []
@@ -11,6 +13,10 @@ var _music: AudioStreamPlayer
 var _music_name := ""
 var _amb := {} # name -> AudioStreamPlayer (looping)
 var _engine: AudioStreamPlayer
+var _pool3d: Array[AudioStreamPlayer3D] = [] # sounds that come from a place in the world (D-033)
+var _bed: AudioStreamPlayer # the region's background (birds, insects)
+var _bed_name := ""
+var _voice: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -43,6 +49,21 @@ func _ready() -> void:
 	_engine.bus = "Ambience"
 	_engine.stream = _load("res://audio/amb/engine.wav", true)
 	add_child(_engine)
+	for i in 10:
+		var p := AudioStreamPlayer3D.new()
+		p.bus = "SFX"
+		p.unit_size = 9.0
+		p.max_distance = 140.0
+		p.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
+		add_child(p)
+		_pool3d.append(p)
+	_bed = AudioStreamPlayer.new()
+	_bed.bus = "Ambience"
+	_bed.volume_db = -80.0
+	add_child(_bed)
+	_voice = AudioStreamPlayer.new()
+	_voice.bus = "SFX"
+	add_child(_voice)
 	apply_volumes()
 	Settings.changed.connect(func(_s: Dictionary) -> void: apply_volumes())
 
@@ -76,6 +97,58 @@ func sfx(name: String, pitch := 1.0) -> void:
 			p.pitch_scale = pitch
 			p.play()
 			return
+
+
+## A sound from a place in the world: louder near, quieter far, panned to where it is.
+func sfx_at(name: String, pos: Vector3, pitch := 1.0, db := 0.0) -> void:
+	if not _sfx.has(name):
+		return
+	for p in _pool3d:
+		if not p.playing:
+			p.stream = _sfx[name]
+			p.pitch_scale = pitch
+			p.volume_db = db
+			p.global_position = pos
+			p.play()
+			return
+
+
+## A looping copy of a sound (the shared one stays a one-shot).
+func loop_stream(path: String) -> AudioStream:
+	if not ResourceLoader.exists(path):
+		return null
+	var s: AudioStream = (load(path) as AudioStream).duplicate()
+	if s is AudioStreamWAV:
+		var w := s as AudioStreamWAV
+		w.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		w.loop_begin = 0
+		w.loop_end = int(w.get_length() * w.mix_rate)
+	return s
+
+
+## The dialogue "voice": a few syllables at the speaker's own pitch (the same person always sounds
+## the same).
+func babble(who: String) -> void:
+	if not _sfx.has("babble") or who in ["story", "tip", "chat", ""]:
+		return
+	var h := absi(hash(who))
+	_voice.stream = _sfx["babble"]
+	_voice.pitch_scale = 0.75 + float(h % 50) / 100.0 + (0.15 if who in ["kemi", "amaka", "hauwa", "mama_agba", "tolu", "aunty", "captive", "passenger", "neighbour"] else 0.0)
+	_voice.volume_db = -8.0
+	_voice.play()
+
+
+## The region's background (birds in the villages, insects in the creeks; "" for none).
+func bed(name: String) -> void:
+	if name == _bed_name:
+		return
+	_bed_name = name
+	if name == "":
+		_bed.stop()
+		return
+	_bed.stream = _load("res://audio/amb/%s.wav" % name, true)
+	_bed.volume_db = -14.0
+	_bed.play()
 
 
 func music(name: String) -> void:

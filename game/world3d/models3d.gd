@@ -104,21 +104,40 @@ const TRAFFIC_MIX := ["danfo", "danfo", "danfo", "keke", "keke", "okada", "okada
 ## (okada_rider was generated sitting on his bike, so he can't walk the streets: left out.)
 const PEOPLE := ["walker", "market_woman", "agbero", "businessman", "young_woman", "elder", "aunty_boss", "chief", "marshal", "taskforce"]
 
-## Free rigged people (D-026): CC0 Quaternius characters, used exactly as published (their own
-## colours, size and 24-clip animation sets; owner: "Use the asset as it is"). They replace a
-## Meshy cast member by key.
+## Free rigged people (D-026, D-033): Quaternius's clothed CC0 characters, used as published
+## (their own clothes, shape and animations), except that skin is recoloured to Nigerian tones
+## (owner, 2026-10-22). Any key "p_..." is art3d/free/<key>.glb; Dayo and young Dayo are named.
 const FREE_PEOPLE := {
 	"dayo": "res://art3d/free/dayo.glb", # Casual Character
 	"young_dayo": "res://art3d/free/young_dayo.glb", # Hoodie Character
 }
-## Our clip names -> Quaternius clip names.
-const FREE_ANIMS := {
-	"idle": "Idle", "walk": "Walk", "run": "Run", "punch": "Punch_Right", "hit": "HitRecieve",
-	"dead": "Death", "wave": "Wave", "talk": "Interact", "argue": "Interact", "phone": "Idle_Neutral",
-	"cheer": "Wave", "sit": "Idle_Neutral", "kick": "Kick_Right", "gun_idle": "Idle_Gun_Pointing",
-	"shoot": "Gun_Shoot", "run_shoot": "Run_Shoot", "jump": "Jump", "roll": "Roll",
-	"crouch": "Idle_Neutral",
+## The old Meshy people (their hands came out bent) now play as free characters. Old keys in the
+## story data and the code map here, so nothing else has to change.
+const LEGACY := {
+	"walker": "p_man", "market_woman": "p_anim_woman3", "agbero": "p_worker",
+	"businessman": "p_business_man", "young_woman": "p_woman_casual", "elder": "p_farmer",
+	"aunty_boss": "p_anim_woman2", "chief": "p_king", "marshal": "p_worker", "taskforce": "p_swat",
+	"sego": "p_beach", "mama_agba": "p_anim_woman2", "kongi": "p_king", "okada_rider": "p_man",
+	"tunde": "p_man",
 }
+## Townspeople: who walks the streets.
+const TOWNSFOLK := ["p_man", "p_woman", "p_woman_casual", "p_woman_dress", "p_woman_tank", "p_business_man", "p_farmer", "p_worker", "p_beach", "p_adventurer", "p_anim_woman2", "p_anim_woman3", "p_punk", "p_man_suit"]
+## Our clip names -> the free characters' clip names (the 24-clip set, the 11-clip Man_/Female_
+## set, and the soldier's 14). The first that exists wins.
+const FREE_ANIMS := {
+	"idle": ["Idle", "Man_Idle", "Female_Idle"], "walk": ["Walk", "Man_Walk", "Female_Walk", "Walking", "Run_Gun"],
+	"run": ["Run", "Man_Run", "Female_Run", "Running"], "punch": ["Punch_Right", "Man_Punch", "Female_Punch", "Punch"],
+	"hit": ["HitRecieve", "HitReact", "RecieveHit"], "dead": ["Death", "Man_Death", "Female_Death"],
+	"wave": ["Wave", "Man_Clapping", "Female_Clapping"], "talk": ["Interact", "Man_Standing", "Female_Standing", "Yes"],
+	"argue": ["Interact", "No", "Man_Clapping", "Female_Clapping"], "phone": ["Idle_Neutral", "Man_Standing", "Female_Standing"],
+	"cheer": ["Wave", "Man_Clapping", "Female_Clapping"], "sit": ["Man_Sitting", "Female_Sitting", "SitIdle", "Idle_Neutral"],
+	"kick": ["Kick_Right", "Man_Punch", "Female_Punch"], "gun_idle": ["Idle_Gun_Pointing", "Idle_Shoot", "Idle"],
+	"shoot": ["Gun_Shoot", "Idle_Shoot", "Man_Punch", "Female_Punch"], "run_shoot": ["Run_Shoot", "Run_Gun", "Run"],
+	"jump": ["Jump", "Man_Jump", "Female_Jump"], "roll": ["Roll"], "crouch": ["Idle_Neutral", "Duck"],
+	"ride": ["Man_Sitting", "Female_Sitting", "Idle_Neutral", "Idle"],
+}
+## Nigerian skin tones, from light brown to very dark.
+const SKIN_TONES := ["#8a5a3c", "#6e452b", "#5a3822", "#4a2e1c", "#3d2617", "#7a4e30", "#63402a"]
 
 var _scenes := {}
 var _anim_lib: AnimationLibrary
@@ -240,9 +259,10 @@ static func no_shadow(n: Node) -> void:
 ## A rigged person: the model (with its own Walking animation), its own Running clip and the
 ## shared action pack (idle, talk, fight...) merged into one AnimationPlayer. Returns
 ## [root Node3D, AnimationPlayer or null].
-func person(key: String, height := 1.75) -> Array:
-	if FREE_PEOPLE.has(key):
-		return _free_person(key)
+func person(key: String, height := 1.75, tone := -1) -> Array:
+	key = String(LEGACY.get(key, key))
+	if FREE_PEOPLE.has(key) or key.begins_with("p_"):
+		return _free_person(key, tone)
 	var m := make(key, CHARS)
 	if m == null:
 		m = make(key) # older unrigged model (art3d/tunde.glb)
@@ -286,27 +306,68 @@ static func restyle(n: Node, look: Dictionary) -> void:
 				mi.set_surface_override_material(i, sm)
 
 
-func _free_person(key: String) -> Array:
-	var path := String(FREE_PEOPLE[key])
+## Is there a person model for this key (free, legacy-mapped or Meshy)?
+func has_person(key: String) -> bool:
+	key = String(LEGACY.get(key, key))
+	if FREE_PEOPLE.has(key):
+		return ResourceLoader.exists(String(FREE_PEOPLE[key]))
+	if key.begins_with("p_"):
+		return ResourceLoader.exists("res://art3d/free/%s.glb" % key)
+	return has(key, CHARS)
+
+
+static func is_free(key: String) -> bool:
+	key = String(LEGACY.get(key, key))
+	return FREE_PEOPLE.has(key) or key.begins_with("p_")
+
+
+func _free_person(key: String, tone := -1) -> Array:
+	var path := String(FREE_PEOPLE.get(key, "res://art3d/free/%s.glb" % key))
 	if not ResourceLoader.exists(path):
 		return [null, null]
-	var m: Node3D = (load(path) as PackedScene).instantiate() # as published: no recolour, no resize
+	var m: Node3D = (load(path) as PackedScene).instantiate() # as published: no resize, own clothes
+	if tone < 0:
+		tone = absi(hash(key)) % SKIN_TONES.size()
+	skin(m, Color(String(SKIN_TONES[tone % SKIN_TONES.size()])))
+	# Some packs were exported in other units (2-3x too big): bring them to human height. Only
+	# the size changes, never the shape.
+	var h := aabb(m).size.y
+	if h > 2.3:
+		var want := 1.68 if key.contains("woman") else 1.8
+		m.scale = Vector3.ONE * (want / h)
 	var root := Node3D.new()
 	root.add_child(m)
 	var ap := find_player(m)
 	if ap:
 		var lib := _lib(ap)
+		var names := {}
+		for a in ap.get_animation_list():
+			names[String(a).get_slice("|", String(a).count("|"))] = a
 		for want: String in FREE_ANIMS:
-			for a in ap.get_animation_list():
-				var nm := String(a)
-				if nm == FREE_ANIMS[want] or nm.ends_with("|" + String(FREE_ANIMS[want])):
-					var anim := ap.get_animation(a)
-					if not want in ["dead", "hit", "punch", "shoot", "wave", "kick"]:
+			for cand: String in FREE_ANIMS[want]:
+				if names.has(cand):
+					var anim := ap.get_animation(names[cand])
+					if not want in ["dead", "hit", "punch", "shoot", "kick", "jump", "roll"]:
 						anim.loop_mode = Animation.LOOP_LINEAR
 					if not lib.has_animation(want):
 						lib.add_animation(want, anim)
 					break
 	return [root, ap]
+
+
+## Recolour only the skin (materials named Skin...) to a Nigerian tone; clothes stay as published.
+static func skin(n: Node, tone: Color) -> void:
+	for c in n.find_children("*", "MeshInstance3D", true, false):
+		var mi := c as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var mat: Material = mi.get_active_material(i)
+			if mat is BaseMaterial3D and mat.resource_name.begins_with("Skin"):
+				var d: BaseMaterial3D = mat.duplicate()
+				d.albedo_color = tone.darkened(0.12) if mat.resource_name.contains("Dark") else tone
+				d.albedo_texture = null
+				mi.set_surface_override_material(i, d)
 
 
 static func find_player(n: Node) -> AnimationPlayer:

@@ -62,7 +62,7 @@ func _set_stage(s: int) -> void:
 		return
 	stage = s
 	match s:
-		Stage.PURSUIT: Sound.sfx("siren")
+		Stage.PURSUIT: Sound.sfx("whistle", 0.9)
 		Stage.SEARCH:
 			search_left = SEARCH_SECS
 			search_r = 60.0 + Story.wanted * 15.0
@@ -204,6 +204,15 @@ func _spawn() -> void:
 	mat.emission_energy_multiplier = 3.0
 	bar.material_override = mat
 	v.add_child(bar)
+	# The siren wails from the car itself: you hear it coming, and from which side.
+	var siren := AudioStreamPlayer3D.new()
+	siren.stream = Sound.loop_stream("res://audio/sfx/siren.wav")
+	siren.bus = "SFX"
+	siren.unit_size = 12.0
+	siren.max_distance = 180.0
+	siren.volume_db = -6.0
+	siren.autoplay = true
+	v.add_child(siren)
 	units.append(v)
 
 

@@ -171,23 +171,20 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	despawn(id)
 	var info: Dictionary = Story.who(who)
 	var key := model if model != "" else String(info.get("model", who))
-	# A cast member's own model, once it exists (art3d/chars/<id>.glb), replaces the stand-in.
-	var own: bool = model == "" and who != key and world.models.has(who, Models3D.CHARS)
-	if own:
-		key = who
+	var own := false
 	var p := Person3D.new()
 	add_child(p)
 	var cell := Vector2i(int(pos.x / Terrain3D.CELL_M), int(pos.z / Terrain3D.CELL_M))
 	var ok := false
 	for k in [key, "walker", "agbero"]:
-		if world.models.has(k, Models3D.CHARS) and p.setup(world.models, k, world, cell, hash(id)):
+		if world.models.has_person(k) and p.setup(world.models, k, world, cell, hash(id)):
 			ok = true
 			break
 	if not ok:
 		p.free()
 		return null
-	if model == "" and not own:
-		Models3D.restyle(p, info.get("look", {})) # stand-in cast get their own colours
+	if model == "" and not own and not Models3D.is_free(key):
+		Models3D.restyle(p, info.get("look", {})) # Meshy stand-ins get their own colours
 	var gy: float = world.ground_at(pos, pos.y + 0.1)
 	p.position = Vector3(pos.x, pos.y if is_nan(gy) else gy, pos.z)
 	p.state = Person3D.State.PAUSE
@@ -208,6 +205,7 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 			h.add_child(pr)
 			h.position = Vector3(0.38, 0, 0.25) # leaning on it, by the right hand
 			p.add_child(h)
+	p.set_meta("who", who)
 	actors[id] = p
 	return p
 
