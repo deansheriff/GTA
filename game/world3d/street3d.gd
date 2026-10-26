@@ -47,7 +47,8 @@ var region := "lagos" # which map is built: Lagos, or a story region (D-028)
 var prompt_text := "" # a context action a mission or a stall offers (the ACT button shows it)
 var prompt_cb: Callable
 var prompt_at: Variant = null
-var waypoint: Variant = null # the player's map waypoint (Vector3) or null # where the prompt's tag floats (a stall, a pump), or null
+var waypoint: Variant = null
+var _cam_touches := {} # touch index -> true: fingers that are turning the camera # the player's map waypoint (Vector3) or null # where the prompt's tag floats (a stall, a pump), or null
 var _built := false
 var _maps := {} # region id -> MapData (Lagos stays cached; one region at a time besides it)
 var _res_t := 0.0
@@ -422,11 +423,14 @@ func _notification(what: int) -> void:
 			# Switching apps, a call, the power button: save, and come back to the pause menu.
 			if not in_menu and _save_ok:
 				SaveGame.save_now()
-			if not in_menu and not get_tree().paused and not hud.menu_open() and _save_ok and not "--shots" in str(OS.get_cmdline_user_args()):
+			# (The map already pauses the game: leave it open rather than stacking pause on it.)
+			if not in_menu and not get_tree().paused and not hud.menu_open() and not hud.map_screen.visible and _save_ok and not "--shots" in str(OS.get_cmdline_user_args()):
 				hud.open_pause()
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			if not in_menu:
-				if get_tree().paused:
+				if hud.map_screen.visible:
+					hud.map_screen.close_map()
+				elif get_tree().paused:
 					hud.pause.close()
 				else:
 					hud.open_pause()
@@ -1132,9 +1136,11 @@ func _anim_lod(delta: float) -> void:
 	var fwd := -cam.global_transform.basis.z
 	var crowd: Array = []
 	crowd.append_array(people)
+	var cast := {} # story actors: never frozen (a death or a fall happens when the story says)
 	for a: Variant in stage.actors.values():
 		if is_instance_valid(a):
 			crowd.append(a)
+			cast[(a as Node).get_instance_id()] = true
 	for p in crowd:
 		if not is_instance_valid(p) or p.ap == null:
 			continue
@@ -1146,6 +1152,8 @@ func _anim_lod(delta: float) -> void:
 		var every := 1 if d < 18.0 else (2 if d < 35.0 else (4 if d < 55.0 else 6))
 		if d > 75.0 or (d > 6.0 and rel.dot(fwd) < -2.0):
 			every = 0 # behind the camera or beyond the haze: frozen
+		if cast.has((p as Node).get_instance_id()):
+			every = 1 if d < 35.0 else 2
 		var id: int = p.get_instance_id()
 		_lod_acc[id] = float(_lod_acc.get(id, 0.0)) + delta
 		if every > 0 and (_lod_frame + id) % every == 0:
@@ -1493,8 +1501,14 @@ func _unhandled_input(e: InputEvent) -> void:
 	var sens := float(Settings.get_pref("cam_sens", 1.0))
 	# Drag right/left to turn the camera round, up/down to raise or lower it.
 	var drag := Vector2.ZERO
-	# (The stick's side of the screen belongs to the floating joystick, which keeps its own touches.)
-	if e is InputEventScreenDrag and (hud.joy == null or hud.joy._touch != e.index):
+	# A finger that went down on open screen turns the camera; one that pressed a button (RUN,
+	# ENTER...) or the stick doesn't, however it wobbles.
+	if e is InputEventScreenTouch:
+		if e.pressed and not hud.over_button(e.position) and (hud.joy == null or hud.joy._touch != e.index):
+			_cam_touches[e.index] = true
+		else:
+			_cam_touches.erase(e.index) # lifted, or pressed on a button (a stale finger id is reset)
+	if e is InputEventScreenDrag and _cam_touches.has(e.index):
 		drag = e.relative
 	elif e is InputEventMouseMotion and e.button_mask & MOUSE_BUTTON_MASK_RIGHT:
 		drag = e.relative
@@ -1569,7 +1583,7 @@ func _shots(dir: String) -> void:
 			t += 0.5
 			# A few frames from each mission, at fixed times into it.
 			if "--slowtalk" in args:
-				if took < 10 and hud.dialogue.visible:
+				if took < 40 and hud.dialogue.visible:
 					await _save(dir + "/e-%s-%d.png" % [id, took])
 					took += 1
 			elif took < 2 and t >= [3.0, 9.0][took]:

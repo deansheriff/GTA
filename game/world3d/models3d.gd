@@ -260,9 +260,8 @@ static func no_shadow(n: Node) -> void:
 ## shared action pack (idle, talk, fight...) merged into one AnimationPlayer. Returns
 ## [root Node3D, AnimationPlayer or null].
 func person(key: String, height := 1.75, tone := -1) -> Array:
-	key = String(LEGACY.get(key, key))
-	if FREE_PEOPLE.has(key) or key.begins_with("p_"):
-		return _free_person(key, tone)
+	if is_free(key):
+		return _free_person(String(LEGACY.get(key, key)), tone)
 	var m := make(key, CHARS)
 	if m == null:
 		m = make(key) # older unrigged model (art3d/tunde.glb)
@@ -306,35 +305,42 @@ static func restyle(n: Node, look: Dictionary) -> void:
 				mi.set_surface_override_material(i, sm)
 
 
-## Is there a person model for this key (free, legacy-mapped or Meshy)?
-func has_person(key: String) -> bool:
+## The free model's file for a person key (old Meshy keys mapped through LEGACY), or "" when
+## the key isn't a free character.
+static func free_path(key: String) -> String:
 	key = String(LEGACY.get(key, key))
 	if FREE_PEOPLE.has(key):
-		return ResourceLoader.exists(String(FREE_PEOPLE[key]))
+		return String(FREE_PEOPLE[key])
 	if key.begins_with("p_"):
-		return ResourceLoader.exists("res://art3d/free/%s.glb" % key)
-	return has(key, CHARS)
+		return "res://art3d/free/%s.glb" % key
+	return ""
+
+
+## Is there a person model for this key (free, legacy-mapped or Meshy)?
+func has_person(key: String) -> bool:
+	var path := free_path(key)
+	return ResourceLoader.exists(path) if path != "" else has(key, CHARS)
 
 
 static func is_free(key: String) -> bool:
-	key = String(LEGACY.get(key, key))
-	return FREE_PEOPLE.has(key) or key.begins_with("p_")
+	return free_path(key) != ""
 
 
 func _free_person(key: String, tone := -1) -> Array:
-	var path := String(FREE_PEOPLE.get(key, "res://art3d/free/%s.glb" % key))
+	var path := free_path(key)
 	if not ResourceLoader.exists(path):
 		return [null, null]
 	var m: Node3D = (load(path) as PackedScene).instantiate() # as published: no resize, own clothes
 	if tone < 0:
 		tone = absi(hash(key)) % SKIN_TONES.size()
-	skin(m, Color(String(SKIN_TONES[tone % SKIN_TONES.size()])))
+	skin(m, Color(String(SKIN_TONES[tone % SKIN_TONES.size()])), path)
 	# Some packs were exported in other units (2-3x too big): bring them to human height. Only
 	# the size changes, never the shape.
-	var h := aabb(m).size.y
-	if h > 2.3:
-		var want := 1.68 if key.contains("woman") else 1.8
-		m.scale = Vector3.ONE * (want / h)
+	if not _size_k.has(key):
+		var h := aabb(m).size.y
+		_size_k[key] = ((1.68 if key.contains("woman") else 1.8) / h) if h > 2.3 else 1.0
+	if float(_size_k[key]) != 1.0:
+		m.scale = Vector3.ONE * float(_size_k[key])
 	var root := Node3D.new()
 	root.add_child(m)
 	var ap := find_player(m)
@@ -356,7 +362,9 @@ func _free_person(key: String, tone := -1) -> Array:
 
 
 ## Recolour only the skin (materials named Skin...) to a Nigerian tone; clothes stay as published.
-static func skin(n: Node, tone: Color) -> void:
+## src: the model's file, so everyone made from it shares the recoloured copies (the importer
+## gives each instance its own material objects, so their ids can't be the key).
+static func skin(n: Node, tone: Color, src := "") -> void:
 	for c in n.find_children("*", "MeshInstance3D", true, false):
 		var mi := c as MeshInstance3D
 		if mi.mesh == null:
@@ -364,10 +372,18 @@ static func skin(n: Node, tone: Color) -> void:
 		for i in mi.mesh.get_surface_count():
 			var mat: Material = mi.get_active_material(i)
 			if mat is BaseMaterial3D and mat.resource_name.begins_with("Skin"):
-				var d: BaseMaterial3D = mat.duplicate()
-				d.albedo_color = tone.darkened(0.12) if mat.resource_name.contains("Dark") else tone
-				d.albedo_texture = null
-				mi.set_surface_override_material(i, d)
+				# One recoloured copy per source material and tone, shared by everyone wearing it.
+				var k := "%s/%s/%s" % [src if src != "" else str(mat.get_instance_id()), mat.resource_name, tone.to_html()]
+				if not _skins.has(k):
+					var d: BaseMaterial3D = mat.duplicate()
+					d.albedo_color = tone.darkened(0.12) if mat.resource_name.contains("Dark") else tone
+					d.albedo_texture = null
+					_skins[k] = d
+				mi.set_surface_override_material(i, _skins[k])
+
+
+static var _skins := {} # "model/material/tone" -> recoloured material
+static var _size_k := {} # free model key -> scale that brings it to human height
 
 
 static func find_player(n: Node) -> AnimationPlayer:

@@ -45,6 +45,8 @@ func line(who: String) -> void:
 	if not active:
 		return
 	var dayo: Node3D = world.player
+	if _listener != null and not is_instance_valid(_listener):
+		_listener = null # despawned since (a fighter, a guard, an encounter)
 	var speaker: Node3D = null
 	if who == "dayo" or who == "young_dayo":
 		speaker = dayo
@@ -58,22 +60,30 @@ func line(who: String) -> void:
 		var f := _facing(dayo)
 		_shot(dayo.global_position + f * 2.3 + _side(f) * 0.5 + Vector3(0, 1.45, 0), dayo.global_position + Vector3(0, 1.45, 0))
 		return
+	var face := _face_pos(speaker)
+	if _head(speaker) < 0.6:
+		# Lying where they fell: look down at the face from beyond the head, along the body.
+		var along := face - speaker.global_position
+		along.y = 0.0
+		var away := along.normalized() if along.length() > 0.2 else _facing(speaker)
+		_shot(face + away * 1.2 + _side(away) * 0.3 + Vector3(0, 1.1, 0), face)
+		return
 	if other == null or other.global_position.distance_to(speaker.global_position) > 10.0:
 		var f := _facing(speaker)
-		_shot(speaker.global_position + f * 2.0 + _side(f) * 0.4 + Vector3(0, 1.55, 0), speaker.global_position + Vector3(0, 1.5, 0))
+		_shot(speaker.global_position + f * 2.0 + _side(f) * 0.4 + Vector3(0, face.y - speaker.global_position.y + 0.05, 0), face)
 		_turn(speaker, speaker.global_position + f)
 		return
 	# Over the listener's shoulder onto the speaker; both turn to each other.
 	_turn(speaker, other.global_position)
 	_turn(other, speaker.global_position)
-	if speaker is Person3D and (speaker as Person3D).ap:
+	if speaker is Person3D and (speaker as Person3D).ap and not _posed(speaker):
 		Models3D.play((speaker as Person3D).ap, "talk", "idle")
 	var d := speaker.global_position - other.global_position
 	d.y = 0.0
 	var dir := d.normalized()
 	var side := _side(dir)
 	var cam := other.global_position - dir * 1.25 + side * 0.65 + Vector3(0, 1.7, 0)
-	_shot(cam, speaker.global_position + Vector3(0, 1.5, 0))
+	_shot(cam, face)
 
 
 func _shot(p: Vector3, at: Vector3) -> void:
@@ -152,7 +162,38 @@ func _side(dir: Vector3) -> Vector3:
 	return Vector3(-dir.z, 0, dir.x)
 
 
+## Where the speaker's face is in the world: the skeleton's Head bone when it has one.
+func _face_pos(n: Node3D) -> Vector3:
+	var sks := n.find_children("*", "Skeleton3D", true, false)
+	if not sks.is_empty():
+		var sk: Skeleton3D = sks[0]
+		var hb := sk.find_bone("Head")
+		if hb >= 0:
+			return sk.global_transform * sk.get_bone_global_pose(hb).origin
+	return n.global_position + Vector3(0, _head(n), 0)
+
+
+## Roughly how high the speaker's face is: lying dead near the floor, sitting lower, standing at
+## eye level.
+func _head(n: Node3D) -> float:
+	if n is Person3D and (n as Person3D).ap:
+		match String((n as Person3D).ap.assigned_animation):
+			"dead": return 0.3
+			"sit": return 1.0
+	return 1.5
+
+
+## Someone a mission has put in a pose that must hold: lying dead, or sitting.
+func _posed(n: Node3D) -> bool:
+	if not n is Person3D or (n as Person3D).ap == null:
+		return false
+	# (assigned_animation: a finished, non-looping death still counts)
+	return String((n as Person3D).ap.assigned_animation) in ["dead", "sit"]
+
+
 func _turn(n: Node3D, at: Vector3) -> void:
+	if _posed(n):
+		return # the dead don't turn round to talk
 	var to := at - n.global_position
 	to.y = 0.0
 	if to.length() < 0.05:

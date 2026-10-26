@@ -6,24 +6,24 @@ extends RefCounted
 ## feet on separate bones), and the hands reaching forward to the wheel or the handlebars.
 ## The pose is set once and the character's animation is stopped, so a rider costs no animation.
 
-## Where the driver sits in each kind of vehicle (forward +X, left -Z), the hip height above the
-## vehicle's floor, and how far forward the hands reach.
+## Where the driver sits in each kind of vehicle (forward +X, left -Z) and the hip height above
+## the vehicle's floor.
 const SEATS := {
-	"car": { "at": Vector3(0.1, 0, -0.38), "hip": 0.42, "reach": 0.45 },
-	"taxi": { "at": Vector3(0.1, 0, -0.38), "hip": 0.42, "reach": 0.45 },
-	"suv": { "at": Vector3(0.2, 0, -0.42), "hip": 0.8, "reach": 0.45 },
-	"pickup": { "at": Vector3(0.4, 0, -0.42), "hip": 0.8, "reach": 0.45 },
-	"van": { "at": Vector3(1.1, 0, -0.42), "hip": 0.85, "reach": 0.45 },
-	"ambulance": { "at": Vector3(1.1, 0, -0.42), "hip": 0.85, "reach": 0.45 },
-	"danfo": { "at": Vector3(1.3, 0, -0.5), "hip": 0.9, "reach": 0.45 },
-	"bus": { "at": Vector3(4.4, 0, -0.6), "hip": 1.25, "reach": 0.5 },
-	"truck": { "at": Vector3(2.9, 0, -0.55), "hip": 1.45, "reach": 0.5 },
-	"tanker": { "at": Vector3(3.5, 0, -0.55), "hip": 1.45, "reach": 0.5 },
-	"keke": { "at": Vector3(0.45, 0, 0.0), "hip": 0.72, "reach": 0.45 },
-	"okada": { "at": Vector3(0.0, 0, 0.0), "hip": 0.8, "reach": 0.55, "straddle": true },
-	"horse": { "at": Vector3(0.05, 0, 0.0), "hip": 1.62, "reach": 0.45, "straddle": true },
-	"speedboat": { "at": Vector3(-0.6, 0, -0.35), "hip": 0.75, "reach": 0.4 },
-	"canoe": { "at": Vector3(-0.9, 0, 0.0), "hip": 0.35, "reach": 0.35 },
+	"car": { "at": Vector3(0.1, 0, -0.38), "hip": 0.42 },
+	"taxi": { "at": Vector3(0.1, 0, -0.38), "hip": 0.42 },
+	"suv": { "at": Vector3(0.2, 0, -0.42), "hip": 0.8 },
+	"pickup": { "at": Vector3(0.4, 0, -0.42), "hip": 0.8 },
+	"van": { "at": Vector3(1.1, 0, -0.42), "hip": 0.85 },
+	"ambulance": { "at": Vector3(1.1, 0, -0.42), "hip": 0.85 },
+	"danfo": { "at": Vector3(1.3, 0, -0.5), "hip": 0.9 },
+	"bus": { "at": Vector3(4.4, 0, -0.6), "hip": 1.25 },
+	"truck": { "at": Vector3(2.9, 0, -0.55), "hip": 1.45 },
+	"tanker": { "at": Vector3(3.5, 0, -0.55), "hip": 1.45 },
+	"keke": { "at": Vector3(0.45, 0, 0.0), "hip": 0.72 },
+	"okada": { "at": Vector3(0.0, 0, 0.0), "hip": 0.8, "straddle": true },
+	"horse": { "at": Vector3(0.05, 0, 0.0), "hip": 1.62, "straddle": true },
+	"speedboat": { "at": Vector3(-0.6, 0, -0.35), "hip": 0.75 },
+	"canoe": { "at": Vector3(-0.9, 0, 0.0), "hip": 0.35 },
 }
 
 

@@ -13,6 +13,7 @@ var world # Street3D
 var center := Vector2.ZERO # metres
 var zoom := 1.0 # pixels per metre
 var _land: Array = [] # PackedVector2Array (metres)
+var _inner: Array = [] # each land polygon shrunk by the beach (metres), for the green
 var _lagoon := PackedVector2Array()
 var _roads: Array = [] # [PackedVector2Array, width m, class]
 var _drag_from := Vector2.INF
@@ -78,11 +79,16 @@ func setup(w) -> void:
 func rebuild() -> void:
 	var map: MapData = world.map
 	_land.clear()
+	_inner.clear()
 	for poly in map.land_polys:
 		var p := PackedVector2Array()
 		for v in poly:
 			p.append(v * Terrain3D.K)
 		_land.append(p)
+		# The green inland of each shore, worked out once (a sandy 8 m beach round it).
+		for q in Geometry2D.offset_polygon(p, -8.0):
+			if q.size() > 2:
+				_inner.append(q)
 	_lagoon = PackedVector2Array()
 	for v in map.lagoon_poly:
 		_lagoon.append(v * Terrain3D.K)
@@ -94,7 +100,11 @@ func rebuild() -> void:
 		_roads.append([pts, float(r["width"]) * Terrain3D.K, String(r["class"])])
 
 
-func open_map() -> void:
+var _from_pause := false
+
+
+func open_map(from_pause := false) -> void:
+	_from_pause = from_pause
 	if _land.is_empty():
 		rebuild()
 	var f: Vector3 = world.focus()
@@ -110,8 +120,12 @@ func open_map() -> void:
 
 func close_map() -> void:
 	visible = false
-	get_tree().paused = false
-	Clock.paused = false
+	if _from_pause:
+		world.hud.pause.open() # back where the player came from; still paused
+	else:
+		get_tree().paused = false
+		Clock.paused = false
+	_from_pause = false
 	closed.emit()
 
 
@@ -212,11 +226,12 @@ func _draw() -> void:
 	for poly: PackedVector2Array in _land:
 		var sp := _xf(poly)
 		draw_colored_polygon(sp, SAND)
-		# A shrunk copy in green inside the sand gives a beach round every shore.
 		if map.inland:
 			draw_colored_polygon(sp, LAND)
-		else:
-			_inset(sp)
+	if not map.inland:
+		# A shrunk copy in green inside the sand gives a beach round every shore.
+		for poly: PackedVector2Array in _inner:
+			draw_colored_polygon(_xf(poly), LAND)
 	for r: Array in _roads:
 		var pts := _xf(r[0])
 		var wpx := maxf(1.5, float(r[1]) * zoom)
@@ -288,14 +303,6 @@ func _xf(pts: PackedVector2Array) -> PackedVector2Array:
 	for i in pts.size():
 		out[i] = _to_screen(pts[i])
 	return out
-
-
-## The land's green inside its sandy edge (a pixel-sized inset is enough to read as a beach).
-func _inset(sp: PackedVector2Array) -> void:
-	var shrunk := Geometry2D.offset_polygon(sp, -maxf(2.0, 6.0 * zoom))
-	for poly in shrunk:
-		if poly.size() > 2:
-			draw_colored_polygon(poly, LAND)
 
 
 func _text(at: Vector2, s: String, sz: int, col: Color) -> void:

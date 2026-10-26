@@ -873,7 +873,7 @@ func _safehouse() -> void:
 	_p(Vector3(0.5, 0.25, 0.3), Vector3(0, 3.2, 3.15), _emis("security", Color("#fff1d0"), 2.5, true))
 	_anchor("start", Vector3(3, 0, -2.8))
 	_anchor("living", Vector3(4, 0, -3.5))
-	_anchor("mama", Vector3(-6, 0, -5.5))
+	_anchor("mama", Vector3(-4.2, 0, -5.0))
 	_anchor("kemi", Vector3(-4, 0, -1.2))
 	_anchor("box", Vector3(-4.6, 0, -7.6))
 	_anchor("front", Vector3(0, 0, 4))

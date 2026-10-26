@@ -171,7 +171,6 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	despawn(id)
 	var info: Dictionary = Story.who(who)
 	var key := model if model != "" else String(info.get("model", who))
-	var own := false
 	var p := Person3D.new()
 	add_child(p)
 	var cell := Vector2i(int(pos.x / Terrain3D.CELL_M), int(pos.z / Terrain3D.CELL_M))
@@ -183,7 +182,7 @@ func spawn(id: String, who: String, pos: Vector3, anim := "idle", face := "", pr
 	if not ok:
 		p.free()
 		return null
-	if model == "" and not own and not Models3D.is_free(key):
+	if model == "" and not Models3D.is_free(key):
 		Models3D.restyle(p, info.get("look", {})) # Meshy stand-ins get their own colours
 	var gy: float = world.ground_at(pos, pos.y + 0.1)
 	p.position = Vector3(pos.x, pos.y if is_nan(gy) else gy, pos.z)

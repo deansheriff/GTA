@@ -368,6 +368,21 @@ func _test_world3d() -> void:
 	if got[0]:
 		(got[0] as Node).free()
 		got[0] = null
+	# Skin: one shared recoloured material per tone; different tones differ; a negative seed
+	# still picks its own tone (posmod), not the model's fallback.
+	var skins := []
+	for t in [1, 1, 4]:
+		var gs: Array = lib.person("p_farmer", 1.75, t)
+		var found: Material = null
+		for c in (gs[0] as Node).find_children("*", "MeshInstance3D", true, false):
+			for i in (c as MeshInstance3D).mesh.get_surface_count():
+				var mo: Material = (c as MeshInstance3D).get_surface_override_material(i)
+				if mo:
+					found = mo
+		skins.append(found)
+		(gs[0] as Node).free()
+	check(skins[0] != null and skins[0] == skins[1] and skins[0] != skins[2], "skin tones share one material per tone and differ between tones")
+	check(posmod(-9, Models3D.SKIN_TONES.size()) >= 0, "a negative seed gives a valid skin tone")
 	for k in ["p_man", "p_worker", "p_soldier", "dayo"]:
 		var g2: Array = lib.person(k)
 		var ap2: AnimationPlayer = g2[1]

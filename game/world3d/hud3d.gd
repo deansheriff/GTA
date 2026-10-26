@@ -264,12 +264,22 @@ func _build_extras() -> void:
 	_root.add_child(_hint)
 
 
+## Is a screen point on one of the HUD's touch buttons?
+func over_button(p: Vector2) -> bool:
+	for b: Button in [act_btn, run_btn, punch_btn, shoot_btn, radio_btn, horn_btn, pause_btn, map_btn]:
+		if b and b.is_visible_in_tree() and b.get_global_rect().has_point(p):
+			return true
+	return false
+
+
 func open_map() -> void:
 	if menu_open() or dialogue.visible or map_screen.visible:
 		return
-	if get_tree().paused:
-		pause.close()
-	map_screen.open_map()
+	# From the pause menu: hide it (the game stays paused) and come back to it on Close.
+	var from_pause: bool = pause.visible
+	if from_pause:
+		pause.visible = false
+	map_screen.open_map(from_pause)
 
 
 ## Left-handed layout swaps the stick and the buttons; Text size scales the whole interface.
